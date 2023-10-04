@@ -36,7 +36,7 @@ namespace UoT.memory {
           new EndianBinaryReader(romFile.OpenRead(), Endianness.BigEndian);
 
       for (long i = 0; i < er.Length; i += 16) {
-        var romId = er.Subread(i, ser => ser.ReadString(6));
+        var romId = er.SubreadAt(i, ser => ser.ReadString(6));
         if (romId != "zelda@") {
           continue;
         }
@@ -50,7 +50,7 @@ namespace UoT.memory {
 
         i = (er.Position -= 1);
 
-        var buildDate = er.Subread(i, ser => ser.ReadString(17));
+        var buildDate = er.SubreadAt(i, ser => ser.ReadString(17));
         var segmentOffset = (int) (i + 0x20);
 
         int nameOffset;
@@ -133,7 +133,7 @@ namespace UoT.memory {
         long nameOffset) {
       var segments = new LinkedList<ZSegment>();
 
-      er.Subread(
+      er.SubreadAt(
           segmentOffset,
           ser => {
             while (true) {

@@ -1,31 +1,36 @@
 ﻿using fin.decompression;
 
 namespace level5.decompression {
-  public class Level5Decompressor : BDecompressor {
+  public class Level5Decompressor : BArrayDecompressor {
     public override bool TryDecompress(byte[] src, out byte[] dst) {
       int tableType = (src[0] & 0xFF);
 
-      if (new ZlibDecompressor().TryDecompress(src, out dst)) {
+      DecompressionUtils.GetLengthAndType(src,
+                                          out var length,
+                                          out var decompressionType);
+
+      if (decompressionType < (DecompressionType) 1 ||
+          decompressionType > (DecompressionType) 4) {
+        ;
+      }
+
+      if (new ZlibArrayDecompressor().TryDecompress(src, out dst)) {
         return true;
       }
 
-      switch (tableType & 0xF) {
-        case 0x01:
-          dst = new LzssDecompressor().Decompress(src);
-          break;
-        case 0x02:
-          dst = new HuffmanDecompressor(0x24).Decompress(src);
-          break;
-        case 0x03:
-          dst = new HuffmanDecompressor(0x28).Decompress(src);
-          break;
-        case 0x04:
-          dst = new RleDecompressor().Decompress(src);
-          break;
-        default:
-          dst = new byte[src.Length - 4];
-          src.AsSpan(4).CopyTo(dst);
-          break;
+      if (decompressionType == DecompressionType.NOT_COMPRESSED) {
+        dst = src.AsSpan(4).ToArray();
+      } else {
+        ISpanDecompressor decompressor = decompressionType switch {
+            DecompressionType.LZSS => new LzssDecompressor(),
+            DecompressionType.HUFFMAN_ARRAY_24 => new HuffmanArrayDecompressor(
+                0x24),
+            DecompressionType.HUFFMAN_ARRAY_28 => new HuffmanArrayDecompressor(
+                0x28),
+            DecompressionType.RLE_ARRAY => new RleArrayDecompressor(),
+        };
+
+        dst = decompressor.Decompress(src);
       }
 
       return true;

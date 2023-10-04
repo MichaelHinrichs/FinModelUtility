@@ -40,12 +40,12 @@ namespace level5.schema {
       uint pvbOffset = r.ReadUInt32();
       int pvbSize = r.ReadInt32();
       var polygonVertexBuffer =
-          r.Subread(pvbOffset + prmOffset, ser => ser.ReadBytes(pvbSize));
+          r.SubreadAt(pvbOffset + prmOffset, ser => ser.ReadBytes(pvbSize));
 
       uint pviOffset = r.ReadUInt32();
       int pviSize = r.ReadInt32();
       var polygonVertexIndexBuffer =
-          r.Subread(pviOffset + prmOffset, ser => ser.ReadBytes(pviSize));
+          r.SubreadAt(pviOffset + prmOffset, ser => ser.ReadBytes(pviSize));
 
       // node table-------------------------------------------
 
@@ -64,12 +64,12 @@ namespace level5.schema {
 
       var nameOffset = r.ReadUInt32();
       var nameLength = r.ReadUInt32();
-      var name = r.Subread(nameOffset, ser => ser.ReadString(nameLength));
+      var name = r.SubreadAt(nameOffset, ser => ser.ReadString(nameLength));
       Name = name;
 
       var mtlNameOffset = r.ReadUInt32();
       var mtlNameLength = r.ReadUInt32();
-      var mtlName = r.Subread(mtlNameOffset, ser => ser.ReadString(mtlNameLength));
+      var mtlName = r.SubreadAt(mtlNameOffset, ser => ser.ReadString(mtlNameLength));
       MaterialName = mtlName;
 
       Triangles = this.ParseIndexBuffer_(polygonVertexIndexBuffer);
@@ -95,7 +95,7 @@ namespace level5.schema {
         faceCount = r.ReadInt32();
 
         buffer = new Level5Decompressor().Decompress(
-            r.Subread(faceOffset, ser => ser.ReadBytes((int)(r.Length - faceOffset))));
+            r.SubreadAt(faceOffset, ser => ser.ReadBytes((int)(r.Length - faceOffset))));
       }
 
       if (primitiveType != 2 && primitiveType != 0)
@@ -171,9 +171,9 @@ namespace level5.schema {
         var level5Decompressor = new Level5Decompressor();
         attributeBuffer =
             level5Decompressor.Decompress(
-                r.Subread(attOffset, ser => ser.ReadBytes(attSomething)));
+                r.SubreadAt(attOffset, ser => ser.ReadBytes(attSomething)));
         buffer = level5Decompressor.Decompress(
-            r.Subread(verOffset, ser => ser.ReadBytes((int)(r.Length - verOffset))));
+            r.SubreadAt(verOffset, ser => ser.ReadBytes((int)(r.Length - verOffset))));
       }
 
       int[] aCount = new int[10];

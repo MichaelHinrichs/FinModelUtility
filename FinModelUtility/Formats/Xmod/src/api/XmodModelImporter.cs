@@ -2,7 +2,7 @@
 using fin.model.impl;
 using fin.model.io.importer;
 
-using schema.text;
+using schema.text.reader;
 
 using xmod.schema.xmod;
 

@@ -10,7 +10,7 @@ namespace granny3d {
         return;
       }
 
-      er.Subread((long) offset, subread);
+      er.SubreadAt((long) offset, subread);
     }
 
     public static void SubreadRefToArray(
@@ -22,7 +22,7 @@ namespace granny3d {
         return;
       }
 
-      er.Subread((long)offset, ser => {
+      er.SubreadAt((long)offset, ser => {
         subread(ser, count);
       });
     }

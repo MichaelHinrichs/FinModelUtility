@@ -74,7 +74,7 @@ namespace cmb.schema.csab {
         var anod = new AnimationNode(this);
 
         var offset = r.ReadUInt32();
-        r.Subread(basePosition + animationOffset + offset, sr => anod.Read(sr));
+        r.SubreadAt(basePosition + animationOffset + offset, sr => anod.Read(sr));
 
         animationNodes[i] = anod;
       }

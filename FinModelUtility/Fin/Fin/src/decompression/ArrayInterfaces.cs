@@ -1,13 +1,13 @@
 ﻿using System;
 
 namespace fin.decompression {
-  public interface IDecompressor {
+  public interface IArrayDecompressor {
     bool TryDecompress(byte[] src, out byte[] dst);
 
     byte[] Decompress(byte[] src);
   }
 
-  public abstract class BDecompressor : IDecompressor {
+  public abstract class BArrayDecompressor : IArrayDecompressor {
     public abstract bool TryDecompress(byte[] src, out byte[] dst);
 
     public byte[] Decompress(byte[] src) {

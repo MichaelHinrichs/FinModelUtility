@@ -1,84 +1,44 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace level5.decompression {
-  public class LzssDecompressor {
-    public byte[] Decompress(ReadOnlySpan<byte> src) {
-      if (TryDecompress(src, out byte[] dst)) {
-        return dst;
-      }
+using fin.decompression;
 
-      throw new Exception("Failed to decompress bytes.");
+namespace level5.decompression {
+  public sealed class LzssDecompressor : ISpanDecompressor {
+    public bool TryToGetLength(ReadOnlySpan<byte> src, out int length) {
+      DecompressionUtils.GetLengthAndType(src,
+                                          out length,
+                                          out var decompressionType);
+      return decompressionType == DecompressionType.LZSS;
     }
 
-    public bool TryDecompress(ReadOnlySpan<byte> src,
-                              out byte[] dst) {
-      var size = 0;
-      {
-        int srcIndex = 4;
-        int op = 0;
+    public bool TryToDecompressInto(ReadOnlySpan<byte> src, Span<byte> dst) {
+      var dstIndex = 0;
 
-        int mask = 0;
-        int flag = 0;
+      int srcIndex = 4;
+      int op = 0;
 
-        while (srcIndex < src.Length) {
-          if (mask == 0) {
-            flag = src[srcIndex++];
-            mask = 0x80;
-          }
+      int mask = 0;
+      int flag = 0;
 
-          if ((flag & mask) == 0) {
-            if (srcIndex + 1 > src.Length) break;
-            srcIndex++;
-            size++;
-            op++;
-          } else {
-            if (srcIndex + 2 > src.Length) break;
-
-
-            var dat = (src[srcIndex++] << 8) | src[srcIndex++];
-            int pos = (dat & 0x0FFF) + 1;
-
-            if (op >= pos) {
-              int length = (dat >> 12) + 3;
-              size += length;
-              op += length;
-            }
-          }
-
-          mask >>= 1;
+      while (srcIndex < src.Length && dstIndex < dst.Length) {
+        if (mask == 0) {
+          flag = src[srcIndex++];
+          mask = 0x80;
         }
-      }
 
-      dst = new byte[size];
-      {
-        var dstIndex = 0;
+        if ((flag & mask) == 0) {
+          if (srcIndex + 1 > src.Length) break;
+          dst[dstIndex++] = src[srcIndex++];
+          op++;
+        } else {
+          if (srcIndex + 2 > src.Length) break;
+          var dat = (src[srcIndex++] << 8) | src[srcIndex++];
+          int pos = (dat & 0x0FFF) + 1;
 
-        int srcIndex = 4;
-        int op = 0;
-
-        int mask = 0;
-        int flag = 0;
-
-        while (srcIndex < src.Length) {
-          if (mask == 0) {
-            flag = src[srcIndex++];
-            mask = 0x80;
-          }
-
-          if ((flag & mask) == 0) {
-            if (srcIndex + 1 > src.Length) break;
-            dst[dstIndex++] = src[srcIndex++];
-            op++;
-          } else {
-            if (srcIndex + 2 > src.Length) break;
-            var dat = (src[srcIndex++] << 8) | src[srcIndex++];
-            int pos = (dat & 0x0FFF) + 1;
-
-            this.Copy_(dst, ref dstIndex, dat, ref op, pos);
-          }
-
-          mask >>= 1;
+          this.Copy_(dst, ref dstIndex, dat, ref op, pos);
         }
+
+        mask >>= 1;
       }
 
       return true;
@@ -92,13 +52,19 @@ namespace level5.decompression {
         ref int op,
         int pos
     ) {
-      if (op >= pos) {
-        int length = (dat >> 12) + 3;
-        for (int i = 0; i < length; i++) {
-          dst[dstIndex] = dst[op - pos >= dstIndex ? 0 : op - pos];
-          dstIndex++;
-          op++;
+      if (op < pos) {
+        return;
+      }
+
+      int length = (dat >> 12) + 3;
+      for (int i = 0; i < length; i++) {
+        if (dstIndex >= dst.Length) {
+          return;
         }
+
+        dst[dstIndex] = dst[op - pos >= dstIndex ? 0 : op - pos];
+        dstIndex++;
+        op++;
       }
     }
   }

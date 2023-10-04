@@ -21,7 +21,7 @@ namespace fin.schema.data {
 
       var tweakedSize = this.Size + this.TweakReadSize;
       var basePosition = er.Position;
-      er.Subread(er.Position, (int) tweakedSize, this.Data.Read);
+      er.SubreadAt(er.Position, (int) tweakedSize, this.Data.Read);
 
       er.Position = basePosition + tweakedSize;
     }

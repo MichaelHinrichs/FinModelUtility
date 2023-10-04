@@ -1,34 +1,31 @@
 ﻿using fin.decompression;
 
 namespace level5.decompression {
-  public class HuffmanDecompressor : BDecompressor {
+  public class HuffmanArrayDecompressor : ISpanDecompressor {
     private readonly byte aType_;
 
-    public HuffmanDecompressor(byte aType) {
+    public HuffmanArrayDecompressor(byte aType) {
       this.aType_ = aType;
     }
 
-    public override bool TryDecompress(byte[] src, out byte[] dst) {
-      HuffStream instream = new HuffStream(src);
-      long readBytes = 0;
+    public bool TryToGetLength(ReadOnlySpan<byte> src, out int length) {
+      DecompressionUtils.GetLengthAndType(src,
+                                          out length,
+                                          out var decompressionType);
+      return (decompressionType == DecompressionType.HUFFMAN_ARRAY_24 &&
+              this.aType_ == 0x24) ||
+             (decompressionType == DecompressionType.HUFFMAN_ARRAY_28 &&
+              this.aType_ == 0x28);
+    }
 
-      byte type = (byte)instream.ReadByte();
-      type = this.aType_;
-      if (type != 0x28 && type != 0x24) {
-        dst = null;
-        return false;
-      }
-      int decompressedSize = instream.ReadThree();
-      readBytes += 4;
-      if (decompressedSize == 0) {
-        instream.p -= 3;
-        decompressedSize = instream.ReadInt32();
-        readBytes += 4;
-      }
+    public bool TryToDecompressInto(ReadOnlySpan<byte> src, Span<byte> dst) {
+      HuffStream instream = new HuffStream();
 
-      List<byte> o = new List<byte>();
+      instream.ReadInt32(src);
 
-      int treeSize = instream.ReadByte(); readBytes++;
+      var dstIndex = 0;
+
+      int treeSize = instream.ReadByte(src);
       treeSize = (treeSize + 1) * 2;
 
       long treeEnd = (instream.p - 1) + treeSize;
@@ -36,12 +33,12 @@ namespace level5.decompression {
       // the relative offset may be 4 more (when the initial decompressed size is 0), but
       // since it's relative that doesn't matter, especially when it only matters if
       // the given value is odd or even.
-      HuffTreeNode rootNode = new HuffTreeNode(instream, false, 5, treeEnd);
+      HuffTreeNode rootNode =
+          new HuffTreeNode(instream, src, false, 5, treeEnd);
 
-      readBytes += treeSize;
       // re-position the stream after the tree (the stream is currently positioned after the root
       // node, which is located at the start of the tree definition)
-      instream.p = (int)treeEnd;
+      instream.p = (int) treeEnd;
 
       // the current u32 we are reading bits from.
       int data = 0;
@@ -54,14 +51,14 @@ namespace level5.decompression {
       // the current output size
       HuffTreeNode currentNode = rootNode;
 
-      while (instream.HasBytes()) {
+      while (instream.HasBytes(src) && dstIndex < dst.Length) {
         while (!currentNode.isData) {
           // if there are no bits left to read in the data, get a new byte from the input
           if (bitsLeft == 0) {
-            readBytes += 4;
-            data = instream.ReadInt32();
+            data = instream.ReadInt32(src);
             bitsLeft = 32;
           }
+
           // get the next bit
           bitsLeft--;
           bool nextIsOne = (data & (1 << bitsLeft)) != 0;
@@ -69,74 +66,75 @@ namespace level5.decompression {
           currentNode = nextIsOne ? currentNode.child1 : currentNode.child0;
         }
 
-        switch (type) {
+        switch (this.aType_) {
           case 0x28: {
-              // just copy the data if the block size is a full byte
-              //                        outstream.WriteByte(currentNode.Data);
-              o.Add(currentNode.data);
-              break;
-            }
+            // just copy the data if the block size is a full byte
+            //                        outstream.WriteByte(currentNode.Data);
+            dst[dstIndex++] = currentNode.data;
+            break;
+          }
           case 0x24: {
-              // cache the first half of the data if the block size is a half byte
-              if (cachedByte < 0) {
-                cachedByte = currentNode.data;
-              } else {
-                cachedByte |= currentNode.data << 4;
-                o.Add((byte)cachedByte);
-                cachedByte = -1;
-              }
-              break;
+            // cache the first half of the data if the block size is a half byte
+            if (cachedByte < 0) {
+              cachedByte = currentNode.data;
+            } else {
+              cachedByte |= currentNode.data << 4;
+              dst[dstIndex++] = (byte) cachedByte;
+              cachedByte = -1;
             }
+
+            break;
+          }
         }
 
         currentNode = rootNode;
       }
 
-      if (readBytes % 4 != 0)
-        readBytes += 4 - (readBytes % 4);
-
-
-      dst = o.ToArray();
       return true;
     }
 
     private class HuffStream {
-      public byte[] bytes;
-      public int p = 0;
-      public int length;
-      public HuffStream(byte[] b) {
-        bytes = b;
-        length = b.Length;
-      }
+      public int p = 4;
 
-      public bool HasBytes() {
+      public bool HasBytes(ReadOnlySpan<byte> bytes) {
         return p < bytes.Length;
       }
 
-      public int ReadByte() {
+      public int ReadByte(ReadOnlySpan<byte> bytes) {
         return bytes[p++] & 0xFF;
       }
-      public int ReadThree() {
-        return ((bytes[p++] & 0xFF)) | ((bytes[p++] & 0xFF) << 8) | ((bytes[p++] & 0xFF) << 16);
+
+      public int ReadThree(ReadOnlySpan<byte> bytes) {
+        return ((bytes[p++] & 0xFF)) | ((bytes[p++] & 0xFF) << 8) |
+               ((bytes[p++] & 0xFF) << 16);
       }
-      public int ReadInt32() {
-        if (p >= length)
+
+      public int ReadInt32(ReadOnlySpan<byte> bytes) {
+        if (p >= bytes.Length)
           return 0;
         else
-          return ((bytes[p++] & 0xFF)) | ((bytes[p++] & 0xFF) << 8) | ((bytes[p++] & 0xFF) << 16) | ((bytes[p++] & 0xFF) << 24);
+          return ((bytes[p++] & 0xFF)) | ((bytes[p++] & 0xFF) << 8) |
+                 ((bytes[p++] & 0xFF) << 16) | ((bytes[p++] & 0xFF) << 24);
       }
     }
 
     private class HuffTreeNode {
       public byte data;
       public bool isData;
-      public HuffTreeNode child0; public HuffTreeNode child1;
-      public HuffTreeNode(HuffStream stream, bool isData, long relOffset, long maxStreamPos) {
+      public HuffTreeNode child0;
+      public HuffTreeNode child1;
+
+      public HuffTreeNode(HuffStream stream,
+                          ReadOnlySpan<byte> bytes,
+                          bool isData,
+                          long relOffset,
+                          long maxStreamPos) {
         if (stream.p >= maxStreamPos) {
           return;
         }
-        int readData = stream.ReadByte();
-        this.data = (byte)readData;
+
+        int readData = stream.ReadByte(bytes);
+        this.data = (byte) readData;
 
         this.isData = isData;
 
@@ -148,9 +146,19 @@ namespace level5.decompression {
           long zeroRelOffset = (relOffset ^ (relOffset & 1)) + (offset * 2) + 2;
 
           int currStreamPos = stream.p;
-          stream.p += (int)(zeroRelOffset - relOffset) - 1;
-          this.child0 = new HuffTreeNode(stream, zeroIsData, zeroRelOffset, maxStreamPos);
-          this.child1 = new HuffTreeNode(stream, oneIsData, zeroRelOffset + 1, maxStreamPos);
+          stream.p += (int) (zeroRelOffset - relOffset) - 1;
+          this.child0 =
+              new HuffTreeNode(stream,
+                               bytes,
+                               zeroIsData,
+                               zeroRelOffset,
+                               maxStreamPos);
+          this.child1 =
+              new HuffTreeNode(stream,
+                               bytes,
+                               oneIsData,
+                               zeroRelOffset + 1,
+                               maxStreamPos);
 
           stream.p = currStreamPos;
         }

@@ -41,14 +41,14 @@ namespace visceral.schema.rcb {
         var unk7 = er.ReadUInt32();
 
         this.SkeletonName =
-            er.Subread(er.ReadUInt32(), ser => ser.ReadStringNT());
+            er.SubreadAt(er.ReadUInt32(), ser => ser.ReadStringNT());
         var boneCount = er.ReadUInt32();
         var boneIdTableOffset = er.ReadUInt32();
         var boneStart = er.ReadUInt32();
         var ukwTableOffset = er.ReadUInt32();
 
         // Get bone parent table
-        er.Subread(
+        er.SubreadAt(
             boneIdTableOffset,
             ser => {
               ser.Position = boneIdTableOffset;
@@ -63,7 +63,7 @@ namespace visceral.schema.rcb {
             });
 
         // Read bone matrices
-        er.Subread(
+        er.SubreadAt(
             boneStart,
             ser => {
               er.ReadNewArray<Bone>(out var bones, (int) boneCount);

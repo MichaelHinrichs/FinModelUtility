@@ -8,7 +8,7 @@ namespace fin.util.binary {
                                      long offset,
                                      Func<IEndianBinaryReader, T> handler) {
       T value = default;
-      er.Subread(
+      er.SubreadAt(
           offset,
           ser => { value = handler(ser); });
 

@@ -62,7 +62,7 @@ namespace visceral.api {
         }
       }
 
-      var refPackDecompressor = new RefPackDecompressor();
+      var refPackDecompressor = new RefPackArrayDecompressor();
       await Parallel.ForEachAsync(
                         headerBlocks,
                         new ParallelOptions { MaxDegreeOfParallelism = -1, },

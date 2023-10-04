@@ -1,4 +1,5 @@
 ﻿using fin.data;
+using fin.decompression;
 
 using level5.decompression;
 
@@ -36,11 +37,11 @@ namespace level5.schema {
         size |= sizeExt << 16;
         offset = (uint)(offset * 4 + dataOffset);
 
-        hashToData.Add(nameCrc, er.Subread(offset, ser => ser.ReadBytes((int) size)));
+        hashToData.Add(nameCrc, er.SubreadAt(offset, ser => ser.ReadBytes((int) size)));
       }
 
-      var inNameTable = er.Subread(fileTableOffset, ser => ser.ReadBytes(filenameTableSize));
-      if (!new ZlibDecompressor().TryDecompress(inNameTable, out var nameTable)) {
+      var inNameTable = er.SubreadAt(fileTableOffset, ser => ser.ReadBytes(filenameTableSize));
+      if (!new ZlibArrayDecompressor().TryDecompress(inNameTable, out var nameTable)) {
         nameTable = new LzssDecompressor().Decompress(inNameTable);
       }
 

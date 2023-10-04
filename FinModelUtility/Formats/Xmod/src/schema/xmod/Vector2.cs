@@ -1,6 +1,7 @@
 ﻿using fin.model;
 
 using schema.text;
+using schema.text.reader;
 using schema.util;
 
 namespace xmod.schema.xmod {

@@ -3,7 +3,7 @@
 using fin.decompression;
 
 namespace level5.decompression {
-  public class ZlibDecompressor : BDecompressor {
+  public class ZlibArrayDecompressor : BArrayDecompressor {
     public override bool TryDecompress(byte[] src, out byte[] dst) {
       var b = src;
       if (b.Length < 6) {
@@ -34,6 +34,7 @@ namespace level5.decompression {
         else
           break;
       }
+
       zlibStream.Close();
       dst = stream.ToArray();
       return true;

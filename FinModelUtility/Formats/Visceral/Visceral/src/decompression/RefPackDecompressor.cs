@@ -23,7 +23,7 @@
 using fin.decompression;
 
 namespace visceral.decompression {
-  public class RefPackDecompressor : BDecompressor {
+  public class RefPackArrayDecompressor : BArrayDecompressor {
     public override bool TryDecompress(byte[] inData, out byte[] outData) {
       using var input = new MemoryStream(inData);
       Span<byte> dummy = stackalloc byte[4];

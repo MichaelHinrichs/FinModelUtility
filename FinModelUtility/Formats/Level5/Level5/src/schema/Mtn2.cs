@@ -52,7 +52,7 @@ namespace level5.schema {
         this.Anim.Name = r.ReadStringNT();
 
         var data = new Level5Decompressor().Decompress(
-            r.Subread(compDataOffset, ser => ser.ReadBytes(
+            r.SubreadAt(compDataOffset, ser => ser.ReadBytes(
                                 (int)(r.Length - compDataOffset))));
 
         using (var d =

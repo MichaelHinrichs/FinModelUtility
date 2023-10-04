@@ -56,7 +56,7 @@ namespace visceral.api {
         {
           var animationNameOffset = bnkEr.ReadUInt32();
           finAnimation.Name =
-              bnkEr.Subread(animationNameOffset, ser => ser.ReadStringNT());
+              bnkEr.SubreadAt(animationNameOffset, ser => ser.ReadStringNT());
         }
 
         var totalFrames = 1;

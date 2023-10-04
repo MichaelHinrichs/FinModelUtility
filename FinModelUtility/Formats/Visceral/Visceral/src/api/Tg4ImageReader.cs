@@ -24,7 +24,7 @@ namespace visceral.api {
       headerEr.Position = 0x20;
       var width = headerEr.ReadUInt16();
       var height = headerEr.ReadUInt16();
-      var format = headerEr.Subread(0x4b, ser => ser.ReadStringNT());
+      var format = headerEr.SubreadAt(0x4b, ser => ser.ReadStringNT());
 
       var dataFile = bundle.Tg4dFile;
       var bytes = dataFile.ReadAllBytes();

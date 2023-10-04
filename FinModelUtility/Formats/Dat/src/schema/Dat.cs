@@ -66,7 +66,7 @@ namespace dat.schema {
         var rootNode = new RootNode();
         rootNode.Data.Read(er);
 
-        er.Subread(this.stringTableOffset_ + rootNode.Data.StringOffset,
+        er.SubreadAt(this.stringTableOffset_ + rootNode.Data.StringOffset,
                    ser => { rootNode.Name = ser.ReadStringNT(); });
 
         this.rootNodes_.Add(rootNode);

@@ -44,7 +44,7 @@ namespace cmb.schema.csab {
       foreach (var translationAxis in TranslationAxes) {
         var offset = r.ReadUInt16();
         if (offset != 0) {
-          r.Subread(basePosition + offset, translationAxis.Read);
+          r.SubreadAt(basePosition + offset, translationAxis.Read);
         }
       }
 
@@ -53,14 +53,14 @@ namespace cmb.schema.csab {
 
         var offset = r.ReadUInt16();
         if (offset != 0) {
-          r.Subread(basePosition + offset, rotationAxis.Read);
+          r.SubreadAt(basePosition + offset, rotationAxis.Read);
         }
       }
 
       foreach (var scaleAxis in ScaleAxes) {
         var offset = r.ReadUInt16();
         if (offset != 0) {
-          r.Subread(basePosition + offset, scaleAxis.Read);
+          r.SubreadAt(basePosition + offset, scaleAxis.Read);
         }
       }
 

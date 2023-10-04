@@ -36,7 +36,7 @@ namespace f3dzex2.io {
     void AddSegment(uint segmentIndex,
                     uint offset,
                     uint length,
-                    IDecompressor? decompressor = null);
+                    IArrayDecompressor? decompressor = null);
 
     void AddSegment(uint segmentIndex, Segment segment);
   }
@@ -126,7 +126,7 @@ namespace f3dzex2.io {
     public void AddSegment(uint segmentIndex,
                            uint offset,
                            uint length,
-                           IDecompressor? decompressor = null)
+                           IArrayDecompressor? decompressor = null)
       => this.AddSegment(segmentIndex,
                          new Segment {
                              Offset = offset,
@@ -160,6 +160,6 @@ namespace f3dzex2.io {
   public readonly struct Segment {
     public required uint Offset { get; init; }
     public required uint Length { get; init; }
-    public IDecompressor? Decompressor { get; init; }
+    public IArrayDecompressor? Decompressor { get; init; }
   }
 }
