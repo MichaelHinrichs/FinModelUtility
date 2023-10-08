@@ -1,5 +1,5 @@
-﻿using fin.model.io.exporter;
-using fin.model.io.exporter.assimp.indirect;
+﻿using fin.model.io.exporters;
+using fin.model.io.exporters.assimp.indirect;
 using fin.io;
 using fin.model;
 using fin.model.impl;

@@ -13,10 +13,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="src\model\io\exporter\assimp\AssimpConverter.cs" />
-    <Compile Remove="src\model\io\exporter\assimp\AssimpDirectExporter.cs" />
-    <Compile Remove="src\model\io\exporter\assimp\AssimpMeshBuilder.cs" />
-    <Compile Remove="src\model\io\exporter\assimp\AssimpSkeletonBuilder.cs" />
+    <Compile Remove="src\model\io\exporters\assimp\AssimpConverter.cs" />
+    <Compile Remove="src\model\io\exporters\assimp\AssimpDirectExporter.cs" />
+    <Compile Remove="src\model\io\exporters\assimp\AssimpMeshBuilder.cs" />
+    <Compile Remove="src\model\io\exporters\assimp\AssimpSkeletonBuilder.cs" />
     <Compile Remove="src\schema\sequences\PointerSections.cs" />
   </ItemGroup>
 

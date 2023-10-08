@@ -4,7 +4,7 @@ using dat.api;
 
 using fin.model;
 using fin.model.io;
-using fin.model.io.importer;
+using fin.model.io.importers;
 
 using glo.api;
 

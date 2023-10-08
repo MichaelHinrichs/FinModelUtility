@@ -1,6 +1,6 @@
 ﻿using fin.io;
 
-namespace fin.model.io.exporter {
+namespace fin.model.io.exporters {
   public interface IModelExporterParams {
     ISystemFile OutputFile { get; }
     IModel Model { get; }

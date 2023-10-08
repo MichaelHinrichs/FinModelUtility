@@ -5,8 +5,8 @@ using System.Linq;
 using Assimp;
 
 using fin.io;
-using fin.model.io.exporter.gltf;
-using fin.model.io.exporter.gltf.lowlevel;
+using fin.model.io.exporters.gltf;
+using fin.model.io.exporters.gltf.lowlevel;
 using fin.shaders.glsl;
 using fin.util.asserts;
 using fin.util.gc;
@@ -15,7 +15,7 @@ using fin.util.linq;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
 
-namespace fin.model.io.exporter.assimp.indirect {
+namespace fin.model.io.exporters.assimp.indirect {
   public class AssimpIndirectModelExporter : IModelExporter {
     // You can bet your ass I'm gonna prefix everything with ass.
 

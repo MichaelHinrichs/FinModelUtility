@@ -2,7 +2,7 @@
 
 using Assimp;
 
-namespace fin.model.io.exporter.assimp.indirect {
+namespace fin.model.io.exporters.assimp.indirect {
   public class AssimpIndirectAnimationFixer {
     public void Fix(IModel model, Scene sc) {
       var finAnimations = model.AnimationManager.Animations;

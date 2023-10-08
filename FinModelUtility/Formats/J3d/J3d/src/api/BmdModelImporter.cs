@@ -9,7 +9,7 @@ using fin.log;
 using fin.math.matrix.four;
 using fin.model;
 using fin.model.impl;
-using fin.model.io.importer;
+using fin.model.io.importers;
 using fin.schema.matrix;
 using fin.util.asserts;
 

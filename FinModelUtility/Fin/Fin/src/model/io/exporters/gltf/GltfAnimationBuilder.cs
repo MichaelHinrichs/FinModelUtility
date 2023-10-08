@@ -3,7 +3,7 @@ using System.Numerics;
 
 using SharpGLTF.Schema2;
 
-namespace fin.model.io.exporter.gltf {
+namespace fin.model.io.exporters.gltf {
   using GltfNode = Node;
 
   public class GltfAnimationBuilder {

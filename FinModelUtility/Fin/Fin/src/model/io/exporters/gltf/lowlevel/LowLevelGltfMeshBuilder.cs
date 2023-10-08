@@ -12,7 +12,7 @@ using FinPrimitiveType = fin.model.PrimitiveType;
 using GltfPrimitiveType = SharpGLTF.Schema2.PrimitiveType;
 
 
-namespace fin.model.io.exporter.gltf.lowlevel {
+namespace fin.model.io.exporters.gltf.lowlevel {
   public class LowLevelGltfMeshBuilder {
     public bool UvIndices { get; set; }
 

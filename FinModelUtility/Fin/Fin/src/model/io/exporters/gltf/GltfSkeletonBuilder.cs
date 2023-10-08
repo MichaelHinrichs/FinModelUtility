@@ -6,7 +6,7 @@ using fin.math.matrix.four;
 
 using SharpGLTF.Schema2;
 
-namespace fin.model.io.exporter.gltf {
+namespace fin.model.io.exporters.gltf {
   using GltfNode = Node;
   using GltfSkin = Skin;
 

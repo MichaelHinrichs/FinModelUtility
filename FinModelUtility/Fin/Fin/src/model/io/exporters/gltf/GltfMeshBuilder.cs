@@ -14,7 +14,7 @@ using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
 
-namespace fin.model.io.exporter.gltf {
+namespace fin.model.io.exporters.gltf {
   using VERTEX =
       VertexBuilder<VertexPositionNormal, VertexColor2Texture2, VertexJoints4>;
 

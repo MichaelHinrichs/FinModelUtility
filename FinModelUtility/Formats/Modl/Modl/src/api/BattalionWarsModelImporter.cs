@@ -1,5 +1,5 @@
 ﻿using fin.model;
-using fin.model.io.importer;
+using fin.model.io.importers;
 
 namespace modl.api {
   public class BattalionWarsModelImporter 

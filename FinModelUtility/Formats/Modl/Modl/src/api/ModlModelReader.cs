@@ -6,7 +6,7 @@ using fin.io;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
-using fin.model.io.importer;
+using fin.model.io.importers;
 
 using modl.schema.anim;
 using modl.schema.anim.bw1;

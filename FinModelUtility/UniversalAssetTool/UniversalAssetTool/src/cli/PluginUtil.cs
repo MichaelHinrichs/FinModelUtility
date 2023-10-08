@@ -1,7 +1,7 @@
 ﻿using cmb.api;
 
 using fin.model.io;
-using fin.model.io.importer.assimp;
+using fin.model.io.importers.assimp;
 
 using glo.api;
 

@@ -5,7 +5,7 @@ using Assimp;
 
 using fin.color;
 
-namespace fin.model.io.exporter.assimp.indirect {
+namespace fin.model.io.exporters.assimp.indirect {
   public class AssimpIndirectUvFixer {
     public void Fix(IModel model, Scene sc) {
       var finVertices = model.Skin.Vertices;

@@ -8,7 +8,7 @@ using Assimp;
 using fin.image;
 using fin.model.util;
 
-namespace fin.model.io.exporter.assimp.indirect {
+namespace fin.model.io.exporters.assimp.indirect {
   public class AssimpIndirectTextureFixer {
     public void Fix(IModel model, Scene sc) {
       // Imports the textures

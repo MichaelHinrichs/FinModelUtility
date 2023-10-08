@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 
 using fin.data.queue;
-using fin.model.io.exporter;
-using fin.model.io.exporter.assimp.indirect;
+using fin.model.io.exporters;
+using fin.model.io.exporters.assimp.indirect;
 using fin.io;
 using fin.util.gc;
 

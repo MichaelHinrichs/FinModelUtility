@@ -13,7 +13,7 @@ using SharpGLTF.Validation;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
-namespace fin.model.io.exporter.gltf.lowlevel {
+namespace fin.model.io.exporters.gltf.lowlevel {
   public class LowLevelGltfModelExporter : IGltfModelExporter {
     private readonly ILogger logger_ = Logging.Create<GltfModelExporter>();
 

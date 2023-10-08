@@ -6,11 +6,11 @@ using System.Reflection;
 
 using CommunityToolkit.HighPerformance;
 
-using fin.model.io.exporter;
-using fin.model.io.exporter.assimp.indirect;
+using fin.model.io.exporters;
+using fin.model.io.exporters.assimp.indirect;
 using fin.io;
 using fin.model.io;
-using fin.model.io.importer;
+using fin.model.io.importers;
 using fin.util.asserts;
 using fin.util.strings;
 

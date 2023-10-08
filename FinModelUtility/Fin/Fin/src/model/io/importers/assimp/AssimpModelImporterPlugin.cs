@@ -3,7 +3,7 @@ using System.Linq;
 
 using fin.io;
 
-namespace fin.model.io.importer.assimp {
+namespace fin.model.io.importers.assimp {
   public class AssimpModelImporterPlugin : IModelImporterPlugin {
     public string DisplayName => "Assimp";
     public string Description => "Loads standard model formats via Assimp.";

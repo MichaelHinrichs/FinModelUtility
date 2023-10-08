@@ -13,7 +13,7 @@ using SharpGLTF.Schema2;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
-namespace fin.model.io.exporter.gltf {
+namespace fin.model.io.exporters.gltf {
   public interface IGltfModelExporter : IModelExporter {
     bool UvIndices { get; set; }
     bool Embedded { get; set; }

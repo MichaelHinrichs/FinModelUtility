@@ -8,7 +8,7 @@ using fin.image.formats;
 using fin.io;
 using fin.model;
 using fin.model.impl;
-using fin.model.io.importer;
+using fin.model.io.importers;
 using fin.util.asserts;
 
 using glo.schema;

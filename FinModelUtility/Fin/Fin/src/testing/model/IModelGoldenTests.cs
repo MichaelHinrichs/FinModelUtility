@@ -1,7 +1,7 @@
 ﻿using fin.io;
 using fin.io.bundles;
 using fin.model.io;
-using fin.model.io.importer;
+using fin.model.io.importers;
 
 namespace fin.testing.model {
   public abstract class BGoldenTests<TFileBundle>

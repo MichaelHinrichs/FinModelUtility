@@ -1,14 +1,14 @@
 ﻿using Assimp;
 
-using fin.model.io.exporter.assimp;
+using fin.model.io.exporters.assimp;
 using fin.io;
 using fin.io.bundles;
 using fin.log;
 using fin.model;
 using fin.model.io;
-using fin.model.io.exporter;
-using fin.model.io.exporter.assimp.indirect;
-using fin.model.io.importer;
+using fin.model.io.exporters;
+using fin.model.io.exporters.assimp.indirect;
+using fin.model.io.importers;
 using fin.util.asserts;
 using fin.util.linq;
 
