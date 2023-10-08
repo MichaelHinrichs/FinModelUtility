@@ -6,13 +6,8 @@ namespace level5.decompression {
       int tableType = (src[0] & 0xFF);
 
       DecompressionUtils.GetLengthAndType(src,
-                                          out var length,
+                                          out _,
                                           out var decompressionType);
-
-      if (decompressionType < (DecompressionType) 1 ||
-          decompressionType > (DecompressionType) 4) {
-        ;
-      }
 
       if (new ZlibArrayDecompressor().TryDecompress(src, out dst)) {
         return true;

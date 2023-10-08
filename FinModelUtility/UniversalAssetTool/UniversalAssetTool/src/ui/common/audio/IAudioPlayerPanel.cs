@@ -1,4 +1,4 @@
-﻿using fin.audio;
+﻿using fin.audio.io;
 
 namespace uni.ui.common.audio {
   public interface IAudioPlayerPanel {

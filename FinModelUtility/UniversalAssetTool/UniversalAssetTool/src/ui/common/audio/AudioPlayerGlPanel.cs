@@ -1,4 +1,5 @@
 ﻿using fin.audio;
+using fin.audio.io;
 using fin.data;
 using fin.ui.playback.al;
 using fin.ui.rendering.gl;
@@ -44,8 +45,8 @@ namespace uni.ui.common.audio {
 
           if (this.shuffledListView_.TryGetNext(out var audioFileBundle)) {
             var audioBuffer =
-                new GlobalAudioReader().ReadAudio(this.audioManager_,
-                                                  audioFileBundle);
+                new GlobalAudioReader().ImportAudio(this.audioManager_,
+                                                    audioFileBundle);
             var audioStream =
                 this.audioManager_.CreateBufferAudioStream(audioBuffer);
 

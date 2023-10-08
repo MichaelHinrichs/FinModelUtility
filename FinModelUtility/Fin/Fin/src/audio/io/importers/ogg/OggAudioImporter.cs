@@ -4,9 +4,9 @@ using fin.util.asserts;
 
 using NVorbis;
 
-namespace fin.audio.ogg {
-  public class OggAudioReader : IAudioReader<OggAudioFileBundle> {
-    public IAudioBuffer<short> ReadAudio(
+namespace fin.audio.io.importers.ogg {
+  public class OggAudioImporter : IAudioImporter<OggAudioFileBundle> {
+    public IAudioBuffer<short> ImportAudio(
         IAudioManager<short> audioManager,
         OggAudioFileBundle audioFileBundle) {
       var oggFile = audioFileBundle.OggFile;
