@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
 
+using fin.data.disposables;
 using fin.image;
 using fin.image.formats;
 using fin.model;
@@ -14,7 +15,7 @@ using TextureMinFilter = OpenTK.Graphics.OpenGL.TextureMinFilter;
 
 
 namespace fin.ui.rendering.gl {
-  public class GlTexture : IDisposable {
+  public class GlTexture : IFinDisposable {
     private static readonly Dictionary<ITexture, GlTexture> cache_ = new();
 
 
@@ -189,12 +190,15 @@ namespace fin.ui.rendering.gl {
 
     ~GlTexture() => this.ReleaseUnmanagedResources_();
 
+    public bool IsDisposed { get; private set; }
+
     public void Dispose() {
       this.ReleaseUnmanagedResources_();
       GC.SuppressFinalize(this);
     }
 
     private void ReleaseUnmanagedResources_() {
+      this.IsDisposed = true;
       GlTexture.cache_.Remove(this.texture_);
 
       var id = this.id_;
