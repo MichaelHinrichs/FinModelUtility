@@ -1,6 +1,6 @@
 ﻿using fin.model;
 using fin.model.impl;
-using fin.model.io.importer;
+using fin.model.io.importers;
 
 using schema.text.reader;
 

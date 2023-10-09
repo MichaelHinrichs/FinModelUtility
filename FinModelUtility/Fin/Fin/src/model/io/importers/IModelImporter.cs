@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace fin.model.io.importer {
+namespace fin.model.io.importers {
 
   public interface IModelImporter<in TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {

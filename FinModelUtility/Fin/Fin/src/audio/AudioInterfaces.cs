@@ -57,7 +57,9 @@ namespace fin.audio {
   public interface IAudioBuffer<out TNumber> : IAudioData<TNumber>
       where TNumber : INumber<TNumber> { }
 
-
+  /// <summary>
+  ///   Type for storing static audio data that can be mutated dynamically.
+  /// </summary>
   public interface IMutableAudioBuffer<TNumber> : IAudioBuffer<TNumber>
       where TNumber : INumber<TNumber> {
     new int Frequency { get; set; }
@@ -106,6 +108,10 @@ namespace fin.audio {
     DISPOSED,
   }
 
+  /// <summary>
+  ///   An actively playing sound. Certain attributes can be mutated on-the-fly,
+  ///   like volume, offset, etc.
+  /// </summary>
   public interface IActiveSound<out TNumber>
       : IStaticAudioFormat<TNumber>, IDisposable
       where TNumber : INumber<TNumber> {
@@ -124,6 +130,15 @@ namespace fin.audio {
     bool Looping { get; set; }
   }
 
+  /// <summary>
+  ///   Actively playing music. Certain attributes can be mutated on-the-fly,
+  ///   like volume, offset, etc.
+  ///
+  ///   Different from an actively played sound because this assumes one audio
+  ///   stream will be used to play an intro, and another a loop.
+  /// </summary>
+  // TODO: Probably should represented in some other way, this is clearly just
+  // one case for chained audio
   public interface IActiveMusic<out TNumber>
       : IStaticAudioFormat<TNumber>, IDisposable
       where TNumber : INumber<TNumber> {
@@ -138,6 +153,10 @@ namespace fin.audio {
     float Volume { get; set; }
   }
 
+  /// <summary>
+  ///   An actively played sound that represents some kind of live, streaming
+  ///   audio.
+  /// </summary>
   public interface ICircularQueueActiveSound<TNumber>
       : IAudioFormat<TNumber>, IDisposable where TNumber : INumber<TNumber> {
     SoundState State { get; }
