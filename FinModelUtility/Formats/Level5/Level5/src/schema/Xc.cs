@@ -1,4 +1,5 @@
 ﻿using fin.data;
+using fin.data.dictionaries;
 using fin.decompression;
 
 using level5.decompression;

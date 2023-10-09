@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using fin.data.dictionaries;
+
+using NUnit.Framework;
 
 namespace fin.data {
   public class NullFriendlyDictionaryTests {

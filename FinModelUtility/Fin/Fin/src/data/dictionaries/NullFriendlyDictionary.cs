@@ -5,9 +5,9 @@ using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
 
-namespace fin.data {
+namespace fin.data.dictionaries {
   public class NullFriendlyDictionary<TKey, TValue>
-      : IEnumerable<KeyValuePair<TKey, TValue>> {
+      : IFinDictionary<TKey, TValue> {
     private readonly Dictionary<TKey, TValue> impl_ = new();
 
     private bool hasNull_;
@@ -65,7 +65,7 @@ namespace fin.data {
       set => this.Add(key, value);
     }
 
-    public bool TryGetValue(TKey key, out TValue? value) {
+    public bool TryGetValue(TKey key, out TValue value) {
       if (key == null) {
         if (this.hasNull_) {
           value = this.nullValue_;
@@ -98,13 +98,13 @@ namespace fin.data {
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
-      foreach (var value in this.impl_) {
-        yield return value;
+    public IEnumerator<(TKey, TValue)> GetEnumerator() {
+      foreach (var (key, value) in this.impl_) {
+        yield return (key, value);
       }
 
       if (this.hasNull_) {
-        yield return new(default!, this.nullValue_);
+        yield return (default!, this.nullValue_);
       }
     }
   }

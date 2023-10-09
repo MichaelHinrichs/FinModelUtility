@@ -2,18 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace fin.data {
+namespace fin.data.dictionaries {
   public class ListDictionary<TKey, TValue>
-      : IEnumerable<KeyValuePair<TKey, IList<TValue>>> {
+      : IFinCollection<(TKey, IList<TValue>)> {
     private readonly NullFriendlyDictionary<TKey, IList<TValue>> impl_ = new();
 
     public void Clear() => this.impl_.Clear();
     public void ClearList(TKey key) => this.impl_.Remove(key);
 
-    public int Count
-      => this.impl_.Values
-             .Select(list => list.Count)
-             .Sum();
+    public int Count => this.impl_.Values.Select(list => list.Count).Sum();
 
     public bool HasList(TKey key) => this.impl_.ContainsKey(key);
 
@@ -33,7 +30,7 @@ namespace fin.data {
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IEnumerator<KeyValuePair<TKey, IList<TValue>>> GetEnumerator()
+    public IEnumerator<(TKey, IList<TValue>)> GetEnumerator()
       => this.impl_.GetEnumerator();
   }
 }

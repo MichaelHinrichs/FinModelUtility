@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.disposables {
-  public class TrackedDisposables<T> : IFinCollection<T> where T : class, IDisposable {
+  public class TrackedDisposables<T> : IFinCollection<T>
+      where T : class, IFinDisposable {
     private readonly LinkedList<WeakReference<T>> impl_ = new();
 
     public int Count => this.Count();
@@ -18,7 +19,7 @@ namespace fin.data.disposables {
       var current = this.impl_.First;
       while (current != null) {
         var weakReference = current.Value;
-        if (weakReference.TryGetTarget(out var value)) {
+        if (weakReference.TryGetTarget(out var value) && !value.IsDisposed) {
           yield return value;
         } else {
           this.impl_.Remove(current);

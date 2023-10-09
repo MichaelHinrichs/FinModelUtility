@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 
 using fin.data;
+using fin.data.dictionaries;
 using fin.decompression;
 using fin.util.asserts;
 using fin.util.hex;

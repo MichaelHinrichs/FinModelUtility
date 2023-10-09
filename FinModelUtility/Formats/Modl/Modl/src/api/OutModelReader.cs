@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 using fin.color;
 using fin.data;
+using fin.data.dictionaries;
 using fin.data.lazy;
 using fin.image;
 using fin.io;

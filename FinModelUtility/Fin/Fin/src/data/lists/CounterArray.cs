@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace fin.data {
-  public class CounterArray : IEnumerable<int> {
+namespace fin.data.lists {
+  public class CounterArray : IFinList<int> {
     private readonly List<int> impl_ = new();
 
     public int Count => this.impl_.Count;
@@ -17,9 +17,12 @@ namespace fin.data {
       return this.impl_[index] += 1;
     }
 
-    public int this[int index] => this.impl_[index];
+    public int this[int index] {
+      get => this.impl_[index];
+      set => this.impl_[index] = value;
+    }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     public IEnumerator<int> GetEnumerator() => this.impl_.GetEnumerator();
   }
 }
