@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace fin.data.dictionaries {
   public class ListDictionary<TKey, TValue>
-      : IFinCollection<(TKey, IList<TValue>)> {
+      : IFinCollection<(TKey Key, IList<TValue> Value)> {
     private readonly NullFriendlyDictionary<TKey, IList<TValue>> impl_ = new();
 
     public void Clear() => this.impl_.Clear();
@@ -30,7 +30,7 @@ namespace fin.data.dictionaries {
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IEnumerator<(TKey, IList<TValue>)> GetEnumerator()
+    public IEnumerator<(TKey Key, IList<TValue> Value)> GetEnumerator()
       => this.impl_.GetEnumerator();
   }
 }

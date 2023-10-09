@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace fin.data.dictionaries {
   public class SetDictionary<TKey, TValue>
-      : IFinCollection<(TKey, ISet<TValue>)> {
+      : IFinCollection<(TKey Key, ISet<TValue> Value)> {
     private readonly NullFriendlyDictionary<TKey, ISet<TValue>> impl_ = new();
 
     public void Clear() => this.impl_.Clear();
@@ -27,7 +27,7 @@ namespace fin.data.dictionaries {
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IEnumerator<(TKey, ISet<TValue>)> GetEnumerator()
+    public IEnumerator<(TKey Key, ISet<TValue> Value)> GetEnumerator()
       => this.impl_.GetEnumerator();
   }
 }
