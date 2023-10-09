@@ -12,7 +12,7 @@ using cmb.schema.shpa;
 
 using fin.data;
 using fin.data.lazy;
-using fin.data.queue;
+using fin.data.queues;
 using fin.image;
 using fin.io;
 using fin.math;

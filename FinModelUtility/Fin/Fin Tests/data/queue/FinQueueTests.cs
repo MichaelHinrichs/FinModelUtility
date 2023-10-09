@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace fin.data.queue {
+namespace fin.data.queues {
   public class FinQueueTests {
     [Test]
     public void TestEnqueueSeparately() {

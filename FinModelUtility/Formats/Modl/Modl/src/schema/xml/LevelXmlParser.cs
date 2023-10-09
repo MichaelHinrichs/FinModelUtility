@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Xml;
 
 using fin.color;
-using fin.data.queue;
+using fin.data.queues;
 using fin.io;
 using fin.math.matrix.four;
 using fin.math.rotations;

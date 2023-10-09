@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 
-namespace fin.data.queue {
+namespace fin.data.queues {
+  public interface IReadOnlyFinQueue<out T> : IReadOnlyFinCollection<T> { }
+
   /// <summary>
   ///   Simpler interface for queues that is easier to implement.
   /// </summary>
-  public interface IQueue<T> : IEnumerable<T> {
-    int Count { get; }
-
-    void Clear();
-
+  public interface IFinQueue<T> : IReadOnlyFinQueue<T>, IFinCollection<T> {
     void Enqueue(T first, params T[] rest);
     void Enqueue(IEnumerable<T> values);
 

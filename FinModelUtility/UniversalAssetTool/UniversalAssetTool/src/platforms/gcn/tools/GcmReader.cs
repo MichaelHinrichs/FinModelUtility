@@ -1,4 +1,4 @@
-﻿using fin.data.stack;
+﻿using fin.data.stacks;
 using fin.io;
 using fin.io.archive;
 using fin.schema;

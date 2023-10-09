@@ -1,4 +1,4 @@
-﻿using fin.data.queue;
+﻿using fin.data.queues;
 using fin.model;
 
 using uni.ui.common;

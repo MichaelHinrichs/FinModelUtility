@@ -1,5 +1,5 @@
 ﻿using fin.data;
-using fin.data.queue;
+using fin.data.queues;
 using fin.io;
 using fin.math.matrix.four;
 using fin.math.rotations;

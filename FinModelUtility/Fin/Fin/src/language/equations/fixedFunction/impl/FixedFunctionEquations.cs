@@ -1,4 +1,4 @@
-﻿using fin.data.queue;
+﻿using fin.data.queues;
 
 namespace fin.language.equations.fixedFunction {
   public partial class FixedFunctionEquations<TIdentifier> :

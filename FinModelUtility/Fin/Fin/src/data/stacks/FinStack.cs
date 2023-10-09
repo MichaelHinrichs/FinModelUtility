@@ -1,21 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
-namespace fin.data.stack {
-  /// <summary>
-  ///   Simpler interface for stacks that is easier to implement.
-  /// </summary>
-  public interface IStack<T> {
-    int Count { get; }
-    T Top { get; set; }
-
-    void Clear();
-
-    bool TryPop(out T item);
-    T Pop();
-    void Push(T item);
-  }
-
-  public class FinStack<T> : IStack<T> {
+namespace fin.data.stacks {
+  public class FinStack<T> : IFinStack<T> {
     private readonly Stack<T> impl_;
 
     public FinStack() {
@@ -51,6 +38,9 @@ namespace fin.data.stack {
       foreach (var item in items) {
         this.Push(item);
       }
-    } 
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    public IEnumerator<T> GetEnumerator() => this.impl_.GetEnumerator();
   }
 }

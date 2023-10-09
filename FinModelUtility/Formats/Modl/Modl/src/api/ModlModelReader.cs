@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
 using fin.data.lazy;
-using fin.data.queue;
+using fin.data.queues;
 using fin.io;
 using fin.math.rotations;
 using fin.model;

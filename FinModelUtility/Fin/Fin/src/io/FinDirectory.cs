@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using fin.data.stack;
+using fin.data.stacks;
 using fin.util.asserts;
 using fin.util.enumerables;
 

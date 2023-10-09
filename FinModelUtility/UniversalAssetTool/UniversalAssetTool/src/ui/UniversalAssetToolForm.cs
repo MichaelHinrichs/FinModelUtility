@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 using fin.audio.io;
 using fin.color;
-using fin.data.queue;
+using fin.data.queues;
 using fin.model.io.exporters.assimp;
 using fin.io;
 using fin.io.bundles;

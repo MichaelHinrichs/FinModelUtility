@@ -10,7 +10,7 @@ using f3dzex2.image;
 using f3dzex2.io;
 using f3dzex2.model;
 
-using fin.data.queue;
+using fin.data.queues;
 using fin.model;
 using fin.model.io.importers;
 

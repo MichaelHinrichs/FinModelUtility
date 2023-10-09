@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace fin.data.queue {
-  public class FinQueue<T> : IQueue<T> {
+namespace fin.data.queues {
+  public class FinQueue<T> : IFinQueue<T> {
     private readonly Queue<T> impl_ = new();
 
     public FinQueue() { }

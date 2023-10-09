@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-using fin.data.queue;
+using fin.data.queues;
 using fin.model.io.exporters;
 using fin.model.io.exporters.assimp.indirect;
 using fin.io;

@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 
-using fin.data.stack;
+using fin.data.stacks;
 using fin.util.asserts;
 using fin.util.data;
 

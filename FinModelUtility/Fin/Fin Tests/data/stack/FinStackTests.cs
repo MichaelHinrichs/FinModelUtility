@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace fin.data.stack {
+namespace fin.data.stacks {
   public class FinStackTests {
     [Test]
     public void TestInitWithSingle() {

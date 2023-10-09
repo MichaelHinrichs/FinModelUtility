@@ -1,6 +1,6 @@
 ﻿using fin.data.lazy;
 using fin.data.nodes;
-using fin.data.queue;
+using fin.data.queues;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;

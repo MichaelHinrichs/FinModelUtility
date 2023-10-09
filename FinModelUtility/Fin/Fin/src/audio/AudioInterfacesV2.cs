@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 using fin.audio;
+using fin.data.disposables;
 
 namespace fin.audioV2 {
   public enum AudioChannelsType {
@@ -70,6 +72,7 @@ namespace fin.audioV2 {
 
   public interface IAudioPlayer<TPcm> : IDisposable
       where TPcm : INumber<TPcm> {
+    IEnumerable<IAudioPlayback<TPcm>> CurrentPlaybacks { get; }
     IAudioPlayback<TPcm> Create(IAudioDataSource<TPcm> buffer);
   }
 

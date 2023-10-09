@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using fin.data.queue;
+using fin.data.queues;
 using fin.math.matrix.four;
 
 using SharpGLTF.Schema2;

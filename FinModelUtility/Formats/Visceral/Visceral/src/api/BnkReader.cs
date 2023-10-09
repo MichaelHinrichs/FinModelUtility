@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-using fin.data.queue;
+using fin.data.queues;
 using fin.io;
 using fin.model;
 using fin.schema;

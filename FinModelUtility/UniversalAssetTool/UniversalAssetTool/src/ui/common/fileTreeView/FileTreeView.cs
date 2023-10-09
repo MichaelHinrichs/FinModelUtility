@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 
 using fin.data.fuzzy;
-using fin.data.queue;
+using fin.data.queues;
 using fin.io.bundles;
 using fin.util.actions;
 using fin.util.asserts;

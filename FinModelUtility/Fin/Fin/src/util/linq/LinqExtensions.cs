@@ -21,7 +21,7 @@ namespace fin.util.linq {
 
     public static IEnumerable<TTo> SelectWhere<TFrom, TTo>(
         this IEnumerable<TFrom> enumerable,
-        SelectWhereHandler<TFrom, TTo> selectWhereHandler) where TTo : TFrom
+        SelectWhereHandler<TFrom, TTo> selectWhereHandler)
       => enumerable
          .Select(fromValue => {
            var returnValue =
