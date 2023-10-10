@@ -4,12 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.disposables {
-  public class TrackedDisposables<T> : IFinCollection<T>
+  public class TrackedDisposables<T> : IEnumerable<T>
       where T : class, IFinDisposable {
     private readonly LinkedList<WeakReference<T>> impl_ = new();
 
     public int Count => this.Count();
-    public void Clear() => this.impl_.Clear();
+
+    public void DisposeAll() {
+      foreach (var weakReference in this.impl_) {
+        if (weakReference.TryGetTarget(out var value) && !value.IsDisposed) {
+          value.Dispose();
+        }
+      }
+
+      this.impl_.Clear();
+    }
 
     public void Add(T item) => this.impl_.AddLast(new WeakReference<T>(item));
 

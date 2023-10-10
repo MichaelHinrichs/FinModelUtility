@@ -4,17 +4,19 @@ using fin.ui.rendering.gl;
 using OpenTK.Graphics.OpenGL;
 
 namespace uni.ui.gl {
-  public class WaveformRenderer {
-    public IActiveSound<short>? ActiveSound { get; set; }
+  public class AotWaveformRenderer {
+    public IAotAudioPlayback<short>? ActiveSound { get; set; }
 
     public int Width { get; set; }
     public float MiddleY { get; set; }
     public float Amplitude { get; set; }
 
     public void Render() {
-      if (ActiveSound == null) {
+      if (this.ActiveSound == null) {
         return;
       }
+
+      var source = this.ActiveSound.TypedSource;
 
       GlTransform.PassMatricesIntoGl();
 
@@ -27,11 +29,9 @@ namespace uni.ui.gl {
         for (var s = 0; s < samplesPerPoint; ++s) {
           var sampleOffset =
               this.ActiveSound.SampleOffset + i * samplesPerPoint + s;
-          sampleOffset %= this.ActiveSound.SampleCount;
+          sampleOffset %= source.LengthInSamples;
 
-          var sample =
-              this.ActiveSound.Stream.GetPcm(AudioChannelType.MONO,
-                                             sampleOffset);
+          var sample = source.GetPcm(AudioChannelType.MONO, sampleOffset);
           totalSample += sample;
         }
         var meanSample = totalSample / samplesPerPoint;

@@ -3,17 +3,17 @@ using fin.util.asserts;
 
 namespace fin.ui.playback.al {
   public partial class AlAudioManager {
-    public IMutableAudioBuffer<short> CreateMutableBuffer()
-      => new AlMutableAudioBuffer();
+    public IAudioBuffer<short> CreateAudioBuffer()
+      => new AlAudioBuffer();
 
-    private class AlMutableAudioBuffer : IMutableAudioBuffer<short> {
+    private class AlAudioBuffer : IAudioBuffer<short> {
       private short[][] channels_;
 
       public AudioChannelsType AudioChannelsType { get; private set; }
 
       public int Frequency { get; set; }
 
-      public int SampleCount { get; private set; }
+      public int LengthInSamples { get; private set; }
 
       public void SetPcm(short[][] channelSamples) {
         switch (channelSamples.Length) {
@@ -32,7 +32,7 @@ namespace fin.ui.playback.al {
 
       public void SetMonoPcm(short[] samples) {
         this.AudioChannelsType = AudioChannelsType.MONO;
-        this.SampleCount = samples.Length;
+        this.LengthInSamples = samples.Length;
         this.channels_ = new[] { samples };
       }
 
@@ -43,7 +43,7 @@ namespace fin.ui.playback.al {
                       "Expected the left/right channels to have the same number of samples!");
 
         this.AudioChannelsType = AudioChannelsType.STEREO;
-        this.SampleCount = leftChannelSamples.Length;
+        this.LengthInSamples = leftChannelSamples.Length;
         this.channels_ = new[] { leftChannelSamples, rightChannelSamples };
       }
 

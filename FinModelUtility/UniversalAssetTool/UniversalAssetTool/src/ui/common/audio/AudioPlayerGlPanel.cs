@@ -14,9 +14,9 @@ namespace uni.ui.common.audio {
     private IReadOnlyList<IAudioFileBundle>? audioFileBundles_;
     private ShuffledListView<IAudioFileBundle>? shuffledListView_;
     private readonly IAudioManager<short> audioManager_ = new AlAudioManager();
-    private readonly IAudioSource<short> audioSource_;
+    private readonly IAudioPlayer<short> audioPlayer_;
 
-    private readonly WaveformRenderer waveformRenderer_ = new();
+    private readonly AotWaveformRenderer waveformRenderer_ = new();
 
     private readonly TimedCallback playNextCallback_;
 
@@ -25,7 +25,7 @@ namespace uni.ui.common.audio {
     public AudioPlayerGlPanel() {
       this.Disposed += (_, _) => this.audioManager_.Dispose();
 
-      this.audioSource_ = this.audioManager_.CreateAudioSource();
+      this.audioPlayer_ = this.audioManager_.AudioPlayer;
 
       var playNextLock = new object();
       this.playNextCallback_ = new TimedCallback(() => {
@@ -35,7 +35,7 @@ namespace uni.ui.common.audio {
           }
 
           var activeSound = this.waveformRenderer_.ActiveSound;
-          if (activeSound?.State == SoundState.PLAYING) {
+          if (activeSound?.State == PlaybackState.PLAYING) {
             return;
           }
 
@@ -44,14 +44,12 @@ namespace uni.ui.common.audio {
           activeSound?.Dispose();
 
           if (this.shuffledListView_.TryGetNext(out var audioFileBundle)) {
-            var audioBuffer =
-                new GlobalAudioReader().ImportAudio(this.audioManager_,
-                                                    audioFileBundle);
-            var audioStream =
-                this.audioManager_.CreateBufferAudioStream(audioBuffer);
+            var audioBuffer = new GlobalAudioReader().ImportAudio(
+                this.audioManager_,
+                audioFileBundle);
 
             activeSound = this.waveformRenderer_.ActiveSound =
-                              this.audioSource_.Create(audioStream);
+                              this.audioPlayer_.CreatePlayback(audioBuffer);
             activeSound.Volume = .1f;
             activeSound.Play();
 

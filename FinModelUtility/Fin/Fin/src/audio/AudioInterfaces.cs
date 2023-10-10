@@ -1,25 +1,96 @@
 ﻿using System;
 using System.Numerics;
 
+using fin.data.disposables;
+
 namespace fin.audio {
-  public interface IAudioManager<TNumber> : IDisposable
-      where TNumber : INumber<TNumber> {
+  // Playback types
+
+  /// <summary>
+  ///   Top-level type used to manage storing and playing back audio.
+  /// </summary>
+  public interface IAudioManager<TPcm> : IFinDisposable
+      where TPcm : INumber<TPcm> {
     // TODO: Add support for looping a certain section of audio
 
-    IMutableAudioBuffer<TNumber> CreateMutableBuffer();
+    IAudioBuffer<TPcm> CreateAudioBuffer();
 
-    IBufferAudioStream<TNumber> CreateBufferAudioStream(
-        IAudioBuffer<TNumber> buffer);
-
-    IAudioSource<TNumber> CreateAudioSource();
-
-    ICircularQueueActiveSound<TNumber> CreateBufferedSound(
+    IJitAudioDataSource<TPcm> CreateJitAudioDataSource(
         AudioChannelsType audioChannelsType,
-        int frequency,
-        int bufferCount);
+        int frequency);
+
+    IAudioPlayer<TPcm> AudioPlayer { get; }
+  }
+
+  /// <summary>
+  ///   A virtual speaker that can be used to play audio.
+  /// </summary>
+  public interface IAudioPlayer<TPcm> : IFinDisposable
+      where TPcm : INumber<TPcm> {
+    IAudioPlayer<TPcm> CreateSubPlayer();
+
+    IAudioPlayback<TPcm> CreatePlayback(IAudioDataSource<TPcm> buffer);
+    IAotAudioPlayback<TPcm> CreatePlayback(IAotAudioDataSource<TPcm> buffer);
+
+    IJitAudioPlayback<TPcm> CreatePlayback(IJitAudioDataSource<TPcm> buffer,
+                                           uint bufferCount);
+
+    float Volume { get; set; }
+  }
+
+  public enum PlaybackState {
+    UNDEFINED,
+    STOPPED,
+    PLAYING,
+    PAUSED,
+    DISPOSED,
+  }
+
+  /// <summary>
+  ///   An actively played back sound.
+  /// </summary>
+  public interface IAudioPlayback<out TPcm> : IFinDisposable
+      where TPcm : INumber<TPcm> {
+    IAudioDataSource<TPcm> Source { get; }
+
+    PlaybackState State { get; }
+    void Play();
+    void Stop();
+
+    float Volume { get; set; }
+  }
+
+  /// <summary>
+  ///   Type representing "ahead of time" audio that is currently being played
+  ///   back.
+  ///
+  ///   Since the total length is known ahead of time, supports tracking the
+  ///   offset, looping, and getting the current PCM amplitude.
+  /// </summary>
+  public interface IAotAudioPlayback<out TPcm> : IAudioPlayback<TPcm>
+      where TPcm : INumber<TPcm> {
+    IAotAudioDataSource<TPcm> TypedSource { get; }
+
+    void Pause();
+
+    int SampleOffset { get; set; }
+    bool Looping { get; set; }
+
+    // TODO: Support this for JIT too
+    TPcm GetPcm(AudioChannelType channelType);
+  }
+
+  /// <summary>
+  ///   Type representing just in time audio that is currently being played
+  ///   back.
+  /// </summary>
+  public interface IJitAudioPlayback<TPcm> : IAudioPlayback<TPcm>
+      where TPcm : INumber<TPcm> {
+    IJitAudioDataSource<TPcm> TypedSource { get; }
   }
 
 
+  // Data source types
   public enum AudioChannelsType {
     UNDEFINED,
     MONO,
@@ -34,112 +105,60 @@ namespace fin.audio {
   }
 
 
-  public interface IAudioFormat<out TNumber> where TNumber : INumber<TNumber> {
+  /// <summary>
+  ///   Type representing some kind of audio data that can be played back.
+  /// </summary>
+  public interface IAudioDataSource<out TPcm> where TPcm : INumber<TPcm> {
     AudioChannelsType AudioChannelsType { get; }
     int Frequency { get; }
   }
 
-  public interface IStaticAudioFormat<out TNumber>
-      : IAudioFormat<TNumber> where TNumber : INumber<TNumber> {
-    int SampleCount { get; }
-  }
-
-
-  public interface IAudioData<out TNumber> : IStaticAudioFormat<TNumber>
-      where TNumber : INumber<TNumber> {
-    TNumber GetPcm(AudioChannelType channelType, int sampleOffset);
-  }
-
 
   /// <summary>
-  ///   Type for storing static audio data, e.g. a loaded audio file.
+  ///   Type representing audio data whose values are known ahead of time. This
+  ///   makes it quite easy to handle playback without any kind of stuttering
+  ///   or jitter.
   /// </summary>
-  public interface IAudioBuffer<out TNumber> : IAudioData<TNumber>
-      where TNumber : INumber<TNumber> { }
+  public interface IAotAudioDataSource<out TPcm> : IAudioDataSource<TPcm>
+      where TPcm : INumber<TPcm> {
+    int LengthInSamples { get; }
+    TPcm GetPcm(AudioChannelType channelType, int sampleOffset);
+  }
+
+  /// <summary>
+  ///   Type for storing static audio data.
+  /// </summary>
+  public interface IReadOnlyAudioBuffer<out TPcm>
+      : IAotAudioDataSource<TPcm> where TPcm : INumber<TPcm> { }
 
   /// <summary>
   ///   Type for storing static audio data that can be mutated dynamically.
   /// </summary>
-  public interface IMutableAudioBuffer<TNumber> : IAudioBuffer<TNumber>
-      where TNumber : INumber<TNumber> {
+  public interface IAudioBuffer<TPcm>
+      : IReadOnlyAudioBuffer<TPcm> where TPcm : INumber<TPcm> {
     new int Frequency { get; set; }
 
-    void SetPcm(TNumber[][] channelSamples);
+    void SetPcm(TPcm[][] samples);
 
-    void SetMonoPcm(TNumber[] samples);
+    void SetMonoPcm(TPcm[] samples);
 
-    void SetStereoPcm(TNumber[] leftChannelSamples,
-                      TNumber[] rightChannelSamples);
-  }
-
-
-  /// <summary>
-  ///   Type that streams out audio data. Can be used as an input for other
-  ///   streams to apply effects, or played out to the speakers via an audio
-  ///   source.
-  /// </summary>
-  public interface IAudioStream<out TNumber>
-      : IAudioData<TNumber> where TNumber : INumber<TNumber> { }
-
-  public interface IBufferAudioStream<TNumber> : IAudioStream<TNumber>
-      where TNumber : INumber<TNumber> {
-    IAudioBuffer<TNumber> Buffer { get; }
-    bool Reversed { get; set; }
-  }
-
-
-  public interface IAudioSource<TNumber> where TNumber : INumber<TNumber> {
-    IActiveSound<TNumber> Create(IAudioBuffer<TNumber> buffer);
-    IActiveSound<TNumber> Create(IAudioStream<TNumber> stream);
-  }
-
-  public enum SoundState {
-    UNDEFINED,
-    STOPPED,
-    PLAYING,
-    PAUSED,
-    DISPOSED,
+    void SetStereoPcm(TPcm[] leftChannelSamples,
+                      TPcm[] rightChannelSamples);
   }
 
   /// <summary>
-  ///   An actively playing sound. Certain attributes can be mutated on-the-fly,
-  ///   like volume, offset, etc.
+  ///   An audio data source that represents live data that is received just in
+  ///   time, i.e. streamed data.
+  ///
+  ///   Since the data isn't known ahead of time, playback has to handle
+  ///   rapidly processing samples as they're passed in.
   /// </summary>
-  public interface IActiveSound<out TNumber>
-      : IStaticAudioFormat<TNumber>, IDisposable
-      where TNumber : INumber<TNumber> {
-    IAudioStream<TNumber> Stream { get; }
+  public interface IJitAudioDataSource<TPcm> : IAudioDataSource<TPcm>
+      where TPcm : INumber<TPcm> {
+    int LengthInQueuedSamples { get; }
 
-    SoundState State { get; }
+    void PopulateNextBufferPcm(TPcm[] samples);
 
-    void Play();
-    void Stop();
-    void Pause();
-
-    int SampleOffset { get; set; }
-    TNumber GetPcm(AudioChannelType channelType);
-
-    float Volume { get; set; }
-    bool Looping { get; set; }
-  }
-
-  /// <summary>
-  ///   An actively played sound that represents some kind of live, streaming
-  ///   audio.
-  /// </summary>
-  public interface ICircularQueueActiveSound<TNumber>
-      : IAudioFormat<TNumber>, IDisposable where TNumber : INumber<TNumber> {
-    SoundState State { get; }
-
-    void Play();
-    void Stop();
-    void Pause();
-
-    float Volume { get; set; }
-
-    uint QueuedSamples { get; }
-    int BufferCount { get; }
-
-    void PopulateNextBufferPcm(TNumber[] data);
+    event Action<TPcm[]> OnNextBufferPopulated;
   }
 }

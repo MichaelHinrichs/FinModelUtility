@@ -14,7 +14,7 @@ namespace fin.audio.io.importers.ogg {
 
       using var ogg = new VorbisReader(oggFile.OpenRead());
 
-      var mutableBuffer = audioManager.CreateMutableBuffer();
+      var mutableBuffer = audioManager.CreateAudioBuffer();
       mutableBuffer.Frequency = ogg.SampleRate;
 
       {
