@@ -91,13 +91,6 @@ namespace fin.audio {
   public interface IAudioSource<TNumber> where TNumber : INumber<TNumber> {
     IActiveSound<TNumber> Create(IAudioBuffer<TNumber> buffer);
     IActiveSound<TNumber> Create(IAudioStream<TNumber> stream);
-
-
-    IActiveMusic<TNumber> CreateMusic(IAudioBuffer<TNumber> introBuffer,
-                                      IAudioBuffer<TNumber> loopBuffer);
-
-    IActiveMusic<TNumber> CreateMusic(IAudioStream<TNumber> introStream,
-                                      IAudioStream<TNumber> loopStream);
   }
 
   public enum SoundState {
@@ -128,29 +121,6 @@ namespace fin.audio {
 
     float Volume { get; set; }
     bool Looping { get; set; }
-  }
-
-  /// <summary>
-  ///   Actively playing music. Certain attributes can be mutated on-the-fly,
-  ///   like volume, offset, etc.
-  ///
-  ///   Different from an actively played sound because this assumes one audio
-  ///   stream will be used to play an intro, and another a loop.
-  /// </summary>
-  // TODO: Probably should represented in some other way, this is clearly just
-  // one case for chained audio
-  public interface IActiveMusic<out TNumber>
-      : IStaticAudioFormat<TNumber>, IDisposable
-      where TNumber : INumber<TNumber> {
-    IAudioStream<TNumber> IntroStream { get; }
-    IAudioStream<TNumber> LoopStream { get; }
-
-    SoundState State { get; }
-
-    void Play();
-    void Pause();
-
-    float Volume { get; set; }
   }
 
   /// <summary>
