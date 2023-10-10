@@ -27,7 +27,8 @@ namespace pmdc.api {
 
       var finSkeleton = finModel.Skeleton;
       var finRoot = finSkeleton.Root;
-      finRoot.SetLocalRotationDegrees(-90, 0, 0);
+      finRoot.SetLocalRotationDegrees(-90, 180, 0);
+      finRoot.SetLocalScale(-1, 1, 1);
 
       var finMaterialManager = finModel.MaterialManager;
       var finMaterials =
@@ -81,7 +82,6 @@ namespace pmdc.api {
 
         var finPrimitive = finMesh.AddTriangles(finVertices);
         finPrimitive.SetMaterial(finMaterials[omdMesh.MaterialIndex]);
-        finPrimitive.SetVertexOrder(VertexOrder.NORMAL);
       }
 
       return finModel;
