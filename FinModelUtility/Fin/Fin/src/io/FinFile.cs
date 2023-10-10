@@ -9,6 +9,8 @@ using fin.util.asserts;
 using fin.util.json;
 
 using schema.binary;
+using schema.text;
+using schema.text.reader;
 
 namespace fin.io {
   public readonly struct FinFile : ISystemFile {
@@ -135,6 +137,12 @@ namespace fin.io {
     public T ReadNew<T>(Endianness endianness)
         where T : IBinaryDeserializable, new() {
       using var er = new EndianBinaryReader(this.OpenRead(), endianness);
+      return er.ReadNew<T>();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T ReadNewFromText<T>() where T : ITextDeserializable, new() {
+      using var er = new FinTextReader(this.OpenRead());
       return er.ReadNew<T>();
     }
 

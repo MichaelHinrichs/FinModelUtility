@@ -18,6 +18,8 @@ using mod.api;
 
 using modl.api;
 
+using pmdc.schema.omd;
+
 using UoT.api;
 
 using visceral.api;
@@ -46,6 +48,8 @@ namespace uni.ui {
                   haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
               => new ModModelImporter().ImportModel(modModelFileBundle),
+          OmdModelFileBundle omdModelFileBundle
+              => new OmdModelImporter().ImportModel(omdModelFileBundle),
           OotModelFileBundle ootModelFileBundle
               => new OotModelImporter().ImportModel(ootModelFileBundle),
           PedModelFileBundle pedModelFileBundle

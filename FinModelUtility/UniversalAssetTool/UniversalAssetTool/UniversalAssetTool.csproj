@@ -74,6 +74,8 @@
     <ProjectReference Include="..\..\Formats\Xmod\Xmod.csproj" />
 
     <ProjectReference Include="..\..\Games\HaloWarsTools\HaloWarsTools.csproj" />
+
+    <ProjectReference Include="..\..\Games\PaperMarioDirectorsCut\PaperMarioDirectorsCut\PaperMarioDirectorsCut.csproj" />
     <ProjectReference Include="..\..\Games\Pikmin2\Pikmin2\Pikmin2.csproj" />
     <ProjectReference Include="..\..\Games\SuperMario64\SuperMario64\SuperMario64.csproj" />
 

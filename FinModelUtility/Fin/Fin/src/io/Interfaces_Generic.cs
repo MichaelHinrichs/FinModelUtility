@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Abstractions;
 
 using schema.binary;
+using schema.text;
 
 namespace fin.io {
   public interface IReadOnlyGenericFile {
@@ -13,6 +14,8 @@ namespace fin.io {
 
     T ReadNew<T>() where T : IBinaryDeserializable, new();
     T ReadNew<T>(Endianness endianness) where T : IBinaryDeserializable, new();
+
+    T ReadNewFromText<T>() where T : ITextDeserializable, new();
 
     byte[] ReadAllBytes();
     string ReadAllText();

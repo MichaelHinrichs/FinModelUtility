@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using fin.data.stacks;
 using fin.util.asserts;
@@ -11,6 +12,8 @@ using fin.util.data;
 using fins.io.sharpDirLister;
 
 using schema.binary;
+using schema.text.reader;
+using schema.text;
 
 namespace fin.io {
   public class FileHierarchy : IFileHierarchy {
@@ -265,7 +268,8 @@ namespace fin.io {
         name = name.ToLower();
         var stack = new FinStack<IFileHierarchyDirectory>(this);
         while (stack.TryPop(out var next)) {
-          var match = next.GetExistingFiles().FirstOrDefault(file => file.Name.ToLower() == name);
+          var match = next.GetExistingFiles()
+                          .FirstOrDefault(file => file.Name.ToLower() == name);
           if (match != null) {
             yield return match;
           }
@@ -358,6 +362,9 @@ namespace fin.io {
       public T ReadNew<T>(Endianness endianness)
           where T : IBinaryDeserializable, new()
         => this.Impl.ReadNew<T>(endianness);
+
+      public T ReadNewFromText<T>() where T : ITextDeserializable, new()
+        => this.Impl.ReadNewFromText<T>();
 
       public byte[] ReadAllBytes() => this.Impl.ReadAllBytes();
       public string ReadAllText() => this.Impl.ReadAllText();

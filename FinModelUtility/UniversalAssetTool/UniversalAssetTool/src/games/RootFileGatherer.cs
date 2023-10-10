@@ -18,6 +18,7 @@ using uni.games.midnight_club_2;
 using uni.games.nintendogs_labrador_and_friends;
 using uni.games.ocarina_of_time;
 using uni.games.ocarina_of_time_3d;
+using uni.games.paper_mario_directors_cut;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
 using uni.games.professor_layton_vs_phoenix_wright;
@@ -53,6 +54,7 @@ namespace uni.games {
           new NintendogsLabradorAndFriendsAnnotatedFileBundleGatherer(),
           new OcarinaOfTimeAnnotatedFileBundleGatherer(),
           new OcarinaOfTime3dAnnotatedFileGatherer(),
+          new PaperMarioDirectorsCutFileGatherer(),
           new Pikmin1ModelAnnotatedFileGatherer(),
           new Pikmin2AnnotatedFileGatherer(),
           new ProfessorLaytonVsPhoenixWrightModelAnnotatedFileGatherer(),
