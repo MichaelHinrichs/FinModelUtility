@@ -18,7 +18,7 @@ using mod.api;
 
 using modl.api;
 
-using pmdc.schema.omd;
+using pmdc.api;
 
 using UoT.api;
 

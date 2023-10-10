@@ -96,12 +96,7 @@ namespace fin.data {
       Assert.AreEqual(true, impl.TryGetList(null, out var nullList));
 
       Asserts.Equal(new[] {
-                        new KeyValuePair<string?, IList<string>>("foo",
-                          fooList!),
-                        new KeyValuePair<string?, IList<string>>("bar",
-                          barList!),
-                        new KeyValuePair<string?, IList<string>>(null,
-                          nullList!),
+                        ("foo", fooList!), ("bar", barList!), (null, nullList!),
                     },
                     actualValues);
     }
@@ -133,16 +128,13 @@ namespace fin.data {
       Assert.AreEqual(true, impl.TryGetList(null, out var nullList));
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual(new KeyValuePair<string?, IList<string>>("foo", fooList!),
-                      enumerator.Current);
+      Assert.AreEqual(("foo", fooList!), enumerator.Current);
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual(new KeyValuePair<string?, IList<string>>("bar", barList!),
-                      enumerator.Current);
+      Assert.AreEqual(("bar", barList!), enumerator.Current);
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual(new KeyValuePair<string?, IList<string>>(null, nullList!),
-                      enumerator.Current);
+      Assert.AreEqual(((string?) null, nullList!), enumerator.Current);
 
       Assert.AreEqual(false, enumerator.MoveNext());
     }

@@ -1,7 +1,7 @@
 ﻿using fin.io;
 using fin.io.bundles;
 
-using pmdc.schema.omd;
+using pmdc.api;
 
 using uni.platforms;
 
