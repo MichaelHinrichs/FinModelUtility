@@ -12,7 +12,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace fin.image {
   public class DdsReader {
     public unsafe IMipMap<IImage> Read(Stream stream) {
-      using var pfimImage = Pfim.Pfim.FromStream(stream);
+      using var pfimImage = Pfimage.FromStream(stream);
 
       return MipMapUtil.From(
           pfimImage.MipMaps.Select(pfimMipMap => {

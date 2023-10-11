@@ -28,7 +28,7 @@
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.6.0">
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -39,9 +39,9 @@
     <PackageReference Include="NVorbis" Version="0.10.5" />
     <PackageReference Include="OpenAL.Soft" Version="1.19.1" />
     <PackageReference Include="OpenTK" Version="3.3.3" />
-    <PackageReference Include="Pfim" Version="0.10.3" />
+    <PackageReference Include="Pfim" Version="0.11.2" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0027" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
     <PackageReference Include="SubstreamSharp" Version="1.0.3" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="19.2.51" />
