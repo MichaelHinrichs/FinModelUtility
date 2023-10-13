@@ -20,10 +20,6 @@ namespace uni.util.io {
               });
 
       foreach (var fileBundle in fileBundles) {
-        if (fileBundle.File.Parent == null) {
-          ;
-        }
-
         lazyFileHierarchyDirToBundleDir[fileBundle.File.Parent!]
             .AddFileBundle(fileBundle);
       }
