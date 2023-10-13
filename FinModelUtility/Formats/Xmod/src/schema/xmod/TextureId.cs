@@ -11,7 +11,7 @@ namespace xmod.schema.xmod {
       this.Index = tr.ReadInt32();
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       tr.AssertChar('"');
-      this.Name = tr.ReadUpToAndPastTerminator("\"");
+      this.Name = tr.ReadUpToAndPastTerminator(TextReaderUtils.QUOTE);
     }
   }
 }

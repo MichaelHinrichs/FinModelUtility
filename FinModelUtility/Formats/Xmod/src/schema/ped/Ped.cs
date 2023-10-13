@@ -12,18 +12,19 @@ namespace xmod.schema.ped {
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       tr.AssertString("lod 0 {");
-      XmodName = tr.ReadUpToAndPastTerminator("}").Trim();
+      XmodName = tr.ReadUpToAndPastTerminator(TextReaderUtils.CLOSING_BRACE)
+                   .Trim();
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.AnimMap = new Dictionary<string, string>();
       tr.AssertString("anim {");
-      while(true) {
+      while (true) {
         tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
         if (tr.Matches(out _, "}")) {
           break;
         }
 
-        var key = tr.ReadUpToAndPastTerminator(":");
+        var key = tr.ReadUpToAndPastTerminator(TextReaderUtils.COLON);
         var value = tr.ReadLine().Trim();
         this.AnimMap[key] = value;
       }

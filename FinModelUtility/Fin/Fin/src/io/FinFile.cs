@@ -10,7 +10,8 @@ using fin.util.json;
 
 using schema.binary;
 using schema.text;
-using schema.text.reader;
+
+using TextReader = schema.text.reader.TextReader;
 
 namespace fin.io {
   public readonly struct FinFile : ISystemFile {
@@ -142,7 +143,7 @@ namespace fin.io {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T ReadNewFromText<T>() where T : ITextDeserializable, new() {
-      using var er = new FinTextReader(this.OpenRead());
+      using var er = new TextReader(this.OpenRead());
       return er.ReadNew<T>();
     }
 

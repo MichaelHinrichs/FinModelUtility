@@ -20,11 +20,11 @@ using CmbTextureMinFilter = cmb.schema.cmb.TextureMinFilter;
 using CmbTextureMagFilter = cmb.schema.cmb.TextureMagFilter;
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using FinTextureMagFilter = fin.model.TextureMagFilter;
-using Version = cmb.schema.cmb.Version;
 
 namespace cmb.material {
   public class CmbFixedFunctionMaterial {
     private const bool USE_FIXED_FUNCTION = true;
+    private const bool USE_JANKY_TRANSPARENCY = false;
 
     public unsafe CmbFixedFunctionMaterial(
         IModel finModel,
@@ -50,7 +50,7 @@ namespace cmb.material {
                   // TODO: Is this logic possibly right????
                   IImage textureImage;
                   if (ImageUtil.GetTransparencyType(rawTextureImage) !=
-                      ImageTransparencyType.OPAQUE) {
+                      ImageTransparencyType.OPAQUE || !USE_JANKY_TRANSPARENCY) {
                     textureImage = rawTextureImage;
                   } else {
                     var backgroundColor = texMapper.BorderColor;

@@ -11,7 +11,7 @@ namespace xmod.schema.xmod {
     public void Read(ITextReader tr) {
       tr.AssertString("mtl ");
 
-      this.Name = tr.ReadUpToAndPastTerminator(" {");
+      this.Name = tr.ReadUpToAndPastTerminator(TextReaderUtils.OPEN_BRACE);
 
       this.NumPackets = TextReaderUtils.ReadKeyValueNumber<int>(tr, "packets");
       TextReaderUtils.ReadKeyValueNumber<int>(tr, "primitives");
@@ -26,7 +26,7 @@ namespace xmod.schema.xmod {
       // TODO: Attributes
       //TextReaderUtils.ReadKeyValueNumber<int>(tr, "attributes");
 
-      tr.ReadUpToAndPastTerminator("}");
+      tr.ReadUpToAndPastTerminator(TextReaderUtils.CLOSING_BRACE);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
     }
   }

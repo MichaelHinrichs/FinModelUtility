@@ -2,17 +2,15 @@
 using fin.model.impl;
 using fin.model.io.importers;
 
-using schema.text.reader;
-
 using xmod.schema.xmod;
 
 using PrimitiveType = xmod.schema.xmod.PrimitiveType;
+using TextReader = schema.text.reader.TextReader;
 
 namespace xmod.api {
   public class XmodModelImporter : IModelImporter<XmodModelFileBundle> {
     public IModel ImportModel(XmodModelFileBundle modelFileBundle) {
-      using var tr =
-          new FinTextReader(modelFileBundle.XmodFile.OpenRead());
+      using var tr = new TextReader(modelFileBundle.XmodFile.OpenRead());
 
       var xmod = new Xmod();
       xmod.Read(tr);
@@ -37,7 +35,8 @@ namespace xmod.api {
 
           var texFile =
               modelFileBundle.TextureDirectory.GetFilesWithNameRecursive(
-                  $"{textureName}.tex").First();
+                                 $"{textureName}.tex")
+                             .First();
           var image = new TexImageReader().ReadImage(texFile);
 
           var finTexture = finMaterialManager.CreateTexture(image);
@@ -61,7 +60,7 @@ namespace xmod.api {
                                        vertex.SetLocalNormal(normal);
                                        vertex.SetColor(color);
                                        vertex.SetUv(uv1);
-                                       
+
                                        return vertex;
                                      })
                                      .ToArray();
