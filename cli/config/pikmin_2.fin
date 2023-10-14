@@ -1,0 +1,33 @@
+# Version 0
+# Pikmin 2
+
+# Config
+platform: gamecube
+scale: 2
+
+# Extracts archives
+extract(
+  **/ {
+    Yaz0Dec(each *.szs)
+    Rarc(each *.rarc) {
+      pruneTerms: arc, data
+    }
+  }
+)
+
+# Gathers bundles
+bundle(  
+  **/ {
+    Ast(each *.ast)
+    J3d(each *.bmd, all /.*\.bc[ak]/, all *.bti)
+    J3d(each model/*.bmd, all /anim\/.*\.bc[ak]/, all *.bti)
+  }
+
+  user/ {
+    Kando/piki/pikis_designer/ {
+      J3d(each /(orima|piki)_model\/.*\.bmd/, all /motion\/.*\.bc[ak]/)
+    }
+
+    Pikmin2Scene(each Kando/map/@/arc/model.bmd, each Abe/map/@/route.txt)
+  }
+)

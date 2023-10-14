@@ -1,0 +1,48 @@
+# Version 0
+# Battalion Wars 1
+
+# Config
+platform: gamecube
+scale: 35
+
+# Extracts archives
+extract(
+  **/ {
+    Yaz0Dec(each *.szs)
+    Rarc(each *.rarc)
+    Res(each *.res)
+  }
+)
+
+# Gathers bundles
+bundle(
+  Data/ {
+    CompoundFiles/ {
+      # Gathers models from each level directory
+      */ {
+        Modl(each *.modl)
+
+        Modl(SGRUNT.modl, all FG*.anim)
+        Modl(SVET.modl, all FV*.anim)
+
+        Modl(TGRUNT.modl, all FG*.anim)
+        Modl(TVET.modl, all FV*.anim)
+
+        Modl(UGRUNT.modl, all /[FU]G.*\.anim/)
+        Modl(UVET.modl, all FV*.anim)
+
+        Modl(WGRUNT.modl, all /(FG|WGRUNT).*\.anim/)
+        Modl(WVET.modl, all FV*.anim)
+
+        Modl(XGRUNT.modl, all /[FX]G.*\.anim/)
+        Modl(XVET.modl, all /[FX]V.*\.anim/)
+      }
+
+      # Gathers terrain model for each level
+      Out(each *.out)
+
+      # Gathers the main XML files for each level
+      Xml(each /^((?!_Level).)*\.xml$/)
+    }
+  }
+)

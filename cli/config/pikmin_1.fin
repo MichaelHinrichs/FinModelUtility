@@ -1,0 +1,28 @@
+# Version 0
+# Pikmin 1
+
+# Config
+platform: gamecube
+scale: 2
+
+# Extracts archives
+extract(
+  **/ {
+    Yaz0Dec(each *.szs)
+    Rarc(each *.rarc)
+  }
+)
+
+# Gathers bundles
+bundle(
+  **/ {
+    Mod(each *.mod)
+    # Expects same name for mod and anm
+    Mod(each @.mod, one @.anm)
+  }
+
+  dataDir/pikis/ {
+    # All piki models share the same animation file
+    Mod(each *.mod, one *.anm)
+  }
+)
