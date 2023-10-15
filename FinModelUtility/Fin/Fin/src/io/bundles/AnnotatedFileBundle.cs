@@ -1,7 +1,4 @@
-﻿using fin.model.io;
-using fin.scene;
-
-namespace fin.io.bundles {
+﻿namespace fin.io.bundles {
   public interface IAnnotatedFileBundle {
     IFileBundle FileBundle { get; }
 
