@@ -1,18 +1,10 @@
-﻿using cmb.api;
-
-using CommandLine;
+﻿using CommandLine;
 using CommandLine.Text;
 
 using fin.io;
-using fin.model;
 using fin.model.io;
 using fin.model.io.exporters;
 using fin.model.io.exporters.assimp.indirect;
-using fin.model.io.importers.assimp;
-
-using j3d.api;
-
-using mod.api;
 
 using OpenTK.Graphics;
 
@@ -24,14 +16,14 @@ namespace uni.cli {
     public static int Main(string[] args) {
       IEnumerable<Error>? errors = null;
 
-      var extractorOptionTypes =
+      var massExporterOptionTypes =
           AppDomain.CurrentDomain.GetAssemblies()
                    .SelectMany(s => s.GetTypes())
                    .Where(typeof(IMassExporterOptions).IsAssignableFrom);
 
       var plugins = PluginUtil.Plugins;
 
-      var verbTypes = extractorOptionTypes
+      var verbTypes = massExporterOptionTypes
                       .Concat(new[] {
                           typeof(UiOptions),
                           typeof(ListPluginOptions),
@@ -129,7 +121,8 @@ namespace uni.cli {
                     if (needsHelpGettingBestMatch) {
                       Console.WriteLine();
 
-                      Console.WriteLine("Make sure that all of the input files satisfy at least one of the following plugins:");
+                      Console.WriteLine(
+                          "Make sure that all of the input files satisfy at least one of the following plugins:");
                       Console.WriteLine();
                       foreach (var plugin in plugins) {
                         PrintPluginInfo_(plugin);
