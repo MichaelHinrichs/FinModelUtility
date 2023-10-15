@@ -9,7 +9,7 @@ using uni.config;
 using uni.games;
 using uni.ui.common.fileTreeView;
 
-using static uni.games.ExtractorUtil;
+using static uni.games.ExporterUtil;
 
 namespace uni.ui.top {
   public partial class ModelToolStrip : UserControl {
@@ -146,21 +146,21 @@ namespace uni.ui.top {
         IReadOnlyList<IAnnotatedFileBundle<IModelFileBundle>>
             modelFileBundles) {
       var extractorPromptChoice =
-          ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
+          ExporterUtil.PromptIfModelFileBundlesAlreadyExported(
               modelFileBundles,
               Config.Instance.ExporterSettings.ExportedFormats);
-      if (extractorPromptChoice != ExtractorPromptChoice.CANCEL) {
+      if (extractorPromptChoice != ExporterPromptChoice.CANCEL) {
         this.CancellationToken = new CancellationTokenSource();
 
         Task.Run(() => {
-          ExtractorUtil.ExtractAll(modelFileBundles,
+          ExporterUtil.ExportAll(modelFileBundles,
                                    new GlobalModelImporter(),
                                    this.Progress,
                                    this.CancellationToken,
                                    Config.Instance.ExporterSettings
                                          .ExportedFormats,
                                    extractorPromptChoice ==
-                                   ExtractorPromptChoice
+                                   ExporterPromptChoice
                                        .OVERWRITE_EXISTING);
         });
       }

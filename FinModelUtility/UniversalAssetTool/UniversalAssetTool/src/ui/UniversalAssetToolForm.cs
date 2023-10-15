@@ -333,7 +333,7 @@ public partial class UniversalAssetToolForm : Form {
     var result = saveFileDialog.ShowDialog();
     if (result == DialogResult.OK) {
       var outputFile = new FinFile(saveFileDialog.FileName);
-      ExtractorUtil.Extract(modelFileBundle,
+      ExporterUtil.Export(modelFileBundle,
                             () => model,
                             outputFile.AssertGetParent(),
                             new[] { outputFile.FileType },

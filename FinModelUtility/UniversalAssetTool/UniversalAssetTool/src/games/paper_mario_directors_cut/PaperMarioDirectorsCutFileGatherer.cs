@@ -11,12 +11,13 @@ namespace uni.games.paper_mario_directors_cut {
     public IEnumerable<IAnnotatedFileBundle<OmdModelFileBundle>>
         GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingSubdir(
-              "paper_mario_directors_cut",
+              "paper_mario_directors_cut/prereqs",
               out var pmdcDir)) {
         yield break;
       }
 
-      var fileHierarchy = new FileHierarchy(pmdcDir);
+      var fileHierarchy =
+          new FileHierarchy("paper_mario_directors_cut", pmdcDir);
 
       var omdFiles = fileHierarchy.Root.GetFilesWithFileType(".omd", true);
       foreach (var omdFile in omdFiles) {

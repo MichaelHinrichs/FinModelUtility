@@ -12,23 +12,18 @@ namespace uni.games.dead_space_1 {
         yield break;
       }
 
-      var originalGameFileHierarchy = new FileHierarchy(deadSpaceDir);
-
-      var baseOutputDirectory =
-          GameFileHierarchyUtil.GetOrCreateWorkingDirectoryForDirectory(
-              originalGameFileHierarchy.Root,
-              "dead_space_1");
+      var baseOutputDirectory = ExtractorUtil.GetOrCreateExtractedDirectory(
+          "dead_space_1");
       if (baseOutputDirectory.IsEmpty) {
         var strExtractor = new StrExtractor();
-        foreach (var strFile in originalGameFileHierarchy.SelectMany(
-                     dir => dir.FilesWithExtensionRecursive(".str"))) {
+        foreach (var strFile in
+                 deadSpaceDir.GetFilesWithFileType(".str", true)) {
           strExtractor.Extract(strFile, baseOutputDirectory);
         }
       }
 
-      var assetFileHierarchy = new FileHierarchy(baseOutputDirectory);
-
-
+      var assetFileHierarchy =
+          new FileHierarchy("dead_space_1", baseOutputDirectory);
       foreach (var charSubdir in
                new[] { "animated_props", "chars", "weapons" }
                    .Select(assetFileHierarchy.Root.AssertGetExistingSubdir)
@@ -74,8 +69,6 @@ namespace uni.games.dead_space_1 {
         }
 
         if (geoFiles.Length > 0 || rcbFile != null) {
-          
-          
           yield return new GeoModelFileBundle {
               GameName = "dead_space_1",
               GeoFiles = geoFiles,

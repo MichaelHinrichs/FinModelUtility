@@ -3,16 +3,15 @@ using fin.io;
 
 using SceneGate.Ekona.Containers.Rom;
 
+using uni.games;
+
 using Yarhl.FileSystem;
 
 namespace uni.platforms.ds {
   internal class DsFileHierarchyExtractor {
     public IFileHierarchy ExtractFromRom(
         IReadOnlySystemFile romFile) {
-      var outDir = DirectoryConstants.ROMS_DIRECTORY.GetOrCreateSubdir(
-          romFile.NameWithoutExtension);
-
-      if (outDir.IsEmpty) {
+      if (ExtractorUtil.HasNotBeenExtractedYet(romFile, out var outDir)) {
         var game = NodeFactory.FromFile(romFile.FullPath);
         game.TransformWith<Binary2NitroRom>();
 
@@ -25,7 +24,7 @@ namespace uni.platforms.ds {
         }
       }
 
-      return new FileHierarchy(outDir);
+      return new FileHierarchy(romFile.NameWithoutExtension, outDir);
     }
   }
 }

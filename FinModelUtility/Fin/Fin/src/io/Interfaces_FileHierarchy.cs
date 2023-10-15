@@ -2,13 +2,14 @@
 
 namespace fin.io {
   public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
+    string Name { get; }
     IFileHierarchyDirectory Root { get; }
   }
 
   public partial interface IFileHierarchyIoObject : IReadOnlyTreeIoObject {
     string LocalPath { get; }
 
-    IFileHierarchyDirectory Root { get; }
+    IFileHierarchy Hierarchy { get; }
     IFileHierarchyDirectory? Parent { get; }
     bool Exists { get; }
   }

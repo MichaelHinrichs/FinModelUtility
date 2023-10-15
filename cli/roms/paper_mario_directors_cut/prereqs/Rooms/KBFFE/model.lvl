@@ -1,0 +1,31 @@
+//Koopa Bros. Fortress -- Front Entrance
+
+
+global.newRoomMusic:musKoopaBrosFortress
+parCamera.img:bacBlack
+global.roomIsModel:1
+
+parCamera.direction:180
+goToDirection:180
+parCamera.zDirection:-10
+goToZDirection:-10
+parCamera.goToZoom:130
+goToZoom:130
+
+global.roomSpeech:"`global.appearType='fade';global.textType='normal'`Well, we're currently by BOTH back\entrances to the Koopa Bros. Fortress.\\...\Weird... why would the Koopa Bros. have\two secret entrances right next to each\other? It seems like a poor design\choice in my opinion.\Wait... can you hear that, Mario?\It sounds like someone's calling for help\at the entrance on the Bob-omb village\side...!\^"
+global.roomXMin:-10000
+global.roomXMax:10000
+global.roomYMin:-10000
+global.roomYMax:10000
+
+
+objEventZone(100,270,1000,275,350,-1000,-1,"goToDirection=180;goToZoom=100;global.roomXMin=-10000;global.roomYMin=310;global.roomYMax=310")
+
+objEventZone(275,230,1000,515,390,-1000,-1,"goToDirection=90;goToZoom=140;global.roomXMin=346;global.roomYMin=-10000;global.roomYMax=341")
+objEventZone(515,230,1000,680,390,-1000,-1,"goToDirection=45;goToZoom=140;global.roomXMin=-10000;global.roomYMin=-10000;global.roomYMax=10000")
+objEventZone(515,390,1000,680,555,-1000,-1,"goToDirection=0;goToZoom=140;global.roomXMin=569;global.roomXMax=10000;global.roomYMin=-10000;global.roomYMax=482")
+
+objEventZone(555,555,1000,640,670,-1000,-1,"goToDirection=270;goToZoom=100;global.roomXMin=600;global.roomXMax=600;global.roomYMin=-10000;global.roomYMax=10000")
+
+objDoor(160,310,0,0,0,0,-1,"rmKBFBE,160,310,0,310,965,-380,380,965,-380")
+objDoor(600,665,0,0,0,0,-1,"rmKBFBB,600,665,0,1855,360,0,1780,360,0")

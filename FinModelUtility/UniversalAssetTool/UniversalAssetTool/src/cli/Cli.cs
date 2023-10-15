@@ -27,7 +27,7 @@ namespace uni.cli {
       var extractorOptionTypes =
           AppDomain.CurrentDomain.GetAssemblies()
                    .SelectMany(s => s.GetTypes())
-                   .Where(typeof(IExtractorOptions).IsAssignableFrom);
+                   .Where(typeof(IMassExporterOptions).IsAssignableFrom);
 
       var plugins = PluginUtil.Plugins;
 
@@ -53,8 +53,8 @@ namespace uni.cli {
       var parserResult =
           Parser.Default.ParseArguments(args, verbTypes)
                 .WithParsed(
-                    (IExtractorOptions extractorOptions)
-                        => extractorOptions.CreateExtractor().ExtractAll())
+                    (IMassExporterOptions extractorOptions)
+                        => extractorOptions.CreateMassExporter().ExportAll())
                 .WithParsed((UiOptions _) => {
                   DesignModeUtil.InDesignMode = false;
                   GraphicsContext.ShareContexts = true;

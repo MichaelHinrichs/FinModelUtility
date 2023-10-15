@@ -13,7 +13,7 @@ namespace uni.util.io {
               (lazyDict, dir) => {
                 var parent = dir.Parent;
                 if (parent == null) {
-                  return rootFileBundleDirectory.AddSubdir(dir.Root);
+                  return rootFileBundleDirectory.AddSubdir(dir.Hierarchy.Root);
                 }
 
                 return lazyDict[parent].AddSubdir(dir);

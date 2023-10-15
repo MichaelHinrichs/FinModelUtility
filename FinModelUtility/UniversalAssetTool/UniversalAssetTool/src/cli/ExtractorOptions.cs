@@ -20,93 +20,93 @@ using uni.games.super_mario_sunshine;
 using uni.games.wind_waker;
 
 namespace uni.cli {
-  public interface IExtractorOptions {
-    IExtractor CreateExtractor();
+  public interface IMassExporterOptions {
+    IMassExporter CreateMassExporter();
   }
 
-  public interface IExtractorOptions<TExtractor> : IExtractorOptions
-      where TExtractor : IExtractor, new() {
-    IExtractor IExtractorOptions.CreateExtractor() => this.CreateExtractor();
-    TExtractor CreateExtractor() => new();
+  public interface IMassExporterOptions<out TMassExporter> : IMassExporterOptions
+      where TMassExporter : IMassExporter, new() {
+    IMassExporter IMassExporterOptions.CreateMassExporter() => this.CreateMassExporter();
+    new TMassExporter CreateMassExporter() => new();
   }
 
 
   [Verb("animal_crossing",
         HelpText = "Extract models from Animal Crossing.")]
   public class AnimalCrossingOptions
-      : IExtractorOptions<AnimalCrossingExtractor> { }
+      : IMassExporterOptions<AnimalCrossingMassExporter> { }
 
   [Verb("battalion_wars_1",
         HelpText = "Extract models from Battalion Wars 1.")]
   public class BattalionWars1Options 
-      : IExtractorOptions<BattalionWars1Extractor> { }
+      : IMassExporterOptions<BattalionWars1MassExporter> { }
 
   [Verb("battalion_wars_2",
         HelpText = "Extract models from Battalion Wars 2.")]
   public class BattalionWars2Options
-      : IExtractorOptions<BattalionWars2Extractor> { }
+      : IMassExporterOptions<BattalionWars2MassExporter> { }
 
   [Verb("halo_wars",
         HelpText = "Extract models from Halo Wars.")]
-  public class HaloWarsOptions : IExtractorOptions<HaloWarsExtractor> { }
+  public class HaloWarsOptions : IMassExporterOptions<HaloWarsMassExporter> { }
 
   [Verb("glover",
         HelpText = "Extract models from Glover.")]
-  public class GloverOptions : IExtractorOptions<GloverExtractor> { }
+  public class GloverOptions : IMassExporterOptions<GloverMassExporter> { }
 
   [Verb("luigis_mansion", HelpText = "Extract models from Luigi's Mansion.")]
   public class LuigisMansionOptions 
-      : IExtractorOptions<LuigisMansionExtractor> { }
+      : IMassExporterOptions<LuigisMansionMassExporter> { }
 
   [Verb("luigis_mansion_3d",
         HelpText = "Extract models from Luigi's Mansion 3D.")]
   public class LuigisMansion3dOptions
-      : IExtractorOptions<LuigisMansion3dExtractor> { }
+      : IMassExporterOptions<LuigisMansion3dMassExporter> { }
 
   [Verb("majoras_mask_3d",
         HelpText = "Extract models from Majora's Mask 3D.")]
   public class MajorasMask3dOptions
-      : IExtractorOptions<MajorasMask3dExtractor> { }
+      : IMassExporterOptions<MajorasMask3dMassExporter> { }
 
   [Verb("mario_kart_double_dash",
         HelpText = "Extract models from Mario Kart: Double Dash.")]
   public class MarioKartDoubleDashOptions
-      : IExtractorOptions<MarioKartDoubleDashExtractor> { }
+      : IMassExporterOptions<MarioKartDoubleDashMassExporter> { }
 
 
   [Verb("midnight_club_2",
         HelpText = "Extract models from Midnight Club 2.")]
   public class MidnightClub2Options
-      : IExtractorOptions<MidnightClub2Extractor> { }
+      : IMassExporterOptions<MidnightClub2MassExporter> { }
 
   [Verb("ocarina_of_time_3d",
         HelpText = "Extract models from Ocarina of Time 3D.")]
   public class OcarinaOfTime3dOptions
-      : IExtractorOptions<OcarinaOfTime3dExtractor> { }
+      : IMassExporterOptions<OcarinaOfTime3dMassExporter> { }
 
   [Verb("paper_mario_the_thousand_year_door",
         HelpText = "Extract models from Paper Mario: The Thousand Year Door.")]
   public class PaperMarioTheThousandYearDoorOptions
-      : IExtractorOptions<PaperMarioTheThousandYearDoorExtractor> { }
+      : IMassExporterOptions<PaperMarioTheThousandYearDoorMassExporter> { }
 
   [Verb("pikmin_1", HelpText = "Extract models from Pikmin 1.")]
   public class Pikmin1Options
-      : IExtractorOptions<Pikmin1Extractor> { }
+      : IMassExporterOptions<Pikmin1MassExporter> { }
 
   [Verb("pikmin_2", HelpText = "Extract models from Pikmin 2.")]
-  public class Pikmin2Options : IExtractorOptions<Pikmin2Extractor> { }
+  public class Pikmin2Options : IMassExporterOptions<Pikmin2MassExporter> { }
 
 [Verb("professor_layton_vs_phoenix_wright",
         HelpText = "Extract models from Professor Layton vs. Phoenix Wright.")]
   public class ProfessorLaytonVsPhoenixWrightOptions
-      : IExtractorOptions<ProfessorLaytonVsPhoenixWrightExtractor> { }
+      : IMassExporterOptions<ProfessorLaytonVsPhoenixWrightMassExporter> { }
 
   [Verb("super_mario_sunshine",
         HelpText = "Extract models from Super Mario Sunshine.")]
   public class SuperMarioSunshineOptions
-      : IExtractorOptions<SuperMarioSunshineExtractor> { }
+      : IMassExporterOptions<SuperMarioSunshineMassExporter> { }
 
   [Verb("wind_waker",
         HelpText = "Extract models from Wind Waker.")]
-  public class WindWakerOptions : IExtractorOptions<WindWakerExtractor> { }
+  public class WindWakerOptions : IMassExporterOptions<WindWakerMassExporter> { }
 }

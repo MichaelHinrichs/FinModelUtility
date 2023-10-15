@@ -1,0 +1,45 @@
+//Koopa Bros. Fortress -- Lobby
+
+global.newRoomMusic:musKoopaBrosFortress
+parCamera.img:bacBlack
+global.roomIsModel:1
+
+parCamera.direction:90
+goToDirection:90
+parCamera.zDirection:-10
+goToZDirection:-10
+parCamera.goToZoom:130
+goToZoom:130
+
+global.roomSpeech:"`global.appearType='fade';global.textType='normal'`Well, we're currently by BOTH back\entrances to the Koopa Bros. Fortress.\\...\Weird... why would the Koopa Bros. have\two secret entrances right next to each\other? It seems like a poor design\choice in my opinion.\Wait... can you hear that, Mario?\It sounds like someone's calling for help\at the entrance on the Bob-omb village\side...!\^"
+global.roomXMin:663
+global.roomXMax:1109
+global.roomYMin:-10000
+global.roomYMax:858
+
+
+objDoor(445,505,285,0,0,0,-1,"rmKBFBE,445,505,285,925,965,0,845,965,0")
+objDoor(445,830,0,0,0,0,-1,"rmKBFBE,445,830,0,925,965,-285,845,965,-285")
+
+
+objDoor(1330,505,285,0,0,0,-1,"rmKBFP,1325,505,285,80,305,0,150,305,0")
+objDoor(1330,830,0,0,0,0,-1,"rmKBFP,1325,830,0,80,305,-285,140,305,-285")
+
+
+objEventZone(560,300,1000,1210,915,-1000,-1,"goToDirection=90;goToZoom=180;global.roomXMin=663;global.roomXMax=1109;global.roomYMin=-10000;global.roomYMax=858")
+objEventZone(1210,300,1000,1380,585,-1000,-1,"goToDirection=0;goToZoom=100;global.roomXMax=10000;global.roomYMin=505;global.roomYMax=505")
+objEventZone(400,300,1000,560,585,-1000,-1,"goToDirection=180;goToZoom=100;global.roomXMin=-10000;global.roomYMin=505;global.roomYMax=505")
+objEventZone(640,300,1000,720,585,-1000,-1,"if(parPlayer.z < 140){goToZoom=100;global.roomXMin=681;global.roomXMax=681}")
+objEventZone(1045,300,1000,1130,585,-1000,-1,"if(parPlayer.z < 140){goToZoom=100;global.roomXMin=1088;global.roomXMax=1088}")
+
+objEventZone(1210,790,1000,1380,870,-1000,-1,"goToDirection=0;goToZoom=100;global.roomXMax=10000;global.roomYMin=830;global.roomYMax=830")
+objEventZone(400,790,1000,560,870,-1000,-1,"goToDirection=180;goToZoom=100;global.roomXMin=-10000;global.roomYMin=830;global.roomYMax=830")
+
+
+objHouseDoor(1295,505,285,2,1.65,0,bacKBFDoor,"0,2,0")
+objHouseDoor(1295,830,0,2,1.65,0,bacKBFDoor,"0,2,0")
+
+
+
+objDoor(681,470,0,0,0,0,-1,"rmKBFLLS,681,470,0,234,800,0,234,730,0")
+objDoor(1088,470,0,0,0,0,-1,"rmKBFLLS,1088,470,0,641,800,0,641,730,0")

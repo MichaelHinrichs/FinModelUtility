@@ -1,0 +1,44 @@
+//Koopa Bros. Fortress -- Elevators
+
+global.newRoomMusic:musKoopaBrosFortress
+parCamera.img:bacBlack
+global.roomIsModel:1
+
+parCamera.direction:90
+goToDirection:90
+parCamera.zDirection:-10
+goToZDirection:-10
+parCamera.goToZoom:130
+goToZoom:130
+
+global.roomSpeech:"`global.appearType='fade';global.textType='normal'`This appears to be a room of\elevators...\\\Wow, did they really think\elevators would be an obstacle\for you, Mario?\\^"
+global.roomXMin:449
+global.roomXMax:10000
+global.roomYMin:-10000
+global.roomYMax:437
+
+
+objEventZone(350,306,1000,1310,465,-1000,-1,"goToDirection=90;goToZDirection=-10;goToZoom=130;global.roomXMin=449;global.roomXMax=10000;global.roomYMin=-10000;global.roomYMax=437")
+objEventZone(200,306,1000,350,465,-1000,-1,"goToDirection=180;goToZoom=100;global.roomXMin=-10000;global.roomXMax=10000;global.roomYMin=385;global.roomYMax=385")
+objEventZone(514,306,1000,1200,386,-1000,-1,"goToDirection=90;goToZDirection=-4;goToZoom=180;global.roomXMin=449;global.roomXMax=10000;global.roomYMin=-10000;global.roomYMax=437")
+
+
+objDoor(236,385,57,0,0,0,-1,"rmKBFF,236,385,57,1320,405,0,1250,405,0")
+
+objFloorBlock(514,306,57,594,386,47,bacMetalFloor,"elevator;0,100,0,2,30,30,1")
+objFloorBlock(594,306,157,674,386,147,bacMetalFloor,"elevator;0,100,100,2,30,30,-1")
+objFloorBlock(674,306,57,754,386,47,bacMetalFloor,"elevator;0,100,0,2,30,30,1")
+
+objFloorBlock(794,306,157,874,386,147,bacMetalFloor,"elevator;0,100,100,2,30,30,-1")
+objFloorBlock(874,306,57,954,386,47,bacMetalFloor,"elevator;0,100,0,2,30,30,1")
+
+objFloorBlock(994,306,157,1074,386,147,bacMetalFloor,"elevator;0,100,100,2,30,30,-1")
+objFloorBlock(1114,306,57,1194,386,47,bacMetalFloor,"elevator;0,100,0,2,30,30,1")
+
+
+//
+objFloorBlock(1205,290,64,1285,290,-10,-1,"wall-invisible")
+objEventZone(1205,305,1000,1285,385,-1000,-1,"if(parPlayer.z < 50){goToDirection=270;goToZoom=100}")
+objEventZone(1285,305,1000,1295,385,-1000,-1,"goToDirection=90;goToZoom=130")
+
+objBadge(1243,345,0,0,0,0,-1,"Smash Charge")

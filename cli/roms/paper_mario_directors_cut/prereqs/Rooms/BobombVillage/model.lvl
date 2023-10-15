@@ -1,0 +1,96 @@
+//Bob-omb Village
+global.newRoomMusic:musKoopaVillage
+parCamera.img:bacMountains
+global.roomIsModel:1
+
+parCamera.direction:90
+goToDirection:90
+parCamera.zDirection:-10
+goToZDirection:-10
+parCamera.goToZoom:130
+goToZoom:130
+
+global.roomSpeech:"`global.appearType='fade';global.textType='normal'`We're currently in Bob-omb Village. Most\people stay away from this... um... rather\explosive spot for their own safety, but\a strong guy like you should be A-OK.\^"
+global.roomXMin:331
+global.roomXMax:839
+global.roomYMin:-10000
+global.roomYMax:10000
+
+objFloorBlock(233,427,64,303,417,0,bacFence,"wall-noRepeat")
+objFloorBlock(233,507,64,303,507,0,bacFence,"wall-noRepeat")
+
+objTree1(295,545,0,0,0,0,-1,"")
+
+objTree1(441,214,0,0,0,0,-1,"")
+objFloorBlock(502,347,64,447,357,0,bacFence,"wall-noRepeat")
+
+objFloorBlock(430,447,64,477.5,439.5,0,bacFence,"wall-noRepeat")
+objFloorBlock(477.5,439.5,64,525,432,0,bacFence,"wall-noRepeat")
+
+
+objTree1(482,477,0,0,0,0,-1,"")
+
+
+
+objFloorBlock(318,435,85,351,422,55,bacToadSign,"wall-noRepeat")
+objFloorBlock(852,435,85,819,422,55,bacItemSign,"wall-noRepeat")
+
+objNPC(440,585,0,0,0,0,-1,"greetBobomb,bobomb,`global.appearType='fade';global.textType='normal'`Hello, Mario!\Welcome to Bob-omb Village!\\\^"")
+objNPC(585,470,0,0,0,0,-1,"thankBobomb,bobomb,`global.appearType='fade';global.textType='normal'`Thanks for saving us from the Koopa Bros.\Fortress!\\\Feel free to make yourself at home in our\village.\\\^"")
+objNPC(730,585,0,0,0,0,-1,"infoBobomb,bobomb,`global.appearType='fade';global.textType='normal'`Did you know that the walls of our homes\are made of reinforced concrete?\\\We Bob-ombs explode so often that our old\homes had to be rebuilt constantly, and\we couldn't stand it anymore.\\^"")
+objNPC(655,670,0,0,0,0,-1,"therapyBobomb,bobomb,`global.appearType='fade';global.textType='normal'`I've recently begun going to a\psychiatrist for my short temper.\It runs in the family...\\I used to explode any time someone made\me angry, which averaged out to about\two-hundred explosions a day.\\I've already gotten down to one-hundred\and ninety! Amazing, no?\\\^")
+objSaveBlock(707,557,-2.35,0,0,0,-1,"")
+
+//objGroundBlock(0,300,0,0,0,0,-1,"1")
+
+objTree1(425,650,0,0,0,0,-1,"")
+objTree1(745,650,0,0,0,0,-1,"")
+
+
+
+objTree1(688,477,0,0,0,0,-1,"")
+
+
+objFloorBlock(740,447,64,692.5,439.5,0,bacFence,"wall-noRepeat")
+objFloorBlock(692.5,439.5,64,645,432,0,bacFence,"wall-noRepeat")
+
+objTree1(729,214,0,0,0,0,-1,"")
+objFloorBlock(668,347,64,723,357,0,bacFence,"wall-noRepeat")
+
+objFloorBlock(937,427,64,867,417,0,bacFence,"wall-noRepeat")
+objFloorBlock(937,507,64,867,507,0,bacFence,"wall-noRepeat")
+
+objTree1(875,545,0,0,0,0,-1,"")
+
+
+
+//LEFT HOUSE
+#1_objEventZone(350,350,1000,420,430,-10,-1,"if(currentHouse == 0){goToDirection=90;global.roomXMin=-10000;global.roomXMax=10000;global.roomYMin=-10000;parCamera.img=bacMountains;instance_activate_all()}")
+#1_objEventZone(280,230,1000,460,430,-10,-1,"if(currentHouse == 1){goToDirection=292;global.roomXMin=-10000;global.roomXMax=10000;global.roomYMin=-10000;parCamera.img=bacBlack;group_deactivate(1,true)}")
+#1_objHouseDoor(378,390,-1.2,1.75,1.3,0,bacToadTownDoor,"1,1,111")
+
+
+//MIDDLE HOUSE
+#2_objHouseDoor(585,350,-1.2,1.75,1.3,0,bacToadTownDoor,"2,1,90")
+#2_objDoor(533,300,-80,0,0,0,-1,"rmKBFBE,533,300,-80,615,250,44,615,300,44")
+#2_objNPC(540,320,-2,0,0,0,-1,"redKoopa-noWait,kooper,"`global.appearType='fade';global.textType='normal';player_controllable(false,false)`Oh, no!\It's Mario! Gotta scram!\\\`overlay_hud_lock(true);npc_to_point('redKoopa',635,265,-2,global.charSpeed*3,'npc_to_point(~redKoopa~,535,230,-80,global.charSpeed*3,~player_controllable(true,false);overlay_hud_lock(false);instance_destroy()~)');text_reset()`^")
+#2_objEventZone(515,360,1000,653,380,-10,-1,"goToDirection=90;global.roomXMin=331;global.roomXMax=839;global.roomYMin=-10000;global.roomYMax=10000;parCamera.img=bacMountains;instance_activate_all()")
+#2_objEventZone(515,230,1000,653,390,-10,-1,"if(currentHouse == 2){goToDirection=270.3;global.roomXMin=585;global.roomXMax=585;global.roomYMin=255;parCamera.img=bacBlack;group_deactivate(2,true)}")
+#2_objEventZone(515,260,1000,560,300,-10,-1,"goToDirection=270.3;global.roomXMin=585;global.roomXMax=585;global.roomYMin=255;parCamera.img=bacBlack;global.insideHouse=true;currentHouse=2;group_deactivate(2,true);house_set('BobombVillageH',2)")
+
+//LEFT HOUSE
+#3_objEventZone(750,350,1000,830,430,-10,-1,"if(currentHouse == 0){goToDirection=90;global.roomXMin=-10000;global.roomXMax=10000;global.roomYMin=-10000;parCamera.img=bacMountains;instance_activate_all()}")
+#3_objEventZone(710,230,1000,920,430,-10,-1,"if(currentHouse == 3){goToDirection=250;global.roomXMin=-10000;global.roomXMax=10000;global.roomYMin=-10000;parCamera.img=bacBlack;group_deactivate(3,true)}")
+#3_objHouseDoor(792,390,-1.2,1.75,1.3,0,bacToadTownDoor,"3,1,69")
+
+//BOUNDARIES
+objFloorBlock(233,417,1000,233,442,0,-1,"wall-invisible")
+objFloorBlock(233,491,1000,233,617,0,-1,"wall-invisible")
+objFloorBlock(233,617,1000,362,747,0,-1,"wall-invisible")
+objFloorBlock(362,747,1000,585,780,0,-1,"wall-invisible")
+objFloorBlock(808,747,1000,585,780,0,-1,"wall-invisible")
+objFloorBlock(937,617,1000,808,747,0,-1,"wall-invisible")
+objFloorBlock(937,491,1000,937,617,0,-1,"wall-invisible")
+objFloorBlock(937,617,1000,937,442,0,-1,"wall-invisible")
+
+objDoor(235,465,0,0,0,0,-1,"rmK2BPath,219,465,0,890,1067,85,890,987,85")

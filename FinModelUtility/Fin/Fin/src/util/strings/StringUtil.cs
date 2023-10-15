@@ -18,6 +18,7 @@ namespace fin.util.strings {
       for (var i = 0; i < times; ++i) {
         builder.Append(str);
       }
+
       return builder.ToString();
     }
 
@@ -42,6 +43,11 @@ namespace fin.util.strings {
 
     public static string[] SplitNewlines(string text)
       => Regex.Split(text, "\r\n|\r|\n");
+
+    public static string SubstringUpTo(this string str, char c) {
+      var indexTo = str.IndexOf(c);
+      return indexTo >= 0 ? str[..indexTo] : str;
+    }
 
     public static string SubstringUpTo(this string str, string substr) {
       var indexTo = str.IndexOf(substr);

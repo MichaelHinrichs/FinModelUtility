@@ -1,0 +1,72 @@
+global.newRoomMusic:musRoute
+parCamera.img:bacMountains
+global.roomIsModel:1
+
+parCamera.direction:90
+goToDirection:45
+parCamera.zDirection:-10
+goToZDirection:-10
+parCamera.goToZoom:130
+goToZoom:130
+
+global.roomSpeech:"`global.appearType='fade';global.textType='normal'`This is the path from Koopa Village to\Bob-omb Village. I've heard there's some\sort of weird cave around here, but it\looks like it's blocked off right now...\^"
+global.roomXMin:-10000
+global.roomXMax:10000
+global.roomYMin:-10000
+global.roomYMax:10000
+
+objTree1(285,250,0,0,0,0,-1,"")
+objTree1(920,350,88,0,0,0,-1,"")
+
+objGroundBlock(640,330,30,0,0,0,-1,"1")
+objGroundBlock(635,360,30,0,0,0,-1,"1")
+objGroundBlock(640,390,30,0,0,0,-1,"1")
+
+
+objItemBlock(380,360,43,0,0,0,-1,"mushroom")
+
+
+objWater(220,443,-40,740,795,-40,-1,"")
+
+objDoor(195,365,0,0,0,0,-1,"rmK1BPath,170,365,0,1135,430,83,1045,410,83")
+objDoor(190,965,-483,0,0,0,-1,"rmK1BPath,175,965,-483,1090,860,-265,990,880,-265")
+objDoor(890,1035,85,0,0,0,-1,"rmBobombVillage,890,1051,85,203,465,0,283,465,0")
+objFloorBlock(920,975,149,920,1035,85,bacFence,"wall-noRepeat")
+objFloorBlock(865,975,149,865,1035,85,bacFence,"wall-noRepeat")
+
+
+//objEnemy(480,265,43,0,0,0,-1,"bottom,goomba,(,,goomba,goomba,),instance_destroy()")
+objEnemy(480,265,43,0,0,0,-1,"bottom,goomba,(,,goomba,,),instance_destroy()")
+
+
+//UNDERGROUND AREA
+objDoor(895,1050,-25,0,0,0,-1,"rmKBFBE,895,1075,-25,300,965,0,390,965,0")
+
+
+//BOTTOM AREA
+objWater(590,800,-500,740,1395,-500,-1,"")
+
+
+
+//CAMERA CONTROLS
+//Koopa Village Side
+objEventZone(170,220,1000,335,510,-1000,-1,"goToDirection=90;goToZoom=130;global.roomXMin=300;global.roomXMax=1000;global.roomYMin=-10000;global.roomYMax=500")
+objEventZone(335,220,1000,740,510,-1000,-1,"goToDirection=120;goToZoom=130;global.roomXMin=316;global.roomXMax=1000;global.roomYMin=-10000;global.roomYMax=500")
+objEventZone(535,310,1000,650,410,-1000,-1,"if(parPlayer.z < 75){goToDirection=0;goToZoom=130;global.roomYMin=360;global.roomYMax=360}")
+objEventZone(650,310,1000,740,410,-1000,-1,"if(parPlayer.z < 75){goToDirection=0;goToZoom=130;parCamera.direction=goToDirection;parCamera.zoom=goToZoom;global.roomYMin=360;global.roomYMax=360}")
+//Middle
+objEventZone(740,220,1000,1045,510,-1000,-1,"if(parPlayer.z > 80){goToDirection=point_direction(740,510,parPlayer.x,parPlayer.y)}else{goToDirection=point_direction(740,510,parPlayer.x,parPlayer.y)+180;goToZoom=200;parCamera.direction=goToDirection;parCamera.zoom=goToZoom}global.roomXMin=-10000;global.roomXMax=10000;global.roomYMin=-10000;global.roomYMax=10000")
+//Bob-omb Village Side
+objEventZone(740,510,1000,840,1060,-1000,-1,"goToZoom=130;if(parPlayer.z > 80){goToDirection=0}else{goToDirection=180;parCamera.direction=goToDirection;parCamera.zoom=goToZoom}global.roomXMin=790;global.roomXMax=1010;global.roomYMin=-10000;global.roomYMax=939")
+objEventZone(840,510,1000,1045,1060,-1000,-1,"if(parPlayer.z > 80){goToDirection=0;global.roomYMin=-10000}else{goToDirection=180;parCamera.direction=goToDirection;parCamera.zoom=goToZoom;global.roomYMin=590}parCamera.direction=goToDirection;goToZoom=130;global.roomXMin=790;global.roomXMax=1010;global.roomYMax=939")
+
+
+
+objFloorBlock(733,313,85,845,330,-1000,-1,"wall-invisible")
+objFloorBlock(845,330,85,917,410,-1000,-1,"wall-invisible")
+
+objFloorBlock(220,510,1000,740,510,-1000,-1,"wall-invisible")
+objFloorBlock(885,260,1000,995,365,-1000,-1,"wall-invisible")
+objFloorBlock(995,365,1000,1045,510,-1000,-1,"wall-invisible")
+objFloorBlock(740,510,1000,740,1035,-1000,-1,"wall-invisible")
+objFloorBlock(1045,510,1000,1045,1035,-1000,-1,"wall-invisible")

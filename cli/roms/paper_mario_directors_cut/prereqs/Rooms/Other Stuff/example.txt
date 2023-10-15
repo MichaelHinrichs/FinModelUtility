@@ -1,0 +1,22 @@
+//These objects will appear in the room "rmEditor".
+
+//objFloorBlock(x1,y1,z1,x2,y2,z2,texture,behavior)
+//Behaviors:
+//"floor;dip?"
+//"elevator;lowZ,highZ,addZ,eSpeed,maxTime,time,eDir"
+
+//Ground
+objFloorBlock(0,0,0,room_width,room_height,-5,-1,"floor;-1")
+
+//Front Section
+objFloorBlock(0,0,0,64,64,5,-1,"elevator;0,100,0,2,15,15,1")
+objFloorBlock(0,64,50,64,128,55,-1,"floor;0")
+objFloorBlock(0,128,100,64,192,105,-1,"elevator;0,100,100,2,15,15,-1")
+objFloorBlock(64,0,50,128,192,55,-1,"floor;0")
+
+//Back Section
+objFloorBlock(278,0,59,342,64,64,-1,"floor;0")
+objFloorBlock(352,0,0,352,320,64,-1,"wall")
+objFloorBlock(320,256,0,352,320,32,-1,"floor;-1")
+objFloorBlock(320,320,0,352,384,64,-1,"floor;-1")
+objFloorBlock(352,0,64,640,384,64,-1,"floor;-1")

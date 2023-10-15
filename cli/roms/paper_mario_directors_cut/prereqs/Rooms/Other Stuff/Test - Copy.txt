@@ -1,0 +1,50 @@
+global.roomMusic:"ForestMaze"
+//global.currentText:"This should be an endless loop.\Wait for it... wait for it...\next line is the last one...\when you press [A], the camera will pan!\\\\`camera_preset_set('roomStart')`^"
+parCamera.tex:bacCastleSky
+global.roomSpeech:"Hello... not much else to say here.\\\\^"
+global.roomLeft:96
+global.roomRight:384
+
+objCameraPreset(30,0,32,30,400,32,-1,"roomStart,0,-30,2.5,,global.currentAction='';parCamera.preset=noone;")
+objFloorBlock(0,0,0,32,0,1000,-1,"wall-invisible")
+objFloorBlock(96,0,0,118,0,1000,-1,"wall-invisible")
+objFloorBlock(0,0,0,0,480,1000,-1,"wall-invisible")
+objFloorBlock(0,0,0,0,480,-64,bacMountainWall,"wall")
+
+objFloorBlock(0,0,0,32,480,0,bacGrassFloor,"floor;-1")
+
+objFloorBlock(32,-64,0,96,0,0,bacDirtPathEndFloor,"floor;-1")
+
+objFloorBlock(32,-64,1,32,-32,-31,bacExitSide,"wall-noRepeat")
+objFloorBlock(32,-32,1,32,0,-31,bacExitSide,"wall-noRepeat")
+
+objFloorBlock(32,0,0,96,480,0,bacDirtPathFloor,"floor;-1")
+
+objFloorBlock(32,480,0,96,544,0,bacDirtPathEndFloor,"floor;-1")
+objFloorBlock(32,480,1,32,512,-31,bacExitSide,"wall-noRepeat")
+objFloorBlock(32,512,1,32,544,-31,bacExitSide,"wall-noRepeat")
+
+objFloorBlock(96,0,0,224,480,0,bacGrassFloor,"floor;-1")
+
+objFloorBlock(118,0,0,118,480,64,bacFrontFloorCover,"wall")
+objNPC(48,64,0,0,0,0,-1,"goompa,goompa-noWait,`global.camFocus=npc_get('goompa');global.appearType='fade';`Hello!\I'm an NPC.\\Pretty neat, huh?\`global.camFocus=enemy_get('bottom')`This is an enemy.\\...yep.\That's all I have to say about that.\`global.camFocus=parPlayer;objGlobalInformation.goToZoom=100;`This is you.\You're Mario.\\Bet you didn't know that!\`global.camFocus=npc_get('goompa');objGlobalInformation.goToZoom=150;`...and that's all I really have to say.\\\\`global.camFocus=parPlayer`^")
+//objBoardSign(48,64,0,0,0,0,bacBoardSign,"pooSign,\To Mario\You're fat.\\\Nah...\Just kidding.\\^")
+objEnemy(96,300,0,0,0,0,-1,"bottom,goomba,(,,goomba,goomba,),instance_destroy()")
+objTree1(160,64,0,0,0,0,-1,"")
+objTree1(192,96,0,0,0,0,-1,"")
+objTree1(160,128,0,0,0,0,-1,"")
+objTree1(192,160,0,0,0,0,-1,"")
+objTree1(160,192,0,0,0,0,-1,"")
+objTree1(192,224,0,0,0,0,-1,"")
+objTree1(160,256,0,0,0,0,-1,"")
+objTree1(192,288,0,0,0,0,-1,"")
+objTree1(160,320,0,0,0,0,-1,"")
+
+objBush(8,160,0,0,0,0,-1,"")
+
+objDoor(64,496,0,0,0,0,-1,"rmTest,64,512,0,64,-32,0,64,32,0")
+objDoor(64,-16,0,0,0,0,-1,"rmTest,64,-32,0,64,512,0,64,438,0")
+
+objFloorBlock(118,0,0,118,480,1000,-1,"wall-invisible")
+objFloorBlock(0,480,0,32,480,1000,-1,"wall-invisible")
+objFloorBlock(0,480,0,32,480,1000,-1,"wall-invisible")

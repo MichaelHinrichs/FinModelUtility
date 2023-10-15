@@ -20,9 +20,8 @@ namespace uni.games.ocarina_of_time {
       }
 
       var ocarinaOfTimeDirectory =
-          DirectoryConstants.ROMS_DIRECTORY
-                            .GetOrCreateSubdir("ocarina_of_time");
-      var fileHierarchy = new FileHierarchy(ocarinaOfTimeDirectory);
+          ExtractorUtil.GetOrCreateExtractedDirectory("ocarina_of_time");
+      var fileHierarchy = new FileHierarchy("ocarina_of_time", ocarinaOfTimeDirectory);
       var root = fileHierarchy.Root;
 
       var rootSysDir = root.Impl;

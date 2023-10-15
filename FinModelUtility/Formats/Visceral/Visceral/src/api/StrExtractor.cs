@@ -35,14 +35,14 @@ namespace visceral.api {
   public class StrExtractor {
     private readonly ILogger logger_ = Logging.Create<StrExtractor>();
 
-    public void Extract(IFileHierarchyFile strFile, ISystemDirectory outputDir) {
+    public void Extract(IReadOnlyGenericFile strFile, ISystemDirectory outputDir) {
       var task = ExtractAsync(strFile, outputDir);
       task.Wait();
     }
 
-    public async Task ExtractAsync(IFileHierarchyFile strFile,
+    public async Task ExtractAsync(IReadOnlyGenericFile strFile,
                                    ISystemDirectory outputDir) {
-      this.logger_.LogInformation($"Extracting {strFile.LocalPath}...");
+      this.logger_.LogInformation($"Extracting {strFile.DisplayFullPath}...");
 
       ContentBlock[] contentBlocks;
       var headerBlocks = new LinkedList<(FileInfo fileInfo, int index)>();

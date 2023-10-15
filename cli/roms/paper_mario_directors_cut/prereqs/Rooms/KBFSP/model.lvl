@@ -1,0 +1,42 @@
+global.newRoomMusic:musKoopaBrosFortress
+parCamera.img:bacBlack
+global.roomIsModel:1
+
+parCamera.direction:90
+goToDirection:90
+parCamera.zDirection:-10
+goToZDirection:-10
+parCamera.goToZoom:130
+goToZoom:130
+
+global.roomSpeech:"`global.appearType='fade';global.textType='normal'`Well, we're currently by BOTH back\entrances to the Koopa Bros. Fortress.\\...\Weird... why would the Koopa Bros. have\two secret entrances right next to each\other? It seems like a poor design\choice in my opinion.\Wait... can you hear that, Mario?\It sounds like someone's calling for help\at the entrance on the Bob-omb village\side...!\^"
+global.roomXMin:-10000
+global.roomXMax:10000
+global.roomYMin:-10000
+global.roomYMax:10000
+
+//>>player_spawn_set(615,830,0,true)
+
+
+//BOB-OMB VILLAGE SIDE
+objDoor(615,250,44,0,0,0,-1,"rmBobombVillage,615,250,44,533,300,-80,533,240,-80")
+objEventZone(570,240,1000,660,770,-1000,-1,"goToDirection=0;parCamera.direction=goToDirection;goToZoom=100;global.roomYMin=330")
+
+
+//FRONT
+objFloorBlock(610,1130,5,640,1155,0,bacMetalFloor,"elevator;10,80,8,2,30,30,1")
+objBadge(589,1148,80,0,0,0,-1,"Shrink Stomp")
+
+
+
+//LEFT
+objDoor(300,965,0,0,0,0,-1,"rmK2BPath,300,965,0,895,1050,-25,895,970,-25")
+objEventZone(300,920,1000,420,1010,-1000,-1,"goToDirection=90;parCamera.direction=goToDirection;global.roomXMin=410")
+
+
+//MIDDLE
+objWater(520,875,-15,710,1055,-15,-1,"")
+objEventZone(420,770,1000,930,1160,-1000,-1,"goToDirection=point_direction(615,980,parPlayer.x,parPlayer.y);parCamera.direction=goToDirection;goToZoom=130;global.roomXMin=-10000;global.roomYMin=-10000")
+
+//300,965,0 --> 390,965,0
+//895,1075 (50),-25 --> 895,970,-25

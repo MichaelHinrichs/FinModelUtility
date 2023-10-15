@@ -10,7 +10,8 @@ namespace uni.games.dead_space_2 {
         yield break;
       }
 
-      var originalGameFileHierarchy = new FileHierarchy(deadSpace2Dir);
+      var originalGameFileHierarchy =
+          new FileHierarchy("dead_space_2", deadSpace2Dir);
     }
   }
 }

@@ -1,0 +1,47 @@
+//Koopa Bros. Fortress -- Prison
+
+global.newRoomMusic:musKoopaBrosFortress
+parCamera.img:bacBlack
+global.roomIsModel:1
+
+parCamera.direction:90
+goToDirection:90
+parCamera.zDirection:-10
+goToZDirection:-10
+parCamera.goToZoom:130
+goToZoom:130
+
+global.roomSpeech:"`global.appearType='fade';global.textType='normal'`Well, we're currently by BOTH back\entrances to the Koopa Bros. Fortress.\\...\Weird... why would the Koopa Bros. have\two secret entrances right next to each\other? It seems like a poor design\choice in my opinion.\Wait... can you hear that, Mario?\It sounds like someone's calling for help\at the entrance on the Bob-omb village\side...!\^"
+global.roomXMin:-10000
+global.roomXMax:10000
+global.roomYMin:-10000
+global.roomYMax:10000
+
+
+objEventZone(80,265,1000,193,345,-1000,-1,"goToDirection=180;parCamera.direction=goToDirection;goToZoom=100;global.roomYMin=307;global.roomYMax=307")
+objEventZone(585,265,1000,700,345,-1000,-1,"goToDirection=0;parCamera.direction=goToDirection;goToZoom=100;global.roomYMin=307;global.roomYMax=307")
+
+
+objEventZone(193,110,30,585,495,-10,-1,"if(parPlayer.z > -10 && parPlayer.z < 40){goToDirection=point_direction(389,310,parPlayer.x,parPlayer.y);goToZoom=180}else if(parPlayer.z < -10){goToDirection=point_direction(389,310,parPlayer.x,parPlayer.y)*.3+135;goToZoom=130};parCamera.direction=goToDirection;global.roomYMin=-10000;global.roomYMax=10000")
+objEventZone(290,310,30,585,495,-10,-1,"if(parPlayer.z < -340){goToDirection=135;parCamera.direction=goToDirection;goToZoom=170}")
+objEventZone(193,240,30,325,420,-10,-1,"if(parPlayer.z > -290 && parPlayer.z < -200){goToDirection=180;parCamera.direction=goToDirection;goToZoom=130}")
+
+
+
+objDoor(70,305,0,0,0,0,-1,"rmKBFL,80,305,0,1325,505,285,1260,505,285")
+objHouseDoor(107,307,0,2,1.65,0,bacKBFDoor,"0,2,180")
+
+objDoor(70,305,-285,0,0,0,-1,"rmKBFL,80,305,-285,1325,830,0,1260,830,0")
+objHouseDoor(107,307,-285,2,1.65,0,bacKBFDoor,"0,2,180")
+
+objDoor(700,305,0,0,0,0,-1,"rmKBFLS,700,305,0,135,225,0,220,225,0")
+
+
+objFloorBlock(235,420,-185,300,345,-285,-1,"wall-invisible")
+objFloorBlock(300,345,-185,300,270,-285,-1,"wall-invisible")
+objFloorBlock(300,270,-185,350,215,-285,-1,"wall-invisible")
+objFloorBlock(350,215,-185,425,215,-285,-1,"wall-invisible")
+objFloorBlock(425,215,-185,480,270,-285,-1,"wall-invisible")
+objFloorBlock(480,270,-185,480,345,-285,-1,"wall-invisible")
+objFloorBlock(480,345,-185,425,395,-285,-1,"wall-invisible")
+objFloorBlock(425,395,-185,350,395,-285,-1,"wall-invisible")

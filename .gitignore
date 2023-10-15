@@ -1,7 +1,9 @@
 cli/out/**
 !cli/out/FILES WILL APPEAR HERE.txt
 
-cli/roms/**
+cli/roms/*.*
+cli/roms/*/extracted/**
+!cli/roms/*/prereq/**
 !cli/roms/PUT ROMS HERE.txt
 
 cli/ui/music/**

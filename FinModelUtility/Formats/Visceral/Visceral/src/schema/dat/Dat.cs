@@ -2,7 +2,7 @@
 
 namespace visceral.schema.dat {
   [BinarySchema]
-  public class Dat : IBinaryConvertible {
+  public partial class Dat : IBinaryConvertible {
     private readonly string magic_ = "BIGH";
   }
 }

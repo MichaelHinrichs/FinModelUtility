@@ -29,6 +29,6 @@
     public IFileHierarchyFile File => file;
     public string LocalPath => file.LocalPath;
 
-    public string GameAndLocalPath => $"{file.Root.Name}/{this.LocalPath}";
+    public string GameAndLocalPath => $"{file.Hierarchy.Name}/{this.LocalPath}";
   }
 }

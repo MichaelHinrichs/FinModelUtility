@@ -2,6 +2,7 @@
 using fin.io.archive;
 using fin.util.strings;
 
+using uni.games;
 using uni.platforms.gcn.tools;
 
 namespace uni.platforms.gcn {
@@ -44,16 +45,14 @@ namespace uni.platforms.gcn {
     public IFileHierarchy ExtractFromRom_(
         ISystemFile romFile,
         Options options) {
-      var directory = romFile.AssertGetParent()
-                             .GetOrCreateSubdir(romFile.Name.SubstringUpTo("."));
-
+      var directory = ExtractorUtil.GetOrCreateExtractedDirectory(romFile);
       if (new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmReader>(
               romFile,
               directory) == ArchiveExtractionResult.FAILED) {
         throw new Exception();
       }
 
-      var fileHierarchy = new FileHierarchy(directory);
+      var fileHierarchy = new FileHierarchy(romFile.NameWithoutExtension, directory);
       var hasChanged = false;
 
       // Decompresses all of the archives,
@@ -83,16 +82,18 @@ namespace uni.platforms.gcn {
         // Dumps any REL files
         var didDump = false;
         var relFiles =
-            subdir.GetExistingFiles().Where(
+            subdir.GetExistingFiles()
+                  .Where(
                       file => file.Name.Contains(".rel") &&
                               file.FileType == ".rarc")
                   .ToArray();
         foreach (var relFile in relFiles) {
           var prefix = StringUtil.SubstringUpTo(relFile.Name, ".rel");
           var mapFile =
-              subdir.GetExistingFiles().Single(
-                  file => file.Name.StartsWith(prefix) &&
-                          file.FileType == ".map");
+              subdir.GetExistingFiles()
+                    .Single(
+                        file => file.Name.StartsWith(prefix) &&
+                                file.FileType == ".map");
           didDump |=
               this.relDump_.Run(relFile,
                                 mapFile,

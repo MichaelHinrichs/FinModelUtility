@@ -2,6 +2,7 @@
 using fin.log;
 using fin.util.asserts;
 
+using uni.games;
 using uni.util.cmd;
 
 namespace uni.platforms.wii.tools {
@@ -17,10 +18,7 @@ namespace uni.platforms.wii.tools {
           $"Cannot dump ROM because it does not exist: {romFile}");
 
       var didChange = false;
-
-      var finalDirectoryPath = romFile.FullNameWithoutExtension;
-      var finalDirectory = new FinDirectory(finalDirectoryPath);
-      if (!finalDirectory.Exists) {
+      if (ExtractorUtil.HasNotBeenExtractedYet(romFile, out var finalDirectory)) {
         didChange = true;
 
         this.DumpRom_(romFile);
@@ -28,7 +26,7 @@ namespace uni.platforms.wii.tools {
                      $"Directory was not created: {finalDirectory}");
       }
 
-      hierarchy = new FileHierarchy(finalDirectory);
+      hierarchy = new FileHierarchy(romFile.NameWithoutExtension, finalDirectory);
       return didChange;
     }
 
