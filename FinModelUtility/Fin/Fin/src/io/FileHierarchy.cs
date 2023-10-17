@@ -394,6 +394,8 @@ namespace fin.io {
 
       public byte[] ReadAllBytes() => this.Impl.ReadAllBytes();
       public string ReadAllText() => this.Impl.ReadAllText();
+      public string[] ReadAllLines() => this.Impl.ReadAllLines();
+
       public T Deserialize<T>() => this.Impl.Deserialize<T>();
     }
 

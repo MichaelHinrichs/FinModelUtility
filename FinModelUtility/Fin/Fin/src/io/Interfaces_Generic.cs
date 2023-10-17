@@ -19,6 +19,8 @@ namespace fin.io {
 
     byte[] ReadAllBytes();
     string ReadAllText();
+    string[] ReadAllLines();
+
     T Deserialize<T>();
   }
 

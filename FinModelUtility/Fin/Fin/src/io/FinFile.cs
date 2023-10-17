@@ -148,18 +148,16 @@ namespace fin.io {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte[] ReadAllBytes() {
-      using var s = this.OpenRead();
-      using var ms = new MemoryStream();
-      s.CopyTo(ms);
-      return ms.ToArray();
-    }
+    public byte[] ReadAllBytes()
+      => FinFileSystem.File.ReadAllBytes(this.FullPath);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string ReadAllText() {
-      using var sr = this.OpenReadAsText();
-      return sr.ReadToEnd();
-    }
+    public string ReadAllText()
+      => FinFileSystem.File.ReadAllText(this.FullPath);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string[] ReadAllLines()
+      => FinFileSystem.File.ReadAllLines(this.FullPath);
 
 
     // Write methods
