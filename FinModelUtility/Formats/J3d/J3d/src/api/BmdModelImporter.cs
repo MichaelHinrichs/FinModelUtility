@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin;
+using fin.io;
 using fin.log;
 using fin.math.matrix.four;
 using fin.model;

@@ -112,72 +112,16 @@ namespace fin.io {
       return new FinFile(this.FullNameWithoutExtension + newExtension);
     }
 
-    // JSON Serialization
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T Deserialize<T>() => JsonUtil.Deserialize<T>(this.ReadAllText());
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Serialize<T>(T instance) where T : notnull
-      => this.WriteAllText(JsonUtil.Serialize(instance));
 
     // Read methods
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FileSystemStream OpenRead()
       => FinFileStatic.OpenRead(this.FullPath);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public StreamReader OpenReadAsText() => new(this.OpenRead());
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T ReadNew<T>() where T : IBinaryDeserializable, new() {
-      using var er = new EndianBinaryReader(this.OpenRead());
-      return er.ReadNew<T>();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T ReadNew<T>(Endianness endianness)
-        where T : IBinaryDeserializable, new() {
-      using var er = new EndianBinaryReader(this.OpenRead(), endianness);
-      return er.ReadNew<T>();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T ReadNewFromText<T>() where T : ITextDeserializable, new() {
-      using var er = new TextReader(this.OpenRead());
-      return er.ReadNew<T>();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte[] ReadAllBytes()
-      => FinFileSystem.File.ReadAllBytes(this.FullPath);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string ReadAllText()
-      => FinFileSystem.File.ReadAllText(this.FullPath);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string[] ReadAllLines()
-      => FinFileSystem.File.ReadAllLines(this.FullPath);
-
 
     // Write methods
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FileSystemStream OpenWrite()
       => FinFileStatic.OpenWrite(this.FullPath);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public StreamWriter OpenWriteAsText() => new(this.OpenWrite());
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteAllBytes(ReadOnlyMemory<byte> bytes) {
-      using var s = this.OpenWrite();
-      s.Write(bytes.Span);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteAllText(string text) {
-      using var sw = this.OpenWriteAsText();
-      sw.Write(text);
-    }
   }
 }

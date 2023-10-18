@@ -2,6 +2,7 @@
 
 using fin.audio;
 using fin.audio.io.importers;
+using fin.io;
 
 using schema.binary;
 

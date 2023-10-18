@@ -1,5 +1,6 @@
 ﻿using dat.schema;
 
+using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;

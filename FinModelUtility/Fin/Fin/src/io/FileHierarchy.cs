@@ -380,23 +380,6 @@ namespace fin.io {
         => $"//{this.Hierarchy.Name}{this.LocalPath.Replace('\\', '/')}";
 
       public FileSystemStream OpenRead() => this.Impl.OpenRead();
-      public StreamReader OpenReadAsText() => this.Impl.OpenReadAsText();
-
-      public T ReadNew<T>() where T : IBinaryDeserializable, new()
-        => this.Impl.ReadNew<T>();
-
-      public T ReadNew<T>(Endianness endianness)
-          where T : IBinaryDeserializable, new()
-        => this.Impl.ReadNew<T>(endianness);
-
-      public T ReadNewFromText<T>() where T : ITextDeserializable, new()
-        => this.Impl.ReadNewFromText<T>();
-
-      public byte[] ReadAllBytes() => this.Impl.ReadAllBytes();
-      public string ReadAllText() => this.Impl.ReadAllText();
-      public string[] ReadAllLines() => this.Impl.ReadAllLines();
-
-      public T Deserialize<T>() => this.Impl.Deserialize<T>();
     }
 
     public IEnumerator<IFileHierarchyDirectory> GetEnumerator() {

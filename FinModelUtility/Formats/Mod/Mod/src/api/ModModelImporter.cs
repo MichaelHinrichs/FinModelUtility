@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 using fin.color;
 using fin.image;
+using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
