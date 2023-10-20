@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
-using fin.util.json;
-
-using schema.binary;
-using schema.text;
-
-using TextReader = schema.text.reader.TextReader;
 
 namespace fin.io {
   public readonly struct FinFile : ISystemFile {

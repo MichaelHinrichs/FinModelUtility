@@ -11,9 +11,11 @@ namespace cmb.schema.cmb.mats {
 
     [Ignore]
     private uint TotalCombinerCount_
-      => (uint) this.Materials.Sum(material => material.texEnvStageCount);
+      => (uint) this.Materials
+                    .SelectMany(material => material.texEnvStagesIndices)
+                    .Max() + 1;
 
     [RSequenceLengthSource(nameof(TotalCombinerCount_))]
-    public Combiner[] Combiners;
+    public Combiner[] Combiners { get; set; }
   }
 }

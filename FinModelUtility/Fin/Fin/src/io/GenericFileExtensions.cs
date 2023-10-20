@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
-using fin.util.asserts;
 using fin.util.json;
 
 using schema.binary;
 using schema.text;
 using schema.text.reader;
-using schema.util.strings;
 
 using TextReader = schema.text.reader.TextReader;
 
 namespace fin.io {
-  public static class FinFileExtensions {
+  public static class GenericFileExtensions {
     // JSON Serialization
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Deserialize<T>(this IReadOnlyGenericFile file)
