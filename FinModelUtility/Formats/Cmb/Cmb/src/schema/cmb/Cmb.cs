@@ -29,7 +29,10 @@ namespace cmb.schema.cmb {
     public readonly AutoStringMagicUInt32SizedSection<Qtrs> qtrs
         = new("qtrs");
 
-    public AutoStringMagicUInt32SizedSection<Mats> mats { get; set; } =
+    /// <summary>
+    ///   For some reason, the size for this section is wrong? We have to just ignore it.
+    /// </summary>
+    public AutoStringMagicJankSizedSection<Mats> mats { get; set; } =
       new("mats") {
           TweakReadSize = TWEAK_AUTO_SIZE,
       };
