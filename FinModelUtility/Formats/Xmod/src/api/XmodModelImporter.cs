@@ -2,15 +2,16 @@
 using fin.model.impl;
 using fin.model.io.importers;
 
+using schema.text.reader;
+
 using xmod.schema.xmod;
 
 using PrimitiveType = xmod.schema.xmod.PrimitiveType;
-using TextReader = schema.text.reader.TextReader;
 
 namespace xmod.api {
   public class XmodModelImporter : IModelImporter<XmodModelFileBundle> {
     public IModel ImportModel(XmodModelFileBundle modelFileBundle) {
-      using var tr = new TextReader(modelFileBundle.XmodFile.OpenRead());
+      using var tr = new SchemaTextReader(modelFileBundle.XmodFile.OpenRead());
 
       var xmod = new Xmod();
       xmod.Read(tr);

@@ -1,8 +1,8 @@
 ﻿using fin.model;
+using fin.util.asserts;
 
 using schema.text;
 using schema.text.reader;
-using schema.util;
 
 namespace xmod.schema.xmod {
   public class Vector2 : ITextDeserializable, IVector2 {

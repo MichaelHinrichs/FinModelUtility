@@ -9,11 +9,11 @@ namespace granny3d {
     public IList<IGrannyBone> Bones { get; } = new List<IGrannyBone>();
     public int LodType { get; private set; }
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       GrannyUtils.SubreadRef(
-          er, ser => { this.Name = ser.ReadStringNT(); });
+          br, ser => { this.Name = ser.ReadStringNT(); });
 
-      GrannyUtils.SubreadRefToArray(er, (ser, boneCount) => {
+      GrannyUtils.SubreadRefToArray(br, (ser, boneCount) => {
         for (var i = 0; i < boneCount; ++i) {
           Bones.Add(ser.ReadNew<GrannyBone>());
         }
@@ -28,26 +28,26 @@ namespace granny3d {
     public IFinMatrix4x4 InverseWorld4x4 { get; } = new FinMatrix4x4();
     public float LodError { get; private set; }
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       GrannyUtils.SubreadRef(
-          er, ser => { this.Name = ser.ReadStringNT(); });
+          br, ser => { this.Name = ser.ReadStringNT(); });
 
-      this.ParentIndex = er.ReadInt32();
+      this.ParentIndex = br.ReadInt32();
 
-      (this.LocalTransform as GrannyTransform).Read(er);
+      (this.LocalTransform as GrannyTransform).Read(br);
 
       // inverse_world_4x4
       for (var y = 0; y < 4; ++y) {
         for (var x = 0; x < 4; x++) {
-          this.InverseWorld4x4[x, y] = er.ReadSingle();
+          this.InverseWorld4x4[x, y] = br.ReadSingle();
         }
       }
 
       // lod_error
-      er.Position += 4;
+      br.Position += 4;
 
       // extended_data
-      er.Position += 2 * 8;
+      br.Position += 2 * 8;
     }
   }
 }

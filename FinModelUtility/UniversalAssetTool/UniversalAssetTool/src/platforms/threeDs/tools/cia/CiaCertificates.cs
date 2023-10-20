@@ -17,12 +17,12 @@ namespace uni.platforms.threeDs.tools.cia {
 
     public EsSigType SigType { get; set; }
 
-    public void Read(IEndianBinaryReader er) {
-      var startingPosition = er.Position;
+    public void Read(IBinaryReader br) {
+      var startingPosition = br.Position;
 
-      this.SigType = (EsSigType) er.ReadUInt32();
+      this.SigType = (EsSigType) br.ReadUInt32();
 
-      er.Position = startingPosition + this.Parent.Header.CertificateSize;
+      br.Position = startingPosition + this.Parent.Header.CertificateSize;
     }
   }
 }

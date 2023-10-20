@@ -25,21 +25,21 @@ namespace j3d.GCN {
     public Tex1 TEX1 { get; set; }
 
     public BMD(byte[] file) {
-      using var er =
-          new EndianBinaryReader((Stream) new MemoryStream(file),
+      using var br =
+          new SchemaBinaryReader((Stream) new MemoryStream(file),
                                  Endianness.BigEndian);
-      this.Header = er.ReadNew<BmdHeader>();
+      this.Header = br.ReadNew<BmdHeader>();
 
       bool OK;
-      while (!er.Eof) {
-        switch (er.ReadString(4)) {
+      while (!br.Eof) {
+        switch (br.ReadString(4)) {
           case nameof(INF1):
-            er.Position -= 4L;
-            this.INF1 = er.ReadNew<Inf1>();
+            br.Position -= 4L;
+            this.INF1 = br.ReadNew<Inf1>();
             break;
           case nameof(VTX1):
-            er.Position -= 4L;
-            this.VTX1 = new VTX1Section(er, out OK);
+            br.Position -= 4L;
+            this.VTX1 = new VTX1Section(br, out OK);
             if (!OK) {
               // TODO: Message box
               //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 4");
@@ -47,8 +47,8 @@ namespace j3d.GCN {
             } else
               break;
           case nameof(EVP1):
-            er.Position -= 4L;
-            this.EVP1 = new EVP1Section(er, out OK);
+            br.Position -= 4L;
+            this.EVP1 = new EVP1Section(br, out OK);
             if (!OK) {
               // TODO: Message box
               //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 4");
@@ -56,16 +56,16 @@ namespace j3d.GCN {
             } else
               break;
           case nameof(DRW1):
-            er.Position -= 4L;
-            this.DRW1 = er.ReadNew<Drw1>();
+            br.Position -= 4L;
+            this.DRW1 = br.ReadNew<Drw1>();
             break;
           case nameof(JNT1):
-            er.Position -= 4L;
-            this.JNT1 = er.ReadNew<Jnt1>();
+            br.Position -= 4L;
+            this.JNT1 = br.ReadNew<Jnt1>();
             break;
           case nameof(SHP1):
-            er.Position -= 4L;
-            this.SHP1 = new SHP1Section(er, out OK);
+            br.Position -= 4L;
+            this.SHP1 = new SHP1Section(br, out OK);
             if (!OK) {
               // TODO: Message box
               //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 7");
@@ -75,8 +75,8 @@ namespace j3d.GCN {
           case "MAT1":
           case "MAT2":
           case nameof(MAT3):
-            er.Position -= 4L;
-            this.MAT3 = new MAT3Section(er, out OK);
+            br.Position -= 4L;
+            this.MAT3 = new MAT3Section(br, out OK);
             if (!OK) {
               // TODO: Message box
               //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 8");
@@ -84,8 +84,8 @@ namespace j3d.GCN {
             } else
               break;
           case nameof(TEX1):
-            er.Position -= 4L;
-            this.TEX1 = er.ReadNew<Tex1>();
+            br.Position -= 4L;
+            this.TEX1 = br.ReadNew<Tex1>();
             break;
           default:
             return;

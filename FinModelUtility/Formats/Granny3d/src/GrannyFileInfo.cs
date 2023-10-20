@@ -24,28 +24,28 @@ namespace granny3d {
     public IList<IGrannyAnimation> AnimationHeaderList { get; } =
       new List<IGrannyAnimation>();
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       // TODO: Make this offset-agnostic.
       // The reader passed into this method should have an offset of 0 at the
       // start of the granny_file_info object.
-      Asserts.Equal(0, er.Position, "Expected to start reading at offset 0.");
+      Asserts.Equal(0, br.Position, "Expected to start reading at offset 0.");
 
-      er.ReadUInt64(); // ArtToolInfo
-      er.ReadUInt64(); // ExporterInfo
+      br.ReadUInt64(); // ArtToolInfo
+      br.ReadUInt64(); // ExporterInfo
 
       GrannyUtils.SubreadRef(
-          er, ser => { this.FromFileName = ser.ReadStringNT(); });
+          br, ser => { this.FromFileName = ser.ReadStringNT(); });
 
-      GrannyUtils.SubreadRefToArray(er, (ser, textureCount) => {
+      GrannyUtils.SubreadRefToArray(br, (ser, textureCount) => {
         for (var i = 0; i < textureCount; ++i) { }
       });
 
-      GrannyUtils.SubreadRefToArray(er, (ser, materialCount) => {
+      GrannyUtils.SubreadRefToArray(br, (ser, materialCount) => {
         for (var i = 0; i < materialCount; ++i) { }
       });
 
       GrannyUtils.SubreadRefToArray(
-          er,
+          br,
           (ser, skeletonCount) => {
             for (var i = 0; i < skeletonCount; ++i) {
               GrannyUtils.SubreadRef(ser, sser => {
@@ -56,16 +56,16 @@ namespace granny3d {
             }
           });
 
-      GrannyUtils.SubreadRefToArray(er, (ser, vertexDataCount) => {
+      GrannyUtils.SubreadRefToArray(br, (ser, vertexDataCount) => {
         for (var i = 0; i < vertexDataCount; ++i) { }
       });
 
-      GrannyUtils.SubreadRefToArray(er, (ser, modelHeaderCount) => {
+      GrannyUtils.SubreadRefToArray(br, (ser, modelHeaderCount) => {
         for (var i = 0; i < modelHeaderCount; ++i) { }
       });
 
       GrannyUtils.SubreadRefToArray(
-          er,
+          br,
           (ser, trackGroupHeaderCount) => {
             /*for (var i = 0; i < trackGroupHeaderCount; ++i) {
               GrannyUtils.SubreadRef(ser, sser => {
@@ -75,7 +75,7 @@ namespace granny3d {
           });
 
       GrannyUtils.SubreadRefToArray(
-          er,
+          br,
           (ser, animationHeaderCount) => {
             for (var i = 0; i < animationHeaderCount; ++i) {
               GrannyUtils.SubreadRef(ser, sser => {

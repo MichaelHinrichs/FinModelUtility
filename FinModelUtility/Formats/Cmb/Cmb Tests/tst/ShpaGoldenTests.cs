@@ -22,7 +22,7 @@ namespace cmb {
           "luigis_mansion_3d" => Version.LUIGIS_MANSION_3D,
       };
 
-      var er = new EndianBinaryReader(goldenFile.OpenRead());
+      var er = new SchemaBinaryReader(goldenFile.OpenRead());
       await SchemaTesting.ReadsAndWritesIdentically<Shpa>(
           er,
           assertExactEndPositions: false);

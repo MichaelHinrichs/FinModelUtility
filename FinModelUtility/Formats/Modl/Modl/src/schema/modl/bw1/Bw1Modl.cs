@@ -13,63 +13,63 @@ namespace modl.schema.modl.bw1 {
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
     [Unknown]
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       {
-        er.PushMemberEndianness(Endianness.LittleEndian);
-        var filenameLength = er.ReadUInt32();
-        er.Position += filenameLength;
-        er.PopEndianness();
+        br.PushMemberEndianness(Endianness.LittleEndian);
+        var filenameLength = br.ReadUInt32();
+        br.Position += filenameLength;
+        br.PopEndianness();
       }
 
-      SectionHeaderUtil.AssertNameAndReadSize(er, "MODL", out var size);
-      var expectedEnd = er.Position + size;
+      SectionHeaderUtil.AssertNameAndReadSize(br, "MODL", out var size);
+      var expectedEnd = br.Position + size;
 
-      er.PushMemberEndianness(Endianness.LittleEndian);
-      var nodeCount = er.ReadUInt16();
-      var additionalDataCount = er.ReadByte();
+      br.PushMemberEndianness(Endianness.LittleEndian);
+      var nodeCount = br.ReadUInt16();
+      var additionalDataCount = br.ReadByte();
 
-      var padding = er.ReadByte();
+      var padding = br.ReadByte();
 
-      var someCount = er.ReadUInt32();
-      var unknown0 = er.ReadSingles(4);
+      var someCount = br.ReadUInt32();
+      var unknown0 = br.ReadSingles(4);
 
-      var additionalData = er.ReadUInt32s(additionalDataCount);
-      er.PopEndianness();
+      var additionalData = br.ReadUInt32s(additionalDataCount);
+      br.PopEndianness();
 
-      this.SkipSection_(er, "XMEM");
+      this.SkipSection_(br, "XMEM");
 
       // Reads in nodes (bones)
       {
         this.Nodes.Clear();
         for (var i = 0; i < nodeCount; ++i) {
           var node = new Bw1Node(additionalDataCount);
-          node.Read(er);
+          node.Read(br);
           this.Nodes.Add(node);
         }
       }
 
       // Reads in hierarchy, how nodes are "CoNneCTed" or "CoNCaTenated?"?
       {
-        er.PushMemberEndianness(Endianness.LittleEndian);
-        SectionHeaderUtil.AssertNameAndReadSize(er, "CNCT", out var cnctSize);
+        br.PushMemberEndianness(Endianness.LittleEndian);
+        SectionHeaderUtil.AssertNameAndReadSize(br, "CNCT", out var cnctSize);
         var cnctCount = cnctSize / 4;
 
         this.CnctParentToChildren.Clear();
         for (var i = 0; i < cnctCount; ++i) {
-          var parent = er.ReadUInt16();
-          var child = er.ReadUInt16();
+          var parent = br.ReadUInt16();
+          var child = br.ReadUInt16();
 
           this.CnctParentToChildren.Add(parent, child);
         }
-        er.PopEndianness();
+        br.PopEndianness();
       }
 
-      Asserts.Equal(expectedEnd, er.Position);
+      Asserts.Equal(expectedEnd, br.Position);
     }
 
-    private void SkipSection_(IEndianBinaryReader er, string sectionName) {
-      SectionHeaderUtil.AssertNameAndReadSize(er, sectionName, out var size);
-      var data = er.ReadBytes((int) size);
+    private void SkipSection_(IBinaryReader br, string sectionName) {
+      SectionHeaderUtil.AssertNameAndReadSize(br, sectionName, out var size);
+      var data = br.ReadBytes((int) size);
     }
   }
 }

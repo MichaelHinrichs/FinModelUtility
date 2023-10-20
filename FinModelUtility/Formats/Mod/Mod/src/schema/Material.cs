@@ -270,21 +270,21 @@ namespace mod.schema {
     public readonly PeInfo peInfo = new();
     public readonly TextureInfo texInfo = new();
 
-    public void Read(IEndianBinaryReader reader) {
-      this.flags = reader.ReadUInt32();
-      this.unknown1 = reader.ReadUInt32();
-      this.colour.Read(reader);
+    public void Read(IBinaryReader br) {
+      this.flags = br.ReadUInt32();
+      this.unknown1 = br.ReadUInt32();
+      this.colour.Read(br);
 
       if ((this.flags & (uint) MaterialFlags.UsePVW) != 0) {
-        this.TexEnvironmentIndex = reader.ReadUInt32();
-        this.colourInfo.Read(reader);
-        this.lightingInfo.Read(reader);
-        this.peInfo.Read(reader);
-        this.texInfo.Read(reader);
+        this.TexEnvironmentIndex = br.ReadUInt32();
+        this.colourInfo.Read(br);
+        this.lightingInfo.Read(br);
+        this.peInfo.Read(br);
+        this.texInfo.Read(br);
       }
     }
 
-    public void Write(ISubEndianBinaryWriter writer) {
+    public void Write(IBinaryWriter bw) {
       throw new NotImplementedException();
     }
   }

@@ -13,27 +13,27 @@ namespace modl.schema.res.texr {
 
     public List<BwTexrFile> Textures { get; } = new();
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       SectionHeaderUtil.AssertNameAndReadSize(
-          er, "TEXR", out var texrLength);
-      var expectedTexrSectionEnd = er.Position + texrLength;
+          br, "TEXR", out var texrLength);
+      var expectedTexrSectionEnd = br.Position + texrLength;
 
-      this.FileName = er.ReadString(er.ReadInt32());
+      this.FileName = br.ReadString(br.ReadInt32());
 
       SectionHeaderUtil.ReadNameAndSize(
-          er, out var textureSectionName, out var btfLength);
+          br, out var textureSectionName, out var btfLength);
       var mode = textureSectionName switch {
           "XBTF" => TexrMode.BW1,
           "GBTF" => TexrMode.BW2,
           _      => throw new NotSupportedException(),
       };
 
-      var expectedBtfEnd = er.Position + btfLength;
+      var expectedBtfEnd = br.Position + btfLength;
 
       Asserts.Equal(expectedTexrSectionEnd, expectedBtfEnd);
 
       this.Textures.Clear();
-      var textureCount = er.ReadUInt32();
+      var textureCount = br.ReadUInt32();
 
       var sectionName = mode switch {
           TexrMode.BW1 => "TEXT",
@@ -45,23 +45,23 @@ namespace modl.schema.res.texr {
       };
 
       for (var i = 0; i < textureCount; ++i) {
-        var baseOffset = er.Position;
+        var baseOffset = br.Position;
         SectionHeaderUtil.AssertNameAndReadSize(
-            er, sectionName, out var textureLength);
-        var endOffset = er.Position + textureLength;
+            br, sectionName, out var textureLength);
+        var endOffset = br.Position + textureLength;
 
-        var textureName = er.ReadString(textureNameLength);
+        var textureName = br.ReadString(textureNameLength);
 
-        er.Position = baseOffset;
-        var data = er.ReadBytes(endOffset - baseOffset);
+        br.Position = baseOffset;
+        var data = br.ReadBytes(endOffset - baseOffset);
 
         Textures.Add(new BwTexrFile(textureName, data));
       }
 
-      Asserts.Equal(expectedTexrSectionEnd, er.Position);
+      Asserts.Equal(expectedTexrSectionEnd, br.Position);
     }
 
-    public void Write(ISubEndianBinaryWriter ew) {
+    public void Write(IBinaryWriter bw) {
       throw new NotImplementedException();
     }
   }

@@ -240,7 +240,7 @@ namespace HaloWarsTools {
                 new MemoryStream(bytes, tableChunk.Offset, tableChunk.Length);
 
             using var grxEr =
-                new EndianBinaryReader(grxStream, Endianness.LittleEndian);
+                new SchemaBinaryReader(grxStream, Endianness.LittleEndian);
 
             var grannyFileInfo = new GrannyFileInfo();
             grannyFileInfo.Read(grxEr);

@@ -3,12 +3,12 @@
 using schema.binary;
 
 namespace fin.util.binary {
-  public static class EndianBinaryReaderUtil {
-    public static T SubreadReturn<T>(this IEndianBinaryReader er,
+  public static class SchemaBinaryReaderUtil {
+    public static T SubreadReturn<T>(this IBinaryReader br,
                                      long offset,
-                                     Func<IEndianBinaryReader, T> handler) {
+                                     Func<IBinaryReader, T> handler) {
       T value = default;
-      er.SubreadAt(
+      br.SubreadAt(
           offset,
           ser => { value = handler(ser); });
 

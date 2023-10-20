@@ -195,9 +195,9 @@ class BlenderNode():
             # Set PoseBone to make BoneTRS = vnode.trs.
             t, r, s = vnode.trs()
             et, er = vnode.editbone_trans, vnode.editbone_rot
-            pose_bone.location = er.conjugated() @ (t - et)
+            pose_bone.location = br.conjugated() @ (t - et)
             pose_bone.rotation_mode = 'QUATERNION'
-            pose_bone.rotation_quaternion = er.conjugated() @ r
+            pose_bone.rotation_quaternion = br.conjugated() @ r
             pose_bone.scale = s
 
             if isinstance(id, int):

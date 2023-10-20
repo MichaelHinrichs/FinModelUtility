@@ -2,7 +2,6 @@
 
 using fin.schema;
 using fin.schema.color;
-using fin.util.array;
 
 using schema.binary;
 
@@ -85,106 +84,106 @@ namespace cmb.schema.cmb.mats {
     [Unknown]
     public uint stenilUnk1; // CRC32 of something
 
-    public void Read(IEndianBinaryReader r) {
-      this.isFragmentLightingEnabled = r.ReadByte() != 0;
-      this.isVertexLightingEnabled = r.ReadByte() != 0;
-      this.isHemiSphereLightingEnabled = r.ReadByte() != 0;
-      this.isHemiSphereOcclusionEnabled = r.ReadByte() != 0;
+    public void Read(IBinaryReader br) {
+      this.isFragmentLightingEnabled = br.ReadByte() != 0;
+      this.isVertexLightingEnabled = br.ReadByte() != 0;
+      this.isHemiSphereLightingEnabled = br.ReadByte() != 0;
+      this.isHemiSphereOcclusionEnabled = br.ReadByte() != 0;
 
-      this.faceCulling = (CullMode) r.ReadByte();
+      this.faceCulling = (CullMode) br.ReadByte();
 
-      this.isPolygonOffsetEnabled = r.ReadByte() != 0;
-      this.polygonOffset = r.ReadInt16() / 65534f;
+      this.isPolygonOffsetEnabled = br.ReadByte() != 0;
+      this.polygonOffset = br.ReadInt16() / 65534f;
 
       if (CmbHeader.Version > Version.MAJORAS_MASK_3D) {
-        this.unk0 = r.ReadUInt32();
-        this.textureMappersUsed = (uint) r.ReadInt16();
-        this.textureCoordsUsed = (uint) r.ReadInt16();
+        this.unk0 = br.ReadUInt32();
+        this.textureMappersUsed = (uint) br.ReadInt16();
+        this.textureCoordsUsed = (uint) br.ReadInt16();
       } else {
-        this.textureMappersUsed = r.ReadUInt32();
-        this.textureCoordsUsed = r.ReadUInt32();
+        this.textureMappersUsed = br.ReadUInt32();
+        this.textureCoordsUsed = br.ReadUInt32();
       }
 
       for (var i = 0; i < 3; ++i) {
         var texMapper = new TexMapper();
-        texMapper.Read(r);
+        texMapper.Read(br);
         this.texMappers[i] = texMapper;
       }
 
       for (var i = 0; i < 3; ++i) {
         var texCoord = new TexCoords();
-        texCoord.Read(r);
+        texCoord.Read(br);
         this.texCoords[i] = texCoord;
       }
 
-      this.emissionColor = r.ReadNew<Rgba32>();
-      this.ambientColor = r.ReadNew<Rgba32>();
-      this.diffuseRgba = r.ReadNew<Rgba32>();
-      this.specular0Color = r.ReadNew<Rgba32>();
-      this.specular1Color = r.ReadNew<Rgba32>();
+      this.emissionColor = br.ReadNew<Rgba32>();
+      this.ambientColor = br.ReadNew<Rgba32>();
+      this.diffuseRgba = br.ReadNew<Rgba32>();
+      this.specular0Color = br.ReadNew<Rgba32>();
+      this.specular1Color = br.ReadNew<Rgba32>();
 
       for (var i = 0; i < this.constantColors.Length; ++i) {
-        this.constantColors[i] = r.ReadNew<Rgba32>();
+        this.constantColors[i] = br.ReadNew<Rgba32>();
       }
 
-      r.ReadSingles(this.bufferColor);
+      br.ReadSingles(this.bufferColor);
 
-      this.bumpTexture = (BumpTexture) r.ReadUInt16();
-      this.bumpMode = (BumpMode) r.ReadUInt16();
-      this.isBumpRenormalized = r.ReadUInt32() != 0;
+      this.bumpTexture = (BumpTexture) br.ReadUInt16();
+      this.bumpMode = (BumpMode) br.ReadUInt16();
+      this.isBumpRenormalized = br.ReadUInt32() != 0;
 
-      this.layerConfig = (LayerConfig) r.ReadUInt32();
-      this.fresnelSelector = (FresnelConfig) r.ReadUInt16();
-      this.isClampHighlight = r.ReadByte() != 0;
-      this.isDistribution0Enabled = r.ReadByte() != 0;
-      this.isDistribution1Enabled = r.ReadByte() != 0;
-      this.isGeometricFactor0Enabled = r.ReadByte() != 0;
-      this.isGeometricFactor1Enabled = r.ReadByte() != 0;
-      this.isReflectionEnabled = r.ReadByte() != 0;
+      this.layerConfig = (LayerConfig) br.ReadUInt32();
+      this.fresnelSelector = (FresnelConfig) br.ReadUInt16();
+      this.isClampHighlight = br.ReadByte() != 0;
+      this.isDistribution0Enabled = br.ReadByte() != 0;
+      this.isDistribution1Enabled = br.ReadByte() != 0;
+      this.isGeometricFactor0Enabled = br.ReadByte() != 0;
+      this.isGeometricFactor1Enabled = br.ReadByte() != 0;
+      this.isReflectionEnabled = br.ReadByte() != 0;
 
-      this.reflectanceRSampler.Read(r);
-      this.reflectanceGSampler.Read(r);
-      this.reflectanceBSampler.Read(r);
-      this.distibution0Sampler.Read(r);
-      this.distibution1Sampler.Read(r);
-      this.fresnelSampler.Read(r);
+      this.reflectanceRSampler.Read(br);
+      this.reflectanceGSampler.Read(br);
+      this.reflectanceBSampler.Read(br);
+      this.distibution0Sampler.Read(br);
+      this.distibution1Sampler.Read(br);
+      this.fresnelSampler.Read(br);
 
-      this.texEnvStageCount = r.ReadUInt32();
+      this.texEnvStageCount = br.ReadUInt32();
       for (var i = 0; i < 6; ++i) {
-        this.texEnvStagesIndices[i] = r.ReadInt16();
+        this.texEnvStagesIndices[i] = br.ReadInt16();
       }
 
-      this.alphaTestEnabled = r.ReadByte() != 0;
-      this.alphaTestReferenceValue = r.ReadByte() / 255f;
-      this.alphaTestFunction = (TestFunc) r.ReadUInt16();
-      this.depthTestEnabled = r.ReadByte() != 0;
-      this.depthWriteEnabled = r.ReadByte() != 0;
-      this.depthTestFunction = (TestFunc) r.ReadUInt16();
-      this.blendMode = (BlendMode) (r.ReadByte());
-      r.Align(4);
+      this.alphaTestEnabled = br.ReadByte() != 0;
+      this.alphaTestReferenceValue = br.ReadByte() / 255f;
+      this.alphaTestFunction = (TestFunc) br.ReadUInt16();
+      this.depthTestEnabled = br.ReadByte() != 0;
+      this.depthWriteEnabled = br.ReadByte() != 0;
+      this.depthTestFunction = (TestFunc) br.ReadUInt16();
+      this.blendMode = (BlendMode) (br.ReadByte());
+      br.Align(4);
 
-      this.alphaSrcFunc = (BlendFactor) (r.ReadUInt16());
-      this.alphaDstFunc = (BlendFactor) (r.ReadUInt16());
-      this.alphaEquation = (BlendEquation) (r.ReadUInt32());
-      this.colorSrcFunc = (BlendFactor) (r.ReadUInt16());
-      this.colorDstFunc = (BlendFactor) (r.ReadUInt16());
-      this.colorEquation = (BlendEquation) (r.ReadUInt32());
-      r.ReadSingles(this.blendColor);
+      this.alphaSrcFunc = (BlendFactor) (br.ReadUInt16());
+      this.alphaDstFunc = (BlendFactor) (br.ReadUInt16());
+      this.alphaEquation = (BlendEquation) (br.ReadUInt32());
+      this.colorSrcFunc = (BlendFactor) (br.ReadUInt16());
+      this.colorDstFunc = (BlendFactor) (br.ReadUInt16());
+      this.colorEquation = (BlendEquation) (br.ReadUInt32());
+      br.ReadSingles(this.blendColor);
 
       if (CmbHeader.Version.SupportsStencilBuffer()) {
-        this.stencilEnabled = r.ReadByte() != 0;
-        this.stencilReferenceValue = r.ReadByte();
-        this.stencilBufferMask = r.ReadByte();
-        this.stencilBuffer = r.ReadByte();
-        this.stencilFunc = (TestFunc) r.ReadUInt16();
-        this.stencilFailOp = (StencilTestOp) r.ReadUInt16();
-        this.stencilZFailOp = (StencilTestOp) r.ReadUInt16();
-        this.stencilZPassOp = (StencilTestOp) r.ReadUInt16();
-        this.stenilUnk1 = r.ReadUInt32();
+        this.stencilEnabled = br.ReadByte() != 0;
+        this.stencilReferenceValue = br.ReadByte();
+        this.stencilBufferMask = br.ReadByte();
+        this.stencilBuffer = br.ReadByte();
+        this.stencilFunc = (TestFunc) br.ReadUInt16();
+        this.stencilFailOp = (StencilTestOp) br.ReadUInt16();
+        this.stencilZFailOp = (StencilTestOp) br.ReadUInt16();
+        this.stencilZPassOp = (StencilTestOp) br.ReadUInt16();
+        this.stenilUnk1 = br.ReadUInt32();
       }
     }
 
-    public void Write(ISubEndianBinaryWriter ew) {
+    public void Write(IBinaryWriter bw) {
       throw new NotImplementedException();
     }
   }

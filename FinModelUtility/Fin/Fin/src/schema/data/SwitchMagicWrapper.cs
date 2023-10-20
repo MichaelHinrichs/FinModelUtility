@@ -12,13 +12,13 @@ namespace fin.schema.data {
   /// </summary>
   public class SwitchMagicWrapper<TMagic, TData> : IBinaryConvertible
       where TData : IBinaryConvertible {
-    private readonly Func<IEndianBinaryReader, TMagic> readMagicHandler_;
-    private readonly Action<ISubEndianBinaryWriter, TMagic> writeMagicHandler_;
+    private readonly Func<IBinaryReader, TMagic> readMagicHandler_;
+    private readonly Action<IBinaryWriter, TMagic> writeMagicHandler_;
     private readonly Func<TMagic, TData> createTypeHandler_;
 
     public SwitchMagicWrapper(
-        Func<IEndianBinaryReader, TMagic> readMagicHandler,
-        Action<ISubEndianBinaryWriter, TMagic> writeMagicHandler,
+        Func<IBinaryReader, TMagic> readMagicHandler,
+        Action<IBinaryWriter, TMagic> writeMagicHandler,
         Func<TMagic, TData> createTypeHandler) {
       this.readMagicHandler_ = readMagicHandler;
       this.writeMagicHandler_ = writeMagicHandler;
@@ -30,16 +30,16 @@ namespace fin.schema.data {
     public TData Data { get; private set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Read(IEndianBinaryReader er) {
-      this.Magic = this.readMagicHandler_(er);
+    public void Read(IBinaryReader br) {
+      this.Magic = this.readMagicHandler_(br);
       this.Data = this.createTypeHandler_(this.Magic);
-      this.Data.Read(er);
+      this.Data.Read(br);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Write(ISubEndianBinaryWriter ew) {
-      this.writeMagicHandler_(ew, this.Magic);
-      this.Data.Write(ew);
+    public void Write(IBinaryWriter bw) {
+      this.writeMagicHandler_(bw, this.Magic);
+      this.Data.Write(bw);
     }
 
     public override string ToString() => $"[{this.Magic}]: {this.Data}";

@@ -13,16 +13,16 @@ namespace j3d.G3D_Binary_File_Format
     public string kind;
     public uint size;
 
-    public DataBlockHeader(IEndianBinaryReader er, string Signature, out bool OK)
+    public DataBlockHeader(IBinaryReader br, string Signature, out bool OK)
     {
-      this.kind = er.ReadString(4);
+      this.kind = br.ReadString(4);
       if (this.kind != Signature)
       {
         OK = false;
       }
       else
       {
-        this.size = er.ReadUInt32();
+        this.size = br.ReadUInt32();
         OK = true;
       }
     }
@@ -33,10 +33,10 @@ namespace j3d.G3D_Binary_File_Format
       this.size = size;
     }
 
-    public void Write(ISubEndianBinaryWriter er, int Size)
+    public void Write(IBinaryWriter bw, int size)
     {
-      er.WriteString(this.kind);
-      er.WriteInt32(Size);
+      bw.WriteString(this.kind);
+      bw.WriteInt32(size);
     }
   }
 }

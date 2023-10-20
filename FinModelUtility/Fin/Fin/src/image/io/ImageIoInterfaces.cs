@@ -7,7 +7,7 @@ namespace fin.image.io {
       where TPixel : unmanaged, IPixel<TPixel> {
     IImage<TPixel> CreateImage(int width, int height);
 
-    unsafe void Decode(IEndianBinaryReader er,
+    unsafe void Decode(IBinaryReader br,
                        TPixel* scan0,
                        int offset);
 
@@ -25,7 +25,7 @@ namespace fin.image.io {
     int TileWidth { get; }
     int TileHeight { get; }
 
-    unsafe void Decode(IEndianBinaryReader er,
+    unsafe void Decode(IBinaryReader br,
                        TPixel* scan0,
                        int tileX,
                        int tileY,
@@ -36,11 +36,11 @@ namespace fin.image.io {
   public interface IImageReader {
     IImage ReadImage(byte[] srcBytes,
                 Endianness endianness = Endianness.LittleEndian) {
-      using var er = new EndianBinaryReader(srcBytes, endianness);
-      return this.ReadImage(er);
+      using var br = new SchemaBinaryReader(srcBytes, endianness);
+      return this.ReadImage(br);
     }
 
-    IImage ReadImage(IEndianBinaryReader er);
+    IImage ReadImage(IBinaryReader br);
   }
 
   public interface IImageReader<out TImage> : IImageReader
@@ -51,12 +51,12 @@ namespace fin.image.io {
 
     new TImage ReadImage(byte[] srcBytes,
                 Endianness endianness = Endianness.LittleEndian) {
-      using var er = new EndianBinaryReader(srcBytes, endianness);
-      return this.ReadImage(er);
+      using var br = new SchemaBinaryReader(srcBytes, endianness);
+      return this.ReadImage(br);
     }
 
-    IImage IImageReader.ReadImage(IEndianBinaryReader er) => this.ReadImage(er);
+    IImage IImageReader.ReadImage(IBinaryReader br) => this.ReadImage(br);
 
-    new TImage ReadImage(IEndianBinaryReader er);
+    new TImage ReadImage(IBinaryReader br);
   }
 }

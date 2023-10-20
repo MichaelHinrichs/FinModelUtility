@@ -7,43 +7,43 @@ namespace modl.schema.anim.bw2 {
     public List<IBwAnimBone> AnimBones { get; } = new();
     public List<AnimBoneFrames> AnimBoneFrames { get; } = new();
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       string name0;
       {
-        er.PushMemberEndianness(Endianness.LittleEndian);
-        var name0Length = er.ReadUInt32();
-        name0 = er.ReadString((int) name0Length);
-        er.PopEndianness();
+        br.PushMemberEndianness(Endianness.LittleEndian);
+        var name0Length = br.ReadUInt32();
+        name0 = br.ReadString((int) name0Length);
+        br.PopEndianness();
       }
 
-      var animStart = er.Position;
+      var animStart = br.Position;
 
-      var single0 = er.ReadSingle();
-      var uint0 = er.ReadUInt32();
+      var single0 = br.ReadSingle();
+      var uint0 = br.ReadUInt32();
 
       // The name is repeated once more, excepted null-terminated.
-      var name1 = er.ReadStringNT();
+      var name1 = br.ReadStringNT();
 
       // Next is a series of many "0xcd" values. Why??
       var cdCount = 0;
-      while (er.ReadByte() == 0xcd) {
+      while (br.ReadByte() == 0xcd) {
         cdCount++;
       }
 
-      --er.Position;
+      --br.Position;
 
-      var single1 = er.ReadSingle();
+      var single1 = br.ReadSingle();
 
-      Asserts.Equal(0x4c, er.Position - animStart);
+      Asserts.Equal(0x4c, br.Position - animStart);
 
       // Next is a series of bone definitions. Each one has a length of 64.
-      var boneCount = er.ReadUInt32();
+      var boneCount = br.ReadUInt32();
 
-      er.ReadUInt32s(2);
+      br.ReadUInt32s(2);
 
       for (var i = 0; i < boneCount; ++i) {
         var bone = new Bw2AnimBone();
-        bone.Read(er);
+        bone.Read(br);
         this.AnimBones.Add(bone);
       }
 
@@ -62,13 +62,13 @@ namespace modl.schema.anim.bw2 {
 
       var boneBytes = new List<byte[]>();
       for (var i = 0; i < this.AnimBones.Count; ++i) {
-        var currentBuffer = er.ReadBytes((int) estimatedLengths[i]);
+        var currentBuffer = br.ReadBytes((int) estimatedLengths[i]);
         boneBytes.Add(currentBuffer);
 
         // TODO: May no longer be necessary
         if (i + 1 < this.AnimBones.Count) {
-          if (er.ReadUInt16() != 0xcdcd) {
-            er.Position -= 2;
+          if (br.ReadUInt16() != 0xcdcd) {
+            br.Position -= 2;
           }
         }
       }
@@ -78,7 +78,7 @@ namespace modl.schema.anim.bw2 {
 
         var buffer = boneBytes[i];
         using var ber =
-            new EndianBinaryReader(buffer, Endianness.BigEndian);
+            new SchemaBinaryReader(buffer, Endianness.BigEndian);
 
         var animBoneFrames = new AnimBoneFrames();
         this.AnimBoneFrames.Add(animBoneFrames);
@@ -109,11 +109,11 @@ namespace modl.schema.anim.bw2 {
 
     public void Parse3PositionValuesFrom2UShorts_(
         IBwAnimBone animBone,
-        IEndianBinaryReader er,
+        SchemaBinaryReader br,
         out double[] outValues) {
-      var first_uint = er.ReadUInt32();
-      er.Position -= 2;
-      var second_ushort = er.ReadUInt16();
+      var first_uint = br.ReadUInt32();
+      br.Position -= 2;
+      var second_ushort = br.ReadUInt16();
 
       outValues = new double[3];
       outValues[0] =
@@ -136,12 +136,12 @@ namespace modl.schema.anim.bw2 {
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
-    public bool Parse4RotationValuesFrom4UShorts_(IEndianBinaryReader er,
+    public bool Parse4RotationValuesFrom4UShorts_(IBinaryReader br,
                                                   out double[] outValues) {
-      var first_ushort = er.ReadUInt16();
-      var second_ushort = er.ReadUInt16();
-      var third_ushort = er.ReadUInt16();
-      var fourth_ushort = er.ReadUInt16();
+      var first_ushort = br.ReadUInt16();
+      var second_ushort = br.ReadUInt16();
+      var third_ushort = br.ReadUInt16();
+      var fourth_ushort = br.ReadUInt16();
 
       const double DOUBLE_80600f40 = 4.503601774854144E15;
       const double FLOAT_80603708 = 3.0517578E-5;

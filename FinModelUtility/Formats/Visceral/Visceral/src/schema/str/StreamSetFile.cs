@@ -65,11 +65,11 @@ namespace visceral.schema.str {
     }
 
     private class BlockConfig : ISwitchMagicConfig<BlockType, IBlock> {
-      public BlockType ReadMagic(IEndianBinaryReader er)
-        => (BlockType) er.ReadUInt32();
+      public BlockType ReadMagic(IBinaryReader br)
+        => (BlockType) br.ReadUInt32();
 
-      public void WriteMagic(ISubEndianBinaryWriter ew, BlockType magic)
-        => ew.WriteUInt32((uint) magic);
+      public void WriteMagic(IBinaryWriter bw, BlockType magic)
+        => bw.WriteUInt32((uint) magic);
 
       public BlockType GetMagic(IBlock data) => data.Type;
 

@@ -45,17 +45,17 @@ namespace cmb.schema.cmb {
 
     public readonly Vatr vatr = new();
 
-    public Cmb(IEndianBinaryReader r) => this.Read(r);
+    public Cmb(IBinaryReader br) => this.Read(br);
 
-    public void Read(IEndianBinaryReader r) {
+    public void Read(IBinaryReader br) {
       long startOff = 0;
 
-      if (r.ReadString(4) == "ZSI" + AsciiUtil.GetChar(1)) {
-        r.Position = 16;
+      if (br.ReadString(4) == "ZSI" + AsciiUtil.GetChar(1)) {
+        br.Position = 16;
 
         while (true) {
-          var cmd0 = r.ReadUInt32();
-          var cmd1 = r.ReadUInt32();
+          var cmd0 = br.ReadUInt32();
+          var cmd1 = br.ReadUInt32();
 
           var cmdType = cmd0 & 0xFF;
 
@@ -64,46 +64,46 @@ namespace cmb.schema.cmb {
           }
 
           if (cmdType == 0x0A) {
-            r.Position = cmd1 + 20;
+            br.Position = cmd1 + 20;
 
-            var entryOfs = r.ReadUInt32();
-            r.Position = entryOfs + 24;
+            var entryOfs = br.ReadUInt32();
+            br.Position = entryOfs + 24;
 
-            var cmbOfs = r.ReadUInt32();
-            r.Position = cmbOfs + 16;
+            var cmbOfs = br.ReadUInt32();
+            br.Position = cmbOfs + 16;
 
-            startOff = r.Position;
+            startOff = br.Position;
             break;
           }
         }
       }
 
-      this.startOffset = r.Position = startOff;
+      this.startOffset = br.Position = startOff;
 
-      this.header.Read(r);
+      this.header.Read(br);
 
-      r.Position = startOff + this.header.sklOffset;
-      this.skl.Read(r);
+      br.Position = startOff + this.header.sklOffset;
+      this.skl.Read(br);
 
       if (CmbHeader.Version > Version.OCARINA_OF_TIME_3D) {
-        r.Position = startOff + this.header.qtrsOffset;
-        this.qtrs.Read(r);
+        br.Position = startOff + this.header.qtrsOffset;
+        this.qtrs.Read(br);
       }
 
-      r.Position = startOff + this.header.matsOffset;
-      this.mats.Read(r);
+      br.Position = startOff + this.header.matsOffset;
+      this.mats.Read(br);
 
-      r.Position = startOff + this.header.texOffset;
-      this.tex.Read(r);
+      br.Position = startOff + this.header.texOffset;
+      this.tex.Read(br);
 
-      r.Position = startOff + this.header.sklmOffset;
-      this.sklm.Read(r);
+      br.Position = startOff + this.header.sklmOffset;
+      this.sklm.Read(br);
 
-      r.Position = startOff + this.header.lutsOffset;
-      this.luts.Read(r);
+      br.Position = startOff + this.header.lutsOffset;
+      this.luts.Read(br);
 
-      r.Position = startOff + this.header.vatrOffset;
-      this.vatr.Read(r);
+      br.Position = startOff + this.header.vatrOffset;
+      this.vatr.Read(br);
 
       // Add face indices to primitive sets
       var sklm = this.sklm.Data;
@@ -111,7 +111,7 @@ namespace cmb.schema.cmb {
         foreach (var pset in shape.primitiveSets) {
           var primitive = pset.primitive;
           // # Always * 2 even if ubyte is used...
-          r.Position = startOff +
+          br.Position = startOff +
                        this.header.faceIndicesOffset +
                        2 * primitive.offset;
 
@@ -119,11 +119,11 @@ namespace cmb.schema.cmb {
           for (var i = 0; i < primitive.indicesCount; ++i) {
             switch (primitive.dataType) {
               case DataType.UByte: {
-                primitive.indices[i] = r.ReadByte();
+                primitive.indices[i] = br.ReadByte();
                 break;
               }
               case DataType.UShort: {
-                primitive.indices[i] = r.ReadUInt16();
+                primitive.indices[i] = br.ReadUInt16();
                 break;
               }
               default: {

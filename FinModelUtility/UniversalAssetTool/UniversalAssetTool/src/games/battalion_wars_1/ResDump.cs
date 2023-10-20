@@ -45,9 +45,9 @@ namespace uni.games.battalion_wars_1 {
           stream = resFile.OpenRead();
         }
 
-        using var er = new EndianBinaryReader(stream, Endianness.LittleEndian);
+        using var br = new SchemaBinaryReader(stream, Endianness.LittleEndian);
 
-        var bwArchive = er.ReadNew<BwArchive>();
+        var bwArchive = br.ReadNew<BwArchive>();
 
         directory.Create();
         foreach (var (bwFileExtension, bwFiles) in bwArchive.Files) {

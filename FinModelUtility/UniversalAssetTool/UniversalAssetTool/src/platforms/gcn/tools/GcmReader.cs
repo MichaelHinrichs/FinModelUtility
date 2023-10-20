@@ -24,10 +24,10 @@ namespace uni.platforms.gcn.tools {
 
     public IEnumerable<SubArchiveContentFile> GetFiles(
         IArchiveStream<SubArchiveContentFile> archiveStream) {
-      var er = archiveStream.AsEndianBinaryReader(Endianness.BigEndian);
+      var br = archiveStream.AsBinaryReader(Endianness.BigEndian);
 
-      var diskHeader = er.ReadNew<DiskHeader>();
-      var fileEntries = this.ReadFileSystemTable_(er, diskHeader);
+      var diskHeader = br.ReadNew<DiskHeader>();
+      var fileEntries = this.ReadFileSystemTable_(br, diskHeader);
 
       var rootDirectoryFullName = "";
 
@@ -49,9 +49,9 @@ namespace uni.platforms.gcn.tools {
         }
 
         // Get name
-        er.Position = diskHeader.FileSystemTableOffset + fileTableOffset +
+        br.Position = diskHeader.FileSystemTableOffset + fileTableOffset +
                       e.FileNameOffset;
-        var name = er.ReadStringNT(StringEncodingType.UTF8);
+        var name = br.ReadStringNT(StringEncodingType.UTF8);
 
         // Push new directory
         if (e.IsDirectory) {
@@ -72,15 +72,15 @@ namespace uni.platforms.gcn.tools {
       }
     }
 
-    private IList<FileEntry> ReadFileSystemTable_(IEndianBinaryReader er,
+    private IList<FileEntry> ReadFileSystemTable_(IBinaryReader br,
                                                   DiskHeader diskHeader) {
       var entries = new List<FileEntry>();
 
       //read files
-      er.Position = diskHeader.FileSystemTableOffset;
+      br.Position = diskHeader.FileSystemTableOffset;
       uint numFiles = 1;
       for (int i = 0; i < numFiles; ++i) {
-        var entry = er.ReadNew<FileEntry>();
+        var entry = br.ReadNew<FileEntry>();
         entries.Add(entry);
         if (i == 0) {
           numFiles = entry.FileLengthOrNextOffset;

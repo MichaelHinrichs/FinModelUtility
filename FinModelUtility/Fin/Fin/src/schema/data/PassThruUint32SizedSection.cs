@@ -16,23 +16,23 @@ namespace fin.schema.data {
 
     public int TweakReadSize { get; set; }
 
-    public void Read(IEndianBinaryReader er) {
-      this.Size = er.ReadUInt32();
+    public void Read(IBinaryReader br) {
+      this.Size = br.ReadUInt32();
 
       var tweakedSize = this.Size + this.TweakReadSize;
-      var basePosition = er.Position;
-      er.SubreadAt(er.Position, (int) tweakedSize, this.Data.Read);
+      var basePosition = br.Position;
+      br.SubreadAt(br.Position, (int) tweakedSize, this.Data.Read);
 
-      er.Position = basePosition + tweakedSize;
+      br.Position = basePosition + tweakedSize;
     }
 
-    public void Write(ISubEndianBinaryWriter ew) {
+    public void Write(IBinaryWriter bw) {
       var sizeSource = new TaskCompletionSource<uint>();
-      ew.WriteUInt32Delayed(sizeSource.Task);
+      bw.WriteUInt32Delayed(sizeSource.Task);
 
-      var startingPositionTask = ew.GetAbsolutePosition();
-      this.Data.Write(ew);
-      var endPositionTask = ew.GetAbsolutePosition();
+      var startingPositionTask = bw.GetAbsolutePosition();
+      this.Data.Write(bw);
+      var endPositionTask = bw.GetAbsolutePosition();
 
       var sizeTask = endPositionTask.Subtract(startingPositionTask);
       var tweakedSizeTask = sizeTask.Subtract(this.TweakReadSize)

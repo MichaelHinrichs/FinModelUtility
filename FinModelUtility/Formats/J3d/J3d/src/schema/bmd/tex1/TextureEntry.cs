@@ -98,22 +98,22 @@ namespace j3d.schema.bmd.tex1 {
     public Rgba32[] palette;
 
     [ReadLogic]
-    private void ReadPalettes_(IEndianBinaryReader er) {
-      long position = er.Position;
+    private void ReadPalettes_(IBinaryReader br) {
+      long position = br.Position;
       this.palette = new Rgba32[this.NrPaletteEntries];
 
-      er.Position = this.PaletteOffset;
+      br.Position = this.PaletteOffset;
       for (var i = 0; i < this.NrPaletteEntries; ++i) {
         switch (this.PaletteFormat) {
           case PaletteFormat.PAL_A8_I8: {
-            var alpha = er.ReadByte();
-            var intensity = er.ReadByte();
+            var alpha = br.ReadByte();
+            var intensity = br.ReadByte();
             this.palette[i] =
                 new Rgba32(intensity, intensity, intensity, alpha);
             break;
           }
           case PaletteFormat.PAL_R5_G6_B5: {
-            ColorUtil.SplitRgb565(er.ReadUInt16(),
+            ColorUtil.SplitRgb565(br.ReadUInt16(),
                                   out var r,
                                   out var b,
                                   out var g);
@@ -122,7 +122,7 @@ namespace j3d.schema.bmd.tex1 {
           }
           // TODO: There seems to be a bug reading the palette, these colors look weird
           case PaletteFormat.PAL_A3_RGB5: {
-            ColorUtil.SplitRgb5A3(er.ReadUInt16(),
+            ColorUtil.SplitRgb5A3(br.ReadUInt16(),
                                   out var r,
                                   out var g,
                                   out var b,
@@ -135,7 +135,7 @@ namespace j3d.schema.bmd.tex1 {
         }
       }
 
-      er.Position = position;
+      br.Position = position;
     }
 
     public unsafe IImage ToBitmap() {

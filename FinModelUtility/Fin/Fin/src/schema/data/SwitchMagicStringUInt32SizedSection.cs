@@ -41,15 +41,15 @@ namespace fin.schema.data {
     [Ignore]
     public T Data => this.impl_.Data;
 
-    public void Read(IEndianBinaryReader er) {
-      var baseOffset = er.Position;
+    public void Read(IBinaryReader br) {
+      var baseOffset = br.Position;
 
-      var magic = er.ReadString(this.magicLength_);
+      var magic = br.ReadString(this.magicLength_);
       this.impl_.Magic = magic;
       this.impl_.Data = this.createTypeHandler_(magic);
 
-      er.Position = baseOffset;
-      this.impl_.Read(er);
+      br.Position = baseOffset;
+      this.impl_.Read(br);
     }
   }
 }

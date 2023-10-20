@@ -10,23 +10,23 @@ namespace visceral.schema.rcb {
     public IReadOnlyList<Skeleton> Skeletons { get; private set; }
 
     [Unknown]
-    public void Read(IEndianBinaryReader er) {
-      var fileLength = er.ReadUInt32();
-      er.Position += 20;
+    public void Read(IBinaryReader br) {
+      var fileLength = br.ReadUInt32();
+      br.Position += 20;
 
-      var skeletonCount = er.ReadUInt32();
+      var skeletonCount = br.ReadUInt32();
 
-      var dataOffset = er.ReadUInt32();
-      var unk4 = er.ReadUInt32();
-      var dataOffset2 = er.ReadUInt32();
-      er.Position += 16;
+      var dataOffset = br.ReadUInt32();
+      var unk4 = br.ReadUInt32();
+      var dataOffset2 = br.ReadUInt32();
+      br.Position += 16;
 
-      var unk5 = er.ReadUInt32();
-      var unk6 = er.ReadUInt32();
-      var dataOffset3 = er.ReadUInt32();
+      var unk5 = br.ReadUInt32();
+      var unk6 = br.ReadUInt32();
+      var dataOffset3 = br.ReadUInt32();
 
-      er.Position = dataOffset;
-      er.ReadNewArray<Skeleton>(out var skeletons, (int) skeletonCount);
+      br.Position = dataOffset;
+      br.ReadNewArray<Skeleton>(out var skeletons, (int) skeletonCount);
       this.Skeletons = skeletons;
     }
 
@@ -36,19 +36,19 @@ namespace visceral.schema.rcb {
       public IReadOnlyList<Bone> Bones { get; private set; }
 
       [Unknown]
-      public void Read(IEndianBinaryReader er) {
+      public void Read(IBinaryReader br) {
         // Read skeleton header
-        var unk7 = er.ReadUInt32();
+        var unk7 = br.ReadUInt32();
 
         this.SkeletonName =
-            er.SubreadAt(er.ReadUInt32(), ser => ser.ReadStringNT());
-        var boneCount = er.ReadUInt32();
-        var boneIdTableOffset = er.ReadUInt32();
-        var boneStart = er.ReadUInt32();
-        var ukwTableOffset = er.ReadUInt32();
+            br.SubreadAt(br.ReadUInt32(), ser => ser.ReadStringNT());
+        var boneCount = br.ReadUInt32();
+        var boneIdTableOffset = br.ReadUInt32();
+        var boneStart = br.ReadUInt32();
+        var ukwTableOffset = br.ReadUInt32();
 
         // Get bone parent table
-        er.SubreadAt(
+        br.SubreadAt(
             boneIdTableOffset,
             ser => {
               ser.Position = boneIdTableOffset;
@@ -63,10 +63,10 @@ namespace visceral.schema.rcb {
             });
 
         // Read bone matrices
-        er.SubreadAt(
+        br.SubreadAt(
             boneStart,
             ser => {
-              er.ReadNewArray<Bone>(out var bones, (int) boneCount);
+              br.ReadNewArray<Bone>(out var bones, (int) boneCount);
               this.Bones = bones;
             });
       }

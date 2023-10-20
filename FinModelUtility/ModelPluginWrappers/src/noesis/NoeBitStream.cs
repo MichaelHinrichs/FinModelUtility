@@ -21,10 +21,10 @@ namespace ModelPluginWrappers.src.noesis {
   }
 
   public class NoeBitStreamReader : INoeBitStreamReader {
-    private readonly EndianBinaryReader impl_; 
+    private readonly SchemaBinaryReader impl_; 
 
     public NoeBitStreamReader(byte[] data, NoeEndianness endianness = NoeEndianness.NOE_LITTLEENDIAN) {
-      this.impl_ = new EndianBinaryReader(data, endianness switch {
+      this.impl_ = new SchemaBinaryReader(data, endianness switch {
         NoeEndianness.NOE_BIGENDIAN => Endianness.BigEndian,
         NoeEndianness.NOE_LITTLEENDIAN => Endianness.LittleEndian,
       });

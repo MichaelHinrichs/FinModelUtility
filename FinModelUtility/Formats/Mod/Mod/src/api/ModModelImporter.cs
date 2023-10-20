@@ -253,10 +253,10 @@ namespace mod.api {
 
       foreach (var meshPacket in mesh.packets) {
         foreach (var dlist in meshPacket.displaylists) {
-          var er = new EndianBinaryReader(dlist.dlistData, Endianness.BigEndian);
+          var br = new SchemaBinaryReader(dlist.dlistData, Endianness.BigEndian);
 
-          while (!er.Eof) {
-            var opcode = (GxOpcode) er.ReadByte();
+          while (!br.Eof) {
+            var opcode = (GxOpcode) br.ReadByte();
             if (opcode == GxOpcode.NOP) {
               continue;
             }
@@ -266,7 +266,7 @@ namespace mod.api {
               continue;
             }
 
-            var faceCount = er.ReadUInt16();
+            var faceCount = br.ReadUInt16();
             var positionIndices = new List<ushort>();
             var allVertexWeights = new List<IBoneWeights>();
             var normalIndices = new List<ushort>();
@@ -280,7 +280,7 @@ namespace mod.api {
             for (var f = 0; f < faceCount; f++) {
               foreach (var (attr, format) in vertexDescriptorValues) {
                 if (format == null) {
-                  var unused = er.ReadByte();
+                  var unused = br.ReadByte();
 
                   if (attr == GxAttribute.PNMTXIDX) {
                     // Internally, this represents which of the 10 active
@@ -326,17 +326,17 @@ namespace mod.api {
                 }
 
                 if (attr == GxAttribute.POS) {
-                  positionIndices.Add(ModModelImporter.Read_(er, format));
+                  positionIndices.Add(ModModelImporter.Read_(br, format));
                 } else if (attr == GxAttribute.NRM) {
-                  normalIndices.Add(ModModelImporter.Read_(er, format));
+                  normalIndices.Add(ModModelImporter.Read_(br, format));
                 } else if (attr == GxAttribute.CLR0) {
-                  color0Indices.Add(ModModelImporter.Read_(er, format));
+                  color0Indices.Add(ModModelImporter.Read_(br, format));
                 } else if (attr is >= GxAttribute.TEX0
                                    and <= GxAttribute.TEX7) {
                   texCoordIndices[attr - GxAttribute.TEX0]
-                      .Add(ModModelImporter.Read_(er, format));
+                      .Add(ModModelImporter.Read_(br, format));
                 } else if (format == GxAttributeType.INDEX_16) {
-                  er.ReadUInt16();
+                  br.ReadUInt16();
                 } else {
                   Asserts.Fail(
                       $"Unexpected attribute/format ({attr}/{format})");
@@ -461,14 +461,14 @@ namespace mod.api {
       }
     }
 
-    private static ushort Read_(IEndianBinaryReader reader,
+    private static ushort Read_(IBinaryReader br,
                                 GxAttributeType? format) {
       if (format == GxAttributeType.INDEX_16) {
-        return reader.ReadUInt16();
+        return br.ReadUInt16();
       }
 
       if (format == GxAttributeType.INDEX_8) {
-        return reader.ReadByte();
+        return br.ReadByte();
       }
 
       Asserts.Fail($"Unsupported format: {format}");

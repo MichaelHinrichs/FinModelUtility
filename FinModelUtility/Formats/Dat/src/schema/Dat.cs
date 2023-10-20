@@ -30,11 +30,11 @@ namespace dat.schema {
 
     public List<JObj> RootJObjs { get; } = new();
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       Dat.vertexDescriptorValue_ = (uint) 0;
 
-      var fileHeader = er.ReadNew<FileHeader>();
-      Asserts.Equal(er.Length, fileHeader.FileSize);
+      var fileHeader = br.ReadNew<FileHeader>();
+      Asserts.Equal(br.Length, fileHeader.FileSize);
 
       this.dataBlockOffset_ = 0x20;
       this.relocationTableOffset_ =
@@ -49,11 +49,11 @@ namespace dat.schema {
       // Reads relocation table
       this.validOffsets_.Clear();
       for (var i = 0; i < fileHeader.RelocationTableCount; ++i) {
-        er.Position = this.relocationTableOffset_ + 4 * i;
-        var relocationTableEntryOffset = er.ReadUInt32();
+        br.Position = this.relocationTableOffset_ + 4 * i;
+        var relocationTableEntryOffset = br.ReadUInt32();
 
-        er.Position = this.dataBlockOffset_ + relocationTableEntryOffset;
-        var relocationTableValue = er.ReadUInt32();
+        br.Position = this.dataBlockOffset_ + relocationTableEntryOffset;
+        var relocationTableValue = br.ReadUInt32();
 
         this.validOffsets_.Add(relocationTableValue);
       }
@@ -61,13 +61,13 @@ namespace dat.schema {
       // Reads root nodes
       this.rootNodes_.Clear();
       for (var i = 0; i < fileHeader.RootNodeCount; i++) {
-        er.Position = this.rootNodeOffset_ + 8 * i;
+        br.Position = this.rootNodeOffset_ + 8 * i;
 
         var rootNode = new RootNode();
-        rootNode.Data.Read(er);
+        rootNode.Data.Read(br);
 
-        er.SubreadAt(this.stringTableOffset_ + rootNode.Data.StringOffset,
-                   ser => { rootNode.Name = ser.ReadStringNT(); });
+        br.SubreadAt(this.stringTableOffset_ + rootNode.Data.StringOffset,
+                   sbr => { rootNode.Name = sbr.ReadStringNT(); });
 
         this.rootNodes_.Add(rootNode);
       }
@@ -81,7 +81,7 @@ namespace dat.schema {
         }
       }
 
-      this.ReadJObs_(er);
+      this.ReadJObs_(br);
     }
 
     private bool AssertNullOrValidPointer_(uint pointer) {
@@ -99,7 +99,7 @@ namespace dat.schema {
 
     private static uint vertexDescriptorValue_;
 
-    private void ReadJObs_(IEndianBinaryReader er) {
+    private void ReadJObs_(IBinaryReader br) {
       var jObjQueue =
           new Queue<(
               RootNode rootNode,
@@ -125,17 +125,17 @@ namespace dat.schema {
           parentJObj.Children.Add(jObj);
         }
 
-        er.Position = this.dataBlockOffset_ + jObjDataOffset;
-        jObjData.Read(er);
+        br.Position = this.dataBlockOffset_ + jObjDataOffset;
+        jObjData.Read(br);
 
         var jObjNameOffset = jObjData.StringOffset;
         if (this.AssertNullOrValidPointer_(jObjNameOffset)) {
-          if (this.stringTableOffset_ + jObjNameOffset >= er.Length) {
+          if (this.stringTableOffset_ + jObjNameOffset >= br.Length) {
             ;
           }
 
-          er.Position = this.stringTableOffset_ + jObjNameOffset;
-          jObj.Name = er.ReadStringNT();
+          br.Position = this.stringTableOffset_ + jObjNameOffset;
+          jObj.Name = br.ReadStringNT();
         }
 
         var jObjFlags = jObjData.Flags;
@@ -144,7 +144,7 @@ namespace dat.schema {
         var isDObj = !isSpline && !isParticleJoint;
 
         if (isDObj) {
-          this.ReadDObjIntoJObj_(er, jObj, jObj.Data.ObjectStructOffset);
+          this.ReadDObjIntoJObj_(br, jObj, jObj.Data.ObjectStructOffset);
         }
 
         var firstChildOffset = jObj.Data.FirstChildBoneOffset;
@@ -159,7 +159,7 @@ namespace dat.schema {
       }
     }
 
-    private void ReadDObjIntoJObj_(IEndianBinaryReader er,
+    private void ReadDObjIntoJObj_(IBinaryReader br,
                                    JObj jObj,
                                    uint objectStructOffset) {
       if (!this.AssertNullOrValidPointer_(objectStructOffset)) {
@@ -169,40 +169,40 @@ namespace dat.schema {
       var dObj = new DObj();
       jObj.DObjs.Add(dObj);
 
-      er.Position = this.dataBlockOffset_ + objectStructOffset;
-      dObj.Data.Read(er);
+      br.Position = this.dataBlockOffset_ + objectStructOffset;
+      dObj.Data.Read(br);
 
-      this.ReadPObjIntoDObj_(er, dObj, dObj.Data.MeshStructOffset);
+      this.ReadPObjIntoDObj_(br, dObj, dObj.Data.MeshStructOffset);
 
-      this.ReadDObjIntoJObj_(er, jObj, dObj.Data.NextObjectOffset);
+      this.ReadDObjIntoJObj_(br, jObj, dObj.Data.NextObjectOffset);
     }
 
-    private void ReadPObjIntoDObj_(IEndianBinaryReader er,
+    private void ReadPObjIntoDObj_(IBinaryReader br,
                                    DObj dObj,
                                    uint pObjDataOffset) {
       if (!this.AssertNullOrValidPointer_(pObjDataOffset)) {
         return;
       }
 
-      er.Position = this.dataBlockOffset_ + pObjDataOffset;
+      br.Position = this.dataBlockOffset_ + pObjDataOffset;
 
       var pObj = new PObj();
       dObj.PObjs.Add(pObj);
 
       var pObjData = pObj.Data;
-      pObjData.Read(er);
+      pObjData.Read(br);
 
       var pObjType = pObjData.Flags & PObjFlags.OBJTYPE_SKIN;
       switch (pObjType) {
         case PObjFlags.OBJTYPE_SKIN: {
-          er.Position = this.dataBlockOffset_ +
+          br.Position = this.dataBlockOffset_ +
                         pObjData.VertexDescriptorListOffset;
 
           // Reads vertex descriptors
           while (true) {
             var vertexDescriptor = new VertexDescriptor();
             var vertexDescriptorData = vertexDescriptor.Data;
-            vertexDescriptorData.Read(er);
+            vertexDescriptorData.Read(br);
 
             if (vertexDescriptorData.Attribute == GxAttribute.NULL) {
               break;
@@ -212,20 +212,20 @@ namespace dat.schema {
           }
 
           var startingOffset =
-              er.Position =
+              br.Position =
                   this.dataBlockOffset_ + pObjData.DisplayOffset;
 
           // Reads display list
-          while (er.Position - startingOffset < pObjData.nDisp * 32) {
-            var opcode = (GxOpcode) er.ReadByte();
+          while (br.Position - startingOffset < pObjData.nDisp * 32) {
+            var opcode = (GxOpcode) br.ReadByte();
             if (opcode == GxOpcode.NOP) {
               break;
             }
 
             switch (opcode) {
               case GxOpcode.LOAD_CP_REG: {
-                var command = er.ReadByte();
-                var value = er.ReadUInt32();
+                var command = br.ReadByte();
+                var value = br.ReadUInt32();
 
                 if (command == 0x50) {
                   Dat.vertexDescriptorValue_ &= ~((uint) 0x1FFFF);
@@ -241,20 +241,20 @@ namespace dat.schema {
                 break;
               }
               case GxOpcode.LOAD_XF_REG: {
-                var lengthMinusOne = er.ReadUInt16();
+                var lengthMinusOne = br.ReadUInt16();
                 var length = lengthMinusOne + 1;
 
                 // http://hitmen.c02.at/files/yagcd/yagcd/chap5.html#sec5.11.4
-                var firstXfRegisterAddress = er.ReadUInt16();
+                var firstXfRegisterAddress = br.ReadUInt16();
 
-                var values = er.ReadUInt32s(length);
+                var values = br.ReadUInt32s(length);
                 // TODO: Implement
                 break;
               }
               case GxOpcode.DRAW_TRIANGLES:
               case GxOpcode.DRAW_QUADS:
               case GxOpcode.DRAW_TRIANGLE_STRIP: {
-                var vertexCount = er.ReadUInt16();
+                var vertexCount = br.ReadUInt16();
 
                 for (var i = 0; i < vertexCount; ++i) {
                   foreach (var vertexDescriptor in
@@ -264,9 +264,9 @@ namespace dat.schema {
                         vertexDescriptor.Data.AttributeType;
 
                     var value = vertexFormat switch {
-                        GxAttributeType.DIRECT => er.ReadByte(),
-                        GxAttributeType.INDEX_8 => er.ReadByte(),
-                        GxAttributeType.INDEX_16 => er.ReadUInt16(),
+                        GxAttributeType.DIRECT => br.ReadByte(),
+                        GxAttributeType.INDEX_8 => br.ReadByte(),
+                        GxAttributeType.INDEX_16 => br.ReadUInt16(),
                         _ => throw new NotImplementedException(),
                     };
 
@@ -305,7 +305,7 @@ namespace dat.schema {
         default: throw new NotImplementedException();
       }
 
-      this.ReadPObjIntoDObj_(er, dObj, pObjData.NextPObjOffset);
+      this.ReadPObjIntoDObj_(br, dObj, pObjData.NextPObjOffset);
     }
   }
 

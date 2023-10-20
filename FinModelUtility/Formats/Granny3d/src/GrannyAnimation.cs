@@ -12,18 +12,18 @@ namespace granny3d {
     public IList<IGrannyTrackGroup> TrackGroups { get; } =
       new List<IGrannyTrackGroup>();
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       GrannyUtils.SubreadRef(
-          er, ser => { this.Name = ser.ReadStringNT(); });
+          br, sbr => { this.Name = sbr.ReadStringNT(); });
 
-      this.Duration = er.ReadSingle();
-      this.TimeStep = er.ReadSingle();
-      this.Oversampling = er.ReadSingle();
+      this.Duration = br.ReadSingle();
+      this.TimeStep = br.ReadSingle();
+      this.Oversampling = br.ReadSingle();
 
-      GrannyUtils.SubreadRefToArray(er, (ser, trackGroupCount) => {
+      GrannyUtils.SubreadRefToArray(br, (sbr, trackGroupCount) => {
         for (var i = 0; i < trackGroupCount; ++i) {
-          GrannyUtils.SubreadRef(ser, sser => {
-            this.TrackGroups.Add(sser.ReadNew<GrannyTrackGroup>());
+          GrannyUtils.SubreadRef(sbr, ssbr => {
+            this.TrackGroups.Add(ssbr.ReadNew<GrannyTrackGroup>());
           });
         }
       });
@@ -37,44 +37,44 @@ namespace granny3d {
     public Vector3f LoopTranslation { get; } = new();
     public GrannyVariant ExtendedData { get; } = new();
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       GrannyUtils.SubreadRef(
-          er, ser => this.Name = ser.ReadStringNT());
+          br, ser => this.Name = ser.ReadStringNT());
 
       // TODO: vector tracks header
       GrannyUtils.SubreadRefToArray(
-          er, (ser, count) => { });
+          br, (sbr, count) => { });
       // TODO: transform tracks header
       GrannyUtils.SubreadRefToArray(
-          er, (ser, count) => { });
+          br, (sbr, count) => { });
       // TODO: transform lod errors header
       GrannyUtils.SubreadRefToArray(
-          er, (ser, count) => { });
+          br, (sbr, count) => { });
       // TODO: text tracks header
       GrannyUtils.SubreadRefToArray(
-          er, (ser, count) => { });
+          br, (sbr, count) => { });
 
-      this.InitialPlacement.Read(er);
-      var flags = er.ReadUInt32();
-      this.LoopTranslation.Read(er);
+      this.InitialPlacement.Read(br);
+      var flags = br.ReadUInt32();
+      this.LoopTranslation.Read(br);
       // TODO: periodic loop ref
       GrannyUtils.SubreadRef(
-          er, ser => { });
+          br, sbr => { });
       // TODO: root motion ref
       GrannyUtils.SubreadRef(
-          er, ser => { });
-      this.ExtendedData.Read(er);
+          br, sbr => { });
+      this.ExtendedData.Read(br);
     }
   }
 
   public class GrannyVariant : IBinaryDeserializable {
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       // TODO: type
       GrannyUtils.SubreadRef(
-          er, ser => { });
+          br, sbr => { });
       // TODO: object
       GrannyUtils.SubreadRef(
-          er, ser => { });
+          br, sbr => { });
     }
   }
 }

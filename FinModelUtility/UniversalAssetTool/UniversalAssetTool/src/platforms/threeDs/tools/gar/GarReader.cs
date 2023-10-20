@@ -15,7 +15,7 @@ namespace uni.platforms.threeDs.tools.gar {
         return new SubArchiveStream(archive);
       }
 
-      var er = new EndianBinaryReader(archive);
+      var er = new SchemaBinaryReader(archive);
       var isCompressed =
           new LzssDecompressor().TryToDecompress(er, out var decompressedGar);
 
@@ -27,9 +27,8 @@ namespace uni.platforms.threeDs.tools.gar {
 
     public IEnumerable<SubArchiveContentFile> GetFiles(
         IArchiveStream<SubArchiveContentFile> archiveStream) {
-      var er =
-          archiveStream.AsEndianBinaryReader(Endianness.LittleEndian);
-      var gar = new Gar(er);
+      var br = archiveStream.AsBinaryReader(Endianness.LittleEndian);
+      var gar = new Gar(br);
 
       foreach (var fileType in gar.FileTypes) {
         foreach (var file in fileType.Files) {

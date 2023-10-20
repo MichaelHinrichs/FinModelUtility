@@ -6,16 +6,16 @@ namespace ast.schema {
 
     public IReadOnlyList<short>[] ChannelData { get; private set; }
 
-    public void Read(IEndianBinaryReader er) {
-      this.StrmHeader.Read(er);
+    public void Read(IBinaryReader br) {
+      this.StrmHeader.Read(br);
 
       switch (this.StrmHeader.Format) {
         case AstAudioFormat.ADPCM: {
-          this.ReadAdpcm_(er);
+          this.ReadAdpcm_(br);
           break;
         }
         case AstAudioFormat.PCM16: {
-          this.ReadPcm16_(er);
+          this.ReadPcm16_(br);
           break;
         }
         default: throw new NotImplementedException();

@@ -35,15 +35,15 @@ namespace fin.schema.data {
 
     public TData Data => this.impl_.Data;
 
-    public void Read(IEndianBinaryReader er) {
-      this.Magic = this.config_.ReadMagic(er);
+    public void Read(IBinaryReader br) {
+      this.Magic = this.config_.ReadMagic(br);
       this.impl_.Data = this.config_.CreateData(this.Magic);
-      this.impl_.Read(er);
+      this.impl_.Read(br);
     }
 
-    public void Write(ISubEndianBinaryWriter ew) {
-      this.config_.WriteMagic(ew, this.Magic);
-      this.impl_.Write(ew);
+    public void Write(IBinaryWriter bw) {
+      this.config_.WriteMagic(bw, this.Magic);
+      this.impl_.Write(bw);
     }
 
     public override string ToString() => $"[{this.Magic}]: {this.Data}";

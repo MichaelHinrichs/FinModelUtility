@@ -155,11 +155,11 @@ namespace mod.schema {
       }
 
       using var reader =
-          new EndianBinaryReader(new MemoryStream(inData),
+          new SchemaBinaryReader(new MemoryStream(inData),
                                  Endianness.BigEndian);
       gcnSerializable.Read(reader);
 
-      var writer = new EndianBinaryWriter(Endianness.BigEndian);
+      var writer = new SchemaBinaryWriter(Endianness.BigEndian);
       gcnSerializable.Write(writer);
 
       var outData = new byte[dataLen];
@@ -179,7 +179,7 @@ namespace mod.schema {
     public static async void TestGcnSerializableExisting(
         IBinaryConvertible gcnSerializable) {
       var dataLen = 300;
-      var firstWriter = new EndianBinaryWriter(Endianness.BigEndian);
+      var firstWriter = new SchemaBinaryWriter(Endianness.BigEndian);
       gcnSerializable.Write(firstWriter);
 
       var firstOutData = new byte[dataLen];
@@ -187,11 +187,11 @@ namespace mod.schema {
       await firstWriter.CompleteAndCopyToDelayed(firstOutStream);
 
       using var reader =
-          new EndianBinaryReader(firstOutData, Endianness.BigEndian);
+          new SchemaBinaryReader(firstOutData, Endianness.BigEndian);
       gcnSerializable.Read(reader);
 
       var secondWriter =
-          new EndianBinaryWriter(Endianness.BigEndian);
+          new SchemaBinaryWriter(Endianness.BigEndian);
       gcnSerializable.Write(secondWriter);
 
       var secondOutData = new byte[dataLen];

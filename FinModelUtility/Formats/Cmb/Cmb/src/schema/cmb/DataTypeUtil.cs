@@ -6,16 +6,16 @@ namespace cmb.schema.cmb {
   public static class DataTypeUtil {
     // TODO: Is there a better way to read arbitrary data types?
     public static float Read(
-        IEndianBinaryReader r,
+        IBinaryReader br,
         DataType dataType)
       => dataType switch {
-          DataType.Byte   => r.ReadSByte(),
-          DataType.UByte  => r.ReadByte(),
-          DataType.Short  => r.ReadInt16(),
-          DataType.UShort => r.ReadUInt16(),
-          DataType.Int    => r.ReadInt32(),
-          DataType.UInt   => r.ReadUInt32(),
-          DataType.Float  => r.ReadSingle(),
+          DataType.Byte   => br.ReadSByte(),
+          DataType.UByte  => br.ReadByte(),
+          DataType.Short  => br.ReadInt16(),
+          DataType.UShort => br.ReadUInt16(),
+          DataType.Int    => br.ReadInt32(),
+          DataType.UInt   => br.ReadUInt32(),
+          DataType.Float  => br.ReadSingle(),
           _ => throw new ArgumentOutOfRangeException(
                    nameof(dataType),
                    dataType,
@@ -23,13 +23,13 @@ namespace cmb.schema.cmb {
       };
 
     public static float[] Read(
-        IEndianBinaryReader r,
+        IBinaryReader br,
         int count,
         DataType dataType) {
       var values = new float[count];
 
       for (var i = 0; i < count; ++i) {
-        values[i] = DataTypeUtil.Read(r, dataType);
+        values[i] = DataTypeUtil.Read(br, dataType);
       }
 
       return values;

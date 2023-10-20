@@ -45,122 +45,122 @@ namespace j3d.GCN {
       public readonly List<MatIndirectTexturingEntry>
           MatIndirectTexturingEntries = new();
 
-      public MAT3Section(IEndianBinaryReader er, out bool OK) {
-        long position1 = er.Position;
+      public MAT3Section(IBinaryReader br, out bool OK) {
+        long position1 = br.Position;
         bool OK1;
-        this.Header = new DataBlockHeader(er, "MAT3", out OK1);
+        this.Header = new DataBlockHeader(br, "MAT3", out OK1);
         if (!OK1) {
           OK = false;
         } else {
-          this.NrMaterials = er.ReadUInt16();
+          this.NrMaterials = br.ReadUInt16();
 
-          er.AssertUInt16(0xffff); // padding
+          br.AssertUInt16(0xffff); // padding
 
-          this.Offsets = er.ReadUInt32s(30);
+          this.Offsets = br.ReadUInt32s(30);
           int[] sectionLengths = this.GetSectionLengths();
-          long position2 = er.Position;
+          long position2 = br.Position;
 
           // TODO: There is a bunch more data that isn't even read yet:
           // https://github.com/RenolY2/SuperBMD/blob/ccc86e21493275bcd9d86f65b516b85d95c83abd/SuperBMDLib/source/Materials/Enums/Mat3OffsetIndex.cs
 
-          er.Position = position1 + (long) this.Offsets[0];
+          br.Position = position1 + (long) this.Offsets[0];
           this.MaterialEntries = new MaterialEntry[sectionLengths[0] / 332];
           for (int index = 0; index < sectionLengths[0] / 332; ++index)
-            this.MaterialEntries[index] = er.ReadNew<MaterialEntry>();
+            this.MaterialEntries[index] = br.ReadNew<MaterialEntry>();
 
-          er.Position = position1 + (long) this.Offsets[1];
-          this.MaterialEntryIndieces = er.ReadUInt16s((int) this.NrMaterials);
+          br.Position = position1 + (long) this.Offsets[1];
+          this.MaterialEntryIndieces = br.ReadUInt16s((int) this.NrMaterials);
 
-          er.Position = position1 + (long) this.Offsets[2];
-          this.MaterialNameTable = er.ReadNew<StringTable>();
+          br.Position = position1 + (long) this.Offsets[2];
+          this.MaterialNameTable = br.ReadNew<StringTable>();
 
           var indirectTexturesOffset =
-              er.Position = position1 + this.Offsets[3];
+              br.Position = position1 + this.Offsets[3];
           this.MatIndirectTexturingEntries.Clear();
-          while ((er.Position - indirectTexturesOffset) < sectionLengths[3]) {
+          while ((br.Position - indirectTexturesOffset) < sectionLengths[3]) {
             this.MatIndirectTexturingEntries.Add(
-                er.ReadNew<MatIndirectTexturingEntry>());
+                br.ReadNew<MatIndirectTexturingEntry>());
           }
 
-          er.Position = position1 + (long) this.Offsets[4];
+          br.Position = position1 + (long) this.Offsets[4];
           this.CullModes = new GxCullMode[sectionLengths[4] / 4];
           for (var index = 0; index < sectionLengths[4] / 4; ++index)
-            this.CullModes[index] = (GxCullMode) er.ReadInt32();
+            this.CullModes[index] = (GxCullMode) br.ReadInt32();
 
-          er.Position = position1 + (long) this.Offsets[5];
+          br.Position = position1 + (long) this.Offsets[5];
           this.MaterialColor = new Color[sectionLengths[5] / 4];
           for (int index = 0; index < sectionLengths[5] / 4; ++index)
-            this.MaterialColor[index] = er.ReadColor8();
+            this.MaterialColor[index] = br.ReadColor8();
 
-          er.Position = position1 + (long) this.Offsets[7];
+          br.Position = position1 + (long) this.Offsets[7];
           this.ColorChannelControls =
               new ColorChannelControl[sectionLengths[7] / 8];
           for (var i = 0; i < this.ColorChannelControls.Length; ++i) {
-            this.ColorChannelControls[i] = er.ReadNew<ColorChannelControl>();
+            this.ColorChannelControls[i] = br.ReadNew<ColorChannelControl>();
           }
 
-          er.Position = position1 + (long) this.Offsets[8];
+          br.Position = position1 + (long) this.Offsets[8];
           this.AmbientColors = new Color[sectionLengths[8] / 4];
           for (int index = 0; index < sectionLengths[8] / 4; ++index)
-            this.AmbientColors[index] = er.ReadColor8();
+            this.AmbientColors[index] = br.ReadColor8();
 
-          er.Position = position1 + this.Offsets[9];
+          br.Position = position1 + this.Offsets[9];
           this.LightColors = new Color[sectionLengths[9] / 8];
           for (int index = 0; index < this.LightColors.Length; ++index) {
-            this.LightColors[index] = er.ReadColor16();
+            this.LightColors[index] = br.ReadColor16();
           }
 
           // TODO: Add support for texgen counts (10)
 
-          er.Position = position1 + this.Offsets[11];
-          er.ReadNewArray(out this.TexCoordGens, sectionLengths[11] / 4);
+          br.Position = position1 + this.Offsets[11];
+          br.ReadNewArray(out this.TexCoordGens, sectionLengths[11] / 4);
 
           // TODO: Add support for post tex coord gens (12)
 
-          er.Position = position1 + (long) this.Offsets[13];
-          er.ReadNewArray(out this.TextureMatrices, sectionLengths[13] / 100);
+          br.Position = position1 + (long) this.Offsets[13];
+          br.ReadNewArray(out this.TextureMatrices, sectionLengths[13] / 100);
 
           // TODO: Add support for post tex matrices (14)
 
-          er.Position = position1 + (long) this.Offsets[15];
-          this.TextureIndices = er.ReadInt16s(sectionLengths[15] / 2);
+          br.Position = position1 + (long) this.Offsets[15];
+          this.TextureIndices = br.ReadInt16s(sectionLengths[15] / 2);
 
-          er.Position = position1 + (long) this.Offsets[16];
-          er.ReadNewArray(out this.TevOrders, sectionLengths[16] / 4);
+          br.Position = position1 + (long) this.Offsets[16];
+          br.ReadNewArray(out this.TevOrders, sectionLengths[16] / 4);
 
-          er.Position = position1 + (long) this.Offsets[17];
+          br.Position = position1 + (long) this.Offsets[17];
           this.TevColors = new Color[sectionLengths[17] / 8];
           for (int index = 0; index < this.TevColors.Length; ++index)
-            this.TevColors[index] = er.ReadColor16();
+            this.TevColors[index] = br.ReadColor16();
 
-          er.Position = position1 + (long) this.Offsets[18];
+          br.Position = position1 + (long) this.Offsets[18];
           this.TevKonstColors = new Color[sectionLengths[18] / 4];
           for (int index = 0; index < this.TevKonstColors.Length; ++index)
-            this.TevKonstColors[index] = er.ReadColor8();
+            this.TevKonstColors[index] = br.ReadColor8();
 
           // TODO: Add support for tev counts (19)
 
-          er.Position = position1 + (long) this.Offsets[20];
-          er.ReadNewArray(out this.TevStages, sectionLengths[20] / 20);
+          br.Position = position1 + (long) this.Offsets[20];
+          br.ReadNewArray(out this.TevStages, sectionLengths[20] / 20);
 
-          er.Position = position1 + (long) this.Offsets[21];
-          er.ReadNewArray(out this.TevSwapModes, sectionLengths[21] / 4);
+          br.Position = position1 + (long) this.Offsets[21];
+          br.ReadNewArray(out this.TevSwapModes, sectionLengths[21] / 4);
 
-          er.Position = position1 + (long) this.Offsets[22];
-          er.ReadNewArray(out this.TevSwapModeTables, sectionLengths[22] / 4);
+          br.Position = position1 + (long) this.Offsets[22];
+          br.ReadNewArray(out this.TevSwapModeTables, sectionLengths[22] / 4);
 
           // TODO: Add support for fog modes (23)
 
-          er.Position = position1 + (long) this.Offsets[24];
-          er.ReadNewArray(out this.AlphaCompares, sectionLengths[24] / 8);
+          br.Position = position1 + (long) this.Offsets[24];
+          br.ReadNewArray(out this.AlphaCompares, sectionLengths[24] / 8);
 
-          er.Position = position1 + (long) this.Offsets[25];
-          er.ReadNewArray(out this.BlendFunctions, sectionLengths[25] / 4);
+          br.Position = position1 + (long) this.Offsets[25];
+          br.ReadNewArray(out this.BlendFunctions, sectionLengths[25] / 4);
 
-          er.Position = position1 + (long) this.Offsets[26];
-          er.ReadNewArray(out this.DepthFunctions, sectionLengths[26] / 4);
+          br.Position = position1 + (long) this.Offsets[26];
+          br.ReadNewArray(out this.DepthFunctions, sectionLengths[26] / 4);
 
-          er.Position = position1 + (long) this.Header.size;
+          br.Position = position1 + (long) this.Header.size;
           OK = true;
 
           // TODO: Add support for nbt scale (29)

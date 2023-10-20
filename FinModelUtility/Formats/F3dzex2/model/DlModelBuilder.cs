@@ -56,24 +56,24 @@ namespace f3dzex2.model {
               return FinImage.Create1x1FromColor(this.vertices_.DiffuseColor);
             }
 
-            EndianBinaryReader? er = null;
+            SchemaBinaryReader? br = null;
             if (Constants.STRICT) {
-              er = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
+              br = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
                   imageParams.SegmentedAddress);
             } else {
               if (this.n64Hardware_.Memory
                       .TryToOpenPossibilitiesAtSegmentedAddress(
                           imageParams.SegmentedAddress,
                           out var possibilities)) {
-                er = possibilities.First();
+                br = possibilities.First();
               }
             }
 
-            if (er != null) {
+            if (br != null) {
               var imageData =
-                  er.ReadBytes(imageParams.Width *
+                  br.ReadBytes(imageParams.Width *
                                imageParams.Height * 4);
-              er.Dispose();
+              br.Dispose();
               return new N64ImageParser(this.n64Hardware_).Parse(
                   imageParams.ColorFormat,
                   imageParams.BitsPerTexel,
@@ -464,12 +464,12 @@ namespace f3dzex2.model {
               // Diffuse light
               // https://hack64.net/wiki/doku.php?id=super_mario_64:fast3d_display_list_commands
               case DmemAddress.G_MV_L0: {
-                using var er =
+                using var br =
                     this.n64Hardware_.Memory.OpenAtSegmentedAddress(
                         moveMemOpcodeCommand.SegmentedAddress);
-                var r = er.ReadByte();
-                var g = er.ReadByte();
-                var b = er.ReadByte();
+                var r = br.ReadByte();
+                var g = br.ReadByte();
+                var b = br.ReadByte();
 
                 // TODO: Support normalized light direction
 

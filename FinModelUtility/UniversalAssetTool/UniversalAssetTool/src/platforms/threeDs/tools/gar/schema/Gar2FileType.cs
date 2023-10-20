@@ -15,22 +15,22 @@ namespace uni.platforms.threeDs.tools.gar.schema {
     public IGarSubfile[] Files { get; }
 
     public Gar2FileType(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         GarHeader header,
         int fileTypeIndex) {
-      er.Position = header.FileTypesOffset + 16 * fileTypeIndex;
+      br.Position = header.FileTypesOffset + 16 * fileTypeIndex;
 
-      this.FileCount = er.ReadInt32();
-      this.FileListOffset = er.ReadInt32();
-      this.TypeNameOffset = er.ReadInt32();
-      er.ReadInt32();
+      this.FileCount = br.ReadInt32();
+      this.FileListOffset = br.ReadInt32();
+      this.TypeNameOffset = br.ReadInt32();
+      br.ReadInt32();
 
-      er.Position = this.TypeNameOffset;
-      this.TypeName = er.ReadStringNT();
+      br.Position = this.TypeNameOffset;
+      this.TypeName = br.ReadStringNT();
 
       this.Files = new IGarSubfile[Math.Max(0, this.FileCount)];
       for (var i = 0; i < this.FileCount; ++i) {
-        this.Files[i] = new Gar2Subfile(er, header, this, i);
+        this.Files[i] = new Gar2Subfile(br, header, this, i);
       }
     }
   }

@@ -7,8 +7,8 @@ namespace visceral.schema.str.content {
   [BinarySchema]
   public partial class ContentBlock : IBlock {
     public SwitchMagicWrapper<ContentType, IContent> Impl { get; }
-      = new(er => (ContentType) er.ReadUInt32(),
-            (ew, magic) => ew.WriteUInt32((uint) magic),
+      = new(br => (ContentType) br.ReadUInt32(),
+            (bw, magic) => bw.WriteUInt32((uint) magic),
             magic => magic switch {
                 ContentType.Header         => new FileInfo(),
                 ContentType.Data           => new UncompressedData(),

@@ -4,7 +4,7 @@ using schema.binary;
 
 namespace ast.schema {
   public partial class Ast {
-    private void ReadPcm16_(IEndianBinaryReader er) {
+    private void ReadPcm16_(IBinaryReader br) {
       var channelCount = 2;
       Asserts.Equal(channelCount, this.StrmHeader.ChannelCount);
       var sampleCount = this.StrmHeader.SampleCount;
@@ -17,14 +17,14 @@ namespace ast.schema {
 
       for (var i = 0; i < channelCount; i += 2) {
         // TODO: This doesn't look right???
-        er.Position = 0x40;
+        br.Position = 0x40;
 
         for (var currentSample = 0; currentSample < sampleCount;) {
-          if (er.Eof) {
+          if (br.Eof) {
             break;
           }
 
-          var blckHeader = er.ReadNew<BlckHeader>();
+          var blckHeader = br.ReadNew<BlckHeader>();
 
           var blockSizeInBytes = blckHeader.BlockSizeInBytes;
           var blockSizeInShorts = blockSizeInBytes / 2;
@@ -32,8 +32,8 @@ namespace ast.schema {
           for (var chan = 0; chan < channelCount; chan++) {
             if (chan / 2 == i / 2) {
               var shorts =
-                  er.ReadInt16s(Math.Min(blockSizeInShorts,
-                                         (er.Length - er.Position) / 2));
+                  br.ReadInt16s(Math.Min(blockSizeInShorts,
+                                         (br.Length - br.Position) / 2));
 
               if (shorts.Length != blockSizeInShorts) {
                 if (currentSample + blockSizeInBytes / 2 >= sampleCount &&
@@ -52,7 +52,7 @@ namespace ast.schema {
               }
             } else {
               // Skips samples
-              er.Position += blockSizeInBytes;
+              br.Position += blockSizeInBytes;
             }
           }
 

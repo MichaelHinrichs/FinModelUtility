@@ -20,7 +20,7 @@ namespace f3dzex2.displaylist {
 
     IDisplayList ReadDisplayList(IReadOnlyN64Memory n64Memory,
                                  IOpcodeParser opcodeParser,
-                                 IEndianBinaryReader er);
+                                 SchemaBinaryReader br);
   }
 
   public class DisplayListReader : IDisplayListReader {
@@ -58,10 +58,10 @@ namespace f3dzex2.displaylist {
 
     public IDisplayList ReadDisplayList(IReadOnlyN64Memory n64Memory,
                                         IOpcodeParser opcodeParser,
-                                        IEndianBinaryReader er) {
+                                        SchemaBinaryReader br) {
       var opcodeCommands = new LinkedList<IOpcodeCommand>();
       while (true) {
-        var opcodeCommand = opcodeParser.Parse(n64Memory, this, er);
+        var opcodeCommand = opcodeParser.Parse(n64Memory, this, br);
         opcodeCommands.AddLast(opcodeCommand);
 
         if (opcodeCommand is DlOpcodeCommand {PushCurrentDlToStack: false}) {

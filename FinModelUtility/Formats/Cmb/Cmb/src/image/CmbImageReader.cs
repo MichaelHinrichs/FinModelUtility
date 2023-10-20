@@ -110,6 +110,6 @@ namespace cmb.image {
       throw new NotImplementedException();
     }
 
-    public IImage ReadImage(IEndianBinaryReader er) => this.impl_.ReadImage(er);
+    public IImage ReadImage(IBinaryReader br) => this.impl_.ReadImage(br);
   }
 }

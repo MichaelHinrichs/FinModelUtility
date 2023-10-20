@@ -45,7 +45,7 @@ namespace sm64.scripts.geo {
       {
         var d = new byte[] { 1, 2, 3, 4 };
 
-        var r = new EndianBinaryReader(d, SchemaConstants.SM64_ENDIANNESS);
+        var r = new SchemaBinaryReader(d, SchemaConstants.SM64_ENDIANNESS);
 
         var adr = r.ReadUInt32();
 
@@ -55,26 +55,26 @@ namespace sm64.scripts.geo {
       }
 
 
-      using var er =
-          new EndianBinaryReader(data, SchemaConstants.SM64_ENDIANNESS);
-      er.Position = off;
+      using var br =
+          new SchemaBinaryReader(data, SchemaConstants.SM64_ENDIANNESS);
+      br.Position = off;
 
       var commands = new GeoCommandList();
 
       var returnType = ReturnType.UNDEFINED;
       while (returnType == ReturnType.UNDEFINED) {
-        var cmdIdByte = er.ReadByte();
+        var cmdIdByte = br.ReadByte();
         var cmdId = (GeoCommandId) cmdIdByte;
-        er.Position--;
+        br.Position--;
 
-        var startPos = er.Position;
+        var startPos = br.Position;
         var expectedLen = GetCmdLength_(cmdIdByte);
 
         IGeoCommand? command = null;
 
         switch (cmdId) {
           case GeoCommandId.BRANCH_AND_STORE: {
-            var branchAndStoreCommand = er.ReadNew<GeoBranchAndStoreCommand>();
+            var branchAndStoreCommand = br.ReadNew<GeoBranchAndStoreCommand>();
             command = branchAndStoreCommand;
 
             ReturnType branchReturnType = ReturnType.UNDEFINED;
@@ -93,12 +93,12 @@ namespace sm64.scripts.geo {
             break;
           }
           case GeoCommandId.TERMINATE: {
-            command = er.ReadNew<GeoTerminateCommand>();
+            command = br.ReadNew<GeoTerminateCommand>();
             returnType = ReturnType.TERMINATED;
             break;
           }
           case GeoCommandId.BRANCH: {
-            var branchCommand = er.ReadNew<GeoBranchCommand>();
+            var branchCommand = br.ReadNew<GeoBranchCommand>();
             command = branchCommand;
 
             ReturnType branchReturnType = ReturnType.UNDEFINED;
@@ -122,73 +122,73 @@ namespace sm64.scripts.geo {
             break;
           }
           case GeoCommandId.RETURN_FROM_BRANCH: {
-            command = er.ReadNew<GeoReturnFromBranchCommand>();
+            command = br.ReadNew<GeoReturnFromBranchCommand>();
             returnType = ReturnType.RETURNED;
             break;
           }
           case GeoCommandId.OPEN_NODE: {
-            command = er.ReadNew<GeoOpenNodeCommand>();
+            command = br.ReadNew<GeoOpenNodeCommand>();
             break;
           }
           case GeoCommandId.CLOSE_NODE: {
-            command = er.ReadNew<GeoCloseNodeCommand>();
+            command = br.ReadNew<GeoCloseNodeCommand>();
             break;
           }
           case GeoCommandId.VIEWPORT: {
-            command = er.ReadNew<GeoViewportCommand>();
+            command = br.ReadNew<GeoViewportCommand>();
             break;
           }
           case GeoCommandId.ORTHO_MATRIX: {
-            command = er.ReadNew<GeoOrthoMatrixCommand>();
+            command = br.ReadNew<GeoOrthoMatrixCommand>();
             break;
           }
           case GeoCommandId.CAMERA_FRUSTUM: {
-            command = er.ReadNew<GeoCameraFrustumCommand>();
+            command = br.ReadNew<GeoCameraFrustumCommand>();
             break;
           }
           case GeoCommandId.START_LAYOUT: {
-            command = er.ReadNew<GeoStartLayoutCommand>();
+            command = br.ReadNew<GeoStartLayoutCommand>();
             break;
           }
           case GeoCommandId.TOGGLE_DEPTH_BUFFER: {
-            command = er.ReadNew<GeoToggleDepthBufferCommand>();
+            command = br.ReadNew<GeoToggleDepthBufferCommand>();
             break;
           }
           case GeoCommandId.SET_RENDER_RANGE: {
-            command = er.ReadNew<GeoSetRenderRangeCommand>();
+            command = br.ReadNew<GeoSetRenderRangeCommand>();
             break;
           }
           case GeoCommandId.SWITCH: {
-            command = er.ReadNew<GeoSwitchCommand>();
+            command = br.ReadNew<GeoSwitchCommand>();
             // TODO: How does getting cases work??
             break;
           }
           case GeoCommandId.CAMERA_LOOK_AT: {
-            command = er.ReadNew<GeoCameraLookAtCommand>();
+            command = br.ReadNew<GeoCameraLookAtCommand>();
             break;
           }
           case GeoCommandId.TRANSLATE_AND_ROTATE: {
             var translateAndRotateCommand = new GeoTranslateAndRotateCommand();
-            er.ReadByte();
-            translateAndRotateCommand.Params = er.ReadByte();
+            br.ReadByte();
+            translateAndRotateCommand.Params = br.ReadByte();
 
             switch (translateAndRotateCommand.Format) {
               case GeoTranslateAndRotateFormat.TRANSLATION_AND_ROTATION: {
-                er.ReadUInt16();
-                translateAndRotateCommand.Translation.Read(er);
-                translateAndRotateCommand.Rotation.Read(er);
+                br.ReadUInt16();
+                translateAndRotateCommand.Translation.Read(br);
+                translateAndRotateCommand.Rotation.Read(br);
                 break;
               }
               case GeoTranslateAndRotateFormat.TRANSLATION: {
-                translateAndRotateCommand.Translation.Read(er);
+                translateAndRotateCommand.Translation.Read(br);
                 break;
               }
               case GeoTranslateAndRotateFormat.ROTATION: {
-                translateAndRotateCommand.Rotation.Read(er);
+                translateAndRotateCommand.Rotation.Read(br);
                 break;
               }
               case GeoTranslateAndRotateFormat.YAW: {
-                translateAndRotateCommand.Rotation.Y = er.ReadInt16();
+                translateAndRotateCommand.Rotation.Y = br.ReadInt16();
                 break;
               }
               default: throw new ArgumentOutOfRangeException();
@@ -196,62 +196,62 @@ namespace sm64.scripts.geo {
 
             if (translateAndRotateCommand.HasDisplayList) {
               translateAndRotateCommand.DisplayListSegmentedAddress =
-                  er.ReadUInt32();
+                  br.ReadUInt32();
             }
 
             command = translateAndRotateCommand;
             break;
           }
           case GeoCommandId.TRANSLATE: {
-            command = er.ReadNew<GeoTranslationCommand>();
+            command = br.ReadNew<GeoTranslationCommand>();
             break;
           }
           case GeoCommandId.ROTATE: {
-            command = er.ReadNew<GeoRotationCommand>();
+            command = br.ReadNew<GeoRotationCommand>();
             break;
           }
           case GeoCommandId.ANIMATED_PART: {
-            command = er.ReadNew<GeoAnimatedPartCommand>();
+            command = br.ReadNew<GeoAnimatedPartCommand>();
             break;
           }
           case GeoCommandId.BILLBOARD: {
-            command = er.ReadNew<GeoBillboardCommand>();
+            command = br.ReadNew<GeoBillboardCommand>();
             break;
           }
           case GeoCommandId.DISPLAY_LIST: {
-            command = er.ReadNew<GeoDisplayListCommand>();
+            command = br.ReadNew<GeoDisplayListCommand>();
             break;
           }
           case GeoCommandId.SHADOW: {
-            command = er.ReadNew<GeoShadowCommand>();
+            command = br.ReadNew<GeoShadowCommand>();
             break;
           }
           case GeoCommandId.OBJECT_LIST: {
-            command = er.ReadNew<GeoObjectListCommand>();
+            command = br.ReadNew<GeoObjectListCommand>();
             break;
           }
           case GeoCommandId.DISPLAY_LIST_FROM_ASM: {
-            command = er.ReadNew<GeoDisplayListFromAsm>();
+            command = br.ReadNew<GeoDisplayListFromAsm>();
             break;
           }
           case GeoCommandId.BACKGROUND: {
-            command = er.ReadNew<GeoBackgroundCommand>();
+            command = br.ReadNew<GeoBackgroundCommand>();
             break;
           }
           case GeoCommandId.NOOP_1A: {
-            command = er.ReadNew<GeoNoopCommand>();
+            command = br.ReadNew<GeoNoopCommand>();
             break;
           }
           case GeoCommandId.HELD_OBJECT: {
-            command = er.ReadNew<GeoHeldObjectCommand>();
+            command = br.ReadNew<GeoHeldObjectCommand>();
             break;
           }
           case GeoCommandId.SCALE: {
-            command = er.ReadNew<GeoScaleCommand>();
+            command = br.ReadNew<GeoScaleCommand>();
             break;
           }
           case GeoCommandId.CULLING_RADIUS: {
-            command = er.ReadNew<GeoCullingRadiusCommand>();
+            command = br.ReadNew<GeoCullingRadiusCommand>();
             break;
           }
           default: {
@@ -259,7 +259,7 @@ namespace sm64.scripts.geo {
           }
         }
 
-        var actualLen = er.Position - startPos;
+        var actualLen = br.Position - startPos;
         if (expectedLen != actualLen) {
           var translateAndRotateCommand =
               command as GeoTranslateAndRotateCommand;

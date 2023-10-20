@@ -27,43 +27,43 @@ namespace j3d.GCN {
       public Vector3[] Positions;
       public Vector3[] Normals;
 
-      public VTX1Section(IEndianBinaryReader er, out bool OK) {
-        long position1 = er.Position;
+      public VTX1Section(IBinaryReader br, out bool OK) {
+        long position1 = br.Position;
         bool OK1;
-        this.Header = new DataBlockHeader(er, "VTX1", out OK1);
+        this.Header = new DataBlockHeader(br, "VTX1", out OK1);
         if (!OK1) {
           OK = false;
         } else {
-          this.ArrayFormatOffset = er.ReadUInt32();
-          this.Offsets = er.ReadUInt32s(13);
-          long position2 = er.Position;
+          this.ArrayFormatOffset = br.ReadUInt32();
+          this.Offsets = br.ReadUInt32s(13);
+          long position2 = br.Position;
           int length1 = 0;
           foreach (uint offset in this.Offsets) {
             if (offset != 0U)
               ++length1;
           }
 
-          er.Position = position1 + (long) this.ArrayFormatOffset;
-          er.ReadNewArray(out this.ArrayFormats, length1);
+          br.Position = position1 + (long) this.ArrayFormatOffset;
+          br.ReadNewArray(out this.ArrayFormats, length1);
 
           int index1 = 0;
           for (int k = 0; k < 13; ++k) {
             if (this.Offsets[k] != 0U) {
               ArrayFormat arrayFormat = this.ArrayFormats[index1];
               int length2 = this.GetLength(k);
-              er.Position = position1 + (long) this.Offsets[k];
+              br.Position = position1 + (long) this.Offsets[k];
               if (arrayFormat.ArrayType is GxAttribute.CLR0
                                            or GxAttribute.CLR1) {
-                this.ReadColorArray(arrayFormat, length2, er);
+                this.ReadColorArray(arrayFormat, length2, br);
               } else {
-                this.ReadVertexArray(arrayFormat, length2, er);
+                this.ReadVertexArray(arrayFormat, length2, br);
               }
 
               ++index1;
             }
           }
 
-          er.Position = position1 + (long) this.Header.size;
+          br.Position = position1 + (long) this.Header.size;
           OK = true;
         }
       }
@@ -81,16 +81,16 @@ namespace j3d.GCN {
       private void ReadVertexArray(
           ArrayFormat Format,
           int Length,
-          IEndianBinaryReader er) {
+          IBinaryReader br) {
         List<float> floatList = new List<float>();
         switch (Format.DataType) {
           case 3:
             float num1 = (float) Math.Pow(0.5, (double) Format.DecimalPoint);
             for (int index = 0; index < Length / 2; ++index)
-              floatList.Add((float) er.ReadInt16() * num1);
+              floatList.Add((float) br.ReadInt16() * num1);
             break;
           case 4:
-            floatList.AddRange((IEnumerable<float>) er.ReadSingles(Length / 4));
+            floatList.AddRange((IEnumerable<float>) br.ReadSingles(Length / 4));
             break;
           default:
             throw new NotImplementedException();
@@ -175,7 +175,7 @@ namespace j3d.GCN {
       private void ReadColorArray(
           ArrayFormat Format,
           int byteLength,
-          IEndianBinaryReader er) {
+          IBinaryReader br) {
         var colorIndex = Format.ArrayType - GxAttribute.CLR0;
 
         var colorDataType = (ColorDataType) Format.DataType;
@@ -207,7 +207,7 @@ namespace j3d.GCN {
           Color color;
           switch (colorDataType) {
             case ColorDataType.RGB565: {
-              ColorUtil.SplitRgb565(er.ReadUInt16(),
+              ColorUtil.SplitRgb565(br.ReadUInt16(),
                                     out var r,
                                     out var g,
                                     out var b);
@@ -215,17 +215,17 @@ namespace j3d.GCN {
               break;
             }
             case ColorDataType.RGB8: {
-              color = new Color(er.ReadByte(),
-                                er.ReadByte(),
-                                er.ReadByte(),
+              color = new Color(br.ReadByte(),
+                                br.ReadByte(),
+                                br.ReadByte(),
                                 255);
               break;
             }
             case ColorDataType.RGBX8: {
-              color = new Color(er.ReadByte(),
-                                er.ReadByte(),
-                                er.ReadByte(),
-                                er.ReadByte());
+              color = new Color(br.ReadByte(),
+                                br.ReadByte(),
+                                br.ReadByte(),
+                                br.ReadByte());
               break;
             }
             case ColorDataType.RGBA4: {
@@ -235,10 +235,10 @@ namespace j3d.GCN {
               throw new ArgumentOutOfRangeException();
             }
             case ColorDataType.RGBA8: {
-              color = new Color(er.ReadByte(),
-                                er.ReadByte(),
-                                er.ReadByte(),
-                                er.ReadByte());
+              color = new Color(br.ReadByte(),
+                                br.ReadByte(),
+                                br.ReadByte(),
+                                br.ReadByte());
               break;
             }
             default: throw new ArgumentOutOfRangeException();

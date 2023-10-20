@@ -76,10 +76,10 @@ namespace modl.api {
         stream = outFile.OpenRead();
       }
 
-      using var er = new EndianBinaryReader(stream, Endianness.LittleEndian);
+      using var br = new SchemaBinaryReader(stream, Endianness.LittleEndian);
 
       var terrain = bwTerrain =
-          isBw2 ? er.ReadNew<Bw2Terrain>() : er.ReadNew<Bw1Terrain>();
+          isBw2 ? br.ReadNew<Bw2Terrain>() : br.ReadNew<Bw1Terrain>();
 
       var finModel = new ModelImpl<OneColor2UvVertexImpl>(
           (index, position) => new OneColor2UvVertexImpl(index, position));

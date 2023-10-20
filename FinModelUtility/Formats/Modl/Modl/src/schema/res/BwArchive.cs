@@ -13,14 +13,14 @@ namespace modl.schema.res {
 
     public ListDictionary<string, BwFile> Files { get; } = new();
 
-    public void Read(IEndianBinaryReader er) {
-      this.TexrSection.Read(er);
-      this.Sond.Read(er);
+    public void Read(IBinaryReader br) {
+      this.TexrSection.Read(br);
+      this.Sond.Read(br);
 
       this.Files.Clear();
 
-      while (!er.Eof) {
-        var bwFile = er.ReadNew<BwFile>();
+      while (!br.Eof) {
+        var bwFile = br.ReadNew<BwFile>();
         this.Files.Add(bwFile.Type, bwFile);
       }
     }
@@ -39,23 +39,23 @@ namespace modl.schema.res {
     public string FileName { get; private set; }
     public byte[] Data { get; private set; }
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       SectionHeaderUtil.ReadNameAndSize(
-          er,
+          br,
           out var sectionName,
           out var dataLength);
       this.Type = sectionName;
-      var dataOffset = er.Position;
+      var dataOffset = br.Position;
 
-      this.FileName = er.ReadString(er.ReadInt32());
+      this.FileName = br.ReadString(br.ReadInt32());
 
-      er.Position = dataOffset;
-      this.Data = er.ReadBytes((int) dataLength);
+      br.Position = dataOffset;
+      this.Data = br.ReadBytes((int) dataLength);
 
-      er.Position = dataOffset + dataLength;
+      br.Position = dataOffset + dataLength;
     }
 
-    public void Write(ISubEndianBinaryWriter ew) =>
+    public void Write(IBinaryWriter bw) =>
         throw new NotImplementedException();
   }
 }

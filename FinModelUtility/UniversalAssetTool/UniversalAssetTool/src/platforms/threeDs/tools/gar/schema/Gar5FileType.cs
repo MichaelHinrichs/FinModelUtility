@@ -10,26 +10,26 @@ namespace uni.platforms.threeDs.tools.gar.schema {
     public IGarSubfile[] Files { get; }
 
     public Gar5FileType(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         GarHeader header,
         int fileTypeIndex) {
-      er.Position = header.FileTypesOffset + 8 * 4 * fileTypeIndex;
+      br.Position = header.FileTypesOffset + 8 * 4 * fileTypeIndex;
 
-      this.FileCount = er.ReadUInt32();
-      er.ReadUInt32();
-      this.FirstFileIndex = er.ReadInt32();
-      this.TypeNameOffset = er.ReadInt32();
-      er.ReadInt32();
-      er.ReadUInt32();
-      er.ReadUInt32();
-      er.ReadUInt32();
+      this.FileCount = br.ReadUInt32();
+      br.ReadUInt32();
+      this.FirstFileIndex = br.ReadInt32();
+      this.TypeNameOffset = br.ReadInt32();
+      br.ReadInt32();
+      br.ReadUInt32();
+      br.ReadUInt32();
+      br.ReadUInt32();
 
-      er.Position = this.TypeNameOffset;
-      this.TypeName = er.ReadStringNT();
+      br.Position = this.TypeNameOffset;
+      this.TypeName = br.ReadStringNT();
 
       this.Files = new IGarSubfile[this.FileCount];
       for (var i = 0; i < this.FileCount; ++i) {
-        this.Files[i] = new Gar5Subfile(er, header, this, i);
+        this.Files[i] = new Gar5Subfile(br, header, this, i);
       }
     }
   }

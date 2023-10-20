@@ -39,7 +39,7 @@ namespace visceral.api {
                         IReadOnlyGenericFile? rcbFile,
                         IBone[] bones) {
       using var bnkEr =
-          new EndianBinaryReader(bnkFile.OpenRead(), Endianness.LittleEndian);
+          new SchemaBinaryReader(bnkFile.OpenRead(), Endianness.LittleEndian);
 
       bnkEr.Position = 0x24;
       var headerCount = bnkEr.ReadUInt32();
@@ -96,7 +96,7 @@ namespace visceral.api {
               bnkEr.Position += 4 * 5;
 
               using var rcbEr =
-                  new EndianBinaryReader(rcbFile.OpenRead(),
+                  new SchemaBinaryReader(rcbFile.OpenRead(),
                                          Endianness.LittleEndian);
               rcbEr.Position = 0x24;
               var someDefinitionsOffset = rcbEr.ReadUInt32();

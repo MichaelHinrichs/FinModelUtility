@@ -32,11 +32,11 @@ namespace level5.api {
       {
         if (modelXc.FilesByExtension.TryGetList(".mbn", out var mbnFiles)) {
           var mbns = mbnFiles!.Select(mbnFile => {
-                                using var er =
-                                    new EndianBinaryReader(
+                                using var br =
+                                    new SchemaBinaryReader(
                                         new MemoryStream(mbnFile.Data),
                                         endianness);
-                                return er.ReadNew<Mbn>();
+                                return br.ReadNew<Mbn>();
                               })
                               .ToArray();
           var mbnNodeList =

@@ -40,66 +40,66 @@ namespace modl.schema.modl.bw2.node {
     }
 
     [Unknown]
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       SectionHeaderUtil.AssertNameAndReadSize(
-          er,
+          br,
           "NODE",
           out var nodeSize);
-      var nodeStart = er.Position;
+      var nodeStart = br.Position;
       var expectedNodeEnd = nodeStart + nodeSize;
 
-      var nodeNameLength = er.ReadInt32();
-      var nodeName = er.ReadString(nodeNameLength);
+      var nodeNameLength = br.ReadInt32();
+      var nodeName = br.ReadString(nodeNameLength);
       this.Name = nodeName;
 
-      var headerStart = er.Position;
+      var headerStart = br.Position;
       var expectedHeaderEnd = headerStart + 0x38;
       {
         // TODO: What are these used for?
-        var someMin = er.ReadUInt16();
-        var someMax = er.ReadUInt16();
+        var someMin = br.ReadUInt16();
+        var someMax = br.ReadUInt16();
 
         // TODO: unknown, probably enum values
-        var unknowns0 = er.ReadUInt32s(2);
+        var unknowns0 = br.ReadUInt32s(2);
 
         var flagValue = unknowns0[0] >> (6 * 4);
         this.WeirdFlag = (WeirdFlag) flagValue;
 
         {
-          er.PushMemberEndianness(Endianness.LittleEndian);
-          this.Transform.Read(er);
-          er.PopEndianness();
+          br.PushMemberEndianness(Endianness.LittleEndian);
+          this.Transform.Read(br);
+          br.PopEndianness();
         }
 
         // TODO: unknown, also transform??
         // These look very similar to the values defined in the constructor
-        var unknowns1 = er.ReadSingles(4);
+        var unknowns1 = br.ReadSingles(4);
       }
-      Asserts.Equal(er.Position, expectedHeaderEnd);
+      Asserts.Equal(br.Position, expectedHeaderEnd);
 
       // TODO: additional data
-      var additionalData = er.ReadUInt32s(this.additionalDataCount_);
+      var additionalData = br.ReadUInt32s(this.additionalDataCount_);
 
-      SectionHeaderUtil.AssertNameAndSize(er, "BBOX", 4 * 6);
-      var bbox = er.ReadNew<BwBoundingBox>();
+      SectionHeaderUtil.AssertNameAndSize(br, "BBOX", 4 * 6);
+      var bbox = br.ReadNew<BwBoundingBox>();
 
       string sectionName;
       uint sectionSize;
-      SectionHeaderUtil.ReadNameAndSize(er, out sectionName, out sectionSize);
+      SectionHeaderUtil.ReadNameAndSize(br, out sectionName, out sectionSize);
 
       while (sectionName != "MATL") {
         if (sectionName == "VSCL") {
           Asserts.Equal(4, (int) sectionSize);
-          er.PushMemberEndianness(Endianness.LittleEndian);
-          this.Scale = er.ReadSingle();
-          er.PopEndianness();
+          br.PushMemberEndianness(Endianness.LittleEndian);
+          this.Scale = br.ReadSingle();
+          br.PopEndianness();
         } else if (sectionName == "RNOD") {
-          this.ReadRnod_(er);
+          this.ReadRnod_(br);
         } else {
           throw new NotImplementedException();
         }
 
-        SectionHeaderUtil.ReadNameAndSize(er, out sectionName, out sectionSize);
+        SectionHeaderUtil.ReadNameAndSize(br, out sectionName, out sectionSize);
       }
 
       Asserts.Equal("MATL", sectionName);
@@ -109,13 +109,13 @@ namespace modl.schema.modl.bw2.node {
 
       this.Materials.Clear();
       for (var i = 0; i < sectionSize / materialSize; ++i) {
-        this.Materials.Add(er.ReadNew<Bw2Material>());
+        this.Materials.Add(br.ReadNew<Bw2Material>());
       }
 
       var vertexDescriptor = new GxVertexDescriptor();
-      while (er.Position < expectedNodeEnd) {
-        SectionHeaderUtil.ReadNameAndSize(er, out sectionName, out sectionSize);
-        var expectedSectionEnd = er.Position + sectionSize;
+      while (br.Position < expectedNodeEnd) {
+        SectionHeaderUtil.ReadNameAndSize(br, out sectionName, out sectionSize);
+        var expectedSectionEnd = br.Position + sectionSize;
 
         switch (sectionName) {
           case "VUV1":
@@ -124,26 +124,26 @@ namespace modl.schema.modl.bw2.node {
           case "VUV4": {
             // TODO: Need to keep track of section order
             var uvMapIndex = sectionName[3] - '1';
-            this.ReadUvMap_(er, uvMapIndex, sectionSize / (2 * 2));
+            this.ReadUvMap_(br, uvMapIndex, sectionSize / (2 * 2));
             break;
           }
           case "VPOS": {
             // TODO: Handle this properly
             // Each new VPOS section seems to correspond to a new LOD mesh, but we only need the first one.
             if (Positions.Count > 0) {
-              er.Position = expectedNodeEnd;
+              br.Position = expectedNodeEnd;
               goto BreakEarly;
             }
 
             var vertexPositionSize = 2 * 3;
             Asserts.Equal(0, sectionSize % vertexPositionSize);
-            this.ReadPositions_(er, (uint) (sectionSize / vertexPositionSize));
+            this.ReadPositions_(br, (uint) (sectionSize / vertexPositionSize));
             break;
           }
           case "VNRM": {
             var normalSize = 3;
             Asserts.Equal(0, sectionSize % normalSize);
-            this.ReadNormals_(er, (uint) (sectionSize / normalSize));
+            this.ReadNormals_(br, (uint) (sectionSize / normalSize));
             break;
           }
           case "VNBT": {
@@ -152,71 +152,71 @@ namespace modl.schema.modl.bw2.node {
             var nbtCount = sectionSize / nbtSize;
             for (var i = 0; i < nbtCount; ++i) {
               this.Normals.Add(new VertexNormal {
-                  X = er.ReadSingle(),
-                  Y = er.ReadSingle(),
-                  Z = er.ReadSingle(),
+                  X = br.ReadSingle(),
+                  Y = br.ReadSingle(),
+                  Z = br.ReadSingle(),
               });
-              er.Position += 24;
+              br.Position += 24;
             }
             break;
           }
           case "XBS2": {
-            this.ReadOpcodes_(er, sectionSize, ref vertexDescriptor);
+            this.ReadOpcodes_(br, sectionSize, ref vertexDescriptor);
             break;
           }
           case "SCNT": {
             // TODO: Support this
             // This explains why multiple VPOS sections are included.
             Asserts.Equal(4, (int) sectionSize);
-            var lodCount = er.ReadUInt32();
+            var lodCount = br.ReadUInt32();
             break;
           }
           case "VCOL": {
-            er.Position += sectionSize;
+            br.Position += sectionSize;
             break;
           }
           case "ANIM": {
-            er.Position += sectionSize;
+            br.Position += sectionSize;
             break;
           }
           default: throw new NotImplementedException();
         }
 
-        Asserts.Equal(er.Position, expectedSectionEnd);
+        Asserts.Equal(br.Position, expectedSectionEnd);
       }
 
       BreakEarly: ;
-      Asserts.Equal(er.Position, expectedNodeEnd);
+      Asserts.Equal(br.Position, expectedNodeEnd);
     }
 
 
     public Matrix4x4f[] RnodMatrices { get; set; }
 
-    private void ReadRnod_(IEndianBinaryReader er) {
-      er.PushMemberEndianness(Endianness.LittleEndian);
+    private void ReadRnod_(IBinaryReader br) {
+      br.PushMemberEndianness(Endianness.LittleEndian);
 
-      var size = er.ReadUInt32();
+      var size = br.ReadUInt32();
       this.RnodMatrices = new Matrix4x4f[size];
 
       for (var i = 0; i < this.RnodMatrices.Length; ++i) {
-        this.RnodMatrices[i] = er.ReadNew<Matrix4x4f>();
+        this.RnodMatrices[i] = br.ReadNew<Matrix4x4f>();
       }
 
-      er.PopEndianness();
+      br.PopEndianness();
     }
 
 
     public VertexUv[][] UvMaps { get; } = new VertexUv[4][];
 
-    private void ReadUvMap_(IEndianBinaryReader er,
+    private void ReadUvMap_(IBinaryReader br,
                             int uvMapIndex,
                             uint uvCount) {
       var scale = MathF.Pow(2, 11);
       var uvMap = this.UvMaps[uvMapIndex] = new VertexUv[uvCount];
       for (var i = 0; i < uvCount; ++i) {
         uvMap[i] = new VertexUv {
-            U = er.ReadInt16() / scale,
-            V = er.ReadInt16() / scale,
+            U = br.ReadInt16() / scale,
+            V = br.ReadInt16() / scale,
         };
       }
     }
@@ -224,35 +224,35 @@ namespace modl.schema.modl.bw2.node {
 
     public List<VertexPosition> Positions { get; } = new();
 
-    private void ReadPositions_(IEndianBinaryReader er, uint vertexCount) {
+    private void ReadPositions_(IBinaryReader br, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
-        this.Positions.Add(er.ReadNew<VertexPosition>());
+        this.Positions.Add(br.ReadNew<VertexPosition>());
       }
     }
 
 
     public List<VertexNormal> Normals { get; } = new();
 
-    private void ReadNormals_(IEndianBinaryReader er, uint vertexCount) {
+    private void ReadNormals_(IBinaryReader br, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
-        this.Normals.Add(er.ReadNew<VertexNormal>());
+        this.Normals.Add(br.ReadNew<VertexNormal>());
       }
     }
 
     public List<BwMesh> Meshes { get; } = new();
 
-    private void ReadOpcodes_(IEndianBinaryReader er,
+    private void ReadOpcodes_(IBinaryReader br,
                               uint sectionSize,
                               ref GxVertexDescriptor vertexDescriptor) {
-      var start = er.Position;
+      var start = br.Position;
       var expectedEnd = start + sectionSize;
 
-      var materialIndex = er.ReadUInt32();
+      var materialIndex = br.ReadUInt32();
 
-      var posMatIdxMap = er.ReadNew<Bw2PosMatIdxMap>();
+      var posMatIdxMap = br.ReadNew<Bw2PosMatIdxMap>();
 
-      var gxDataSize = er.ReadUInt32();
-      Asserts.Equal(expectedEnd, er.Position + gxDataSize);
+      var gxDataSize = br.ReadUInt32();
+      Asserts.Equal(expectedEnd, br.Position + gxDataSize);
 
       var triangleStrips = new List<BwTriangleStrip>();
       var mesh = new BwMesh {
@@ -261,13 +261,13 @@ namespace modl.schema.modl.bw2.node {
       };
       this.Meshes.Add(mesh);
 
-      while (er.Position < expectedEnd) {
-        var opcode = er.ReadByte() & 0xFA;
+      while (br.Position < expectedEnd) {
+        var opcode = br.ReadByte() & 0xFA;
         var opcodeEnum = (GxOpcode) opcode;
 
         if (opcodeEnum == GxOpcode.LOAD_CP_REG) {
-          var command = er.ReadByte();
-          var value = er.ReadUInt32();
+          var command = br.ReadByte();
+          var value = br.ReadUInt32();
 
           if (command == 0x50) {
             vertexDescriptor =
@@ -283,16 +283,16 @@ namespace modl.schema.modl.bw2.node {
             throw new NotImplementedException();
           }
         } else if (opcodeEnum == GxOpcode.LOAD_XF_REG) {
-          var lengthMinusOne = er.ReadUInt16();
+          var lengthMinusOne = br.ReadUInt16();
           var length = lengthMinusOne + 1;
 
           // http://hitmen.c02.at/files/yagcd/yagcd/chap5.html#sec5.11.4
-          var firstXfRegisterAddress = er.ReadUInt16();
+          var firstXfRegisterAddress = br.ReadUInt16();
 
-          var values = er.ReadUInt32s(length);
+          var values = br.ReadUInt32s(length);
           // TODO: Implement
         } else if (opcodeEnum == GxOpcode.DRAW_TRIANGLE_STRIP) {
-          var vertexCount = er.ReadUInt16();
+          var vertexCount = br.ReadUInt16();
           var vertexAttributeIndicesList =
               new List<BwVertexAttributeIndices>(vertexCount);
 
@@ -309,9 +309,9 @@ namespace modl.schema.modl.bw2.node {
             foreach (var (vertexAttribute, vertexFormat) in
                      vertexDescriptor) {
               var value = vertexFormat switch {
-                  null => er.ReadByte(),
-                  GxAttributeType.INDEX_8 => er.ReadByte(),
-                  GxAttributeType.INDEX_16 => er.ReadUInt16(),
+                  null => br.ReadByte(),
+                  GxAttributeType.INDEX_8 => br.ReadByte(),
+                  GxAttributeType.INDEX_16 => br.ReadUInt16(),
                   _ => throw new NotImplementedException(),
               };
 
@@ -359,7 +359,7 @@ namespace modl.schema.modl.bw2.node {
         }
       }
 
-      Asserts.Equal(expectedEnd, er.Position);
+      Asserts.Equal(expectedEnd, br.Position);
     }
   }
 }

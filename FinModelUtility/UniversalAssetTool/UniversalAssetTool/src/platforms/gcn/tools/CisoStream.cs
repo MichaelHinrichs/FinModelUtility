@@ -14,13 +14,13 @@ namespace uni.platforms.gcn.tools {
     public CisoStream(Stream impl) {
       this.impl_ = impl;
 
-      var er = new EndianBinaryReader(impl, Endianness.LittleEndian);
-      er.AssertString("CISO");
+      var br = new SchemaBinaryReader(impl, Endianness.LittleEndian);
+      br.AssertString("CISO");
 
-      this.blockSize_ = er.ReadUInt32();
+      this.blockSize_ = br.ReadUInt32();
       Asserts.True(this.blockSize_ is > 0 and <= 0x8000000);
 
-      this.blockMap_ = er.ReadBytes(this.offset_ - 8)
+      this.blockMap_ = br.ReadBytes(this.offset_ - 8)
                          .Select(value => value == 1)
                          .ToArray();
     }

@@ -7,29 +7,29 @@ using schema.binary;
 
 namespace uni.platforms.threeDs.tools {
   public class LzssDecompressor {
-    public bool TryToDecompress(IEndianBinaryReader er, out byte[]? data) {
-      if (er.TryReadNew(out LzssHeader? header)) {
-        Asserts.Equal(er.Length, 0x10 + header!.CompressedSize);
+    public bool TryToDecompress(IBinaryReader br, out byte[]? data) {
+      if (br.TryReadNew(out LzssHeader? header)) {
+        Asserts.Equal(br.Length, 0x10 + header!.CompressedSize);
         data = new byte[header.DecompressedSize];
         var dI = 0;
 
         Span<byte> buffer = stackalloc byte[4096];
         ushort writeIndex = 0xFEE;
-        while (!er.Eof) {
-          var flags8 = er.ReadByte();
+        while (!br.Eof) {
+          var flags8 = br.ReadByte();
 
           for (var i = 0; i < 8; i++) {
             if (flags8.GetBit(0)) {
-              var decompressedByte = er.ReadByte();
+              var decompressedByte = br.ReadByte();
               data[dI++] = decompressedByte;
               buffer[writeIndex] = decompressedByte;
               writeIndex++;
               writeIndex %= 4096;
             } else {
-              var decompressedByte = er.ReadByte();
+              var decompressedByte = br.ReadByte();
               ushort readIndex = decompressedByte;
 
-              var someByte = er.ReadByte();
+              var someByte = br.ReadByte();
               readIndex |= (ushort) ((someByte & 0xF0) << 4);
               for (var j = 0; j < (someByte & 0x0F) + 3; j++) {
                 data[dI++] = buffer[readIndex];
@@ -42,7 +42,7 @@ namespace uni.platforms.threeDs.tools {
             }
 
             flags8 >>= 1;
-            if (er.Eof) {
+            if (br.Eof) {
               break;
             }
           }

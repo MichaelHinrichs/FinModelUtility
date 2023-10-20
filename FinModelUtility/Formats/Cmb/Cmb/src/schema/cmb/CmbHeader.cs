@@ -26,33 +26,33 @@ namespace cmb.schema.cmb {
     [Unknown]
     public uint unk0 { get; private set; }
 
-    public void Read(IEndianBinaryReader r) {
-      r.AssertString("cmb" + AsciiUtil.GetChar(0x20));
+    public void Read(IBinaryReader br) {
+      br.AssertString("cmb" + AsciiUtil.GetChar(0x20));
 
-      this.fileSize = r.ReadUInt32();
+      this.fileSize = br.ReadUInt32();
 
-      this.version = CmbHeader.Version = (Version) r.ReadUInt32();
+      this.version = CmbHeader.Version = (Version) br.ReadUInt32();
 
 
-      Asserts.Equal(0, r.ReadInt32());
-      this.name = r.ReadString(16);
-      this.faceIndicesCount = r.ReadUInt32();
-      this.sklOffset = r.ReadUInt32();
+      Asserts.Equal(0, br.ReadInt32());
+      this.name = br.ReadString(16);
+      this.faceIndicesCount = br.ReadUInt32();
+      this.sklOffset = br.ReadUInt32();
 
       if (this.version.SupportsQtrs()) {
-        this.qtrsOffset = r.ReadUInt32();
+        this.qtrsOffset = br.ReadUInt32();
       }
 
-      this.matsOffset = r.ReadUInt32();
-      this.texOffset = r.ReadUInt32();
-      this.sklmOffset = r.ReadUInt32();
-      this.lutsOffset = r.ReadUInt32();
-      this.vatrOffset = r.ReadUInt32();
-      this.faceIndicesOffset = r.ReadUInt32();
-      this.textureDataOffset = r.ReadUInt32();
+      this.matsOffset = br.ReadUInt32();
+      this.texOffset = br.ReadUInt32();
+      this.sklmOffset = br.ReadUInt32();
+      this.lutsOffset = br.ReadUInt32();
+      this.vatrOffset = br.ReadUInt32();
+      this.faceIndicesOffset = br.ReadUInt32();
+      this.textureDataOffset = br.ReadUInt32();
 
       if (this.version > Version.OCARINA_OF_TIME_3D) {
-        this.unk0 = r.ReadUInt32();
+        this.unk0 = br.ReadUInt32();
       }
     }
   }

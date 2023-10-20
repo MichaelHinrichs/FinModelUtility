@@ -3,9 +3,8 @@ using schema.binary.attributes;
 
 namespace fin.schema.data {
   [BinarySchema]
-  public partial class
-      PassThruStringMagicUInt32SizedSection<T> : IMagicSection<T>
-      where T : IBinaryConvertible {
+  public partial class PassThruStringMagicUInt32SizedSection<T>
+      : IMagicSection<T> where T : IBinaryConvertible {
     private string MagicAsserter_ => this.Magic;
 
     [Ignore]

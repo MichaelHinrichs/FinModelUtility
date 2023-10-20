@@ -18,25 +18,25 @@ namespace modl.schema.anim.bw2 {
     public float ZPosMin { get; set; }
     private readonly uint padding1_ = 0;
 
-    public void Read(IEndianBinaryReader er) {
-      this.Name = er.ReadString(16);
+    public void Read(IBinaryReader br) {
+      this.Name = br.ReadString(16);
 
-      this.PositionKeyframeCount = er.ReadUInt32();
-      this.RotationKeyframeCount = er.ReadUInt32();
+      this.PositionKeyframeCount = br.ReadUInt32();
+      this.RotationKeyframeCount = br.ReadUInt32();
 
-      er.AssertUInt64(0);
+      br.AssertUInt64(0);
 
-      this.XPosDelta = er.ReadSingle();
-      this.YPosDelta = er.ReadSingle();
-      this.ZPosDelta = er.ReadSingle();
+      this.XPosDelta = br.ReadSingle();
+      this.YPosDelta = br.ReadSingle();
+      this.ZPosDelta = br.ReadSingle();
 
-      this.XPosMin = er.ReadSingle();
-      this.YPosMin = er.ReadSingle();
-      this.ZPosMin = er.ReadSingle();
+      this.XPosMin = br.ReadSingle();
+      this.YPosMin = br.ReadSingle();
+      this.ZPosMin = br.ReadSingle();
 
-      er.AssertUInt32(0);
+      br.AssertUInt32(0);
 
-      var values = er.ReadBytes(4);
+      var values = br.ReadBytes(4);
     }
   }
 }

@@ -48,11 +48,11 @@ namespace fin.image.io {
     public IImage<TPixel> ReadImage(
         byte[] srcBytes,
         Endianness endianness = Endianness.LittleEndian) {
-      using var er = new EndianBinaryReader(srcBytes, endianness);
-      return this.ReadImage(er);
+      using var br = new SchemaBinaryReader(srcBytes, endianness);
+      return this.ReadImage(br);
     }
 
-    public unsafe IImage<TPixel> ReadImage(IEndianBinaryReader er) {
+    public unsafe IImage<TPixel> ReadImage(IBinaryReader br) {
       var image = this.pixelReader_.CreateImage(this.width_, this.height_);
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;
@@ -62,7 +62,7 @@ namespace fin.image.io {
            i += this.pixelReader_.PixelsPerRead) {
         this.pixelIndexer_.GetPixelCoordinates(i, out var x, out var y);
         var dstOffs = y * this.width_ + x;
-        this.pixelReader_.Decode(er, scan0, dstOffs);
+        this.pixelReader_.Decode(br, scan0, dstOffs);
       }
 
       return image;

@@ -959,13 +959,13 @@ namespace sm64.Scripts {
       desc = "Place macro objects loaded from address 0x" + pos.ToString("X8");
 
       ROM rom = ROM.Instance;
-      using var er = sm64Memory.OpenAtSegmentedAddress(pos);
+      using var br = sm64Memory.OpenAtSegmentedAddress(pos);
 
       lvl.getCurrentArea().MacroObjects.Clear();
       bool endList = false;
       while (!endList) {
         //rom.printArray(data, 10);
-        var firstAndSecond = er.ReadUInt16();
+        var firstAndSecond = br.ReadUInt16();
         uint id = (uint) (firstAndSecond & 0x1FF);
         if (id == 0 || id == 0x1E) break;
         Object3D newObj = new Object3D();
@@ -992,20 +992,20 @@ namespace sm64.Scripts {
         newObj.ModelID = entryData[5];
         newObj.setPresetID((ushort) id);
         newObj.yRot = (short) ((firstAndSecond >> 9) * 2.8125);
-        newObj.xPos = er.ReadInt16();
-        newObj.yPos = er.ReadInt16();
-        newObj.zPos = er.ReadInt16();
+        newObj.xPos = br.ReadInt16();
+        newObj.yPos = br.ReadInt16();
+        newObj.zPos = br.ReadInt16();
         newObj.DontShowActs();
         newObj.MakeBehaviorReadOnly(true);
         newObj.MakeModelIDReadOnly(true);
 
-        var bp1 = er.ReadByte();
+        var bp1 = br.ReadByte();
         if (bp1 != 0)
           newObj.BehaviorParameter1 = bp1;
         else
           newObj.BehaviorParameter1 = entryData[6];
 
-        var bp2 = er.ReadByte();
+        var bp2 = br.ReadByte();
         if (bp2 != 0)
           newObj.BehaviorParameter2 = bp2;
         else

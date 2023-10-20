@@ -15,8 +15,8 @@ namespace uni.platforms.threeDs.tools {
 
     public IEnumerable<SubArchiveContentFile> GetFiles(
         IArchiveStream<SubArchiveContentFile> archiveStream) {
-      var er = archiveStream.AsEndianBinaryReader(Endianness.LittleEndian);
-      var zar = new Zar(er);
+      var br = archiveStream.AsBinaryReader(Endianness.LittleEndian);
+      var zar = new Zar(br);
 
       foreach (var fileType in zar.FileTypes) {
         foreach (var file in fileType.Files) {
@@ -33,12 +33,12 @@ namespace uni.platforms.threeDs.tools {
       public ZarHeader Header { get; }
       public ZarFileType[] FileTypes { get; }
 
-      public Zar(IEndianBinaryReader er) {
-        this.Header = er.ReadNew<ZarHeader>();
+      public Zar(IBinaryReader br) {
+        this.Header = br.ReadNew<ZarHeader>();
 
         this.FileTypes = new ZarFileType[this.Header.FileTypeCount];
         for (var i = 0; i < this.FileTypes.Length; ++i) {
-          this.FileTypes[i] = new ZarFileType(er, this.Header, i);
+          this.FileTypes[i] = new ZarFileType(br, this.Header, i);
         }
       }
     }
@@ -66,22 +66,22 @@ namespace uni.platforms.threeDs.tools {
       public ZarSubfile[] Files { get; }
 
       public ZarFileType(
-          IEndianBinaryReader er,
+          IBinaryReader br,
           ZarHeader header,
           int fileTypeIndex) {
-        er.Position = header.FileTypesOffset + 16 * fileTypeIndex;
+        br.Position = header.FileTypesOffset + 16 * fileTypeIndex;
 
-        this.FileCount = er.ReadInt32();
-        this.FileListOffset = er.ReadInt32();
-        this.TypeNameOffset = er.ReadInt32();
-        er.ReadInt32();
+        this.FileCount = br.ReadInt32();
+        this.FileListOffset = br.ReadInt32();
+        this.TypeNameOffset = br.ReadInt32();
+        br.ReadInt32();
 
         /*er.Position = this.TypeNameOffset;
-        this.TypeName = er.ReadStringNT(Encoding.UTF8);*/
+        this.TypeName = br.ReadStringNT(Encoding.UTF8);*/
 
         this.Files = new ZarSubfile[this.FileCount];
         for (var i = 0; i < this.FileCount; ++i) {
-          this.Files[i] = new ZarSubfile(er, header, this, i);
+          this.Files[i] = new ZarSubfile(br, header, this, i);
         }
       }
     }
@@ -93,22 +93,22 @@ namespace uni.platforms.threeDs.tools {
       public int Length { get; }
 
       public ZarSubfile(
-          IEndianBinaryReader er,
+          IBinaryReader br,
           ZarHeader header,
           ZarFileType fileType,
           int fileInFileTypeIndex) {
-        er.Position = fileType.FileListOffset + 4 * fileInFileTypeIndex;
-        var fileIndex = er.ReadInt32();
+        br.Position = fileType.FileListOffset + 4 * fileInFileTypeIndex;
+        var fileIndex = br.ReadInt32();
 
-        er.Position = header.FileMetadataOffset + 8 * fileIndex;
-        var fileSize = er.ReadInt32();
-        var fileNameOffset = er.ReadInt32();
+        br.Position = header.FileMetadataOffset + 8 * fileIndex;
+        var fileSize = br.ReadInt32();
+        var fileNameOffset = br.ReadInt32();
 
-        er.Position = fileNameOffset;
-        this.FileName = er.ReadStringNT(StringEncodingType.UTF8);
+        br.Position = fileNameOffset;
+        this.FileName = br.ReadStringNT(StringEncodingType.UTF8);
 
-        er.Position = header.DataOffset + 4 * fileIndex;
-        var fileOffset = er.ReadInt32();
+        br.Position = header.DataOffset + 4 * fileIndex;
+        var fileOffset = br.ReadInt32();
 
         this.Position = fileOffset;
         this.Length = fileSize;

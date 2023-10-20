@@ -11,8 +11,8 @@ namespace uni.platforms.threeDs.tools.cia {
 
     public IEnumerable<SubArchiveContentFile> GetFiles(
         IArchiveStream<SubArchiveContentFile> archiveStream) {
-      var er = archiveStream.AsEndianBinaryReader(Endianness.LittleEndian);
-      var cia = er.ReadNew<Cia>();
+      var br = archiveStream.AsBinaryReader(Endianness.LittleEndian);
+      var cia = br.ReadNew<Cia>();
 
       yield break;
     }

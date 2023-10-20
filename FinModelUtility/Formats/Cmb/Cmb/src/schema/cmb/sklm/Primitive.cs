@@ -14,22 +14,22 @@ namespace cmb.schema.cmb.sklm {
     public uint[] indices;
     public ushort offset { get; set; }
 
-    public void Read(IEndianBinaryReader r) {
-      r.AssertString("prm" + AsciiUtil.GetChar(0x20));
+    public void Read(IBinaryReader br) {
+      br.AssertString("prm" + AsciiUtil.GetChar(0x20));
 
-      this.chunkSize = r.ReadUInt32();
-      this.isVisible = r.ReadUInt32() != 0;
+      this.chunkSize = br.ReadUInt32();
+      this.isVisible = br.ReadUInt32() != 0;
 
       // Other modes don't exist in OoT3D's shader so we'd never know
-      this.primitiveMode = (PrimitiveMode) r.ReadUInt32();
-      this.dataType = (DataType) r.ReadUInt32();
+      this.primitiveMode = (PrimitiveMode) br.ReadUInt32();
+      this.dataType = (DataType) br.ReadUInt32();
 
-      this.indicesCount = r.ReadUInt16();
+      this.indicesCount = br.ReadUInt16();
 
-      this.offset = r.ReadUInt16();
+      this.offset = br.ReadUInt16();
     }
 
-    public void Write(ISubEndianBinaryWriter w)
+    public void Write(IBinaryWriter bw)
       => throw new NotImplementedException();
   }
 }

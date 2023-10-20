@@ -11,38 +11,38 @@ namespace modl.schema.res.texr {
     public IImage Image { get; private set; }
 
     [Unknown]
-    public unsafe void Read(IEndianBinaryReader er) {
-      SectionHeaderUtil.AssertNameAndReadSize(er, "GTXD", out _);
-      var textureName = er.ReadString(0x20);
+    public unsafe void Read(IBinaryReader br) {
+      SectionHeaderUtil.AssertNameAndReadSize(br, "GTXD", out _);
+      var textureName = br.ReadString(0x20);
 
-      er.PushMemberEndianness(Endianness.BigEndian);
-      var width = er.ReadUInt32();
-      var height = er.ReadUInt32();
+      br.PushMemberEndianness(Endianness.BigEndian);
+      var width = br.ReadUInt32();
+      var height = br.ReadUInt32();
 
-      var unknowns0 = er.ReadUInt32s(2);
+      var unknowns0 = br.ReadUInt32s(2);
 
-      var rawTextureType = er.ReadString(8)
+      var rawTextureType = br.ReadString(8)
                              .Replace("\0", "")
                              .ToCharArray();
       Array.Reverse(rawTextureType);
       var textureType = new string(rawTextureType);
-      var drawType = er.ReadString(8);
+      var drawType = br.ReadString(8);
 
-      var unknown = er.ReadChars(48);
+      var unknown = br.ReadChars(48);
 
       var image = textureType switch {
-          "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
-          "DXT1"     => this.ReadDxt1_(er, width, height),
-          "P8"       => this.ReadP8_(er, width, height),
-          "P4"       => this.ReadP4_(er, width, height),
-          "IA8"      => this.ReadIA8_(er, width, height),
-          "IA4"      => this.ReadIA4_(er, width, height),
-          "I8"       => this.ReadI8_(er, width, height),
-          "I4"       => this.ReadI4_(er, width, height),
+          "A8R8G8B8" => this.ReadA8R8G8B8_(br, width, height),
+          "DXT1"     => this.ReadDxt1_(br, width, height),
+          "P8"       => this.ReadP8_(br, width, height),
+          "P4"       => this.ReadP4_(br, width, height),
+          "IA8"      => this.ReadIA8_(br, width, height),
+          "IA4"      => this.ReadIA4_(br, width, height),
+          "I8"       => this.ReadI8_(br, width, height),
+          "I4"       => this.ReadI4_(br, width, height),
           _          => throw new NotImplementedException(),
       };
       this.Image = image;
-      er.PopEndianness();
+      br.PopEndianness();
 
       if (textureName.ToLower().EndsWith("_bump")) {
         var normalTextureName = textureName.Replace(

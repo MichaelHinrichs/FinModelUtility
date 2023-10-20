@@ -8,7 +8,7 @@ namespace f3dzex2.displaylist.opcodes {
   public interface IOpcodeParser {
     IOpcodeCommand Parse(IReadOnlyN64Memory n64Memory,
                          IDisplayListReader dlr,
-                         IEndianBinaryReader er);
+                         SchemaBinaryReader br);
 
     DisplayListType Type { get; }
   }

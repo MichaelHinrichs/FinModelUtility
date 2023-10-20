@@ -5,61 +5,61 @@ using schema.binary;
 namespace modl.schema {
   public static class SectionHeaderUtil {
     public static void ReadName(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         out string sectionName) {
-      er.PushMemberEndianness(Endianness.LittleEndian);
-      sectionName = er.ReadString(4).Reverse();
-      er.PopEndianness();
+      br.PushMemberEndianness(Endianness.LittleEndian);
+      sectionName = br.ReadString(4).Reverse();
+      br.PopEndianness();
     }
 
     public static void AssertName(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         string expectedSectionName) {
-      er.PushMemberEndianness(Endianness.LittleEndian);
-      er.AssertString(expectedSectionName.Reverse());
-      er.PopEndianness();
+      br.PushMemberEndianness(Endianness.LittleEndian);
+      br.AssertString(expectedSectionName.Reverse());
+      br.PopEndianness();
     }
 
 
     public static void ReadSize(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         out uint size) {
-      er.PushMemberEndianness(Endianness.LittleEndian);
-      size = er.ReadUInt32();
-      er.PopEndianness();
+      br.PushMemberEndianness(Endianness.LittleEndian);
+      size = br.ReadUInt32();
+      br.PopEndianness();
     }
 
     public static void AssertSize(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         uint expectedSize) {
-      er.PushMemberEndianness(Endianness.LittleEndian);
-      er.AssertUInt32(expectedSize);
-      er.PopEndianness();
+      br.PushMemberEndianness(Endianness.LittleEndian);
+      br.AssertUInt32(expectedSize);
+      br.PopEndianness();
     }
 
 
     public static void ReadNameAndSize(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         out string sectionName,
         out uint size) {
-      SectionHeaderUtil.ReadName(er, out sectionName);
-      SectionHeaderUtil.ReadSize(er, out size);
+      SectionHeaderUtil.ReadName(br, out sectionName);
+      SectionHeaderUtil.ReadSize(br, out size);
     }
 
     public static void AssertNameAndReadSize(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         string expectedSectionName,
         out uint size) {
-      SectionHeaderUtil.AssertName(er, expectedSectionName);
-      SectionHeaderUtil.ReadSize(er, out size);
+      SectionHeaderUtil.AssertName(br, expectedSectionName);
+      SectionHeaderUtil.ReadSize(br, out size);
     }
 
     public static void AssertNameAndSize(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         string expectedSectionName,
         uint expectedSize) {
-      SectionHeaderUtil.AssertName(er, expectedSectionName);
-      SectionHeaderUtil.AssertSize(er, expectedSize);
+      SectionHeaderUtil.AssertName(br, expectedSectionName);
+      SectionHeaderUtil.AssertSize(br, expectedSize);
     }
   }
 }

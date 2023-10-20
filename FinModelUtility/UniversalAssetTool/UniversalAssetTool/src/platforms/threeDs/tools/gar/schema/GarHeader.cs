@@ -15,20 +15,20 @@ namespace uni.platforms.threeDs.tools.gar.schema {
     public int FileMetadataOffset { get; }
     public int DataOffset { get; }
 
-    public GarHeader(IEndianBinaryReader er) {
-      er.AssertString("GAR");
+    public GarHeader(IBinaryReader br) {
+      br.AssertString("GAR");
 
-      this.Version = er.ReadByte();
+      this.Version = br.ReadByte();
       Asserts.True(this.Version is 2 or 5);
 
-      this.Size = er.ReadInt32();
+      this.Size = br.ReadInt32();
 
-      this.FileTypeCount = er.ReadInt16();
-      this.FileCount = er.ReadInt16();
+      this.FileTypeCount = br.ReadInt16();
+      this.FileCount = br.ReadInt16();
 
-      this.FileTypesOffset = er.ReadInt32();
-      this.FileMetadataOffset = er.ReadInt32();
-      this.DataOffset = er.ReadInt32();
+      this.FileTypesOffset = br.ReadInt32();
+      this.FileMetadataOffset = br.ReadInt32();
+      this.DataOffset = br.ReadInt32();
     }
   }
 }

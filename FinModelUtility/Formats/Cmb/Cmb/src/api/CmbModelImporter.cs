@@ -42,7 +42,7 @@ namespace cmb.api {
       var fps = 30;
 
       using var r =
-          new EndianBinaryReader(cmbFile.OpenRead(),
+          new SchemaBinaryReader(cmbFile.OpenRead(),
                                  Endianness.LittleEndian);
 
       var cmb = new Cmb(r);

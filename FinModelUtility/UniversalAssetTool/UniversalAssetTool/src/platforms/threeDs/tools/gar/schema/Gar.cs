@@ -10,14 +10,14 @@ namespace uni.platforms.threeDs.tools.gar.schema {
     public GarHeader Header { get; }
     public IGarFileType[] FileTypes { get; }
 
-    public Gar(IEndianBinaryReader er) {
-      this.Header = new GarHeader(er);
+    public Gar(IBinaryReader br) {
+      this.Header = new GarHeader(br);
 
       this.FileTypes = new IGarFileType[this.Header.FileTypeCount];
       for (var i = 0; i < this.FileTypes.Length; ++i) {
         this.FileTypes[i] = this.Header.Version switch {
-            2 => new Gar2FileType(er, this.Header, i),
-            5 => new Gar5FileType(er, this.Header, i),
+            2 => new Gar2FileType(br, this.Header, i),
+            5 => new Gar5FileType(br, this.Header, i),
             _ => throw new NotImplementedException()
         };
       }

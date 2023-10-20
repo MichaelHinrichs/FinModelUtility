@@ -45,7 +45,7 @@ namespace fin.image.io.tile {
     public int TileWidth => 8;
     public int TileHeight => 8;
 
-    public unsafe void Decode(IEndianBinaryReader er,
+    public unsafe void Decode(IBinaryReader br,
                               Rgba32* scan0,
                               int tileX,
                               int tileY,
@@ -58,16 +58,16 @@ namespace fin.image.io.tile {
 
       for (int by = 0; by < 8; by += 4) {
         for (int bx = 0; bx < 8; bx += 4) {
-          if (er.Length - er.Position < 8) {
+          if (br.Length - br.Position < 8) {
             break;
           }
 
           var alpha = 0xFFFFFFFFFFFFFFFF;
           if (this.hasAlpha_) {
-            alpha = er.ReadUInt64();
+            alpha = br.ReadUInt64();
           }
 
-          var block = er.ReadUInt64();
+          var block = br.ReadUInt64();
 
           Etc1TileReader.DecodeETC1Block_(colors, block);
           for (int py = 0; py < 4; py++) {

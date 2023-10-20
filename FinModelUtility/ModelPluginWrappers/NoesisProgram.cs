@@ -69,20 +69,20 @@ namespace ModelPluginWrappers {
 
               var vertices = new List<IVertex>();
               var bytes = positionBuffer_.ToArray();
-              using var er = new EndianBinaryReader(bytes);
+              using var br = new SchemaBinaryReader(bytes);
 
               var i = 0;
               while (true) {
-                er.Position = positionOffset_ + i * positionStride_;
-                if (er.Eof) {
+                br.Position = positionOffset_ + i * positionStride_;
+                if (br.Eof) {
                   break;
                 }
 
                 switch (positionFormat_) {
                   case NoeFormat.RPGEODATA_FLOAT: {
-                      var x = er.ReadSingle();
-                      var y = er.ReadSingle();
-                      var z = er.ReadSingle();
+                      var x = br.ReadSingle();
+                      var y = br.ReadSingle();
+                      var z = br.ReadSingle();
 
                       vertices.Add(skin.AddVertex(x, y, z));
                       break;

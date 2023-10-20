@@ -12,42 +12,42 @@ namespace level5.schema {
   public class Xc : IBinaryDeserializable {
     public ListDictionary<string, XcFile> FilesByExtension { get; } = new();
 
-    public void Read(IEndianBinaryReader er) {
-      er.AssertString("XPCK");
+    public void Read(IBinaryReader br) {
+      br.AssertString("XPCK");
 
-      var fileCount = er.ReadUInt16() & 0xfff;
+      var fileCount = br.ReadUInt16() & 0xfff;
 
-      var fileInfoOffset = er.ReadUInt16() * 4;
-      var fileTableOffset = er.ReadUInt16() * 4;
-      var dataOffset = er.ReadUInt16() * 4;
+      var fileInfoOffset = br.ReadUInt16() * 4;
+      var fileTableOffset = br.ReadUInt16() * 4;
+      var dataOffset = br.ReadUInt16() * 4;
 
-      er.ReadUInt16();
-      var filenameTableSize = er.ReadUInt16() * 4;
+      br.ReadUInt16();
+      var filenameTableSize = br.ReadUInt16() * 4;
 
       var hashToData = new Dictionary<uint, byte[]>();
-      er.Position = fileInfoOffset;
+      br.Position = fileInfoOffset;
       for (int i = 0; i < fileCount; i++) {
-        var nameCrc = er.ReadUInt32();
-        er.ReadInt16();
-        var offset = (uint)er.ReadUInt16();
-        var size = (uint)er.ReadUInt16();
-        var offsetExt = (uint)er.ReadByte();
-        var sizeExt = (uint)er.ReadByte();
+        var nameCrc = br.ReadUInt32();
+        br.ReadInt16();
+        var offset = (uint)br.ReadUInt16();
+        var size = (uint)br.ReadUInt16();
+        var offsetExt = (uint)br.ReadByte();
+        var sizeExt = (uint)br.ReadByte();
 
         offset |= offsetExt << 16;
         size |= sizeExt << 16;
         offset = (uint)(offset * 4 + dataOffset);
 
-        hashToData.Add(nameCrc, er.SubreadAt(offset, ser => ser.ReadBytes((int) size)));
+        hashToData.Add(nameCrc, br.SubreadAt(offset, ser => ser.ReadBytes((int) size)));
       }
 
-      var inNameTable = er.SubreadAt(fileTableOffset, ser => ser.ReadBytes(filenameTableSize));
+      var inNameTable = br.SubreadAt(fileTableOffset, ser => ser.ReadBytes(filenameTableSize));
       if (!new ZlibArrayDecompressor().TryDecompress(inNameTable, out var nameTable)) {
         nameTable = new LzssDecompressor().Decompress(inNameTable);
       }
 
       this.FilesByExtension.Clear();
-      using (var nt = new EndianBinaryReader(new MemoryStream(nameTable), er.Endianness)) {
+      using (var nt = new SchemaBinaryReader(new MemoryStream(nameTable), br.Endianness)) {
         for (int i = 0; i < fileCount; i++) {
           var name = nt.ReadStringNT();
 

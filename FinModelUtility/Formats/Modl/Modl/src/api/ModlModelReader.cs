@@ -32,11 +32,11 @@ namespace modl.api {
         GameVersion gameVersion) {
       var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
 
-      using var er = new EndianBinaryReader(modlFile.OpenRead(),
+      using var br = new SchemaBinaryReader(modlFile.OpenRead(),
                                             Endianness.BigEndian);
       var bwModel = gameVersion switch {
-          GameVersion.BW1 => (IModl) er.ReadNew<Bw1Modl>(),
-          GameVersion.BW2 => er.ReadNew<Bw2Modl>(),
+          GameVersion.BW1 => (IModl) br.ReadNew<Bw1Modl>(),
+          GameVersion.BW2 => br.ReadNew<Bw2Modl>(),
       };
 
       var model = new ModelImpl<Normal1Color1UvVertexImpl>(

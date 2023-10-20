@@ -31,7 +31,7 @@ namespace level5.schema {
     public void Open(byte[] bytes) {
       var endianness = Endianness.LittleEndian;
       using (var r =
-             new EndianBinaryReader(new MemoryStream(bytes), endianness)) {
+             new SchemaBinaryReader(new MemoryStream(bytes), endianness)) {
         r.Position = 0x08;
         var decomSize = r.ReadInt32();
         var nameOffset = r.ReadUInt32();
@@ -57,7 +57,7 @@ namespace level5.schema {
                                 (int)(r.Length - compDataOffset))));
 
         using (var d =
-               new EndianBinaryReader(new MemoryStream(data), endianness)) {
+               new SchemaBinaryReader(new MemoryStream(data), endianness)) {
           // Header
           var hashTableOffset = d.ReadUInt32();
           var trackInfoOffset = d.ReadUInt32();
@@ -112,36 +112,36 @@ namespace level5.schema {
       }
     }
 
-    private void ReadFrameData_(IEndianBinaryReader d,
+    private void ReadFrameData_(IBinaryReader br,
                                 int offset,
                                 int count,
                                 uint dataOffset,
                                 int boneCount,
                                 AnimTrack track) {
       for (int i = offset; i < offset + count; i++) {
-        d.Position = ((uint)(dataOffset + 4 * 4 * i));
-        var flagOffset = d.ReadUInt32();
-        var keyFrameOffset = d.ReadUInt32();
-        var keyDataOffset = d.ReadUInt32();
-        d.AssertUInt32(0);
+        br.Position = ((uint)(dataOffset + 4 * 4 * i));
+        var flagOffset = br.ReadUInt32();
+        var keyFrameOffset = br.ReadUInt32();
+        var keyDataOffset = br.ReadUInt32();
+        br.AssertUInt32(0);
 
-        d.Position = (flagOffset);
-        var boneIndex = d.ReadInt16();
-        var keyFrameCount = d.ReadByte();
-        var flag = d.ReadByte();
+        br.Position = (flagOffset);
+        var boneIndex = br.ReadInt16();
+        var keyFrameCount = br.ReadByte();
+        var flag = br.ReadByte();
 
         var nodeIndex = boneIndex + (flag == 0 ? boneCount : 0);
 
         var node = this.Anim.TransformNodes[nodeIndex];
 
-        d.Position = (keyDataOffset);
+        br.Position = (keyDataOffset);
         for (int k = 0; k < keyFrameCount; k++) {
-          var temp = d.Position;
-          d.Position = ((uint)(keyFrameOffset + k * 2));
-          var frame = d.ReadInt16();
-          d.Position = (temp);
+          var temp = br.Position;
+          br.Position = ((uint)(keyFrameOffset + k * 2));
+          var frame = br.ReadInt16();
+          br.Position = (temp);
 
-          if (d.Eof) {
+          if (br.Eof) {
             break;
           }
 
@@ -149,13 +149,13 @@ namespace level5.schema {
           for (int j = 0; j < track.DataCount; j++)
             switch (track.DataType) {
               case 1:
-                animdata[j] = d.ReadInt16() / (float)short.MaxValue;
+                animdata[j] = br.ReadInt16() / (float)short.MaxValue;
                 break;
               case 2:
-                animdata[j] = d.ReadSingle();
+                animdata[j] = br.ReadSingle();
                 break;
               case 4:
-                animdata[j] = d.ReadInt16();
+                animdata[j] = br.ReadInt16();
                 break;
               default:
                 throw new NotImplementedException(

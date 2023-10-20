@@ -25,7 +25,7 @@ namespace fin.image.io.tile {
     public int TileWidth { get; }
     public int TileHeight { get; }
 
-    public unsafe void Decode(IEndianBinaryReader er,
+    public unsafe void Decode(IBinaryReader br,
                               TPixel* scan0,
                               int tileX,
                               int tileY,
@@ -39,7 +39,7 @@ namespace fin.image.io.tile {
            i += this.pixelReader_.PixelsPerRead) {
         this.pixelIndexer_.GetPixelCoordinates(i, out var x, out var y);
         var dstOffs = (yy + y) * imageWidth + xx + x;
-        this.pixelReader_.Decode(er, scan0, dstOffs);
+        this.pixelReader_.Decode(br, scan0, dstOffs);
       }
     }
   }

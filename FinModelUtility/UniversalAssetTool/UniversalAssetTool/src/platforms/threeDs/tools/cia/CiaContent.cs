@@ -7,14 +7,14 @@ namespace uni.platforms.threeDs.tools.cia {
 
     public IReadOnlyList<ContentInfo> ContentInfos { get; private set; }
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       switch (this.Parent.Header.FormatVersion) {
         case CiaFormatVersion.DEFAULT: {
-          this.ReadDefault_(er);
+          this.ReadDefault_(br);
           break;
         }
         case CiaFormatVersion.SIMPLE: {
-          this.ReadSimple_(er);
+          this.ReadSimple_(br);
           break;
         }
         default:
@@ -22,12 +22,12 @@ namespace uni.platforms.threeDs.tools.cia {
       }
     }
 
-    private void ReadDefault_(IEndianBinaryReader er) { }
+    private void ReadDefault_(IBinaryReader br) { }
 
-    private void ReadSimple_(IEndianBinaryReader er) {
+    private void ReadSimple_(IBinaryReader br) {
       this.ContentInfos = new[] {
           new ContentInfo {
-              Offset = er.Position,
+              Offset = br.Position,
               Size = this.Parent.Header.ContentSize,
               Id = 0,
               Index = 0,

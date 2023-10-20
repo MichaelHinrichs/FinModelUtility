@@ -31,15 +31,15 @@ namespace fin.schema.data {
       set => this.impl_.Data = value;
     }
 
-    public void Read(IEndianBinaryReader er) {
-      var actualMagic = this.config_.ReadMagic(er);
+    public void Read(IBinaryReader br) {
+      var actualMagic = this.config_.ReadMagic(br);
       Asserts.Equal(this.Magic, actualMagic);
-      this.impl_.Read(er);
+      this.impl_.Read(br);
     }
 
-    public void Write(ISubEndianBinaryWriter ew) {
-      this.config_.WriteMagic(ew, this.Magic);
-      this.impl_.Write(ew);
+    public void Write(IBinaryWriter bw) {
+      this.config_.WriteMagic(bw, this.Magic);
+      this.impl_.Write(bw);
     }
   }
 }

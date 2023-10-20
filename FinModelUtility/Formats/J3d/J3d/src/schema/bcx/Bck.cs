@@ -27,11 +27,11 @@ namespace j3d.schema.bcx {
     public ANK1Section ANK1;
 
     public Bck(byte[] file) {
-      using var er =
-          new EndianBinaryReader((Stream)new MemoryStream(file),
+      using var br =
+          new SchemaBinaryReader((Stream)new MemoryStream(file),
                                  Endianness.BigEndian);
-      this.Header = er.ReadNew<BckHeader>();
-      this.ANK1 = new ANK1Section(er, out _);
+      this.Header = br.ReadNew<BckHeader>();
+      this.ANK1 = new ANK1Section(br, out _);
     }
 
     public IAnx1 Anx1 => this.ANK1;
@@ -75,34 +75,34 @@ namespace j3d.schema.bcx {
       public short[] Rotation;
       public float[] Translation;
 
-      public ANK1Section(IEndianBinaryReader er, out bool OK) {
+      public ANK1Section(IBinaryReader br, out bool OK) {
         bool OK1;
-        this.Header = new DataBlockHeader(er, "ANK1", out OK1);
+        this.Header = new DataBlockHeader(br, "ANK1", out OK1);
         if (!OK1) {
           OK = false;
         } else {
-          this.LoopMode = (LoopMode) er.ReadByte();
-          this.AngleMultiplier = er.ReadByte();
-          this.AnimLength = er.ReadUInt16();
-          this.NrJoints = er.ReadUInt16();
-          this.NrScale = er.ReadUInt16();
-          this.NrRot = er.ReadUInt16();
-          this.NrTrans = er.ReadUInt16();
-          this.JointOffset = er.ReadUInt32();
-          this.ScaleOffset = er.ReadUInt32();
-          this.RotOffset = er.ReadUInt32();
-          this.TransOffset = er.ReadUInt32();
-          er.Position = (long)(32U + this.ScaleOffset);
-          this.Scale = er.ReadSingles((int)this.NrScale);
-          er.Position = (long)(32U + this.RotOffset);
-          this.Rotation = er.ReadInt16s((int)this.NrRot);
-          er.Position = (long)(32U + this.TransOffset);
-          this.Translation = er.ReadSingles((int)this.NrTrans);
+          this.LoopMode = (LoopMode) br.ReadByte();
+          this.AngleMultiplier = br.ReadByte();
+          this.AnimLength = br.ReadUInt16();
+          this.NrJoints = br.ReadUInt16();
+          this.NrScale = br.ReadUInt16();
+          this.NrRot = br.ReadUInt16();
+          this.NrTrans = br.ReadUInt16();
+          this.JointOffset = br.ReadUInt32();
+          this.ScaleOffset = br.ReadUInt32();
+          this.RotOffset = br.ReadUInt32();
+          this.TransOffset = br.ReadUInt32();
+          br.Position = (long)(32U + this.ScaleOffset);
+          this.Scale = br.ReadSingles((int)this.NrScale);
+          br.Position = (long)(32U + this.RotOffset);
+          this.Rotation = br.ReadInt16s((int)this.NrRot);
+          br.Position = (long)(32U + this.TransOffset);
+          this.Translation = br.ReadSingles((int)this.NrTrans);
           var rotScale = MathF.Pow(2, this.AngleMultiplier - 15) * MathF.PI;
-          er.Position = (long)(32U + this.JointOffset);
+          br.Position = (long)(32U + this.JointOffset);
           this.Joints = new AnimatedJoint[(int)this.NrJoints];
           for (int index = 0; index < (int)this.NrJoints; ++index) {
-            var animatedJoint = new AnimatedJoint(er);
+            var animatedJoint = new AnimatedJoint(br);
             animatedJoint.SetValues(this.Scale,
                                     this.Rotation,
                                     this.Translation,
@@ -120,10 +120,10 @@ namespace j3d.schema.bcx {
       public partial class AnimatedJoint : IAnimatedJoint {
         public AnimComponent[] axes;
 
-        public AnimatedJoint(IEndianBinaryReader er) {
+        public AnimatedJoint(IBinaryReader br) {
           this.axes = new AnimComponent[3];
           for (var i = 0; i < axes.Length; ++i) {
-            this.axes[i] = er.ReadNew<AnimComponent>();
+            this.axes[i] = br.ReadNew<AnimComponent>();
           }
         }
 

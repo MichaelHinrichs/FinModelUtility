@@ -23,8 +23,8 @@ namespace glo {
           this.GetFileBundleFromDirectory(
               goldenDirectory.AssertGetExistingSubdir("input"));
 
-      var er = new EndianBinaryReader(goldenBundle.GloFile.OpenRead());
-      await BinarySchemaAssert.ReadsAndWritesIdentically<Glo>(er);
+      var br = new SchemaBinaryReader(goldenBundle.GloFile.OpenRead());
+      await BinarySchemaAssert.ReadsAndWritesIdentically<Glo>(br);
     }
 
     [Test]

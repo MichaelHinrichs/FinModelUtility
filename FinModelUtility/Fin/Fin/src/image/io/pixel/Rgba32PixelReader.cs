@@ -13,10 +13,10 @@ namespace fin.image.io.pixel {
     public IImage<Rgba32> CreateImage(int width, int height)
       => new Rgba32Image(PixelFormat.RGBA8888, width, height);
 
-    public unsafe void Decode(IEndianBinaryReader er,
+    public unsafe void Decode(IBinaryReader br,
                               Rgba32* scan0,
                               int offset) {
-      FinColor.SplitRgba(er.ReadInt32(), out var r, out var g, out var b, out var a);
+      FinColor.SplitRgba(br.ReadInt32(), out var r, out var g, out var b, out var a);
       scan0[offset] = new Rgba32(r, g, b, a);
     }
   }

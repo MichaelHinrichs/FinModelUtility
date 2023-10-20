@@ -22,21 +22,21 @@ namespace sm64.memory {
 
     public Endianness Endianness => Endianness.BigEndian;
 
-    public IEnumerable<EndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
+    public IEnumerable<SchemaBinaryReader> OpenPossibilitiesAtSegmentedAddress(
         uint address)
       => this.OpenAtSegmentedAddress(address).Yield();
 
     public bool TryToOpenPossibilitiesAtSegmentedAddress(uint segmentedAddress,
-      out IEnumerable<EndianBinaryReader> possibilities) {
+      out IEnumerable<SchemaBinaryReader> possibilities) {
       possibilities = OpenPossibilitiesAtSegmentedAddress(segmentedAddress);
       return true;
     }
 
-    public EndianBinaryReader OpenSegment(Segment segment, uint? offset = null) {
+    public SchemaBinaryReader OpenSegment(Segment segment, uint? offset = null) {
       throw new NotImplementedException();
     }
 
-    public IEnumerable<EndianBinaryReader> OpenPossibilitiesForSegment(
+    public IEnumerable<SchemaBinaryReader> OpenPossibilitiesForSegment(
         uint segmentIndex) {
       throw new NotImplementedException();
     }
@@ -49,18 +49,18 @@ namespace sm64.memory {
       throw new NotImplementedException();
     }
 
-    public EndianBinaryReader OpenAtSegmentedAddress(uint segmentedAddress) {
+    public SchemaBinaryReader OpenAtSegmentedAddress(uint segmentedAddress) {
       IoUtils.SplitSegmentedAddress(segmentedAddress,
                                     out var segment,
                                     out var offset);
-      var er = new EndianBinaryReader(
+      var br = new SchemaBinaryReader(
           Asserts.CastNonnull(ROM.Instance.getSegment(segment, this.AreaId)),
           SchemaConstants.SM64_ENDIANNESS);
-      er.Position = offset;
-      return er;
+      br.Position = offset;
+      return br;
     }
 
-    public EndianBinaryReader OpenSegment(uint segmentIndex) {
+    public SchemaBinaryReader OpenSegment(uint segmentIndex) {
       throw new NotImplementedException();
     }
 

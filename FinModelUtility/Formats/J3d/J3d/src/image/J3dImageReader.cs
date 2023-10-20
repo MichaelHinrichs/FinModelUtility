@@ -68,7 +68,7 @@ namespace j3d.image {
       };
     }
 
-    public IImage ReadImage(IEndianBinaryReader er) => this.impl_.ReadImage(er);
+    public IImage ReadImage(IBinaryReader br) => this.impl_.ReadImage(br);
 
     public IImage ReadImage(byte[] data, Endianness endianness)
       => this.impl_.ReadImage(data, endianness);

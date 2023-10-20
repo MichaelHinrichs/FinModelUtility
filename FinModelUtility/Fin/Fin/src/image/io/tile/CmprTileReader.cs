@@ -27,7 +27,7 @@ namespace fin.image.io.tile {
     public int TileWidth => CmprTileReader.TILE_SIZE_IN_AXIS;
     public int TileHeight => CmprTileReader.TILE_SIZE_IN_AXIS;
 
-    public unsafe void Decode(IEndianBinaryReader er,
+    public unsafe void Decode(IBinaryReader br,
                               Rgba32* scan0,
                               int tileX,
                               int tileY,
@@ -39,7 +39,7 @@ namespace fin.image.io.tile {
       for (var j = 0; j < SUB_TILE_COUNT_IN_AXIS; ++j) {
         for (var i = 0; i < SUB_TILE_COUNT_IN_AXIS; ++i) {
           DecodeCmprSubblock_(
-              er,
+              br,
               scan0,
               paletteBuffer,
               indicesBuffer,
@@ -52,16 +52,16 @@ namespace fin.image.io.tile {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static unsafe void DecodeCmprSubblock_(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         Rgba32* scan0,
         Span<Rgba32> paletteBuffer,
         Span<byte> indicesBuffer,
         int imageX,
         int imageY,
         int imageWidth) {
-      DecodeCmprPalette_(paletteBuffer, er.ReadUInt16(), er.ReadUInt16());
+      DecodeCmprPalette_(paletteBuffer, br.ReadUInt16(), br.ReadUInt16());
 
-      er.ReadBytes(indicesBuffer);
+      br.ReadBytes(indicesBuffer);
       for (var j = 0; j < 4; ++j) {
         var indices = indicesBuffer[j];
         for (var i = 0; i < 4; ++i) {

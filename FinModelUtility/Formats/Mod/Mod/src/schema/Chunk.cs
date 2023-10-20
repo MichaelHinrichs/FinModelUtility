@@ -85,24 +85,24 @@ namespace mod.schema {
     public List<ChunkData> Chunks { get; } = new();
     public List<byte> EofBytes { get; } = new();
 
-    public void Read(IEndianBinaryReader reader) {
+    public void Read(IBinaryReader br) {
       var opcodes = new HashSet<uint>();
 
       while (!opcodes.Contains(0xFFFF)) {
         var chunkData = new ChunkData();
-        chunkData.Read(reader);
+        chunkData.Read(br);
 
         this.Chunks.Add(chunkData);
 
         opcodes.Add((uint) chunkData.Id);
       }
 
-      while (!reader.Eof) {
-        this.EofBytes.Add(reader.ReadByte());
+      while (!br.Eof) {
+        this.EofBytes.Add(br.ReadByte());
       }
     }
 
-    public void Write(ISubEndianBinaryWriter writer) {
+    public void Write(IBinaryWriter bw) {
       throw new NotImplementedException();
     }
   }

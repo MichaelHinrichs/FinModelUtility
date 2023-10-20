@@ -13,15 +13,15 @@ namespace fin.io {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ReadNew<T>(string path)
         where T : IBinaryDeserializable, new() {
-      using var er = new EndianBinaryReader(OpenRead(path));
-      return er.ReadNew<T>();
+      using var br = new SchemaBinaryReader(OpenRead(path));
+      return br.ReadNew<T>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ReadNew<T>(string path, Endianness endianness)
         where T : IBinaryDeserializable, new() {
-      using var er = new EndianBinaryReader(OpenRead(path), endianness);
-      return er.ReadNew<T>();
+      using var br = new SchemaBinaryReader(OpenRead(path), endianness);
+      return br.ReadNew<T>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

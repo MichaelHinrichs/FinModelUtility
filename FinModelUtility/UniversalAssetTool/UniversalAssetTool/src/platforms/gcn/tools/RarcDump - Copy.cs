@@ -67,29 +67,29 @@ namespace uni.platforms.gcn.tools {
 
     [Unknown]
     private bool ReadFile_(IFileHierarchyFile rarcFile) {
-      using var er =
-          new EndianBinaryReader(rarcFile.OpenRead(),
+      using var br =
+          new SchemaBinaryReader(rarcFile.OpenRead(),
                                  Endianness.BigEndian);
 
       var header = new RarcHeader();
-      header.type = er.ReadString(4);
+      header.type = br.ReadString(4);
 
       if (header.type != "RARC") {
         return false;
       }
 
-      header.size = er.ReadUInt32();
-      header.unknown = er.ReadUInt32();
-      header.dataStartOffset = er.ReadUInt32();
-      er.ReadUInt32s(header.unknown2);
+      header.size = br.ReadUInt32();
+      header.unknown = br.ReadUInt32();
+      header.dataStartOffset = br.ReadUInt32();
+      br.ReadUInt32s(header.unknown2);
 
-      header.numNodes = er.ReadUInt32();
-      header.firstNodeOffset = er.ReadUInt32();
-      header.numDirectories = er.ReadUInt32();
-      header.fileEntriesOffset = er.ReadUInt32();
-      header.stringTableLength = er.ReadUInt32();
-      header.stringTableOffset = er.ReadUInt32();
-      er.ReadUInt32s(header.unknown5);
+      header.numNodes = br.ReadUInt32();
+      header.firstNodeOffset = br.ReadUInt32();
+      header.numDirectories = br.ReadUInt32();
+      header.fileEntriesOffset = br.ReadUInt32();
+      header.stringTableLength = br.ReadUInt32();
+      header.stringTableOffset = br.ReadUInt32();
+      br.ReadUInt32s(header.unknown5);
 
 
       var cwd = Directory.GetCurrentDirectory();
@@ -98,14 +98,14 @@ namespace uni.platforms.gcn.tools {
       {
         var nodes = new RarcNode[header.numNodes];
         for (var i = 0; i < header.numNodes; ++i) {
-          nodes[i] = this.GetNode_(er, header, i);
+          nodes[i] = this.GetNode_(br, header, i);
         }
 
         ;
 
         foreach (var node in nodes) {
           Directory.SetCurrentDirectory(directoryPath);
-          this.DumpNode_(er, node, header);
+          this.DumpNode_(br, node, header);
         }
       }
 
@@ -114,20 +114,20 @@ namespace uni.platforms.gcn.tools {
       return true;
     }
 
-    private RarcNode GetNode_(IEndianBinaryReader er, RarcHeader h, int i) {
+    private RarcNode GetNode_(IBinaryReader br, RarcHeader h, int i) {
       var node = new RarcNode();
 
-      node.type = er.ReadString(StringEncodingType.UTF8, 4);
+      node.type = br.ReadString(StringEncodingType.UTF8, 4);
 
-      var fileNameOffset = er.ReadUInt32();
-      var expectedFileNameHash = er.ReadUInt16();
-      node.numFileEntries = er.ReadUInt16();
-      node.firstFileEntryOffset = er.ReadUInt32();
+      var fileNameOffset = br.ReadUInt32();
+      var expectedFileNameHash = br.ReadUInt16();
+      node.numFileEntries = br.ReadUInt16();
+      node.firstFileEntryOffset = br.ReadUInt32();
 
-      var position = er.Position;
+      var position = br.Position;
       {
-        er.Position = 0x20 + h.stringTableOffset + fileNameOffset;
-        node.fileName = er.ReadStringNT(StringEncodingType.UTF8);
+        br.Position = 0x20 + h.stringTableOffset + fileNameOffset;
+        node.fileName = br.ReadStringNT(StringEncodingType.UTF8);
 
         var actualFileNameHash = 0;
         foreach (var c in node.fileName) {
@@ -139,12 +139,12 @@ namespace uni.platforms.gcn.tools {
                       "Node did not have the correct hash!");
       }
       { }
-      er.Position = position;
+      br.Position = position;
 
       return node;
     }
 
-    private void DumpNode_(IEndianBinaryReader er, RarcNode node, RarcHeader h) {
+    private void DumpNode_(IBinaryReader br, RarcNode node, RarcHeader h) {
       /*
 string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
         _mkdir(nodeName.c_str());
@@ -182,25 +182,25 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
 
     [Unknown]
     private FileEntry GetFileEntry_(
-        IEndianBinaryReader er,
+        SchemaBinaryReader br,
         RarcHeader header,
         RarcNode node,
         int i) {
-      er.Position = 0x20 +
+      br.Position = 0x20 +
                     header.fileEntriesOffset +
                     node.firstFileEntryOffset +
                     i * 20;
 
       var fileEntry = new FileEntry();
-      fileEntry.id = er.ReadUInt16();
-      fileEntry.unknown = er.ReadUInt16();
-      fileEntry.unknown2 = er.ReadUInt16();
-      fileEntry.filenameOffset = er.ReadUInt16();
+      fileEntry.id = br.ReadUInt16();
+      fileEntry.unknown = br.ReadUInt16();
+      fileEntry.unknown2 = br.ReadUInt16();
+      fileEntry.filenameOffset = br.ReadUInt16();
 
-      fileEntry.dataOffset = er.ReadUInt32();
+      fileEntry.dataOffset = br.ReadUInt32();
 
-      fileEntry.dataSize = er.ReadUInt32();
-      fileEntry.zero = er.ReadUInt32();
+      fileEntry.dataSize = br.ReadUInt32();
+      fileEntry.zero = br.ReadUInt32();
 
       return fileEntry;
     }

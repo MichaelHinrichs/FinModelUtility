@@ -30,33 +30,33 @@ namespace Dxt {
 
     public static (string, IDxt<IImage>) ReadDds(IReadOnlySystemFile ddsFile) {
       using var ddsStream = ddsFile.OpenRead();
-      var er = new EndianBinaryReader(ddsStream, Endianness.LittleEndian);
-      er.AssertString("DDS ");
-      er.AssertInt32(124); // size
-      var flags = er.ReadInt32();
+      var br = new SchemaBinaryReader(ddsStream, Endianness.LittleEndian);
+      br.AssertString("DDS ");
+      br.AssertInt32(124); // size
+      var flags = br.ReadInt32();
 
-      var width = er.ReadInt32();
-      var height = er.ReadInt32();
+      var width = br.ReadInt32();
+      var height = br.ReadInt32();
 
-      var pitchOrLinearSize = er.ReadInt32();
-      var depth = er.ReadInt32();
+      var pitchOrLinearSize = br.ReadInt32();
+      var depth = br.ReadInt32();
       // TODO: Read others
-      var mipmapCount = er.ReadInt32();
-      var reserved1 = er.ReadInt32s(11);
+      var mipmapCount = br.ReadInt32();
+      var reserved1 = br.ReadInt32s(11);
 
       // DDS_PIXELFORMAT
-      er.AssertInt32(32); // size
-      var pfFlags = er.ReadInt32();
-      var pfFourCc = er.ReadString(4);
-      var pfRgbBitCount = er.ReadInt32();
-      var pfRBitMask = er.ReadInt32();
-      var pfGBitMask = er.ReadInt32();
-      var pfBBitMask = er.ReadInt32();
-      var pfABitMask = er.ReadInt32();
+      br.AssertInt32(32); // size
+      var pfFlags = br.ReadInt32();
+      var pfFourCc = br.ReadString(4);
+      var pfRgbBitCount = br.ReadInt32();
+      var pfRBitMask = br.ReadInt32();
+      var pfGBitMask = br.ReadInt32();
+      var pfBBitMask = br.ReadInt32();
+      var pfABitMask = br.ReadInt32();
 
-      var caps1 = er.ReadInt32();
+      var caps1 = br.ReadInt32();
 
-      var caps2 = er.ReadInt32();
+      var caps2 = br.ReadInt32();
       var isCubeMap = (caps2 & 0x200) != 0;
       var hasPositiveX = (caps2 & 0x400) != 0;
       var hasNegativeX = (caps2 & 0x800) != 0;
@@ -102,7 +102,7 @@ namespace Dxt {
         queue.Enqueue(CubeMapSide.NEGATIVE_Z);
       }
 
-      er.Position = 128;
+      br.Position = 128;
 
       switch (pfFourCc) {
         case "q\0\0\0": {
@@ -117,7 +117,7 @@ namespace Dxt {
               var mmWidth = width >> i;
               var mmHeight = height >> i;
 
-              var hdr = DecompressA16B16G16R16F(er, mmWidth, mmHeight);
+              var hdr = DecompressA16B16G16R16F(br, mmWidth, mmHeight);
               hdrMipMap.AddLevel(
                   new MipMapLevel<IList<float>>(hdr, mmWidth, mmHeight));
             }
@@ -173,7 +173,7 @@ namespace Dxt {
     }
 
     public static unsafe IList<float> DecompressA16B16G16R16F(
-        IEndianBinaryReader er,
+        SchemaBinaryReader br,
         int width,
         int height) {
       // Reads in the original HDR image. This IS NOT normalized to [0, 1].
@@ -182,10 +182,10 @@ namespace Dxt {
       var offset = 0;
       for (var y = 0; y < height; ++y) {
         for (var x = 0; x < width; ++x) {
-          var r = er.ReadHalf();
-          var g = er.ReadHalf();
-          var b = er.ReadHalf();
-          var a = er.ReadHalf();
+          var r = br.ReadHalf();
+          var g = br.ReadHalf();
+          var b = br.ReadHalf();
+          var a = br.ReadHalf();
 
           // TODO: This may be right, it sounds like this is what folks suggest online?
           r /= a;
@@ -463,7 +463,7 @@ namespace Dxt {
         int srcOffset,
         int width,
         int height) {
-      var ew = new EndianBinaryWriter(dst, Endianness.LittleEndian);
+      var ew = new SchemaBinaryWriter(dst, Endianness.LittleEndian);
 
       var imageSize = width * height / 2;
 

@@ -37,18 +37,18 @@ namespace fin.schema.data {
              .Select(data => (this.config_.GetMagic(data), data))
              .GetEnumerator();
 
-    public void Read(IEndianBinaryReader er) {
-      while (!er.Eof) {
+    public void Read(IBinaryReader br) {
+      while (!br.Eof) {
         var section =
             new SwitchMagicUInt32SizedSection<TMagic, TData>(this.config_);
-        section.Read(er);
+        section.Read(br);
         this.impl_.Add(section);
       }
     }
 
-    public void Write(ISubEndianBinaryWriter ew) {
+    public void Write(IBinaryWriter bw) {
       foreach (var section in this.impl_) {
-        section.Write(ew);
+        section.Write(bw);
       }
     }
   }

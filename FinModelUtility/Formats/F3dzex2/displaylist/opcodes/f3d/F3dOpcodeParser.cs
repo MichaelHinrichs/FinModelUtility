@@ -13,11 +13,11 @@ namespace f3dzex2.displaylist.opcodes.f3d {
   public class F3dOpcodeParser : IOpcodeParser {
     public IOpcodeCommand Parse(IReadOnlyN64Memory n64Memory,
                                 IDisplayListReader dlr,
-                                IEndianBinaryReader er) {
-      var baseOffset = er.Position;
-      var opcode = (F3dOpcode) er.ReadByte();
-      var opcodeCommand = ParseOpcodeCommand_(n64Memory, dlr, er, opcode);
-      er.Position = baseOffset + GetCommandLength_(opcode);
+                                SchemaBinaryReader br) {
+      var baseOffset = br.Position;
+      var opcode = (F3dOpcode) br.ReadByte();
+      var opcodeCommand = ParseOpcodeCommand_(n64Memory, dlr, br, opcode);
+      br.Position = baseOffset + GetCommandLength_(opcode);
       return opcodeCommand;
     }
 
@@ -25,24 +25,24 @@ namespace f3dzex2.displaylist.opcodes.f3d {
 
     private IOpcodeCommand ParseOpcodeCommand_(IReadOnlyN64Memory n64Memory,
                                                IDisplayListReader dlr,
-                                               IEndianBinaryReader er,
+                                               SchemaBinaryReader br,
                                                F3dOpcode opcode) {
       switch (opcode) {
         case F3dOpcode.G_MTX: {
-          var mtxParams = er.ReadByte();
-          er.AssertUInt16(0);
-          var address = er.ReadUInt32();
+          var mtxParams = br.ReadByte();
+          br.AssertUInt16(0);
+          var address = br.ReadUInt32();
           return new MtxOpcodeCommand {
               Params = mtxParams, RamAddress = address,
           };
         }
         case F3dOpcode.G_POPMTX: {
-          er.AssertUInt24(0);
-          er.AssertUInt32(0);
+          br.AssertUInt24(0);
+          br.AssertUInt32(0);
           return new PopMtxOpcodeCommand { NumberOfMatrices = 1 };
         }
         case F3dOpcode.G_VTX: {
-          var numVerticesMinusOneAndWriteOffset = er.ReadByte();
+          var numVerticesMinusOneAndWriteOffset = br.ReadByte();
           var numVertices = BitLogic.ExtractFromRight(
               numVerticesMinusOneAndWriteOffset,
               4,
@@ -51,20 +51,20 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               numVerticesMinusOneAndWriteOffset,
               0,
               4);
-          er.AssertUInt16((ushort) (numVertices * 0x10));
+          br.AssertUInt16((ushort) (numVertices * 0x10));
 
-          var segmentedAddress = er.ReadUInt32();
-          using var ser = n64Memory.OpenAtSegmentedAddress(segmentedAddress);
+          var segmentedAddress = br.ReadUInt32();
+          using var sbr = n64Memory.OpenAtSegmentedAddress(segmentedAddress);
 
           return new VtxOpcodeCommand {
-              Vertices = ser.ReadNewArray<F3dVertex>((int) numVertices),
+              Vertices = sbr.ReadNewArray<F3dVertex>((int) numVertices),
               IndexToBeginStoringVertices = (byte) writeOffset,
           };
         }
         case F3dOpcode.G_DL: {
-          var storeReturnAddress = er.ReadByte() == 0;
-          er.AssertUInt16(0);
-          var address = er.ReadUInt32();
+          var storeReturnAddress = br.ReadByte() == 0;
+          br.AssertUInt16(0);
+          var address = br.ReadUInt32();
           return new DlOpcodeCommand {
               PossibleBranches =
                   dlr.ReadPossibleDisplayLists(n64Memory, this, address),
@@ -72,64 +72,64 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           };
         }
         case F3dOpcode.G_ENDDL: {
-          er.AssertUInt24(0);
-          er.AssertUInt32(0);
+          br.AssertUInt24(0);
+          br.AssertUInt32(0);
           return new EndDlOpcodeCommand();
         }
         case F3dOpcode.G_TRI1: {
-          er.AssertUInt32(0);
+          br.AssertUInt32(0);
           return new Tri1OpcodeCommand {
               VertexOrder = TriVertexOrder.ABC,
-              VertexIndexA = (byte) (er.ReadByte() / 0xA),
-              VertexIndexB = (byte) (er.ReadByte() / 0xA),
-              VertexIndexC = (byte) (er.ReadByte() / 0xA),
+              VertexIndexA = (byte) (br.ReadByte() / 0xA),
+              VertexIndexB = (byte) (br.ReadByte() / 0xA),
+              VertexIndexC = (byte) (br.ReadByte() / 0xA),
           };
         }
         case F3dOpcode.G_SETENVCOLOR: {
-          er.AssertUInt24(0);
+          br.AssertUInt24(0);
           return new SetEnvColorOpcodeCommand {
-              R = er.ReadByte(),
-              G = er.ReadByte(),
-              B = er.ReadByte(),
-              A = er.ReadByte(),
+              R = br.ReadByte(),
+              G = br.ReadByte(),
+              B = br.ReadByte(),
+              A = br.ReadByte(),
           };
         }
         case F3dOpcode.G_SETFOGCOLOR: {
-          er.AssertUInt24(0);
+          br.AssertUInt24(0);
           return new SetFogColorOpcodeCommand {
-              R = er.ReadByte(),
-              G = er.ReadByte(),
-              B = er.ReadByte(),
-              A = er.ReadByte(),
+              R = br.ReadByte(),
+              G = br.ReadByte(),
+              B = br.ReadByte(),
+              A = br.ReadByte(),
           };
         }
         case F3dOpcode.G_SETTIMG: {
-          N64ImageParser.SplitN64ImageFormat(er.ReadByte(),
+          N64ImageParser.SplitN64ImageFormat(br.ReadByte(),
                                              out var colorFormat,
                                              out var bitSize);
-          er.AssertUInt16(0);
+          br.AssertUInt16(0);
           return new SetTimgOpcodeCommand {
               ColorFormat = colorFormat,
               BitsPerTexel = bitSize,
-              TextureSegmentedAddress = er.ReadUInt32(),
+              TextureSegmentedAddress = br.ReadUInt32(),
           };
         }
         case F3dOpcode.G_SETGEOMETRYMODE: {
-          er.AssertUInt24(0);
+          br.AssertUInt24(0);
           return new SetGeometryModeOpcodeCommand {
-              FlagsToEnable = (GeometryMode) er.ReadUInt32()
+              FlagsToEnable = (GeometryMode) br.ReadUInt32()
           };
         }
         case F3dOpcode.G_CLEARGEOMETRYMODE: {
-          er.AssertUInt24(0);
+          br.AssertUInt24(0);
           return new ClearGeometryModeOpcodeCommand {
-              FlagsToDisable = (GeometryMode) er.ReadUInt32()
+              FlagsToDisable = (GeometryMode) br.ReadUInt32()
           };
         }
         case F3dOpcode.G_TEXTURE: {
-          er.AssertByte(0);
+          br.AssertByte(0);
 
-          var mipmapLevelsAndTileDescriptor = er.ReadByte();
+          var mipmapLevelsAndTileDescriptor = br.ReadByte();
           var tileDescriptor =
               (TileDescriptorIndex) BitLogic.ExtractFromRight(
                   mipmapLevelsAndTileDescriptor,
@@ -139,9 +139,9 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               (byte) BitLogic.ExtractFromRight(mipmapLevelsAndTileDescriptor,
                                                3,
                                                3);
-          var newTileDescriptorState = (TileDescriptorState) er.ReadByte();
-          var horizontalScale = er.ReadUInt16();
-          var verticalScale = er.ReadUInt16();
+          var newTileDescriptorState = (TileDescriptorState) br.ReadByte();
+          var horizontalScale = br.ReadUInt16();
+          var verticalScale = br.ReadUInt16();
 
           return new TextureOpcodeCommand {
               TileDescriptorIndex = tileDescriptor,
@@ -152,9 +152,9 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           };
         }
         case F3dOpcode.G_SETTILE: {
-          er.Position -= 1;
-          var first = er.ReadUInt32();
-          var second = er.ReadUInt32();
+          br.Position -= 1;
+          var first = br.ReadUInt32();
+          var second = br.ReadUInt32();
 
           var colorFormat =
               (N64ColorFormat) BitLogic.ExtractFromRight(first, 21, 3);
@@ -182,11 +182,11 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           };
         }
         case F3dOpcode.G_SETTILESIZE: {
-          er.Position += 3;
+          br.Position += 3;
 
-          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
+          var tileDescriptor = (TileDescriptorIndex) br.ReadByte();
 
-          var widthAndHeight = er.ReadUInt24();
+          var widthAndHeight = br.ReadUInt24();
           var width =
               (ushort) (widthAndHeight >>
                         12); // (ushort) (((widthAndHeight >> 12) >> 2) + 1);
@@ -204,8 +204,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           //           aaaa cccc ceee gggi iiik kkkk 
           // bbbb jjjj mmmo oodd dfff hhhl llnn nppp
 
-          var first = er.ReadUInt24();
-          var second = er.ReadUInt32();
+          var first = br.ReadUInt24();
+          var second = br.ReadUInt32();
 
           var a = BitLogic.ExtractFromRight(first, 20, 4);
           var c = BitLogic.ExtractFromRight(first, 15, 5);
@@ -249,10 +249,10 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           };
         }
         case F3dOpcode.G_LOADBLOCK: {
-          er.Position += 3;
+          br.Position += 3;
 
-          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
-          var texelsAndDxt = er.ReadUInt24();
+          var tileDescriptor = (TileDescriptorIndex) br.ReadByte();
+          var texelsAndDxt = br.ReadUInt24();
           var texels = texelsAndDxt >> 12;
 
           return new LoadBlockOpcodeCommand {
@@ -260,9 +260,9 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           };
         }
         case F3dOpcode.G_MOVEMEM: {
-          var commandType = (DmemAddress) er.ReadByte();
-          var sizeInBytes = er.ReadUInt16();
-          var segmentedAddress = er.ReadUInt32();
+          var commandType = (DmemAddress) br.ReadByte();
+          var sizeInBytes = br.ReadUInt16();
+          var segmentedAddress = br.ReadUInt32();
 
           return new MoveMemOpcodeCommand {
               DmemAddress = commandType, SegmentedAddress = segmentedAddress,
@@ -279,8 +279,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_RDPFULLSYNC:
         case F3dOpcode.G_SPNOOP:
         case F3dOpcode.G_NOOP: {
-          er.AssertUInt24(0);
-          er.AssertUInt32(0);
+          br.AssertUInt24(0);
+          br.AssertUInt32(0);
           return new NoopOpcodeCommand();
         }
         default:

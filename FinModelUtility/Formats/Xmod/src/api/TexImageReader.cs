@@ -12,10 +12,10 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace xmod.api {
   public class TexImageReader {
     public IImage ReadImage(IReadOnlyGenericFile texFile) {
-      using var er = new EndianBinaryReader(texFile.OpenRead());
-      var width = er.ReadUInt16();
-      var height = er.ReadUInt16();
-      var dxtType = er.ReadUInt16();
+      using var br = new SchemaBinaryReader(texFile.OpenRead());
+      var width = br.ReadUInt16();
+      var height = br.ReadUInt16();
+      var dxtType = br.ReadUInt16();
 
       ColorRgba32[] loadedDxt;
 
@@ -27,8 +27,8 @@ namespace xmod.api {
           pixelFormat = PixelFormat.DXT1;
           var expectedLength = width * height / 16 * (2 + 2 + 4);
 
-          er.Position = 0xe;
-          var bytes = er.ReadBytes(expectedLength);
+          br.Position = 0xe;
+          var bytes = br.ReadBytes(expectedLength);
 
           loadedDxt =
               new BcDecoder().DecodeRaw(bytes,
@@ -42,8 +42,8 @@ namespace xmod.api {
           pixelFormat = PixelFormat.DXT3;
           var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
 
-          er.Position = 0xe;
-          var bytes = er.ReadBytes(expectedLength);
+          br.Position = 0xe;
+          var bytes = br.ReadBytes(expectedLength);
 
           loadedDxt =
               new BcDecoder().DecodeRaw(bytes,
@@ -57,8 +57,8 @@ namespace xmod.api {
           pixelFormat = PixelFormat.DXT5;
           var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
 
-          er.Position = 0xe;
-          var bytes = er.ReadBytes(expectedLength);
+          br.Position = 0xe;
+          var bytes = br.ReadBytes(expectedLength);
 
           loadedDxt =
               new BcDecoder().DecodeRaw(bytes,

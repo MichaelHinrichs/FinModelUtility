@@ -31,36 +31,36 @@ namespace j3d.GCN {
       public uint PacketLocationsOffset;
       public Batch[] Batches;
 
-      public SHP1Section(IEndianBinaryReader er, out bool OK) {
-        long position1 = er.Position;
+      public SHP1Section(IBinaryReader br, out bool OK) {
+        long position1 = br.Position;
         bool OK1;
-        this.Header = new DataBlockHeader(er, "SHP1", out OK1);
+        this.Header = new DataBlockHeader(br, "SHP1", out OK1);
         if (!OK1) {
           OK = false;
         } else {
-          this.NrBatch = er.ReadUInt16();
-          this.Padding = er.ReadUInt16();
-          this.BatchesOffset = er.ReadUInt32();
-          this.ShapeRemapTableOffset = er.ReadUInt32();
-          this.Zero = er.ReadUInt32();
-          this.BatchAttribsOffset = er.ReadUInt32();
-          this.MatrixTableOffset = er.ReadUInt32();
-          this.DataOffset = er.ReadUInt32();
-          this.MatrixDataOffset = er.ReadUInt32();
-          this.PacketLocationsOffset = er.ReadUInt32();
-          long position2 = er.Position;
+          this.NrBatch = br.ReadUInt16();
+          this.Padding = br.ReadUInt16();
+          this.BatchesOffset = br.ReadUInt32();
+          this.ShapeRemapTableOffset = br.ReadUInt32();
+          this.Zero = br.ReadUInt32();
+          this.BatchAttribsOffset = br.ReadUInt32();
+          this.MatrixTableOffset = br.ReadUInt32();
+          this.DataOffset = br.ReadUInt32();
+          this.MatrixDataOffset = br.ReadUInt32();
+          this.PacketLocationsOffset = br.ReadUInt32();
+          long position2 = br.Position;
           {
-            er.Position = position1 + (long) this.BatchesOffset;
+            br.Position = position1 + (long) this.BatchesOffset;
             this.Batches = new Batch[(int) this.NrBatch];
             for (int index = 0; index < (int) this.NrBatch; ++index) {
-              this.Batches[index] = new Batch(er, position1, this);
+              this.Batches[index] = new Batch(br, position1, this);
             }
           }
           {
-            er.Position = position1 + (long) this.ShapeRemapTableOffset;
-            this.ShapeRemapTable = er.ReadInt16s(this.NrBatch);
+            br.Position = position1 + (long) this.ShapeRemapTableOffset;
+            this.ShapeRemapTable = br.ReadInt16s(this.NrBatch);
           }
-          er.Position = position1 + (long) this.Header.size;
+          br.Position = position1 + (long) this.Header.size;
           OK = true;
         }
       }
@@ -99,28 +99,28 @@ namespace j3d.GCN {
         public Packet[] Packets;
 
         public Batch(
-            IEndianBinaryReader er,
+            IBinaryReader br,
             long baseoffset,
             SHP1Section Parent) {
-          this.MatrixType = (MatrixType) er.ReadByte();
-          this.Unknown1 = er.ReadByte();
-          this.NrPacket = er.ReadUInt16();
-          this.AttribsOffset = er.ReadUInt16();
-          this.FirstMatrixData = er.ReadUInt16();
-          this.FirstPacketLocation = er.ReadUInt16();
-          this.Unknown2 = er.ReadUInt16();
-          this.BoundingSphereReadius = er.ReadSingle();
-          this.BoundingBoxMin = er.ReadSingles(3);
-          this.BoundingBoxMax = er.ReadSingles(3);
-          long position = er.Position;
-          er.Position = baseoffset +
+          this.MatrixType = (MatrixType) br.ReadByte();
+          this.Unknown1 = br.ReadByte();
+          this.NrPacket = br.ReadUInt16();
+          this.AttribsOffset = br.ReadUInt16();
+          this.FirstMatrixData = br.ReadUInt16();
+          this.FirstPacketLocation = br.ReadUInt16();
+          this.Unknown2 = br.ReadUInt16();
+          this.BoundingSphereReadius = br.ReadSingle();
+          this.BoundingBoxMin = br.ReadSingles(3);
+          this.BoundingBoxMax = br.ReadSingles(3);
+          long position = br.Position;
+          br.Position = baseoffset +
                         (long) Parent.BatchAttribsOffset +
                         (long) this.AttribsOffset;
           List<BatchAttribute> source = new List<BatchAttribute>();
           {
             BatchAttribute entry;
             do {
-              entry = er.ReadNew<BatchAttribute>();
+              entry = br.ReadNew<BatchAttribute>();
               source.Add(entry);
             } while ((uint) entry.Attribute != byte.MaxValue);
           }
@@ -166,29 +166,29 @@ namespace j3d.GCN {
           this.Packets = new Packet[(int) this.NrPacket];
           this.PacketLocations = new PacketLocation[(int) this.NrPacket];
           for (int index = 0; index < (int) this.NrPacket; ++index) {
-            er.Position = baseoffset + (long) Parent.PacketLocationsOffset +
+            br.Position = baseoffset + (long) Parent.PacketLocationsOffset +
                           (long) (((int) this.FirstPacketLocation + index) * 8);
             var packetLocation = new PacketLocation();
-            packetLocation.Read(er);
+            packetLocation.Read(br);
             this.PacketLocations[index] = packetLocation;
 
-            er.Position = baseoffset + (long) Parent.DataOffset +
+            br.Position = baseoffset + (long) Parent.DataOffset +
                           (long) this.PacketLocations[index].Offset;
-            this.Packets[index] = new Packet(er,
+            this.Packets[index] = new Packet(br,
                                              (int) this.PacketLocations[index]
                                                  .Size,
                                              this.BatchAttributes);
-            er.Position = baseoffset + (long) Parent.MatrixDataOffset +
+            br.Position = baseoffset + (long) Parent.MatrixDataOffset +
                           (long) (((int) this.FirstMatrixData + index) * 8);
-            this.Packets[index].MatrixData = er.ReadNew<MatrixData>();
-            er.Position = baseoffset + (long) Parent.MatrixTableOffset +
+            this.Packets[index].MatrixData = br.ReadNew<MatrixData>();
+            br.Position = baseoffset + (long) Parent.MatrixTableOffset +
                           (long) (2U * this.Packets[index].MatrixData
                                            .FirstIndex);
             this.Packets[index].MatrixTable =
-                er.ReadUInt16s((int) this.Packets[index].MatrixData.Count);
+                br.ReadUInt16s((int) this.Packets[index].MatrixData.Count);
           }
 
-          er.Position = position;
+          br.Position = position;
         }
 
         public class Packet {
@@ -197,7 +197,7 @@ namespace j3d.GCN {
           public MatrixData MatrixData;
 
           public Packet(
-              IEndianBinaryReader er,
+              IBinaryReader br,
               int Length,
               BatchAttribute[] Attributes) {
             List<Primitive> primitiveList = new List<Primitive>();
@@ -205,13 +205,13 @@ namespace j3d.GCN {
             int num1 = 0;
             while (!flag) {
               Primitive primitive = new Primitive();
-              primitive.Type = (Primitive.GXPrimitive) er.ReadByte();
+              primitive.Type = (Primitive.GXPrimitive) br.ReadByte();
               ++num1;
               if (primitive.Type == (Primitive.GXPrimitive) 0 ||
                   num1 >= Length) {
                 flag = true;
               } else {
-                ushort num2 = er.ReadUInt16();
+                ushort num2 = br.ReadUInt16();
                 num1 += 2;
                 primitive.Points = new Primitive.Index[(int) num2];
                 for (int index1 = 0; index1 < (int) num2; ++index1) {
@@ -220,11 +220,11 @@ namespace j3d.GCN {
                     ushort num3 = 0;
                     switch (Attributes[index2].DataType) {
                       case 1:
-                        num3 = (ushort) er.ReadByte();
+                        num3 = (ushort) br.ReadByte();
                         ++num1;
                         break;
                       case 3:
-                        num3 = er.ReadUInt16();
+                        num3 = br.ReadUInt16();
                         num1 += 2;
                         break;
                     }

@@ -12,10 +12,10 @@ namespace fin.image.io.pixel {
     public IImage<L8> CreateImage(int width, int height)
       => new L8Image(PixelFormat.L4, width, height);
 
-    public unsafe void Decode(IEndianBinaryReader er,
+    public unsafe void Decode(IBinaryReader br,
                               L8* scan0,
                               int offset) {
-      var value = er.ReadByte();
+      var value = br.ReadByte();
 
       var upper = (byte) ((value >> 4) * 17);
       var lower = (byte) ((value & 0xF) * 17);

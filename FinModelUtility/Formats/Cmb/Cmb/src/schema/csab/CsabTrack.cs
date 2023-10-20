@@ -13,8 +13,8 @@ namespace cmb.schema.csab {
 
   public class CsabTrack : IBinaryDeserializable {
     private readonly Csab parent_;
-    private Func<IEndianBinaryReader, int> readRawLinearFloat_;
-    private Func<IEndianBinaryReader, int> readRawLinearShort_;
+    private Func<IBinaryReader, int> readRawLinearFloat_;
+    private Func<IBinaryReader, int> readRawLinearShort_;
 
     public CsabTrack(Csab parent,
                      TrackType valueType) {
@@ -24,16 +24,16 @@ namespace cmb.schema.csab {
       // TODO: Is this right????
       this.readRawLinearFloat_ = this.ValueType switch {
           // Weird that this is different, but this really does seem to be right.
-          TrackType.POSITION => er => er.ReadUInt16() / 2,
-          TrackType.SCALE    => er => er.ReadInt16(),
-          TrackType.ROTATION => er => er.ReadInt16(),
+          TrackType.POSITION => br => br.ReadUInt16() / 2,
+          TrackType.SCALE    => br => br.ReadInt16(),
+          TrackType.ROTATION => br => br.ReadInt16(),
       };
       // TODO: Is this right????
       this.readRawLinearShort_ = this.ValueType switch {
           // Weird that this is different, but this really does seem to be right.
-          TrackType.POSITION => er => er.ReadUInt16(),
-          TrackType.SCALE    => er => er.ReadInt16(),
-          TrackType.ROTATION => er => er.ReadInt16(),
+          TrackType.POSITION => br => br.ReadUInt16(),
+          TrackType.SCALE    => br => br.ReadInt16(),
+          TrackType.ROTATION => br => br.ReadInt16(),
       };
     }
 
@@ -50,18 +50,18 @@ namespace cmb.schema.csab {
 
     public bool IsPastVersion4 => this.parent_.IsPastVersion4;
 
-    public void Read(IEndianBinaryReader r) {
+    public void Read(IBinaryReader br) {
       var startFrame = 0;
       if (IsPastVersion4) {
-        var isConstant = r.ReadByte() != 0;
-        this.Type = (AnimationTrackType) r.ReadByte();
-        this.Keyframes = new CsabKeyframe[r.ReadUInt16()];
+        var isConstant = br.ReadByte() != 0;
+        this.Type = (AnimationTrackType) br.ReadByte();
+        this.Keyframes = new CsabKeyframe[br.ReadUInt16()];
 
         if (isConstant) {
           for (var i = 0; i < this.Keyframes.Count; ++i) {
-            var scale = r.ReadSingle();
-            var bias = r.ReadSingle();
-            var value = r.ReadUInt32();
+            var scale = br.ReadSingle();
+            var bias = br.ReadSingle();
+            var value = br.ReadUInt32();
 
             this.Keyframes[i] = new CsabKeyframe {
                 Time = (uint) i, Value = ApplyScaleAndBias_(value, scale, bias),
@@ -71,53 +71,53 @@ namespace cmb.schema.csab {
           return;
         }
       } else {
-        this.Type = (AnimationTrackType) r.ReadUInt32();
-        this.Keyframes = new CsabKeyframe[r.ReadUInt32()];
-        startFrame = r.ReadInt32();
-        this.Duration = r.ReadUInt32();
+        this.Type = (AnimationTrackType) br.ReadUInt32();
+        this.Keyframes = new CsabKeyframe[br.ReadUInt32()];
+        startFrame = br.ReadInt32();
+        this.Duration = br.ReadUInt32();
       }
 
       float trackScale = -1;
       float trackBias = -1;
       if (IsPastVersion4 && this.Type == AnimationTrackType.LINEAR) {
-        trackScale = r.ReadSingle();
-        trackBias = r.ReadSingle();
+        trackScale = br.ReadSingle();
+        trackBias = br.ReadSingle();
       }
 
       for (var i = 0; i < this.Keyframes.Count; ++i) {
         this.Keyframes[i] = this.Type switch {
             AnimationTrackType.LINEAR when !this.AreRotationsShort
                 => this.ReadKeyframeLinearFloat_(
-                    r,
+                    br,
                     trackScale,
                     trackBias,
                     startFrame,
                     i),
             AnimationTrackType.LINEAR when this.AreRotationsShort
                 => this.ReadKeyframeLinearShort_(
-                    r,
+                    br,
                     trackScale,
                     trackBias,
                     startFrame,
                     i),
             AnimationTrackType.HERMITE when !this.AreRotationsShort
-                => this.ReadKeyframeHermiteFloat_(r, startFrame),
+                => this.ReadKeyframeHermiteFloat_(br, startFrame),
             AnimationTrackType.HERMITE when this.AreRotationsShort
-                => this.ReadKeyframeHermiteShort_(r, startFrame),
+                => this.ReadKeyframeHermiteShort_(br, startFrame),
         };
       }
 
-      r.Align(4);
+      br.Align(4);
     }
 
     private CsabKeyframe ReadKeyframeLinearFloat_(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         float trackScale,
         float trackBias,
         int startFrame,
         int index) {
       if (IsPastVersion4) {
-        var raw = readRawLinearFloat_(er);
+        var raw = readRawLinearFloat_(br);
         var value = ApplyScaleAndBias_(raw, trackScale, trackBias);
         return new CsabKeyframe {
             Time = (uint) (startFrame + index), Value = value,
@@ -125,18 +125,18 @@ namespace cmb.schema.csab {
       }
 
       return new CsabKeyframe {
-          Time = (uint) (startFrame + er.ReadUInt32()), Value = er.ReadSingle(),
+          Time = (uint) (startFrame + br.ReadUInt32()), Value = br.ReadSingle(),
       };
     }
 
     private CsabKeyframe ReadKeyframeLinearShort_(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         float trackScale,
         float trackBias,
         int startFrame,
         int index) {
       if (IsPastVersion4) {
-        var raw = this.readRawLinearShort_(er);
+        var raw = this.readRawLinearShort_(br);
         var value = ApplyScaleAndBias_(raw, trackScale, trackBias);
         return new CsabKeyframe {
             Time = (uint) (startFrame + index), Value = value,
@@ -144,8 +144,8 @@ namespace cmb.schema.csab {
       }
 
       return new CsabKeyframe {
-          Time = (uint) (startFrame + er.ReadUInt16()),
-          Value = er.ReadSn16() * MathF.PI,
+          Time = (uint) (startFrame + br.ReadUInt16()),
+          Value = br.ReadSn16() * MathF.PI,
       };
     }
 
@@ -153,22 +153,22 @@ namespace cmb.schema.csab {
     private float ApplyScaleAndBias_(float value, float scale, float bias)
       => value * scale - bias;
 
-    private CsabKeyframe ReadKeyframeHermiteFloat_(IEndianBinaryReader er,
+    private CsabKeyframe ReadKeyframeHermiteFloat_(IBinaryReader br,
                                                    int startFrame)
       => new CsabKeyframe {
-          Time = (uint) (startFrame + er.ReadUInt32()),
-          Value = er.ReadSingle(),
-          IncomingTangent = er.ReadSingle(),
-          OutgoingTangent = er.ReadSingle(),
+          Time = (uint) (startFrame + br.ReadUInt32()),
+          Value = br.ReadSingle(),
+          IncomingTangent = br.ReadSingle(),
+          OutgoingTangent = br.ReadSingle(),
       };
 
-    private CsabKeyframe ReadKeyframeHermiteShort_(IEndianBinaryReader er,
+    private CsabKeyframe ReadKeyframeHermiteShort_(IBinaryReader br,
                                                    int startFrame)
       => new CsabKeyframe {
-          Time = (uint) (startFrame + er.ReadUInt16()),
-          Value = er.ReadSn16() * MathF.PI,
-          IncomingTangent = er.ReadSn16(),
-          OutgoingTangent = er.ReadSn16(),
+          Time = (uint) (startFrame + br.ReadUInt16()),
+          Value = br.ReadSn16() * MathF.PI,
+          IncomingTangent = br.ReadSn16(),
+          OutgoingTangent = br.ReadSn16(),
       };
   }
 }

@@ -11,7 +11,7 @@ namespace ast.schema {
   ///     - https://github.com/vgmstream/vgmstream/blob/37cc12295c92ec6aa874118fb237bd3821970836/src/meta/ast.c
   /// </summary>
   public partial class Ast {
-    private void ReadAdpcm_(IEndianBinaryReader er) {
+    private void ReadAdpcm_(IBinaryReader br) {
       var channelCount = 2;
       Asserts.Equal(channelCount, this.StrmHeader.ChannelCount);
       var sampleCount = this.StrmHeader.SampleCount;
@@ -27,7 +27,7 @@ namespace ast.schema {
       Asserts.Equal(2, channelCount);
 
       // TODO: This doesn't look right???
-      er.Position = 0x40;
+      br.Position = 0x40;
 
       var histL1 = 0;
       var histL2 = 0;
@@ -36,17 +36,17 @@ namespace ast.schema {
 
       var blocks =
           new LinkedList<(byte[] left, byte[] right)>();
-      while (!er.Eof) {
-        if (er.Eof) {
+      while (!br.Eof) {
+        if (br.Eof) {
           break;
         }
 
-        var blckHeader = er.ReadNew<BlckHeader>();
+        var blckHeader = br.ReadNew<BlckHeader>();
 
         // TODO: Does this need to be split up as left/right channels??
         var blockSize = blckHeader.BlockSizeInBytes;
-        var leftChannelAdpcm = er.ReadBytes(blockSize);
-        var rightChannelAdpcm = er.ReadBytes(blockSize);
+        var leftChannelAdpcm = br.ReadBytes(blockSize);
+        var rightChannelAdpcm = br.ReadBytes(blockSize);
 
         blocks.AddLast((leftChannelAdpcm, rightChannelAdpcm));
       }

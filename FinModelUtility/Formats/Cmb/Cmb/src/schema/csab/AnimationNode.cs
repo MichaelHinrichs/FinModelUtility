@@ -32,39 +32,39 @@ namespace cmb.schema.csab {
 
     public bool IsPastVersion4 => this.parent_.IsPastVersion4;
 
-    public void Read(IEndianBinaryReader r) {
-      var basePosition = r.Position;
+    public void Read(IBinaryReader br) {
+      var basePosition = br.Position;
 
-      r.AssertString("anod");
+      br.AssertString("anod");
 
-      this.BoneIndex = r.ReadUInt16();
+      this.BoneIndex = br.ReadUInt16();
 
-      var isRotationShort = r.ReadUInt16() != 0;
+      var isRotationShort = br.ReadUInt16() != 0;
 
       foreach (var translationAxis in TranslationAxes) {
-        var offset = r.ReadUInt16();
+        var offset = br.ReadUInt16();
         if (offset != 0) {
-          r.SubreadAt(basePosition + offset, translationAxis.Read);
+          br.SubreadAt(basePosition + offset, translationAxis.Read);
         }
       }
 
       foreach (var rotationAxis in RotationAxes) {
         rotationAxis.AreRotationsShort = isRotationShort;
 
-        var offset = r.ReadUInt16();
+        var offset = br.ReadUInt16();
         if (offset != 0) {
-          r.SubreadAt(basePosition + offset, rotationAxis.Read);
+          br.SubreadAt(basePosition + offset, rotationAxis.Read);
         }
       }
 
       foreach (var scaleAxis in ScaleAxes) {
-        var offset = r.ReadUInt16();
+        var offset = br.ReadUInt16();
         if (offset != 0) {
-          r.SubreadAt(basePosition + offset, scaleAxis.Read);
+          br.SubreadAt(basePosition + offset, scaleAxis.Read);
         }
       }
 
-      r.AssertUInt16(0x00);
+      br.AssertUInt16(0x00);
     }
   }
 }

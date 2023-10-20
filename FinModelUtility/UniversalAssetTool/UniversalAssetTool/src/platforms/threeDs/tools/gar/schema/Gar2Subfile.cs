@@ -9,26 +9,26 @@ namespace uni.platforms.threeDs.tools.gar.schema {
     public int Length { get; }
 
     public Gar2Subfile(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         GarHeader header,
         Gar2FileType fileType,
         int fileInFileTypeIndex) {
-      er.Position = fileType.FileListOffset + 4 * fileInFileTypeIndex;
-      var fileIndex = er.ReadInt32();
+      br.Position = fileType.FileListOffset + 4 * fileInFileTypeIndex;
+      var fileIndex = br.ReadInt32();
 
-      er.Position = header.FileMetadataOffset + 12 * fileIndex;
-      var fileSize = er.ReadInt32();
-      var fileNameOffset = er.ReadInt32();
-      var fullPathOffset = er.ReadInt32();
+      br.Position = header.FileMetadataOffset + 12 * fileIndex;
+      var fileSize = br.ReadInt32();
+      var fileNameOffset = br.ReadInt32();
+      var fullPathOffset = br.ReadInt32();
 
-      er.Position = fileNameOffset;
-      this.FileName = er.ReadStringNT();
+      br.Position = fileNameOffset;
+      this.FileName = br.ReadStringNT();
 
-      er.Position = fullPathOffset;
-      this.FullPath = er.ReadStringNT();
+      br.Position = fullPathOffset;
+      this.FullPath = br.ReadStringNT();
 
-      er.Position = header.DataOffset + 4 * fileIndex;
-      var fileOffset = er.ReadInt32();
+      br.Position = header.DataOffset + 4 * fileIndex;
+      var fileOffset = br.ReadInt32();
 
       this.Position = fileOffset;
       this.Length = Math.Max(fileSize, 0);

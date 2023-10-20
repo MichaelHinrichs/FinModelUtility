@@ -10,12 +10,12 @@ namespace modl.schema.modl.common {
       this.impl_ = new int[tenCount * 10];
     }
 
-    public void Read(IEndianBinaryReader er) {
+    public void Read(IBinaryReader br) {
       // This may look simple, but it was an ABSOLUTE nightmare to reverse engineer, lol.
       var currentPosMatIdx = 0;
       var currentOffset = 0;
       for (var i = 0; i < this.tenCount_; ++i) {
-        var posMatIdxOffsetFlags = er.ReadUInt32();
+        var posMatIdxOffsetFlags = br.ReadUInt32();
 
         // Loops over each bit in the offset.
         for (var b = 0; b < 32; ++b) {

@@ -8,8 +8,6 @@ using schema.binary;
 using schema.text;
 using schema.text.reader;
 
-using TextReader = schema.text.reader.TextReader;
-
 namespace fin.io {
   public static class GenericFileExtensions {
     // JSON Serialization
@@ -31,23 +29,23 @@ namespace fin.io {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ReadNew<T>(this IReadOnlyGenericFile file)
         where T : IBinaryDeserializable, new() {
-      using var er = new EndianBinaryReader(file.OpenRead());
-      return er.ReadNew<T>();
+      using var br = new SchemaBinaryReader(file.OpenRead());
+      return br.ReadNew<T>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ReadNew<T>(this IReadOnlyGenericFile file,
                                Endianness endianness)
         where T : IBinaryDeserializable, new() {
-      using var er = new EndianBinaryReader(file.OpenRead(), endianness);
-      return er.ReadNew<T>();
+      using var br = new SchemaBinaryReader(file.OpenRead(), endianness);
+      return br.ReadNew<T>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ReadNewFromText<T>(this IReadOnlyGenericFile file)
         where T : ITextDeserializable, new() {
-      using var er = new TextReader(file.OpenRead());
-      return er.ReadNew<T>();
+      using var tr = new SchemaTextReader(file.OpenRead());
+      return tr.ReadNew<T>();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

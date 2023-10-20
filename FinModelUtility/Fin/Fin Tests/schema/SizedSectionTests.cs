@@ -23,11 +23,10 @@ namespace fin.schema {
       sizedSection.Data.Field2 = 23;
       sizedSection.Data.Field3 = 34;
 
-      var ew = new EndianBinaryWriter(Endianness.LittleEndian);
-      sizedSection.Write(ew);
-      var bytes = await BinarySchemaAssert.GetEndianBinaryWriterBytes(ew);
-      BinarySchemaAssert.AssertSequence(bytes,
-                                        new byte[] { 3, 0, 0, 0, 12, 23, 34 });
+      var bw = new SchemaBinaryWriter(Endianness.LittleEndian);
+      sizedSection.Write(bw);
+      var bytes = await BinarySchemaAssert.GetEndianBinaryWriterBytes(bw);
+      CollectionAssert.AreEqual(new byte[] { 3, 0, 0, 0, 12, 23, 34 }, bytes);
 
       await BinarySchemaAssert.WritesAndReadsIdentically(sizedSection);
     }
@@ -43,17 +42,16 @@ namespace fin.schema {
     [Test]
     public async Task TestSizedSectionWithTweakedLength() {
       var sizedSection = new TweakedASection();
-      
+
       var data = sizedSection.Section.Data;
       data.Field1 = 12;
       data.Field2 = 23;
       data.Field3 = 34;
 
-      var ew = new EndianBinaryWriter(Endianness.LittleEndian);
-      sizedSection.Write(ew);
-      var bytes = await BinarySchemaAssert.GetEndianBinaryWriterBytes(ew);
-      BinarySchemaAssert.AssertSequence(bytes,
-                                        new byte[] { 7, 0, 0, 0, 12, 23, 34 });
+      var bw = new SchemaBinaryWriter(Endianness.LittleEndian);
+      sizedSection.Write(bw);
+      var bytes = await BinarySchemaAssert.GetEndianBinaryWriterBytes(bw);
+      CollectionAssert.AreEqual(new byte[] { 7, 0, 0, 0, 12, 23, 34 }, bytes);
 
       await BinarySchemaAssert.WritesAndReadsIdentically(sizedSection);
     }

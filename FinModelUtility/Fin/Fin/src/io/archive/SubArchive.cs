@@ -20,11 +20,11 @@ namespace fin.io.archive {
       this.impl_ = impl;
     }
 
-    public IEndianBinaryReader AsEndianBinaryReader()
-      => new EndianBinaryReader(this.impl_);
+    public IBinaryReader AsBinaryReader()
+      => new SchemaBinaryReader(this.impl_);
 
-    public IEndianBinaryReader AsEndianBinaryReader(Endianness endianness)
-      => new EndianBinaryReader(this.impl_, endianness);
+    public IBinaryReader AsBinaryReader(Endianness endianness)
+      => new SchemaBinaryReader(this.impl_, endianness);
 
     public Stream GetContentFileStream(
         SubArchiveContentFile archiveContentFile)

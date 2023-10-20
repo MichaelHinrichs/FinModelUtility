@@ -11,16 +11,16 @@ namespace granny3d {
     public Quaternion Orientation { get; private set; }
     public Vector3f[] ScaleShear { get; } = new Vector3f[3];
 
-    public void Read(IEndianBinaryReader er) {
-      this.Flags = (GrannyTransformFlags)er.ReadInt32();
+    public void Read(IBinaryReader br) {
+      this.Flags = (GrannyTransformFlags)br.ReadInt32();
 
-      this.Position = er.ReadNew<Vector3f>();
+      this.Position = br.ReadNew<Vector3f>();
 
-      this.Orientation = new Quaternion(er.ReadSingle(), er.ReadSingle(),
-                                        er.ReadSingle(), er.ReadSingle());
+      this.Orientation = new Quaternion(br.ReadSingle(), br.ReadSingle(),
+                                        br.ReadSingle(), br.ReadSingle());
 
       for (var i = 0; i < 3; ++i) {
-        this.ScaleShear[i] = er.ReadNew<Vector3f>();
+        this.ScaleShear[i] = br.ReadNew<Vector3f>();
       }
     }
   }

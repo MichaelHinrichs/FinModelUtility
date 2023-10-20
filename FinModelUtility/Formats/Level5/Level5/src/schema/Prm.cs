@@ -20,13 +20,13 @@ namespace level5.schema {
     public List<GenericVertex> Vertices { get; set; }
 
     public Prm(byte[] data) {
-      using (var r = new EndianBinaryReader(new MemoryStream(data), Endianness.LittleEndian)) {
+      using (var r = new SchemaBinaryReader(new MemoryStream(data), Endianness.LittleEndian)) {
         Open(r);
       }
     }
 
     [Unknown]
-    public void Open(IEndianBinaryReader r) {
+    public void Open(IBinaryReader r) {
       r.AssertString("XMPR");
       var prmOffset = r.ReadUInt32();
       var unknownOffset = r.ReadUInt32();
@@ -88,43 +88,43 @@ namespace level5.schema {
 
       var endianness = Endianness.LittleEndian;
 
-      using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
-        r.Position = 0x04;
-        primitiveType = r.ReadInt16();
-        uint faceOffset = r.ReadUInt16();
-        faceCount = r.ReadInt32();
+      using (var br = new SchemaBinaryReader(new MemoryStream(buffer), endianness)) {
+        br.Position = 0x04;
+        primitiveType = br.ReadInt16();
+        uint faceOffset = br.ReadUInt16();
+        faceCount = br.ReadInt32();
 
         buffer = new Level5Decompressor().Decompress(
-            r.SubreadAt(faceOffset, ser => ser.ReadBytes((int)(r.Length - faceOffset))));
+            br.SubreadAt(faceOffset, ser => ser.ReadBytes((int)(br.Length - faceOffset))));
       }
 
       if (primitiveType != 2 && primitiveType != 0)
         throw new NotSupportedException("Primitve Type no implemented");
 
       if (primitiveType == 0)
-        using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
-          r.Position = 0;
+        using (var br = new SchemaBinaryReader(new MemoryStream(buffer), endianness)) {
+          br.Position = 0;
           for (int i = 0; i < faceCount / 2; i++)
-            indices.Add(r.ReadUInt16());
+            indices.Add(br.ReadUInt16());
         }
       if (primitiveType == 2)
-        using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
+        using (var br = new SchemaBinaryReader(new MemoryStream(buffer), endianness)) {
           //Console.WriteLine(PrimitiveType + " " + FaceCount + " " + r.BaseStream.Length / 2);
-          r.Position = 0;
-          int f1 = r.ReadInt16();
-          int f2 = r.ReadInt16();
+          br.Position = 0;
+          int f1 = br.ReadInt16();
+          int f2 = br.ReadInt16();
           int f3;
           int dir = -1;
           int startdir = -1;
           for (int i = 0; i < faceCount - 2; i++) {
-            if (r.Position + 2 > r.Length)
+            if (br.Position + 2 > br.Length)
               break;
             //if (r.Position + 2 > r.Length)
             //    break;
-            f3 = r.ReadInt16();
+            f3 = br.ReadInt16();
             if (f3 == 0xFFFF || f3 == -1) {
-              f1 = r.ReadInt16();
-              f2 = r.ReadInt16();
+              f1 = br.ReadInt16();
+              f2 = br.ReadInt16();
               dir = startdir;
             } else {
               dir *= -1;
@@ -160,32 +160,32 @@ namespace level5.schema {
 
       var endianness = Endianness.LittleEndian;
 
-      using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
-        r.Position = 0x4;
-        uint attOffset = r.ReadUInt16();
-        int attSomething = r.ReadInt16();
-        uint verOffset = r.ReadUInt16();
-        stride = r.ReadInt16();
-        vertexCount = r.ReadInt32();
+      using (var br = new SchemaBinaryReader(new MemoryStream(buffer), endianness)) {
+        br.Position = 0x4;
+        uint attOffset = br.ReadUInt16();
+        int attSomething = br.ReadInt16();
+        uint verOffset = br.ReadUInt16();
+        stride = br.ReadInt16();
+        vertexCount = br.ReadInt32();
 
         var level5Decompressor = new Level5Decompressor();
         attributeBuffer =
             level5Decompressor.Decompress(
-                r.SubreadAt(attOffset, ser => ser.ReadBytes(attSomething)));
+                br.SubreadAt(attOffset, ser => ser.ReadBytes(attSomething)));
         buffer = level5Decompressor.Decompress(
-            r.SubreadAt(verOffset, ser => ser.ReadBytes((int)(r.Length - verOffset))));
+            br.SubreadAt(verOffset, ser => ser.ReadBytes((int)(br.Length - verOffset))));
       }
 
       int[] aCount = new int[10];
       int[] aOffset = new int[10];
       int[] aSize = new int[10];
       int[] aType = new int[10];
-      using (var r = new EndianBinaryReader(new MemoryStream(attributeBuffer), endianness)) {
+      using (var br = new SchemaBinaryReader(new MemoryStream(attributeBuffer), endianness)) {
         for (int i = 0; i < 10; i++) {
-          aCount[i] = r.ReadByte();
-          aOffset[i] = r.ReadByte();
-          aSize[i] = r.ReadByte();
-          aType[i] = r.ReadByte();
+          aCount[i] = br.ReadByte();
+          aOffset[i] = br.ReadByte();
+          aSize[i] = br.ReadByte();
+          aType[i] = br.ReadByte();
 
           if (aCount[i] > 0 && i != 0 && i != 1 && i != 2 && i != 4 && i != 7 && i != 8 && i != 9) {
             Console.WriteLine(i + " " + aCount[i] + " " + aOffset[i] + " " + aSize[i] + " " + aType[i]);
@@ -193,34 +193,34 @@ namespace level5.schema {
         }
       }
 
-      using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
+      using (var br = new SchemaBinaryReader(new MemoryStream(buffer), endianness)) {
         for (int i = 0; i < vertexCount; i++) {
           GenericVertex vert = new GenericVertex();
           vert.Clr = new Vector4(1, 1, 1, 1);
           for (int j = 0; j < 10; j++) {
-            r.Position = (uint)(i * stride + aOffset[j]);
+            br.Position = (uint)(i * stride + aOffset[j]);
             switch (j) {
               case 0: //Position
-                vert.Pos = ReadAttribute(r, aType[j], aCount[j]).Xyz;
+                vert.Pos = ReadAttribute(br, aType[j], aCount[j]).Xyz;
                 break;
               case 1: //Tangent
                 break;
               case 2: //Normal
-                vert.Nrm = ReadAttribute(r, aType[j], aCount[j]).Xyz;
+                vert.Nrm = ReadAttribute(br, aType[j], aCount[j]).Xyz;
                 break;
               case 4: //Uv0
-                vert.Uv0 = ReadAttribute(r, aType[j], aCount[j]).Xy;
+                vert.Uv0 = ReadAttribute(br, aType[j], aCount[j]).Xy;
                 break;
               case 7: //Bone Weight
-                vert.Weights = ReadAttribute(r, aType[j], aCount[j]);
+                vert.Weights = ReadAttribute(br, aType[j], aCount[j]);
                 break;
               case 8: //Bone Index
-                Vector4 vn = ReadAttribute(r, aType[j], aCount[j]);
+                Vector4 vn = ReadAttribute(br, aType[j], aCount[j]);
                 if (this.nodeTable_.Length > 0 && this.nodeTable_.Length != 1)
                   vert.Bones = new uint[] { this.nodeTable_[(int)vn.X], this.nodeTable_[(int)vn.Y], this.nodeTable_[(int)vn.Z], this.nodeTable_[(int)vn.W] };
                 break;
               case 9: // Color
-                vert.Clr = ReadAttribute(r, aType[j], aCount[j]).Yzwx;
+                vert.Clr = ReadAttribute(br, aType[j], aCount[j]).Yzwx;
                 break;
             }
           }
@@ -232,7 +232,7 @@ namespace level5.schema {
       return vertices;
     }
 
-    public Vector4 ReadAttribute(IEndianBinaryReader f, int type, int count) {
+    public Vector4 ReadAttribute(IBinaryReader f, int type, int count) {
       Vector4 o = new Vector4();
       switch (type) {
         case 0://nothing

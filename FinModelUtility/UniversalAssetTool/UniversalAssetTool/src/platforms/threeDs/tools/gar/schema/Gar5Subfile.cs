@@ -9,24 +9,24 @@ namespace uni.platforms.threeDs.tools.gar.schema {
     public int Length { get; }
 
     public Gar5Subfile(
-        IEndianBinaryReader er,
+        IBinaryReader br,
         GarHeader header,
         Gar5FileType fileType,
         int fileInFileTypeIndex) {
-      er.Position = header.FileMetadataOffset +
+      br.Position = header.FileMetadataOffset +
                     (fileType.FirstFileIndex + fileInFileTypeIndex) * 4 * 4;
-      var fileSize = er.ReadInt32();
-      var fileOffset = er.ReadUInt32();
-      var fileNameOffset = er.ReadInt32();
-      var fullPathOffset = er.ReadInt32();
+      var fileSize = br.ReadInt32();
+      var fileOffset = br.ReadUInt32();
+      var fileNameOffset = br.ReadInt32();
+      var fullPathOffset = br.ReadInt32();
 
 
-      er.Position = fileNameOffset;
-      this.FileName = er.ReadStringNT();
+      br.Position = fileNameOffset;
+      this.FileName = br.ReadStringNT();
 
       if (fullPathOffset != -1) {
-        er.Position = fullPathOffset;
-        this.FullPath = er.ReadStringNT();
+        br.Position = fullPathOffset;
+        this.FullPath = br.ReadStringNT();
       }
 
       if (Path.GetExtension(this.FileName) == string.Empty) {

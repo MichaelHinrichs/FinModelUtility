@@ -126,12 +126,12 @@ namespace sm64.LevelInfo {
       MacroObjectPresets.Clear();
       ROM rom = ROM.Instance;
 
-      using var er = new EndianBinaryReader(rom.Bytes);
-      er.Position = Globals.MemoryConstants.MacroPresetTable;
+      using var br = new SchemaBinaryReader(rom.Bytes);
+      br.Position = Globals.MemoryConstants.MacroPresetTable;
 
       ushort pID = 0x1F;
       for (int i = 0; i < 366; i++) {
-        var presetMacroEntry = er.ReadNew<PresetMacroEntry>();
+        var presetMacroEntry = br.ReadNew<PresetMacroEntry>();
         presetMacroEntry.PresetId = pID++;
         this.MacroObjectPresets.Add(presetMacroEntry);
       }

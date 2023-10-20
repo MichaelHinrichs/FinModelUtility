@@ -14,11 +14,11 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
   public class F3dzex2OpcodeParser : IOpcodeParser {
     public IOpcodeCommand Parse(IReadOnlyN64Memory n64Memory,
                                 IDisplayListReader dlr,
-                                IEndianBinaryReader er) {
-      var baseOffset = er.Position;
-      var opcode = (F3dzex2Opcode) er.ReadByte();
-      var opcodeCommand = ParseOpcodeCommand_(n64Memory, dlr, er, opcode);
-      er.Position = baseOffset + GetCommandLength_(opcode);
+                                SchemaBinaryReader br) {
+      var baseOffset = br.Position;
+      var opcode = (F3dzex2Opcode) br.ReadByte();
+      var opcodeCommand = ParseOpcodeCommand_(n64Memory, dlr, br, opcode);
+      br.Position = baseOffset + GetCommandLength_(opcode);
       return opcodeCommand;
     }
 
@@ -27,15 +27,15 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
     [Unknown]
     private IOpcodeCommand ParseOpcodeCommand_(IReadOnlyN64Memory n64Memory,
                                                IDisplayListReader dlr,
-                                               IEndianBinaryReader er,
+                                               SchemaBinaryReader br,
                                                F3dzex2Opcode opcode) {
       switch (opcode) {
         case F3dzex2Opcode.G_NOOP:
           return new NoopOpcodeCommand();
         case F3dzex2Opcode.G_DL: {
-          var storeReturnAddress = er.ReadByte() == 0;
-          er.AssertUInt16(0);
-          var address = er.ReadUInt32();
+          var storeReturnAddress = br.ReadByte() == 0;
+          br.AssertUInt16(0);
+          var address = br.ReadUInt32();
           return new DlOpcodeCommand {
               PossibleBranches =
                   dlr.ReadPossibleDisplayLists(n64Memory, this, address),
@@ -45,31 +45,31 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
         case F3dzex2Opcode.G_ENDDL:
           return new EndDlOpcodeCommand();
         case F3dzex2Opcode.G_VTX: {
-          var numVerticesToLoad = (byte) (er.ReadUInt16() >> 4);
+          var numVerticesToLoad = (byte) (br.ReadUInt16() >> 4);
           var indexToBeginStoringVertices =
-              (byte) ((er.ReadByte() >> 1) - numVerticesToLoad);
-          using var ser = n64Memory.OpenAtSegmentedAddress(er.ReadUInt32());
+              (byte) ((br.ReadByte() >> 1) - numVerticesToLoad);
+          using var sbr = n64Memory.OpenAtSegmentedAddress(br.ReadUInt32());
           return new VtxOpcodeCommand {
               IndexToBeginStoringVertices = indexToBeginStoringVertices,
-              Vertices = ser.ReadNewArray<F3dVertex>(numVerticesToLoad),
+              Vertices = sbr.ReadNewArray<F3dVertex>(numVerticesToLoad),
           };
         }
         case F3dzex2Opcode.G_TRI1: {
           return new Tri1OpcodeCommand {
-              VertexIndexA = (byte) (er.ReadByte() >> 1),
-              VertexIndexB = (byte) (er.ReadByte() >> 1),
-              VertexIndexC = (byte) (er.ReadByte() >> 1),
+              VertexIndexA = (byte) (br.ReadByte() >> 1),
+              VertexIndexB = (byte) (br.ReadByte() >> 1),
+              VertexIndexC = (byte) (br.ReadByte() >> 1),
           };
         }
         case F3dzex2Opcode.G_TRI2: {
-          var a0 = (byte) (er.ReadByte() >> 1);
-          var b0 = (byte) (er.ReadByte() >> 1);
-          var c0 = (byte) (er.ReadByte() >> 1);
+          var a0 = (byte) (br.ReadByte() >> 1);
+          var b0 = (byte) (br.ReadByte() >> 1);
+          var c0 = (byte) (br.ReadByte() >> 1);
 
-          var unk0 = er.ReadByte();
-          var a1 = (byte) (er.ReadByte() >> 1);
-          var b1 = (byte) (er.ReadByte() >> 1);
-          var c1 = (byte) (er.ReadByte() >> 1);
+          var unk0 = br.ReadByte();
+          var a1 = (byte) (br.ReadByte() >> 1);
+          var b1 = (byte) (br.ReadByte() >> 1);
+          var c1 = (byte) (br.ReadByte() >> 1);
 
           return new Tri2OpcodeCommand {
               VertexIndexA0 = a0,
@@ -81,9 +81,9 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           };
         }
         case F3dzex2Opcode.G_TEXTURE: {
-          er.AssertByte(0);
+          br.AssertByte(0);
 
-          var mipmapLevelsAndTileDescriptor = er.ReadByte();
+          var mipmapLevelsAndTileDescriptor = br.ReadByte();
           var tileDescriptor =
               (TileDescriptorIndex) BitLogic.ExtractFromRight(
                   mipmapLevelsAndTileDescriptor,
@@ -94,9 +94,9 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
                                                3,
                                                3);
           var newTileDescriptorState =
-              (TileDescriptorState) (er.ReadByte() >> 1);
-          var horizontalScale = er.ReadUInt16();
-          var verticalScale = er.ReadUInt16();
+              (TileDescriptorState) (br.ReadByte() >> 1);
+          var horizontalScale = br.ReadUInt16();
+          var verticalScale = br.ReadUInt16();
 
           return new TextureOpcodeCommand {
               TileDescriptorIndex = tileDescriptor,
@@ -107,19 +107,19 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           };
         }
         case F3dzex2Opcode.G_POPMTX: {
-          er.AssertByte(0x38);
-          er.AssertByte(0);
-          er.AssertByte(2);
+          br.AssertByte(0x38);
+          br.AssertByte(0);
+          br.AssertByte(2);
 
-          var numMatrices = er.ReadUInt32() / 64;
+          var numMatrices = br.ReadUInt32() / 64;
           return new PopMtxOpcodeCommand { NumberOfMatrices = numMatrices };
         }
         case F3dzex2Opcode.G_SETCOMBINE: {
           //           aaaa cccc ceee gggi iiik kkkk 
           // bbbb jjjj mmmo oodd dfff hhhl llnn nppp
 
-          var first = er.ReadUInt24();
-          var second = er.ReadUInt32();
+          var first = br.ReadUInt24();
+          var second = br.ReadUInt32();
 
           var a = BitLogic.ExtractFromRight(first, 20, 4);
           var c = BitLogic.ExtractFromRight(first, 15, 5);
@@ -163,20 +163,20 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           };
         }
         case F3dzex2Opcode.G_SETTIMG: {
-          N64ImageParser.SplitN64ImageFormat(er.ReadByte(),
+          N64ImageParser.SplitN64ImageFormat(br.ReadByte(),
                                              out var colorFormat,
                                              out var bitSize);
-          var width = er.ReadUInt16();
+          var width = br.ReadUInt16();
           return new SetTimgOpcodeCommand {
               ColorFormat = colorFormat,
               BitsPerTexel = bitSize,
-              TextureSegmentedAddress = er.ReadUInt32(),
+              TextureSegmentedAddress = br.ReadUInt32(),
           };
         }
         case F3dzex2Opcode.G_SETTILE: {
-          er.Position -= 1;
-          var first = er.ReadUInt32();
-          var second = er.ReadUInt32();
+          br.Position -= 1;
+          var first = br.ReadUInt32();
+          var second = br.ReadUInt32();
 
           var colorFormat =
               (N64ColorFormat) BitLogic.ExtractFromRight(first, 21, 3);
@@ -204,20 +204,20 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           };
         }
         case F3dzex2Opcode.G_SETPRIMCOLOR: {
-          var lodInfo = er.ReadUInt24();
+          var lodInfo = br.ReadUInt24();
           return new SetPrimColorOpcodeCommand {
-              R = er.ReadByte(),
-              G = er.ReadByte(),
-              B = er.ReadByte(),
-              A = er.ReadByte(),
+              R = br.ReadByte(),
+              G = br.ReadByte(),
+              B = br.ReadByte(),
+              A = br.ReadByte(),
           };
         }
         case F3dzex2Opcode.G_SETTILESIZE: {
-          er.Position += 3;
+          br.Position += 3;
 
-          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
+          var tileDescriptor = (TileDescriptorIndex) br.ReadByte();
 
-          var widthAndHeight = er.ReadUInt24();
+          var widthAndHeight = br.ReadUInt24();
           var width =
               (ushort) (widthAndHeight >>
                         12); // (ushort) (((widthAndHeight >> 12) >> 2) + 1);
@@ -232,10 +232,10 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           };
         }
         case F3dzex2Opcode.G_LOADBLOCK: {
-          er.Position += 3;
+          br.Position += 3;
 
-          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
-          var texelsAndDxt = er.ReadUInt24();
+          var tileDescriptor = (TileDescriptorIndex) br.ReadByte();
+          var texelsAndDxt = br.ReadUInt24();
           var texels = texelsAndDxt >> 12;
 
           return new LoadBlockOpcodeCommand {
@@ -244,24 +244,24 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
         }
         case F3dzex2Opcode.G_GEOMETRYMODE: {
           return new GeometryModeOpcodeCommand {
-              FlagsToDisable = (GeometryMode) ((~er.ReadUInt24()) & 0xFFFFFF),
-              FlagsToEnable = (GeometryMode) (er.ReadUInt32() & 0xFFFFFF),
+              FlagsToDisable = (GeometryMode) ((~br.ReadUInt24()) & 0xFFFFFF),
+              FlagsToEnable = (GeometryMode) (br.ReadUInt32() & 0xFFFFFF),
           };
         }
         case F3dzex2Opcode.G_MTX: {
-          er.AssertUInt16(0x3800);
-          var mtxParams = (byte) (er.ReadByte() ^ 0x01);
-          var address = er.ReadUInt32();
+          br.AssertUInt16(0x3800);
+          var mtxParams = (byte) (br.ReadByte() ^ 0x01);
+          var address = br.ReadUInt32();
           return new MtxOpcodeCommand {
               Params = mtxParams, RamAddress = address,
           };
         }
         case F3dzex2Opcode.G_LOADTLUT: {
-          er.AssertUInt24(0);
+          br.AssertUInt24(0);
 
-          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
+          var tileDescriptor = (TileDescriptorIndex) br.ReadByte();
 
-          var rawNumColorsToLoad = er.ReadUInt16() >> 4;
+          var rawNumColorsToLoad = br.ReadUInt16() >> 4;
           var numColorsToLoad = (rawNumColorsToLoad >> 2) + 1;
 
           return new LoadTlutOpcodeCommand {

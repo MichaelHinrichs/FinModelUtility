@@ -10,8 +10,8 @@ namespace fin.io.archive {
 
   public interface IArchiveStream<in TArchiveContentFile>
       where TArchiveContentFile : IArchiveContentFile {
-    IEndianBinaryReader AsEndianBinaryReader();
-    IEndianBinaryReader AsEndianBinaryReader(Endianness endianness);
+    IBinaryReader AsBinaryReader();
+    IBinaryReader AsBinaryReader(Endianness endianness);
 
     Stream GetContentFileStream(TArchiveContentFile archiveContentFile);
 

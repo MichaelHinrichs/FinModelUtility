@@ -14,10 +14,10 @@ namespace fin.image.io.pixel {
     public IImage<Rgb24> CreateImage(int width, int height)
       => new Rgb24Image(PixelFormat.RGB565, width, height);
 
-    public unsafe void Decode(IEndianBinaryReader er,
+    public unsafe void Decode(IBinaryReader br,
                               Rgb24* scan0,
                               int offset) {
-      var value = er.ReadUInt16();
+      var value = br.ReadUInt16();
       ColorUtil.SplitRgb565(value, out var r, out var g, out var b);
       scan0[offset] = new Rgb24(r, g, b);
     }

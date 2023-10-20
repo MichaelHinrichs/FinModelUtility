@@ -50,9 +50,9 @@ namespace mod.schema {
     public bool hasNormals = false;
 
     public Mod() {}
-    public Mod(IEndianBinaryReader reader) => this.Read(reader);
+    public Mod(IBinaryReader reader) => this.Read(reader);
 
-    public void Read(IEndianBinaryReader reader) {
+    public void Read(IBinaryReader br) {
       this.hasNormals = false;
 
       for (var i = 0; i < 8; ++i) {
@@ -61,12 +61,12 @@ namespace mod.schema {
 
       bool stopRead = false;
       while (!stopRead) {
-        var position = reader.Position;
+        var position = br.Position;
 
-        var chunkId = (ChunkId) reader.ReadUInt32();
+        var chunkId = (ChunkId) br.ReadUInt32();
         var chunkName = Chunk.GetName(chunkId);
 
-        var length = reader.ReadUInt32();
+        var length = br.ReadUInt32();
 
         if ((position & 0x1F) != 0) {
           Asserts.Fail("Error in chunk " +
@@ -86,106 +86,106 @@ namespace mod.schema {
             (ocString.has_value() ? ocString.value() : "Unknown chunk") <<
             std::endl;*/
 
-        var beforePosition = reader.Position;
+        var beforePosition = br.Position;
 
         switch (chunkId) {
           case ChunkId.HEADER:
-            reader.Align(0x20);
-            this.header.Read(reader);
-            reader.Align(0x20);
+            br.Align(0x20);
+            this.header.Read(br);
+            br.Align(0x20);
             break;
           case ChunkId.VERTICES:
-            Mod.ReadGenericChunk_(reader, this.vertices);
+            Mod.ReadGenericChunk_(br, this.vertices);
             break;
           case ChunkId.VERTEX_NORMALS:
             this.hasNormals = true;
-            Mod.ReadGenericChunk_(reader, this.vnormals);
+            Mod.ReadGenericChunk_(br, this.vnormals);
             break;
           case ChunkId.VERTEX_NBTS:
-            Mod.ReadGenericChunk_(reader, this.vertexnbt);
+            Mod.ReadGenericChunk_(br, this.vertexnbt);
             break;
           case ChunkId.VERTEX_COLOURS:
-            Mod.ReadGenericChunk_(reader, this.vcolours);
+            Mod.ReadGenericChunk_(br, this.vcolours);
             break;
           case >= ChunkId.TEX_COORD_0 and <= ChunkId.TEX_COORD_7:
-            Mod.ReadGenericChunk_(reader, this.texcoords[(uint) chunkId - 0x18]);
+            Mod.ReadGenericChunk_(br, this.texcoords[(uint) chunkId - 0x18]);
             break;
           case ChunkId.TEXTURES:
-            Mod.ReadGenericChunk_(reader, this.textures);
+            Mod.ReadGenericChunk_(br, this.textures);
             for (var i = 0; i < this.textures.Count; ++i) {
               this.textures[i].index = i;
             }
             break;
           case ChunkId.TEXTURE_ATTRIBUTES:
-            Mod.ReadGenericChunk_(reader, this.texattrs);
+            Mod.ReadGenericChunk_(br, this.texattrs);
             break;
           case ChunkId.MATERIALS:
-            var numMaterials = reader.ReadUInt32();
-            var numTexEnvironments = reader.ReadUInt32();
+            var numMaterials = br.ReadUInt32();
+            var numTexEnvironments = br.ReadUInt32();
 
-            reader.Align(0x20);
+            br.Align(0x20);
             this.materials.texEnvironments.Clear();
             for (var i = 0; i < numTexEnvironments; ++i) {
               var texEnvironment = new TEVInfo();
-              texEnvironment.Read(reader);
+              texEnvironment.Read(br);
               this.materials.texEnvironments.Add(texEnvironment);
             }
 
             this.materials.materials.Clear();
             for (var i = 0; i < numMaterials; ++i) {
               var mat = new Material();
-              mat.Read(reader);
+              mat.Read(br);
               this.materials.materials.Add(mat);
             }
-            reader.Align(0x20);
+            br.Align(0x20);
             break;
           case ChunkId.VERTEX_MATRIX:
-            Mod.ReadGenericChunk_(reader, this.vtxMatrix);
+            Mod.ReadGenericChunk_(br, this.vtxMatrix);
             break;
           case ChunkId.MATRIX_ENVELOPE:
-            Mod.ReadGenericChunk_(reader, this.envelopes);
+            Mod.ReadGenericChunk_(br, this.envelopes);
             break;
           case ChunkId.MESH:
-            Mod.ReadGenericChunk_(reader, this.meshes);
+            Mod.ReadGenericChunk_(br, this.meshes);
             break;
           case ChunkId.JOINTS:
-            Mod.ReadGenericChunk_(reader, this.joints);
+            Mod.ReadGenericChunk_(br, this.joints);
             break;
           case ChunkId.JOINT_NAMES:
-            var numJointNames = reader.ReadUInt32();
+            var numJointNames = br.ReadUInt32();
             this.jointNames.Clear();
-            reader.Align(0x20);
+            br.Align(0x20);
             for (var i = 0; i < numJointNames; ++i) {
-              var jointNameLength = reader.ReadUInt32();
+              var jointNameLength = br.ReadUInt32();
 
               var jointNameBuilder = new StringBuilder((int) jointNameLength);
               for (var c = 0; c < jointNameLength; ++c) {
-                jointNameBuilder.Append(reader.ReadChar());
+                jointNameBuilder.Append(br.ReadChar());
               }
             }
-            reader.Align(0x20);
+            br.Align(0x20);
             break;
           case ChunkId.COLLISION_PRISM:
-            this.colltris.Read(reader);
+            this.colltris.Read(br);
             break;
           case ChunkId.COLLISION_GRID:
-            this.collgrid.Read(reader);
+            this.collgrid.Read(br);
             break;
           case ChunkId.END_OF_FILE:
-            reader.Position += length;
+            br.Position += length;
 
-            while (!reader.Eof) {
-              this.eofBytes.Add(reader.ReadByte());
+            while (!br.Eof) {
+              this.eofBytes.Add(br.ReadByte());
             }
 
             stopRead = true;
             break;
           default:
-            reader.Position += length;
+            br.Position += length;
             break;
         }
 
-        var afterPosition = reader.Position;
+        var afterPosition = br.Position;
 
         /*Asserts.Equal(beforePosition + length,
                       afterPosition,
@@ -196,26 +196,26 @@ namespace mod.schema {
     }
 
     private static void ReadGenericChunk_<T>(
-        IEndianBinaryReader reader,
+        IBinaryReader br,
         List<T> vector) where T : IBinaryDeserializable, new() {
-      var num = reader.ReadUInt32();
+      var num = br.ReadUInt32();
       vector.Clear();
 
-      reader.Align(0x20);
+      br.Align(0x20);
       for (var i = 0; i < num; ++i) {
-        vector.Add(Mod.ReadGeneric_<T>(reader));
+        vector.Add(Mod.ReadGeneric_<T>(br));
       }
-      reader.Align(0x20);
+      br.Align(0x20);
     }
 
-    private static T ReadGeneric_<T>(IEndianBinaryReader reader)
+    private static T ReadGeneric_<T>(IBinaryReader br)
         where T : IBinaryDeserializable, new() {
       var instance = new T();
-      instance.Read(reader);
+      instance.Read(br);
       return instance;
     }
 
-    public void Write(ISubEndianBinaryWriter writer) {
+    public void Write(IBinaryWriter bw) {
       throw new NotImplementedException();
     }
   }

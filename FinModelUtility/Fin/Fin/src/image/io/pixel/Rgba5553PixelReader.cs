@@ -11,10 +11,10 @@ namespace fin.image.io.pixel {
     public IImage<Rgba32> CreateImage(int width, int height)
       => new Rgba32Image(PixelFormat.RGBA5553, width, height);
 
-    public unsafe void Decode(IEndianBinaryReader er,
+    public unsafe void Decode(IBinaryReader br,
                               Rgba32* scan0,
                               int offset) {
-      var pix = er.ReadUInt16();
+      var pix = br.ReadUInt16();
 
       // Alpha flag
       if (BitLogic.ExtractFromRight(pix, 15, 1) == 1) {

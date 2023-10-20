@@ -32,25 +32,25 @@ namespace UoT.memory {
     }
 
     public static ZSegments InitializeFromFile(IGenericFile romFile) {
-      using var er =
-          new EndianBinaryReader(romFile.OpenRead(), Endianness.BigEndian);
+      using var br =
+          new SchemaBinaryReader(romFile.OpenRead(), Endianness.BigEndian);
 
-      for (long i = 0; i < er.Length; i += 16) {
-        var romId = er.SubreadAt(i, ser => ser.ReadString(6));
+      for (long i = 0; i < br.Length; i += 16) {
+        var romId = br.SubreadAt(i, ser => ser.ReadString(6));
         if (romId != "zelda@") {
           continue;
         }
 
         i += 0xd;
 
-        er.Position = i;
-        while ((er.ReadByte() >> 4) != 3) {
+        br.Position = i;
+        while ((br.ReadByte() >> 4) != 3) {
           ;
         }
 
-        i = (er.Position -= 1);
+        i = (br.Position -= 1);
 
-        var buildDate = er.SubreadAt(i, ser => ser.ReadString(17));
+        var buildDate = br.SubreadAt(i, ser => ser.ReadString(17));
         var segmentOffset = (int) (i + 0x20);
 
         int nameOffset;
@@ -67,17 +67,17 @@ namespace UoT.memory {
           default: throw new NotSupportedException();
         }
 
-        return ZSegments.InitializeFromEndianBinaryReader(er, segmentOffset, nameOffset);
+        return ZSegments.InitializeFromSchemaBinaryReader(br, segmentOffset, nameOffset);
       }
 
       throw new NotSupportedException();
     }
 
-    public static ZSegments InitializeFromEndianBinaryReader(
-        IEndianBinaryReader er,
+    public static ZSegments InitializeFromSchemaBinaryReader(
+        SchemaBinaryReader br,
         int segmentOffset,
         int nameOffset) {
-      var zSegments = ZSegments.GetZSegments_(er, segmentOffset, nameOffset);
+      var zSegments = ZSegments.GetZSegments_(br, segmentOffset, nameOffset);
 
       var objects = new List<ZObject>();
       var actorCode = new List<ZCodeFiles>();
@@ -128,31 +128,31 @@ namespace UoT.memory {
 
     [Unknown]
     private static IEnumerable<ZSegment> GetZSegments_(
-        IEndianBinaryReader er,
+        SchemaBinaryReader br,
         int segmentOffset,
         long nameOffset) {
       var segments = new LinkedList<ZSegment>();
 
-      er.SubreadAt(
+      br.SubreadAt(
           segmentOffset,
-          ser => {
+          sbr => {
             while (true) {
-              var startAddress = ser.ReadUInt32();
-              var endAddress = ser.ReadUInt32();
+              var startAddress = sbr.ReadUInt32();
+              var endAddress = sbr.ReadUInt32();
 
               if (startAddress == 0 && endAddress == 0) {
                 break;
               }
 
-              var unk0 = ser.ReadUInt32();
-              var unk1 = ser.ReadUInt32();
+              var unk0 = sbr.ReadUInt32();
+              var unk1 = sbr.ReadUInt32();
 
               var fileNameBuilder = new StringBuilder();
-              var pos = ser.Position;
-              ser.Position = nameOffset;
+              var pos = sbr.Position;
+              sbr.Position = nameOffset;
               var inName = false;
               while (true) {
-                var c = ser.ReadChar();
+                var c = sbr.ReadChar();
 
                 if (c == '\0') {
                   if (inName) {
@@ -163,8 +163,8 @@ namespace UoT.memory {
                   fileNameBuilder.Append(c);
                 }
               }
-              nameOffset = ser.Position;
-              ser.Position = pos;
+              nameOffset = sbr.Position;
+              sbr.Position = pos;
 
               var fileName = fileNameBuilder.ToString();
 

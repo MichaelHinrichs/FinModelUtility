@@ -19,7 +19,7 @@ namespace visceral.api {
     public unsafe IImage ReadImage(Tg4ImageFileBundle bundle) {
       var headerFile = bundle.Tg4hFile;
       using var headerEr =
-          new EndianBinaryReader(headerFile.OpenRead(),
+          new SchemaBinaryReader(headerFile.OpenRead(),
                                  Endianness.LittleEndian);
       headerEr.Position = 0x20;
       var width = headerEr.ReadUInt16();
