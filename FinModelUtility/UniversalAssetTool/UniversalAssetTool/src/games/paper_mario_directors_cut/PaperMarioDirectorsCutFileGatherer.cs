@@ -11,7 +11,7 @@ namespace uni.games.paper_mario_directors_cut {
     public IEnumerable<IAnnotatedFileBundle<OmdModelFileBundle>>
         GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingSubdir(
-              "paper_mario_directors_cut/prereqs",
+              Path.Join("paper_mario_directors_cut", ExtractorUtil.PREREQS),
               out var pmdcDir)) {
         yield break;
       }

@@ -18,10 +18,10 @@ namespace uni.games.super_mario_64 {
         yield break;
       }
 
-      var superMario64Directory =
-          ExtractorUtil.GetOrCreateExtractedDirectory("super_mario_64");
-      var fileHierarchy =
-          new FileHierarchy("super_mario_64", superMario64Directory);
+      ExtractorUtil.GetOrCreateRomDirectories("super_mario_64",
+                                              out var prereqsDir,
+                                              out var extractedDir);
+      var fileHierarchy = new FileHierarchy("super_mario_64", extractedDir);
       var root = fileHierarchy.Root;
 
       var rootSysDir = root.Impl;
@@ -49,6 +49,9 @@ namespace uni.games.super_mario_64 {
             superMario64Rom,
             levelId).Annotate(levelFile);
       }
+
+      var marioAnimationsFile = prereqsDir.AssertGetExistingFile("mario_animations.csv");
+      // TODO: 
     }
   }
 }

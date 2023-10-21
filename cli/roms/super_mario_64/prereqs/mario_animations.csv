@@ -1,0 +1,210 @@
+# Shamelessly stolen from https://github.com/Fast-64/fast64/blob/1641160d4a8c6ced315fe67d9844059b70d80bed/fast64_internal/sm64/sm64_constants.py#L1803-L2014
+5162640, Slow ledge climb up
+5165520, Fall over backwards
+5165544, Backward air kb
+5172396, Dying on back
+5177044, Backflip
+5179584, Climbing up pole
+5185656, Grab pole short
+5186824, Grab pole swing part 1
+5186848, Grab pole swing part 2
+5191920, Handstand idle
+5194740, Handstand jump
+5194764, Start handstand
+5188592, Return from handstand
+5196388, Idle on pole
+5197436, A pose
+5197792, Skid on ground
+5197816, Stop skid
+5199596, Crouch from fast longjump
+5201048, Crouch from a slow longjump
+5202644, Fast longjump
+5204600, Slow longjump
+5205980, Airborne on stomach
+5207188, Walk with light object
+5211916, Run with light object
+5215136, Slow walk with light object
+5219864, Shivering and warming hands
+5225496, Shivering return to idle 
+5226920, Shivering
+5230056, Climb down on ledge
+5231112, Waving
+5232768, Look up
+5234576, Return from look up
+5235700, Raising hand
+5243100, Lowering hand
+5245988, Taking off cap
+5248016, Start walking and look up
+5256508, Look back then run
+5266160, Raise hand and spin
+5274456, Wing cap take off
+5282084, Peach sign
+5291340, Stand up from lava boost
+5292628, Fire/Lava burn
+5293488, Wing cap flying
+5295016, Hang on owl
+5296876, Land on stomach
+5296900, Air forward kb
+5302796, Dying on stomach
+5306100, Suffocating
+5313796, Coughing
+5319500, Throw catch key
+5330436, Dying fall over
+5338604, Idle on ledge
+5341720, Fast ledge grab
+5343296, Hang on ceiling
+5347276, Put cap on
+5351252, Take cap off then on
+5358356, Quickly put cap on
+5359476, Head stuck in ground
+5372172, Ground pound landing
+5372824, Triple jump ground-pound
+5374304, Start ground-pound
+5374328, Ground-pound
+5375380, Bottom stuck in ground
+5387148, Idle with light object
+5390520, Jump land with light object
+5391892, Jump with light object
+5392704, Fall land with light object
+5393936, Fall with light object
+5394296, Fall from sliding with light object
+5395224, Sliding on bottom with light object
+5395248, Stand up from sliding with light object
+5396716, Riding shell
+5397832, Walking
+5403208, Forward flip
+5404784, Jump riding shell
+5405676, Land from double jump
+5407340, Double jump fall
+5408288, Single jump
+5408312, Land from single jump
+5411044, Air kick
+5412900, Double jump rise
+5413596, Start forward spinning
+5414876, Throw light object
+5416032, Fall from slide kick
+5418280, Bend kness riding shell
+5419872, Legs stuck in ground
+5431416, General fall
+5431440, General land
+5433276, Being grabbed
+5434636, Grab heavy object
+5437964, Slow land from dive
+5441520, Fly from cannon
+5442516, Moving right while hanging
+5444052, Moving left while hanging
+5445472, Missing cap
+5457860, Pull door walk in
+5463196, Push door walk in
+5467492, Unlock door
+5480428, Start reach pocket
+5481448, Reach pocket
+5483352, Stop reach pocket
+5484876, Ground throw
+5486852, Ground kick
+5489076, First punch
+5489740, Second punch
+5490356, First punch fast
+5491396, Second punch fast
+5492732, Pick up light object
+5493948, Pushing
+5495508, Start riding shell
+5497072, Place light object
+5498484, Forward spinning
+5498508, Backward spinning
+5498884, Breakdance
+5501240, Running
+5501264, Running (unused)
+5505884, Soft back kb
+5508004, Soft front kb
+5510172, Dying in quicksand
+5515096, Idle in quicksand
+5517836, Move in quicksand
+5528568, Electrocution
+5532480, Shocked
+5533160, Backward kb
+5535796, Forward kb
+5538372, Idle heavy object
+5539764, Stand against wall
+5544580, Side step left
+5548480, Side step right
+5553004, Start sleep idle
+5557588, Start sleep scratch
+5563636, Start sleep yawn
+5568648, Start sleep sitting
+5573680, Sleep idle
+5574280, Sleep start laying
+5577460, Sleep laying
+5579300, Dive
+5579324, Slide dive
+5580860, Ground bonk
+5584116, Stop slide light object
+5587364, Slide kick
+5588288, Crouch from slide kick
+5589652, Slide motionless
+5589676, Stop slide
+5591572, Fall from slide
+5592860, Slide
+5593404, Tiptoe
+5599280, Twirl land
+5600160, Twirl
+5600516, Start twirl
+5601072, Stop crouching
+5602028, Start crouching
+5602720, Crouching
+5605756, Crawling
+5613048, Stop crawling
+5613968, Start crawling
+5614876, Summon star
+5620036, Return star approach door
+5622256, Backwards water kb
+5626540, Swim with object part 1
+5627592, Swim with object part 2
+5628260, Flutter kick with object
+5629456, Action end with object in water
+5631180, Stop holding object in water
+5634048, Holding object in water
+5635976, Drowning part 1
+5641400, Drowning part 2
+5646324, Dying in water
+5649660, Forward kb in water
+5653848, Falling from water
+5655852, Swimming part 1
+5657100, Swimming part 2
+5658128, Flutter kick
+5660112, Action end in water
+5662248, Pick up object in water
+5663480, Grab object in water part 2
+5665916, Grab object in water part 1
+5666632, Throw object in water
+5669328, Idle in water
+5671428, Star dance in water
+5678200, Return from in water star dance
+5680324, Grab bowser
+5680348, Swing bowser
+5682008, Release bowser
+5685264, Holding bowser
+5686316, Heavy throw
+5688660, Walk panting
+5689924, Walk with heavy object
+5694332, Turning part 1
+5694356, Turning part 2
+5696160, Side flip land
+5697196, Side flip
+5699408, Triple jump land
+5702136, Triple jump
+5704880, First person
+5710580, Idle head left
+5712800, Idle head right
+5715020, Idle head center
+5717240, Handstand left
+5719184, Handstand right
+5722304, Wake up from sleeping
+5724228, Wake up from laying
+5726444, Start tiptoeing
+5728720, Slide jump
+5728744, Start wallkick
+5730404, Star dance
+5735864, Return from star dance
+5737600, Forwards spinning flip
+5740584, Triple jump fly
