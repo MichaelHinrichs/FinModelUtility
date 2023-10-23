@@ -93,8 +93,8 @@ namespace fin.image.formats {
                               out var otherB,
                               out var otherA);
 
-                if (thisR != otherR || 
-                    thisG != otherG || 
+                if (thisR != otherR ||
+                    thisG != otherG ||
                     thisB != otherG ||
                     thisA != otherA) {
                   match = false;
@@ -125,9 +125,7 @@ namespace fin.image.formats {
       var span = new Span<TPixel>(ptr, pixelCount).AsBytes();
 
       var hash = FluentHash.Start();
-      for (var i = 0; i < span.Length; ++i) {
-        hash.With(span[i]);
-      }
+      hash.With(span);
 
       this.cachedHash_ = hash;
       return hash;

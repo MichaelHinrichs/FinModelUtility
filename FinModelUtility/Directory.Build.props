@@ -1,4 +1,9 @@
 <Project>
+  <PropertyGroup>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
   <PropertyGroup Condition="$(MSBuildProjectName.Contains('Tests'))">
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutput>TestResults/</CoverletOutput>

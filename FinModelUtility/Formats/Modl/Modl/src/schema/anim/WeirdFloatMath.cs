@@ -1,5 +1,5 @@
 ﻿namespace modl.schema.anim {
-  internal static class WeirdFloatMath {
+  public static class WeirdFloatMath {
     public static ulong Concat44(uint first, uint second)
       => ((ulong) first << 32) | second;
 

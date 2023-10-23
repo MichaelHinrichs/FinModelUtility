@@ -11,7 +11,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DebugType>full</DebugType>
     <SelfContained>true</SelfContained>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
