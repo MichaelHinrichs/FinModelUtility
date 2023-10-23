@@ -12,7 +12,7 @@ namespace fin.image.io.tile {
   ///   Stolen from:
   ///   https://github.com/xdanieldzd/Scarlet/blob/master/Scarlet/Drawing/Compression/ETC1.cs
   /// </summary>
-  public class Etc1TileReader : ITileReader<Rgba32> {
+  public readonly struct Etc1TileReader : ITileReader<Rgba32> {
     private readonly bool hasAlpha_;
 
     /* Specs: https://www.khronos.org/registry/gles/extensions/OES/OES_compressed_ETC1_RGB8_texture.txt */
@@ -22,15 +22,15 @@ namespace fin.image.io.tile {
      * https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/GPU/Textures.cs
      * https://github.com/gdkchan/Ohana3DS-Rebirth/blob/master/Ohana3DS%20Rebirth/Ohana/TextureCodec.cs */
 
-    private static readonly int[,] ETC1_MODIFIER_TABLES_ = {
-        { 2, 8, -2, -8 },
-        { 5, 17, -5, -17 },
-        { 9, 29, -9, -29 },
-        { 13, 42, -13, -42 },
-        { 18, 60, -18, -60 },
-        { 24, 80, -24, -80 },
-        { 33, 106, -33, -106 },
-        { 47, 183, -47, -183 }
+    private static readonly int[] ETC1_MODIFIER_TABLES_ = {
+        2, 8, -2, -8,
+        5, 17, -5, -17,
+        9, 29, -9, -29,
+        13, 42, -13, -42,
+        18, 60, -18, -60,
+        24, 80, -24, -80,
+        33, 106, -33, -106,
+        47, 183, -47, -183
     };
 
     public Etc1TileReader(bool hasAlpha) {
@@ -147,13 +147,13 @@ namespace fin.image.io.tile {
 
           if ((flipBit == 0x01 && py < 2) || (flipBit == 0x00 && px < 2)) {
             int modifier =
-                Etc1TileReader.ETC1_MODIFIER_TABLES_[tableIndex1, index];
+                Etc1TileReader.ETC1_MODIFIER_TABLES_[4 * tableIndex1 + index];
             colors[indexInPart] = new Rgb24(ClampByte_(r1 + modifier),
                                             ClampByte_(g1 + modifier),
                                             ClampByte_(b1 + modifier));
           } else {
             int modifier =
-                Etc1TileReader.ETC1_MODIFIER_TABLES_[tableIndex2, index];
+                Etc1TileReader.ETC1_MODIFIER_TABLES_[4 * tableIndex2 + index];
             colors[indexInPart] = new Rgb24(ClampByte_(r2 + modifier),
                                             ClampByte_(g2 + modifier),
                                             ClampByte_(b2 + modifier));
