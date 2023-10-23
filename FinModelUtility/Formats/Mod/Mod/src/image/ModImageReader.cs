@@ -1,5 +1,6 @@
 ﻿using fin.image;
 using fin.image.io;
+using fin.image.io.image;
 using fin.image.io.pixel;
 using fin.image.io.tile;
 
@@ -61,10 +62,7 @@ namespace mod.image {
               4,
               4,
               new Rgba32PixelReader()),
-          Texture.TextureFormat.CMPR => TiledImageReader.New(
-              width,
-              height,
-              new CmprTileReader()),
+          Texture.TextureFormat.CMPR => new CmprImageReader(width, height),
       };
     }
 

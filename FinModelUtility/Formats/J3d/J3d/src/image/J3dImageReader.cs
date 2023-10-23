@@ -1,5 +1,6 @@
 ﻿using fin.image;
 using fin.image.io;
+using fin.image.io.image;
 using fin.image.io.pixel;
 using fin.image.io.tile;
 
@@ -61,10 +62,7 @@ namespace j3d.image {
               4,
               4,
               new Rgba32PixelReader()),
-          TextureFormat.S3TC1 => TiledImageReader.New(
-              width,
-              height,
-              new CmprTileReader()),
+          TextureFormat.S3TC1 => new CmprImageReader(width, height),
       };
     }
 

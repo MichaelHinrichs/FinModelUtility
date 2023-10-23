@@ -3,6 +3,7 @@ using fin.data;
 using fin.image;
 using fin.image.formats;
 using fin.image.io;
+using fin.image.io.image;
 using fin.image.io.pixel;
 using fin.image.io.tile;
 using fin.src.image.formats;
@@ -79,9 +80,7 @@ namespace modl.schema.res.texr {
       var mipSize = width * height >> 1;
       SectionHeaderUtil.AssertNameAndSize(br, "MIP ", mipSize);
 
-      return TiledImageReader
-             .New((int) width, (int) height, new CmprTileReader())
-             .ReadImage(br);
+      return new CmprImageReader((int) width, (int) height).ReadImage(br);
     }
 
     protected IImage ReadP8_(IBinaryReader br, uint width, uint height) {
