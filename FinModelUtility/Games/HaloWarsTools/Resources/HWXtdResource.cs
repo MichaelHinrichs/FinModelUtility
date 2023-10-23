@@ -110,29 +110,20 @@ namespace HaloWarsTools {
                              posCompRange));
 
       // Generate faces based on terrain grid
-      var triangleGridSize = gridSize - 1;
-      var triangles = new IReadOnlyVertex[2 * 3 * triangleGridSize * triangleGridSize];
-      for (int x = 0; x < triangleGridSize; ++x) {
-        for (int z = 0; z < triangleGridSize; ++z) {
+      for (int x = 0; x < gridSize - 1; ++x) {
+        var triangleStripVertices = new IReadOnlyVertex[2 * gridSize];
+
+        for (int z = 0; z < gridSize; ++z) {
           var a = finVertices[GetVertexIndex(x, z, gridSize)];
           var b = finVertices[GetVertexIndex(x + 1, z, gridSize)];
-          var c = finVertices[GetVertexIndex(x, z + 1, gridSize)];
-          var d = finVertices[GetVertexIndex(x + 1, z + 1, gridSize)];
 
-          var i = 2 * 3 * (triangleGridSize * z + x);
-
-          triangles[i + 0] = a;
-          triangles[i + 1] = c;
-          triangles[i + 2] = b;
-
-          triangles[i + 3] = d;
-          triangles[i + 4] = b;
-          triangles[i + 5] = c;
+          triangleStripVertices[2 * z + 0] = b;
+          triangleStripVertices[2 * z + 1] = a;
         }
-      }
 
-      finMesh.AddTriangles(triangles)
-             .SetVertexOrder(VertexOrder.NORMAL);
+        finMesh.AddTriangleStrip(triangleStripVertices)
+               .SetVertexOrder(VertexOrder.NORMAL);
+      }
 
       return finModel;
     }

@@ -82,5 +82,15 @@ namespace fin.util.linq {
         throw new Exception(errorMessage);
       }
     }
+
+    public static IEnumerable<T> Intersperse<T>(this IEnumerable<T> src,
+                                                T element) {
+      var first = true;
+      foreach (T value in src) {
+        if (!first) yield return element;
+        yield return value;
+        first = false;
+      }
+    }
   }
 }

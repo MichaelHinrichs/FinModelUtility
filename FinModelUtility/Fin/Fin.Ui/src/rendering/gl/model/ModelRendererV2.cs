@@ -16,7 +16,7 @@ namespace fin.ui.rendering.gl.model {
     private readonly ILighting? lighting_;
     private readonly IBoneTransformManager? boneTransformManager_;
 
-    private readonly ListDictionary<IMesh, MaterialMeshRendererV2>
+    private readonly ListDictionary<IMesh, MergedPrimitivesRenderer>
         materialMeshRenderers_ = new();
 
     public ModelRendererV2(
@@ -36,6 +36,7 @@ namespace fin.ui.rendering.gl.model {
 
       this.bufferManager_ = new GlBufferManager(this.Model);
 
+      var primitiveMerger = new PrimitiveMerger();
       foreach (var mesh in this.Model.Skin.Meshes) {
         var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
         var prioritiesByMaterial = new SetDictionary<IMaterial, uint>();
@@ -52,17 +53,22 @@ namespace fin.ui.rendering.gl.model {
 
         foreach (var material in orderedMaterials) {
           var primitives = primitivesByMaterial[material];
+          if (!primitiveMerger.TryToMergePrimitives(
+                  primitives,
+                  out var mergedPrimitives)) {
+            continue;
+          }
+
           this.materialMeshRenderers_.Add(
               mesh,
-              new MaterialMeshRendererV2(
+              new MergedPrimitivesRenderer(
                   this.boneTransformManager_,
                   this.bufferManager_,
                   this.Model,
                   material,
                   this.lighting_,
-                  primitives.OrderBy(primitive => primitive.InversePriority)
-                            .ToArray()) {
-                UseLighting = UseLighting
+                  mergedPrimitives) {
+                  UseLighting = UseLighting
               });
         }
       }
@@ -81,6 +87,7 @@ namespace fin.ui.rendering.gl.model {
           materialMeshRenderer.Dispose();
         }
       }
+
       materialMeshRenderers_.Clear();
       this.bufferManager_?.Dispose();
     }

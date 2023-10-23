@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+
+using CommunityToolkit.HighPerformance;
 
 using fin.color;
 using fin.math;
@@ -43,13 +47,13 @@ namespace fin.model.io.exporters.gltf.lowlevel {
           4 * 3 * pointsCount,
           0,
           BufferMode.ARRAY_BUFFER);
-      var positionArray = new Vector3Array(positionView.Content);
+      var positionSpan = positionView.Content.AsSpan().Cast<byte, Vector3>();
 
       var normalView = gltfModel.CreateBufferView(
           4 * 3 * pointsCount,
           0,
           BufferMode.ARRAY_BUFFER);
-      var normalArray = new Vector3Array(normalView.Content);
+      var normalSpan = normalView.Content.AsSpan().Cast<byte, Normal>();
 
       for (var p = 0; p < pointsCount; ++p) {
         vertexAccessor.Target(points[p]);
@@ -59,19 +63,12 @@ namespace fin.model.io.exporters.gltf.lowlevel {
             point,
             out var outPosition,
             out var outNormal);
-        var pos = positionArray[p];
-        pos.X = outPosition.X * scale;
-        pos.Y = outPosition.Y * scale;
-        pos.Z = outPosition.Z * scale;
-        positionArray[p] = pos;
+        positionSpan[p] =
+            Vector3.Multiply(scale,
+                             Unsafe.As<Position, Vector3>(ref outPosition));
 
         if (point.LocalNormal != null) {
-          var norm = normalArray[p];
-
-          norm.X = outNormal.X;
-          norm.Y = outNormal.Y;
-          norm.Z = outNormal.Z;
-          normalArray[p] = norm;
+          normalSpan[p] = outNormal;
         }
 
         /*if (point.Weights != null) {
@@ -141,6 +138,18 @@ namespace fin.model.io.exporters.gltf.lowlevel {
         vertices[p] = vertexBuilder;*/
       }
 
+      var positionAccessor = gltfModel.CreateAccessor();
+      positionAccessor.SetVertexData(
+          positionView,
+          0,
+          pointsCount);
+
+      var normalAccessor = gltfModel.CreateAccessor();
+      normalAccessor.SetVertexData(
+          normalView,
+          0,
+          pointsCount);
+
       var gltfMeshes = new List<Mesh>();
       foreach (var finMesh in skin.Meshes) {
         var gltfMesh = gltfModel.CreateMesh(finMesh.Name);
@@ -157,19 +166,7 @@ namespace fin.model.io.exporters.gltf.lowlevel {
           var gltfPrimitive = gltfMesh.CreatePrimitive();
           gltfPrimitive.Material = material;
 
-          // TODO: Use shared position/normal accessors?
-          var positionAccessor = gltfModel.CreateAccessor();
-          positionAccessor.SetVertexData(
-              positionView,
-              0,
-              pointsCount);
           gltfPrimitive.SetVertexAccessor("POSITION", positionAccessor);
-
-          var normalAccessor = gltfModel.CreateAccessor();
-          normalAccessor.SetVertexData(
-              normalView,
-              0,
-              pointsCount);
           gltfPrimitive.SetVertexAccessor("NORMAL", normalAccessor);
 
           if (finPrimitive.Type != FinPrimitiveType.QUADS &&
@@ -211,7 +208,7 @@ namespace fin.model.io.exporters.gltf.lowlevel {
             4 * 4 * pointsCount,
             0,
             BufferMode.ARRAY_BUFFER);
-        var colorArray = new ColorArray(colorView.Content);
+        var colorSpan = colorView.Content.AsSpan().Cast<byte, Vector4>();
 
         for (var p = 0; p < pointsCount; ++p) {
           vertexAccessor.Target(points[p]);
@@ -222,13 +219,8 @@ namespace fin.model.io.exporters.gltf.lowlevel {
           var assColor0 = hasColor0
               ? LowLevelGltfMeshBuilder.FinToGltfColor_(
                   finColor0)
-              : new Vector4(1, 1, 1, 1);
-          var col = colorArray[p];
-          col.X = assColor0.X;
-          col.Y = assColor0.Y;
-          col.Z = assColor0.Z;
-          col.W = assColor0.W;
-          colorArray[p] = col;
+              : Vector4.One;
+          colorSpan[p] = assColor0;
         }
 
         var colorAccessor = gltfModel.CreateAccessor();
@@ -248,20 +240,17 @@ namespace fin.model.io.exporters.gltf.lowlevel {
       // UVs
       if (vertexAccessor.UvCount > 0) {
         var uvView = gltfModel.CreateBufferView(
-            4 * 2 * pointsCount,
+            2 * sizeof(float) * pointsCount,
             0,
             BufferMode.ARRAY_BUFFER);
-        var uvArray = new Vector2Array(uvView.Content);
+        var uvSpan = uvView.Content.AsSpan().Cast<byte, TexCoord>();
 
         for (var p = 0; p < pointsCount; ++p) {
           vertexAccessor.Target(points[p]);
           var point = vertexAccessor;
 
           var finUv = point.GetUv(0);
-          var uv = uvArray[p];
-          uv.X = finUv.Value.U;
-          uv.Y = finUv.Value.V;
-          uvArray[p] = uv;
+          uvSpan[p] = finUv.Value;
         }
 
         var uvAccessor = gltfModel.CreateAccessor();
@@ -303,11 +292,11 @@ namespace fin.model.io.exporters.gltf.lowlevel {
           bytesPerIndex * vertexIndices.Length,
           0,
           BufferMode.ELEMENT_ARRAY_BUFFER);
-      var indexArray = new IntegerArray(indexView.Content, indexEncodingType);
 
       int i = 0;
+      var iSpan = indexView.Content.AsSpan().Cast<byte, uint>();
       foreach (var v in vertexIndices) {
-        indexArray[i++] = (uint) v;
+        iSpan[i++] = (uint) v;
       }
 
       var indexAccessor = gltfModelRoot.CreateAccessor();

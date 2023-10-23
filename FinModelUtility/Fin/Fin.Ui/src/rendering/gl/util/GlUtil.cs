@@ -37,6 +37,9 @@ namespace fin.ui.rendering.gl {
 
       GL.Enable(EnableCap.Normalize);
 
+      GL.Enable(EnableCap.PrimitiveRestart);
+      GL.Enable(EnableCap.PrimitiveRestartFixedIndex);
+
       GlUtil.ResetBlending();
       GlUtil.ResetClearColor();
       GlUtil.ResetCulling();

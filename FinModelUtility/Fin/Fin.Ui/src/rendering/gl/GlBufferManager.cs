@@ -1,5 +1,8 @@
 ﻿using fin.data;
 using fin.model;
+using fin.ui.rendering.gl.model;
+using fin.util.enumerables;
+using fin.util.linq;
 
 using OpenTK.Graphics.OpenGL;
 
@@ -20,8 +23,9 @@ namespace fin.ui.rendering.gl {
 
       private int vaoId_;
 
-      private int[] vboIds_ = new int[1 + 1 + 1 + 1 + MaterialConstants.MAX_UVS +
-                                      MaterialConstants.MAX_COLORS];
+      private int[] vboIds_ =
+          new int[1 + 1 + 1 + 1 + MaterialConstants.MAX_UVS +
+                  MaterialConstants.MAX_COLORS];
 
       private const int POSITION_VERTEX_ATTRIB_INDEX = 0;
 
@@ -149,7 +153,8 @@ namespace fin.ui.rendering.gl {
 
         // Normal
         var vertexAttribNormal = NORMAL_VERTEX_ATTRIB_INDEX;
-        GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribNormal]);
+        GL.BindBuffer(BufferTarget.ArrayBuffer,
+                      this.vboIds_[vertexAttribNormal]);
         GL.BufferData(BufferTarget.ArrayBuffer,
                       new IntPtr(sizeof(float) * NORMAL_SIZE_ *
                                  this.normalData_.Length),
@@ -273,6 +278,9 @@ namespace fin.ui.rendering.gl {
         bool isFlipped = false)
       => new(this.vao_.VaoId, primitiveType, isFlipped, triangleVertices);
 
+    public GlBufferRenderer CreateRenderer(MergedPrimitive mergedPrimitive)
+      => new(this.vao_.VaoId, mergedPrimitive);
+
 
     public class GlBufferRenderer : IDisposable {
       private readonly int vaoId_;
@@ -282,13 +290,25 @@ namespace fin.ui.rendering.gl {
 
       private readonly int[] indices_;
 
+      private const DrawElementsType INDEX_TYPE = DrawElementsType.UnsignedInt;
+
       public GlBufferRenderer(
           int vaoId,
           PrimitiveType primitiveType,
           bool isFlipped,
-          IReadOnlyList<IReadOnlyVertex> triangleVertices) {
+          IEnumerable<IReadOnlyVertex> vertices) : this(
+          vaoId,
+          new MergedPrimitive {
+              PrimitiveType = primitiveType,
+              Vertices = vertices.Yield(),
+              IsFlipped = isFlipped
+          }) { }
+
+      public GlBufferRenderer(
+          int vaoId,
+          MergedPrimitive mergedPrimitive) {
         this.vaoId_ = vaoId;
-        this.beginMode_ = primitiveType switch {
+        this.beginMode_ = mergedPrimitive.PrimitiveType switch {
             PrimitiveType.POINTS         => BeginMode.Points,
             PrimitiveType.LINES          => BeginMode.Lines,
             PrimitiveType.TRIANGLES      => BeginMode.Triangles,
@@ -296,13 +316,26 @@ namespace fin.ui.rendering.gl {
             PrimitiveType.TRIANGLE_STRIP => BeginMode.TriangleStrip,
             PrimitiveType.QUADS          => BeginMode.Quads,
         };
-        this.isFlipped_ = isFlipped;
+        this.isFlipped_ = mergedPrimitive.IsFlipped;
 
         GL.BindVertexArray(this.vaoId_);
         GL.GenBuffers(1, out this.eboId_);
 
+        IReadOnlyList<int> restartIndex = new int[] {
+            (int) (INDEX_TYPE switch {
+                DrawElementsType.UnsignedByte  => byte.MaxValue,
+                DrawElementsType.UnsignedShort => ushort.MaxValue,
+                DrawElementsType.UnsignedInt   => uint.MaxValue,
+            })
+        };
         this.indices_ =
-            triangleVertices.Select(vertex => vertex.Index).ToArray();
+            mergedPrimitive
+                .Vertices
+                .Select(vertices
+                            => vertices.Select(vertex => vertex.Index))
+                .Intersperse(restartIndex)
+                .SelectMany(indices => indices)
+                .ToArray();
 
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);
         GL.BufferData(BufferTarget.ElementArrayBuffer,
@@ -333,7 +366,7 @@ namespace fin.ui.rendering.gl {
         GL.DrawElements(
             this.beginMode_,
             this.indices_.Length,
-            DrawElementsType.UnsignedInt,
+            INDEX_TYPE,
             0);
       }
     }

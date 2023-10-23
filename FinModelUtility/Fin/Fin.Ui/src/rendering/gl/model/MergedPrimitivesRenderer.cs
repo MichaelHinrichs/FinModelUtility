@@ -3,7 +3,7 @@ using fin.model;
 using fin.ui.rendering.gl.material;
 
 namespace fin.ui.rendering.gl.model {
-  public class MaterialMeshRendererV2 : IDisposable {
+  public class MergedPrimitivesRenderer : IDisposable {
     // TODO: Set up shader for material
     // TODO: Use material's textures
 
@@ -13,13 +13,13 @@ namespace fin.ui.rendering.gl.model {
 
     private readonly IGlMaterialShader? materialShader_;
 
-    public MaterialMeshRendererV2(
+    public MergedPrimitivesRenderer(
         IBoneTransformManager? boneTransformManager,
         GlBufferManager bufferManager,
         IModel model,
         IMaterial? material,
         ILighting? lighting,
-        IList<IPrimitive> primitives) {
+        MergedPrimitive mergedPrimitive) {
       this.material_ = material;
 
       this.materialShader_ = GlMaterialShader.FromMaterial(model,
@@ -27,42 +27,10 @@ namespace fin.ui.rendering.gl.model {
         boneTransformManager,
         lighting);
 
-      PrimitiveType primitiveType;
-      bool isFlipped;
-      IReadOnlyList<IReadOnlyVertex> primitiveVertices;
-
-      var primitiveTypes =
-          primitives.Select(primitive => primitive.Type).ToHashSet();
-
-      if (primitives.Count == 1) {
-        var firstPrimitive = primitives[0];
-        primitiveType = firstPrimitive.Type;
-        isFlipped = firstPrimitive.VertexOrder == VertexOrder.FLIP;
-        primitiveVertices = firstPrimitive.Vertices;
-      } else if (primitiveTypes.Count == 1 &&
-                 primitiveTypes.First() is PrimitiveType.LINES
-                                           or PrimitiveType.POINTS) {
-        primitiveType = primitiveTypes.First();
-        isFlipped = false;
-        primitiveVertices = primitives
-                            .SelectMany(primitive => primitive.Vertices)
-                            .ToArray();
-      } else {
-        primitiveType = PrimitiveType.TRIANGLES;
-        isFlipped = false;
-        primitiveVertices = primitives
-                            .SelectMany(primitive
-                                            => primitive
-                                                .GetOrderedTriangleVertices())
-                            .ToArray();
-      }
-
-      this.bufferRenderer_ = bufferManager.CreateRenderer(primitiveType,
-        primitiveVertices,
-        isFlipped);
+      this.bufferRenderer_ = bufferManager.CreateRenderer(mergedPrimitive);
     }
 
-    ~MaterialMeshRendererV2() => ReleaseUnmanagedResources_();
+    ~MergedPrimitivesRenderer() => ReleaseUnmanagedResources_();
 
     public void Dispose() {
       ReleaseUnmanagedResources_();
