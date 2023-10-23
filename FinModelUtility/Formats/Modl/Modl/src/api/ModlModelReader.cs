@@ -127,7 +127,7 @@ namespace modl.api {
 
               var finTexture =
                   model.MaterialManager.CreateTexture(image);
-              finTexture.Name = textureName;
+              finTexture.Name = textureNameWithoutExtension;
 
               // TODO: Need to handle wrapping
               finTexture.WrapModeU = WrapMode.REPEAT;
