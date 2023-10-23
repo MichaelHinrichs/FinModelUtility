@@ -134,7 +134,7 @@ namespace modl.schema.anim.bw1 {
       var second_ushort = shorts[1];
       var third_ushort = shorts[2];
 
-      var const_for_out_value_2 = WeirdFloatMath.C_6_10351_EN5;
+      var const_for_out_value_2 = WeirdFloatMath.C_3_05175_EN5;
 
       var out_x =
           ((WeirdFloatMath.InterpretAsDouble(

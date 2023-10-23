@@ -2,11 +2,14 @@
 
 namespace modl.schema.anim {
   public static class WeirdFloatMath {
-    /// <summary> 0x38800000 </summary>
-    public const float C_6_10351_EN5 = 6.103515625E-05f;
-
     /// <summary> 0x0229C4AB </summary>
     public const float C_ZERO = 0;
+
+    /// <summary> 0x38000000 </summary>
+    public const float C_3_05175_EN5 = 3.0517578125E-05f;
+
+    /// <summary> 0x38800000 </summary>
+    public const float C_6_10351_EN5 = 6.103515625E-05f;
 
     /// <summary> 0x3F000000 </summary>
     public const float C_HALF = 0.5f;
