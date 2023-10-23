@@ -37,18 +37,20 @@ namespace fin.model {
     IReadOnlyList<Keyframe<ValueAndTangents<TValue>>> Keyframes { get; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void Set(int frame, TValue value)
-      => this.Set(frame, value, null);
+    void SetKeyframe(int frame, TValue value)
+      => this.SetKeyframe(frame, value, null);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void Set(int frame, TValue value, float? tangent)
-      => this.Set(frame, value, tangent, tangent);
+    void SetKeyframe(int frame, TValue value, float? tangent)
+      => this.SetKeyframe(frame, value, tangent, tangent);
 
-    void Set(
+    void SetKeyframe(
         int frame,
         TValue value,
         float? incomingTangent,
         float? outgoingTangent);
+
+    void SetAllKeyframes(IEnumerable<TValue> value);
 
     bool TryGetInterpolationData(
         float frame,

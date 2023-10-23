@@ -6,12 +6,14 @@ namespace fin.model.impl {
       : IModel<ISkin<TVertex>> where TVertex : IReadOnlyVertex {
     public ModelImpl(Func<int, Position, TVertex> vertexCreator) {
       this.Skin = new SkinImpl(vertexCreator);
+      this.AnimationManager = new AnimationManagerImpl(this);
     }
 
     // TODO: Rewrite this to take in options instead.
     public ModelImpl(int vertexCount,
                      Func<int, Position, TVertex> vertexCreator) {
       this.Skin = new SkinImpl(vertexCount, vertexCreator);
+      this.AnimationManager = new AnimationManagerImpl(this);
     }
   }
 

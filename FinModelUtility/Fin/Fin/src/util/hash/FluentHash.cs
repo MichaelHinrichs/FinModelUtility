@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace fin.util.hash {
@@ -35,6 +36,18 @@ namespace fin.util.hash {
       this.Hash = hash;
       return this;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public FluentHash With<T>(IEnumerable<T> others) where T : notnull {
+      var hash = this.Hash;
+      foreach (var other in others) {
+        hash = hash * this.primeCoefficient_ + other.GetHashCode();
+      }
+
+      this.Hash = hash;
+      return this;
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator int(FluentHash d) => d.Hash;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 using fin.data;
@@ -22,15 +23,20 @@ namespace fin.model.impl {
       public bool IsDefined => this.impl.IsDefined;
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public void Set(
+      public void SetKeyframe(
           int frame,
           TValue t,
           float? optionalIncomingTangent,
           float? optionalOutgoingTangent)
         => this.impl.SetKeyframe(frame,
-                                  new ValueAndTangents<TValue>(t,
-                                    optionalIncomingTangent,
-                                    optionalOutgoingTangent));
+                                 new ValueAndTangents<TValue>(t,
+                                   optionalIncomingTangent,
+                                   optionalOutgoingTangent));
+
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      public void SetAllKeyframes(IEnumerable<TValue> values)
+        => this.impl.SetAllKeyframes(
+            values.Select(t => new ValueAndTangents<TValue>(t, null, null)));
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame)
@@ -116,10 +122,10 @@ namespace fin.model.impl {
         this.Interpolator = other.Interpolator;
 
         foreach (var keyframe in other.Keyframes) {
-          this.Set(keyframe.Frame,
-                   keyframe.Value.Value,
-                   keyframe.Value.IncomingTangent,
-                   keyframe.Value.OutgoingTangent);
+          this.SetKeyframe(keyframe.Frame,
+                           keyframe.Value.Value,
+                           keyframe.Value.IncomingTangent,
+                           keyframe.Value.OutgoingTangent);
         }
       }
 
@@ -141,7 +147,8 @@ namespace fin.model.impl {
 
         // TODO: Make this an option?
         if (isLastKeyframe && !useLoopingInterpolation) {
-          interpolatedValue = this.Interpolator.Interpolate(fromValue, fromValue, 0);
+          interpolatedValue =
+              this.Interpolator.Interpolate(fromValue, fromValue, 0);
           return true;
         }
 

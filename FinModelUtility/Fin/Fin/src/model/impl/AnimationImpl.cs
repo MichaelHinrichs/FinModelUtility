@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 using fin.data.indexable;
 using fin.math.interpolation;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
-    public IAnimationManager AnimationManager { get; } =
-      new AnimationManagerImpl();
+    public IAnimationManager AnimationManager { get; }
 
     private class AnimationManagerImpl : IAnimationManager {
+      private readonly IModel model_;
+
       private readonly IList<IModelAnimation> animations_ =
           new List<IModelAnimation>();
 
       private readonly IList<IMorphTarget> morphTargets_ =
           new List<IMorphTarget>();
 
-      public AnimationManagerImpl() {
+      public AnimationManagerImpl(IModel model) {
+        this.model_ = model;
         this.Animations =
             new ReadOnlyCollection<IModelAnimation>(this.animations_);
         this.MorphTargets =
@@ -28,20 +31,18 @@ namespace fin.model.impl {
       public IReadOnlyList<IModelAnimation> Animations { get; }
 
       public IModelAnimation AddAnimation() {
-        var animation = new ModelAnimationImpl();
+        var animation = new ModelAnimationImpl(this.model_.Skeleton.Count());
         this.animations_.Add(animation);
         return animation;
       }
 
       private class ModelAnimationImpl : IModelAnimation {
-        private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_ =
-            new();
-
+        private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_;
         private readonly Dictionary<IMesh, IMeshTracks> meshTracks_ = new();
 
-        public ModelAnimationImpl() {
-          this.BoneTracks = this.boneTracks_;
-          this.MeshTracks = this.meshTracks_;
+        public ModelAnimationImpl(int boneCount) {
+          this.boneTracks_ =
+              new IndexableDictionary<IBone, IBoneTracks>(boneCount);
         }
 
         public string Name { get; set; }
@@ -50,14 +51,14 @@ namespace fin.model.impl {
 
         public float FrameRate { get; set; }
 
-        public IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks {
-          get;
-        }
+        public IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks
+          => this.boneTracks_;
 
         public IBoneTracks AddBoneTracks(IBone bone)
           => this.boneTracks_[bone] = new BoneTracksImpl(this, bone);
 
-        public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
+        public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks
+          => this.meshTracks_;
 
         public IMeshTracks AddMeshTracks(IMesh mesh)
           => this.meshTracks_[mesh] = new MeshTracksImpl(this);

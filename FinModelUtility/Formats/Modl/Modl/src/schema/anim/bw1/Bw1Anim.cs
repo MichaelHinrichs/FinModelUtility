@@ -68,7 +68,6 @@ namespace modl.schema.anim.bw1 {
         }
       }
 
-      Span<double> parseBuffer = stackalloc double[4];
       for (var i = 0; i < boneCount; ++i) {
         var bone = this.AnimBones[i];
 
@@ -81,26 +80,39 @@ namespace modl.schema.anim.bw1 {
             (int) bone.RotationKeyframeCount);
         this.AnimBoneFrames.Add(animBoneFrames);
 
+        Span<ushort> shorts = stackalloc ushort[3];
+
         for (var p = 0; p < bone.PositionKeyframeCount; ++p) {
-          Parse3PositionValuesFrom2UShorts_(bone, ber, parseBuffer);
-          animBoneFrames.PositionFrames.Add(((float) parseBuffer[0],
-                                             (float) parseBuffer[1],
-                                             (float) parseBuffer[2]));
+          Parse3PositionValuesFrom2UShorts_(bone,
+                                            ber,
+                                            out var outX,
+                                            out var outY,
+                                            out var outZ);
+          animBoneFrames.PositionFrames.Add(((float) outX,
+                                             (float) outY,
+                                             (float) outZ));
         }
 
         for (var p = 0; p < bone.RotationKeyframeCount; ++p) {
           var flipSigns =
-              Parse4RotationValuesFrom3UShorts_(ber, parseBuffer);
+              Parse4RotationValuesFrom3UShorts_(
+                  ber,
+                  shorts,
+                  out var outX,
+                  out var outY,
+                  out var outZ,
+                  out var outW);
           if (flipSigns) {
-            for (var f = 0; f < parseBuffer.Length; f++) {
-              parseBuffer[f] *= -1;
-            }
+            outX *= -1;
+            outY *= -1;
+            outZ *= -1;
+            outW *= -1;
           }
 
-          animBoneFrames.RotationFrames.Add(((float) -parseBuffer[0],
-                                             (float) -parseBuffer[1],
-                                             (float) -parseBuffer[2],
-                                             (float) parseBuffer[3]));
+          animBoneFrames.RotationFrames.Add(((float) -outX,
+                                             (float) -outY,
+                                             (float) -outZ,
+                                             (float) outW));
         }
       }
     }
@@ -108,90 +120,63 @@ namespace modl.schema.anim.bw1 {
     public void Parse3PositionValuesFrom2UShorts_(
         IBwAnimBone animBone,
         SchemaBinaryReader br,
-        Span<double> outValues) {
+        out double outX,
+        out double outY,
+        out double outZ) {
       var first_uint = br.ReadUInt32();
       br.Position -= 2;
       var second_ushort = br.ReadUInt16();
 
-      outValues[0] =
+      outX =
           WeirdFloatMath.CreateWeirdDoubleFromUInt32(first_uint >> 0x15) *
           animBone.XPosDelta + animBone.XPosMin;
-      outValues[1] =
+      outY =
           WeirdFloatMath.CreateWeirdDoubleFromUInt32(
               (first_uint >> 10) & 0x7ff) * animBone.YPosDelta +
           animBone.YPosMin;
-      outValues[2] =
+      outZ =
           WeirdFloatMath.CreateWeirdDoubleFromUInt32(
               (uint) (second_ushort & 0x3ff)) * animBone.ZPosDelta +
           animBone.ZPosMin;
     }
 
     public bool Parse4RotationValuesFrom3UShorts_(IBinaryReader br,
-                                                  Span<double> outValues) {
-      Span<ushort> shorts = stackalloc ushort[3];
+                                                  Span<ushort> shorts,
+                                                  out double outX,
+                                                  out double outY,
+                                                  out double outZ,
+                                                  out double outW) {
       br.ReadUInt16s(shorts);
-      
+
       var first_ushort = shorts[0];
       var second_ushort = shorts[1];
       var third_ushort = shorts[2];
 
-      var const_for_out_value_2 = WeirdFloatMath.C_3_05175_EN5;
-
-      var out_x =
-          ((WeirdFloatMath.InterpretAsDouble(
-                WeirdFloatMath.Concat44(
-                    0x43300000,
-                    (uint) (first_ushort & 0x7fff))) -
-            WeirdFloatMath.C_4503599627370496) -
+      outX =
+          (WeirdFloatMath.CreateWeirdDoubleFromUInt32(
+               (uint) (first_ushort & 0x7fff)) -
            WeirdFloatMath.C_16384) *
           WeirdFloatMath.C_6_10351_EN5;
-      var out_y =
-          ((WeirdFloatMath.InterpretAsDouble(
-                WeirdFloatMath.Concat44(0x43300000,
-                                        (uint) (second_ushort & 0x7fff))) -
-            WeirdFloatMath.C_4503599627370496) -
+
+      outY =
+          (WeirdFloatMath.CreateWeirdDoubleFromUInt32(
+               (uint) (second_ushort & 0x7fff)) -
            WeirdFloatMath.C_16384) *
           WeirdFloatMath.C_6_10351_EN5;
-      var third_parsed_thing =
-          WeirdFloatMath.CreateWeirdDoubleFromUInt32(third_ushort);
 
-      outValues[0] = out_x;
-      outValues[1] = out_y;
-
-      var out_z =
-          (third_parsed_thing - 32768f) * const_for_out_value_2;
-      outValues[2] = out_z;
+      outZ =
+          (WeirdFloatMath.CreateWeirdDoubleFromUInt32(third_ushort) -
+           32768f) *
+          WeirdFloatMath.C_3_05175_EN5;
 
       var expected_normalized_w =
-          ((1 - out_x * out_x) - out_y * out_y) - out_z * out_z;
-      var out_w = 0d;
-      if (out_w <= expected_normalized_w) {
-        if (WeirdFloatMath.C_ZERO < expected_normalized_w) {
-          var inverse_sqrt_of_expected_normalized_w =
-              1.0 / Math.Sqrt(expected_normalized_w);
-          out_w =
-              (float) (-(inverse_sqrt_of_expected_normalized_w *
-                         inverse_sqrt_of_expected_normalized_w *
-                         expected_normalized_w -
-                         WeirdFloatMath.C_3) *
-                       inverse_sqrt_of_expected_normalized_w *
-                       WeirdFloatMath.C_HALF);
-          if (out_w <= 0.0) {
-            out_w = expected_normalized_w;
-          }
+          ((1 - outX * outX) - outY * outY) - outZ * outZ;
+      outW = 0d;
+      if (expected_normalized_w > 0) {
+        outW = Math.Sqrt(expected_normalized_w);
 
-          out_w = expected_normalized_w * out_w;
-        }
-
-        var sign = (first_ushort >> 0xf) switch {
-            0 => 1,
-            1 => -1,
-            _ => throw new InvalidDataException(),
-        };
-
-        outValues[3] = out_w * sign;
-      } else {
-        outValues[3] = out_w;
+        var sign = first_ushort >> 0xf == 0 ? 1 : -1;
+        outW *= sign;
       }
 
       return (short) second_ushort < 0;

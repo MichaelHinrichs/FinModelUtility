@@ -45,7 +45,7 @@ namespace fin.model.impl {
           float? optionalIncomingTangent,
           float? optionalOutgoingTangent)
         => this.axisTracks_[axis]
-               .Set(frame,
+               .SetKeyframe(frame,
                     radians,
                     optionalIncomingTangent,
                     optionalOutgoingTangent);

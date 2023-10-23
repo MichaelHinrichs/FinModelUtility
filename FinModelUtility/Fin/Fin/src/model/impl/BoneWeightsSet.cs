@@ -18,13 +18,7 @@ namespace fin.model.impl {
     }
 
     public static int GetHashCode(VertexSpace vertexSpace,
-                                  IReadOnlyList<IBoneWeight> weights) {
-      var hash = FluentHash.Start().With(vertexSpace);
-      foreach (var weight in weights) {
-        hash = hash.With(weight);
-      }
-
-      return hash;
-    }
+                                  IEnumerable<IBoneWeight> weights)
+      => FluentHash.Start().With(vertexSpace).With(weights);
   }
 }

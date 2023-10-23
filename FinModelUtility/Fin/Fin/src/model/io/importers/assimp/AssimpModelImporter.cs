@@ -171,7 +171,7 @@ namespace fin.model.io.importers.assimp {
                            .PositionKeys) {
                 var frame = (int) Math.Round(assPositionKey.Time / frameRate);
                 var assPosition = assPositionKey.Value;
-                positionTrack.Set(
+                positionTrack.SetKeyframe(
                     frame,
                     new Position(assPosition.X, assPosition.Y, assPosition.Z));
               }
@@ -183,7 +183,7 @@ namespace fin.model.io.importers.assimp {
                            .RotationKeys) {
                 var frame = (int) Math.Round(assRotationKey.Time / frameRate);
                 var assQuaternion = assRotationKey.Value;
-                rotationTrack.Set(frame,
+                rotationTrack.SetKeyframe(frame,
                                   new System.Numerics.Quaternion(
                                       assQuaternion.X,
                                       assQuaternion.Y,

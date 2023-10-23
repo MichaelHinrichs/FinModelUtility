@@ -287,22 +287,26 @@ namespace modl.api {
         var fbtPositions =
             finBoneTracks.UseCombinedPositionAxesTrack(
                 (int) animBone.PositionKeyframeCount);
-        for (var f = 0; f < animBone.PositionKeyframeCount; ++f) {
-          var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
-          fbtPositions.Set(f, new Position(flipSign * fPX, fPY, fPZ));
-        }
+        fbtPositions.SetAllKeyframes(
+            animBoneFrames.PositionFrames.Select(
+                (axes) => {
+                  var (fPX, fPY, fPZ) = axes;
+                  return new Position(flipSign * fPX, fPY, fPZ);
+                }));
 
         var fbtRotations =
             finBoneTracks.UseQuaternionRotationTrack(
                 (int) animBone.RotationKeyframeCount);
-        for (var f = 0; f < animBone.RotationKeyframeCount; ++f) {
-          var (fRX, fRY, fRZ, frW) = animBoneFrames.RotationFrames[f];
-
-          var animationQuaternion =
-              new Quaternion(flipSign * fRX, fRY, fRZ, flipSign * frW);
-
-          fbtRotations.Set(f, animationQuaternion);
-        }
+        fbtRotations.SetAllKeyframes(
+            animBoneFrames.RotationFrames.Select(
+                (axes) => {
+                  var (fRX, fRY, fRZ, frW) = axes;
+                  return new Quaternion(
+                      flipSign * fRX,
+                      fRY,
+                      fRZ,
+                      flipSign * frW);
+                }));
       }
     }
   }

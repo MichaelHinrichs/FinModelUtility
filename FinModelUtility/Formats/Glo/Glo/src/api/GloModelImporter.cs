@@ -184,10 +184,10 @@ namespace glo.api {
 
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
-              positions.Set(time,
-                            new Position(moveKey.Xyz.X,
-                                         moveKey.Xyz.Y,
-                                         moveKey.Xyz.Z));
+              positions.SetKeyframe(time,
+                                    new Position(moveKey.Xyz.X,
+                                                 moveKey.Xyz.Y,
+                                                 moveKey.Xyz.Z));
 
               if (isLast) {
                 break;
@@ -221,7 +221,7 @@ namespace glo.api {
                                  rotateKey.Y,
                                  rotateKey.Z,
                                  rotateKey.W);
-              rotations.Set(time, quaternionKey);
+              rotations.SetKeyframe(time, quaternionKey);
 
               if (isLast) {
                 break;

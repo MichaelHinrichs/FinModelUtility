@@ -164,7 +164,7 @@ namespace UoT.api {
                 rootAnimationTracks.UseCombinedPositionAxesTrack(frameCount);
             for (var f = 0; f < frameCount; ++f) {
               var pos = ootAnimation.GetPosition(f);
-              positions.Set(f, new Position(pos.X, pos.Y, pos.Z));
+              positions.SetKeyframe(f, new Position(pos.X, pos.Y, pos.Z));
             }
 
             for (var i = 0; i < ootLimbs.Count; ++i) {

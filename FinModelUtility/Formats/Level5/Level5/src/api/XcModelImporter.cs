@@ -244,7 +244,7 @@ namespace level5.api {
                   }
 
                   if (displayState != null) {
-                    displayStates.Set(frame, displayState.Value);
+                    displayStates.SetKeyframe(frame, displayState.Value);
                   }
                 }
               }
