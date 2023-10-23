@@ -128,27 +128,29 @@ namespace modl.schema.anim.bw1 {
 
     public bool Parse4RotationValuesFrom3UShorts_(IBinaryReader br,
                                                   Span<double> outValues) {
-      var first_ushort = br.ReadUInt16();
-      var second_ushort = br.ReadUInt16();
-      var third_ushort = br.ReadUInt16();
+      Span<ushort> shorts = stackalloc ushort[3];
+      br.ReadUInt16s(shorts);
+      var first_ushort = shorts[0];
+      var second_ushort = shorts[1];
+      var third_ushort = shorts[2];
 
-      var const_for_out_value_2 = WeirdFloatMath.InterpretAsSingle(0x38000000);
+      var const_for_out_value_2 = WeirdFloatMath.C_6_10351_EN5;
 
       var out_x =
-          ((WeirdFloatMath.InterpretAsDouble(WeirdFloatMath.Concat44(
-                                                 0x43300000,
-                                                 (uint) (first_ushort &
-                                                     0x7fff))) -
-            WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) -
-           WeirdFloatMath.InterpretAsSingle(0x46800000)) *
-          WeirdFloatMath.InterpretAsSingle(0x38800000);
+          ((WeirdFloatMath.InterpretAsDouble(
+                WeirdFloatMath.Concat44(
+                    0x43300000,
+                    (uint) (first_ushort & 0x7fff))) -
+            WeirdFloatMath.C_4503599627370496) -
+           WeirdFloatMath.C_16384) *
+          WeirdFloatMath.C_6_10351_EN5;
       var out_y =
           ((WeirdFloatMath.InterpretAsDouble(
                 WeirdFloatMath.Concat44(0x43300000,
                                         (uint) (second_ushort & 0x7fff))) -
-            WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) -
-           WeirdFloatMath.InterpretAsSingle(0x46800000)) *
-          WeirdFloatMath.InterpretAsSingle(0x38800000);
+            WeirdFloatMath.C_4503599627370496) -
+           WeirdFloatMath.C_16384) *
+          WeirdFloatMath.C_6_10351_EN5;
       var third_parsed_thing =
           WeirdFloatMath.CreateWeirdDoubleFromUInt32(third_ushort);
 
@@ -163,17 +165,16 @@ namespace modl.schema.anim.bw1 {
           ((1 - out_x * out_x) - out_y * out_y) - out_z * out_z;
       var out_w = 0d;
       if (out_w <= expected_normalized_w) {
-        if (WeirdFloatMath.InterpretAsSingle(0x0229C4AB) <
-            expected_normalized_w) {
+        if (WeirdFloatMath.C_ZERO < expected_normalized_w) {
           var inverse_sqrt_of_expected_normalized_w =
               1.0 / Math.Sqrt(expected_normalized_w);
           out_w =
               (float) (-(inverse_sqrt_of_expected_normalized_w *
                          inverse_sqrt_of_expected_normalized_w *
                          expected_normalized_w -
-                         WeirdFloatMath.InterpretAsSingle(0x40400000)) *
+                         WeirdFloatMath.C_3) *
                        inverse_sqrt_of_expected_normalized_w *
-                       WeirdFloatMath.InterpretAsSingle(0x3F000000));
+                       WeirdFloatMath.C_HALF);
           if (out_w <= 0.0) {
             out_w = expected_normalized_w;
           }
