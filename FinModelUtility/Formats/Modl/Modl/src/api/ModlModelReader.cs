@@ -106,11 +106,19 @@ namespace modl.api {
                               finBonesByIdentifier);
         }
 
+        var levelDir = modlFile.AssertGetParent();
+        var baseLevelDir = levelDir.AssertGetParent();
         var textureDictionary = new LazyDictionary<string, Task<ITexture>>(
-            async textureName => {
-              var textureFile =
-                  modlFile.AssertGetParent()
-                          .AssertGetExistingFile($"{textureName}.texr");
+            async textureNameWithoutExtension => {
+              var textureName = $"{textureNameWithoutExtension}.texr";
+              IReadOnlyTreeFile textureFile;
+              if (!levelDir.TryToGetExistingFile(
+                      textureName,
+                      out textureFile)) {
+                textureFile = baseLevelDir
+                              .GetFilesWithNameRecursive(textureName)
+                              .First();
+              }
 
               var texr = gameVersion == GameVersion.BW2
                   ? (ITexr) textureFile.ReadNew<Gtxd>()

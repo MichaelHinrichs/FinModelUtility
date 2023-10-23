@@ -325,8 +325,12 @@ namespace modl.schema.xml {
                              GameVersion gameVersion,
                              IBwTerrain bwTerrain,
                              IDictionary<string, IBwObject> objectMap) {
+      var parentDir = levelXmlFile.AssertGetParent();
       var levelDirectory =
-          new FinDirectory(levelXmlFile.FullNameWithoutExtension);
+          parentDir.GetExistingSubdirs()
+                   .Single(
+                       subdir => subdir.FullPath.StartsWith(
+                           levelXmlFile.FullNameWithoutExtension[..^4]));
       var modelFiles = levelDirectory
                        .GetExistingFiles()
                        .Where(file => file.Name.EndsWith(".modl"))
@@ -456,10 +460,13 @@ namespace modl.schema.xml {
                                                    translation.X,
                                                    translation.Z),
                       translation.Z);
-                } else if (nextLinkId != null) {
+                } else if (
+                    nextLinkId != null &&
+                    levelObjMap.TryGetValue(nextLinkId,
+                                            out var positionObj)) {
                   sceneObject.SetPosition(
                       translation.X,
-                      levelObjMap[nextLinkId].Position.Y,
+                      positionObj.Position.Y,
                       translation.Z);
                 } else {
                   sceneObject.SetPosition(
@@ -470,16 +477,16 @@ namespace modl.schema.xml {
 
                 levelObjMap[levelObj.Id] = sceneObject;
 
-                if (nextLinkId != null) {
-                  var nextLinkObj = levelObjMap[nextLinkId];
-
-                  var nextLinkRotation = nextLinkObj.Rotation;
+                if (nextLinkId != null &&
+                    levelObjMap.TryGetValue(nextLinkId,
+                                            out var rotationAndLinkObj)) {
+                  var nextLinkRotation = rotationAndLinkObj.Rotation;
                   sceneObject.Rotation.SetDegrees(
                       nextLinkRotation.XDegrees,
                       nextLinkRotation.YDegrees,
                       nextLinkRotation.ZDegrees);
 
-                  var nextLinkScale = nextLinkObj.Scale;
+                  var nextLinkScale = rotationAndLinkObj.Scale;
                   sceneObject.SetScale(nextLinkScale.X,
                                        nextLinkScale.Y,
                                        nextLinkScale.Z);

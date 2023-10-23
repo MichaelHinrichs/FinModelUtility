@@ -44,8 +44,7 @@ namespace modl.api {
       var outDirectory =
           outFile.AssertGetParent()
                  .GetExistingSubdirs()
-                 .Single(
-                     dir => dir.Name == outName + "_Level");
+                 .Single(dir => dir.Name.StartsWith(outName + "_L"));
       var allMapsDirectory = outDirectory.AssertGetParent();
 
       return this.ImportModel(outFile,

@@ -83,8 +83,10 @@ namespace modl.schema.anim.bw2 {
         var animBoneFrames = new AnimBoneFrames();
         this.AnimBoneFrames.Add(animBoneFrames);
 
+        Span<double> floats = stackalloc double[4];
+
         for (var p = 0; p < bone.PositionKeyframeCount; ++p) {
-          Parse3PositionValuesFrom2UShorts_(bone, ber, out var floats);
+          Parse3PositionValuesFrom2UShorts_(bone, ber, floats);
           animBoneFrames.PositionFrames.Add(((float) floats[0],
                                              (float) floats[1],
                                              (float) floats[2]));
@@ -92,7 +94,7 @@ namespace modl.schema.anim.bw2 {
 
         for (var p = 0; p < bone.RotationKeyframeCount; ++p) {
           var flipSigns =
-              this.Parse4RotationValuesFrom4UShorts_(ber, out var floats);
+              this.Parse4RotationValuesFrom4UShorts_(ber, floats);
           if (flipSigns) {
             for (var f = 0; f < floats.Length; f++) {
               floats[f] *= -1;
@@ -110,38 +112,40 @@ namespace modl.schema.anim.bw2 {
     public void Parse3PositionValuesFrom2UShorts_(
         IBwAnimBone animBone,
         SchemaBinaryReader br,
-        out double[] outValues) {
+        Span<double> outValues) {
       var first_uint = br.ReadUInt32();
       br.Position -= 2;
       var second_ushort = br.ReadUInt16();
 
-      outValues = new double[3];
       outValues[0] =
           (WeirdFloatMath.InterpretAsDouble(
                WeirdFloatMath.Concat44(0x43300000,
                                         (uint) (first_uint >> 0x15))) -
-           WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) *
+           WeirdFloatMath.C_4503599627370496) *
           animBone.XPosDelta + animBone.XPosMin;
       outValues[1] =
           (WeirdFloatMath.InterpretAsDouble(
                WeirdFloatMath.Concat44(0x43300000,
                                         (uint) ((first_uint >> 10) & 0x7ff))) -
-           WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) *
+           WeirdFloatMath.C_4503599627370496) *
           animBone.YPosDelta + animBone.YPosMin;
       outValues[2] =
           (WeirdFloatMath.InterpretAsDouble(
                WeirdFloatMath.Concat44(0x43300000,
                                         (uint) (second_ushort & 0x3ff))) -
-           WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) *
+           WeirdFloatMath.C_4503599627370496) *
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
     public bool Parse4RotationValuesFrom4UShorts_(IBinaryReader br,
-                                                  out double[] outValues) {
-      var first_ushort = br.ReadUInt16();
-      var second_ushort = br.ReadUInt16();
-      var third_ushort = br.ReadUInt16();
-      var fourth_ushort = br.ReadUInt16();
+                                                  Span<double> outValues) {
+      Span<ushort> shorts = stackalloc ushort[4];
+      br.ReadUInt16s(shorts);
+
+      var first_ushort = shorts[0];
+      var second_ushort = shorts[1];
+      var third_ushort = shorts[2];
+      var fourth_ushort = shorts[3];
 
       const double DOUBLE_80600f40 = 4.503601774854144E15;
       const double FLOAT_80603708 = 3.0517578E-5;
@@ -186,7 +190,6 @@ namespace modl.schema.anim.bw2 {
         outW = -outW;
       }
 
-      outValues = new double[4];
       outValues[0] = outX;
       outValues[1] = outY;
       outValues[2] = outZ;

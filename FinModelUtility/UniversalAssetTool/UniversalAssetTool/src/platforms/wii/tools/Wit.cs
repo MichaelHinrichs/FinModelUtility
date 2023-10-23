@@ -18,28 +18,30 @@ namespace uni.platforms.wii.tools {
           $"Cannot dump ROM because it does not exist: {romFile}");
 
       var didChange = false;
-      if (ExtractorUtil.HasNotBeenExtractedYet(romFile, out var finalDirectory)) {
+      if (ExtractorUtil.HasNotBeenExtractedYet(romFile,
+                                               out var finalDirectory)) {
         didChange = true;
-
-        this.DumpRom_(romFile);
+        this.DumpRom_(romFile, finalDirectory);
         Asserts.True(finalDirectory.Exists,
                      $"Directory was not created: {finalDirectory}");
       }
 
-      hierarchy = new FileHierarchy(romFile.NameWithoutExtension, finalDirectory);
+      hierarchy =
+          new FileHierarchy(romFile.NameWithoutExtension, finalDirectory);
       return didChange;
     }
 
-    private void DumpRom_(ISystemFile romFile) {
+    private void DumpRom_(ISystemFile romFile, ISystemDirectory outDirectory) {
       var logger = Logging.Create<Wit>();
       logger.LogInformation($"Dumping ROM {romFile}...");
 
+      outDirectory.Delete();
       Files.RunInDirectory(
           romFile.AssertGetParent()!,
           () => {
-            ProcessUtil.ExecuteBlockingSilently(
+            ProcessUtil.ExecuteBlocking(
                 WiiToolsConstants.WIT_EXE,
-                $"extract \"{romFile.FullPath}\" \"./{romFile.NameWithoutExtension}\"");
+                $"extract \"{romFile.FullPath}\" \"{outDirectory.FullPath}\"");
           });
     }
   }

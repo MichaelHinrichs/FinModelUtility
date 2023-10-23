@@ -130,6 +130,7 @@ namespace modl.schema.anim.bw1 {
                                                   Span<double> outValues) {
       Span<ushort> shorts = stackalloc ushort[3];
       br.ReadUInt16s(shorts);
+      
       var first_ushort = shorts[0];
       var second_ushort = shorts[1];
       var third_ushort = shorts[2];
