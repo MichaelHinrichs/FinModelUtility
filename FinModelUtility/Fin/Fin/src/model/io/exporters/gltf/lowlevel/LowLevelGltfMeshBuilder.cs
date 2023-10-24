@@ -9,7 +9,6 @@ using CommunityToolkit.HighPerformance;
 using fin.color;
 using fin.math;
 
-using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
 using FinPrimitiveType = fin.model.PrimitiveType;
@@ -24,8 +23,7 @@ namespace fin.model.io.exporters.gltf.lowlevel {
         ModelRoot gltfModel,
         IModel model,
         float scale,
-        Dictionary<IMaterial, (IList<byte>, Material)>
-            finToTexCoordAndGltfMaterial) {
+        IDictionary<IMaterial, Material> finToTexCoordAndGltfMaterial) {
       var skin = model.Skin;
       var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
 
@@ -157,8 +155,7 @@ namespace fin.model.io.exporters.gltf.lowlevel {
         foreach (var finPrimitive in finMesh.Primitives) {
           Material material;
           if (finPrimitive.Material != null) {
-            (_, material) =
-                finToTexCoordAndGltfMaterial[finPrimitive.Material];
+            material = finToTexCoordAndGltfMaterial[finPrimitive.Material];
           } else {
             material = nullMaterial;
           }

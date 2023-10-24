@@ -9,11 +9,11 @@ using SharpGLTF.Schema2;
 namespace fin.model.io.exporters.gltf {
   public static class GltfTextureUtil {
     public static TextureBuilder UseTexture(this ChannelBuilder channelBuilder,
-                                            ITexture finTexture) {
+                                            ITexture finTexture,
+                                            MemoryImage memoryImage) {
       var textureBuilder = channelBuilder.UseTexture();
       textureBuilder
-          .WithPrimaryImage(
-              GltfTextureUtil.GetGltfImageFromFinTexture_(finTexture))
+          .WithPrimaryImage(memoryImage)
           .WithCoordinateSet(0)
           .WithSampler(
               GltfTextureUtil.ConvertWrapMode_(finTexture.WrapModeU),
@@ -27,14 +27,6 @@ namespace fin.model.io.exporters.gltf {
           finTexture.RotationDegrees);
 
       return textureBuilder;
-    }
-
-    private static MemoryImage GetGltfImageFromFinTexture_(
-        ITexture finTexture) {
-      using var imageStream = new MemoryStream();
-      finTexture.Image.ExportToStream(imageStream, finTexture.BestImageFormat);
-      var imageBytes = imageStream.ToArray();
-      return new MemoryImage(imageBytes);
     }
 
     private static TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)

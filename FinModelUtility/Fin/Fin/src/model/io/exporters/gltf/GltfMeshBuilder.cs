@@ -25,8 +25,7 @@ namespace fin.model.io.exporters.gltf {
         ModelRoot gltfModel,
         IModel model,
         float scale,
-        Dictionary<IMaterial, (IList<byte>, MaterialBuilder)>
-            finToTexCoordAndGltfMaterial) {
+        IDictionary<IMaterial, MaterialBuilder> finToTexCoordAndGltfMaterial) {
       var skin = model.Skin;
       var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
 
@@ -52,7 +51,7 @@ namespace fin.model.io.exporters.gltf {
         foreach (var primitive in finMesh.Primitives) {
           MaterialBuilder materialBuilder;
           if (primitive.Material != null) {
-            (_, materialBuilder) =
+            materialBuilder =
                 finToTexCoordAndGltfMaterial[primitive.Material];
           } else {
             materialBuilder = nullMaterialBuilder;
@@ -161,9 +160,9 @@ namespace fin.model.io.exporters.gltf {
                   gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
 
               foreach (var (v1, v2, v3) in primitive
-                           .GetOrderedTriangleVertexIndices()
-                           .Select(i => vertices[i])
-                           .SeparateTriplets()) {
+                                           .GetOrderedTriangleVertexIndices()
+                                           .Select(i => vertices[i])
+                                           .SeparateTriplets()) {
                 triangles.AddTriangle(v1, v2, v3);
               }
 

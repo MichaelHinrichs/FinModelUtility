@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-
-using fin.log;
-using fin.model.util;
+﻿using fin.log;
 using fin.util.asserts;
-using fin.util.image;
 
-using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
-
-using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
 namespace fin.model.io.exporters.gltf.lowlevel {
   public class LowLevelGltfModelExporter : IGltfModelExporter {
@@ -54,69 +45,14 @@ namespace fin.model.io.exporters.gltf.lowlevel {
           model.AnimationManager.Animations);
 
       // Builds materials.
-      // TODO: Update this if GLTF is ever extended...
       var finToTexCoordAndGltfMaterial =
-          new Dictionary<IMaterial, (IList<byte>, Material)>();
-      {
-        foreach (var finMaterial in model.MaterialManager.All) {
-          var gltfMaterial = new MaterialBuilder(finMaterial.Name)
-                             .WithDoubleSide(finMaterial.CullingMode switch {
-                               CullingMode.SHOW_FRONT_ONLY => false,
-                               // Darn, guess we can't support this.
-                               CullingMode.SHOW_BACK_ONLY => true,
-                               CullingMode.SHOW_BOTH => true,
-                               // Darn, guess we can't support this either.
-                               CullingMode.SHOW_NEITHER => false,
-                               _ => throw new ArgumentOutOfRangeException()
-                             })
-                             .WithSpecularGlossinessShader()
-                             .WithSpecularGlossiness(new Vector3(0), 0);
-
-          switch (finMaterial) {
-            case IStandardMaterial standardMaterial: {
-                var diffuseTexture = standardMaterial.DiffuseTexture;
-                if (diffuseTexture != null) {
-                  gltfMaterial
-                      .UseChannel(KnownChannel.Diffuse)
-                      .UseTexture(diffuseTexture);
-                }
-
-                var ambientOcclusionTexture =
-                    standardMaterial.AmbientOcclusionTexture;
-                if (ambientOcclusionTexture != null) {
-                  gltfMaterial
-                      .UseChannel(KnownChannel.Occlusion)
-                      .UseTexture(ambientOcclusionTexture);
-                }
-
-                break;
-              }
-            default: {
-                var texture = PrimaryTextureFinder.GetFor(finMaterial);
-                if (texture != null) {
-                  var alphaMode = texture.TransparencyType switch {
-                    ImageTransparencyType.OPAQUE => AlphaMode.OPAQUE,
-                    ImageTransparencyType.MASK => AlphaMode.MASK,
-                    ImageTransparencyType.TRANSPARENT => AlphaMode.BLEND,
-                    _ => throw new ArgumentOutOfRangeException()
-                  };
-                  gltfMaterial.WithAlpha(alphaMode);
-
-                  gltfMaterial
-                      .UseChannel(KnownChannel.Diffuse)
-                      .UseTexture(texture);
-                }
-                break;
-              }
-          }
-
-          finToTexCoordAndGltfMaterial[finMaterial] =
-              (new byte[] { 0 }, modelRoot.CreateMaterial(gltfMaterial));
-        }
-      }
+          new GltfMaterialBuilder().GetMaterials(
+              modelRoot,
+              model.MaterialManager);
 
       // Builds meshes.
-      var meshBuilder = new LowLevelGltfMeshBuilder { UvIndices = this.UvIndices };
+      var meshBuilder = new LowLevelGltfMeshBuilder
+          { UvIndices = this.UvIndices };
       var gltfMeshes = meshBuilder.BuildAndBindMesh(
           modelRoot,
           model,
@@ -154,8 +90,8 @@ namespace fin.model.io.exporters.gltf.lowlevel {
 
       var writeSettings = new WriteSettings {
           ImageWriting = this.Embedded
-                             ? ResourceWriteMode.EmbeddedAsBase64
-                             : ResourceWriteMode.SatelliteFile,
+              ? ResourceWriteMode.EmbeddedAsBase64
+              : ResourceWriteMode.SatelliteFile,
           MergeBuffers = false,
           Validation = ValidationMode.Skip,
       };
