@@ -1,14 +1,9 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 
 using CommunityToolkit.HighPerformance;
 
 using fin.color;
-using fin.model;
-using fin.schema.vector;
 using fin.util.asserts;
-using fin.util.color;
-using fin.util.enums;
 
 using gx;
 
@@ -22,10 +17,7 @@ namespace dat.schema {
   // FObj: keyframe descriptor
   // IObj: image
   // JObj: joint (bone)
-  // MObj: material
-  // PObj: primitive
   // SObj: Scene object
-  // TObj: texture
 
   /// <summary>
   ///   References:
@@ -154,13 +146,10 @@ namespace dat.schema {
           jObj.Name = br.ReadStringNT();
         }
 
-        var jObjFlags = jObjData.Flags;
-        var isSpline = jObjFlags.CheckFlag(JObjFlags.SPLINE);
-        var isParticleJoint = jObjFlags.CheckFlag(JObjFlags.PTCL);
-        var isDObj = !isSpline && !isParticleJoint;
-
-        if (isDObj) {
-          this.ReadDObjIntoJObj_(br, jObj, jObj.Data.ObjectStructOffset);
+        if (jObj.Data.FirstDObjOffset != 0) {
+          br.Position = jObj.Data.FirstDObjOffset;
+          jObj.FirstDObj = new DObj(this);
+          jObj.FirstDObj.Read(br);
         }
 
         var firstChildOffset = jObj.Data.FirstChildBoneOffset;
@@ -176,36 +165,11 @@ namespace dat.schema {
 
       br.PopLocalSpace();
     }
-
-    private void ReadDObjIntoJObj_(IBinaryReader br,
-                                   JObj jObj,
-                                   uint objectStructOffset) {
-      if (!this.AssertNullOrValidPointer_(objectStructOffset)) {
-        return;
-      }
-
-      var dObj = new DObj();
-      jObj.DObjs.Add(dObj);
-
-      br.Position = objectStructOffset;
-      dObj.Data.Read(br);
-
-      if (dObj.Data.MeshStructOffset != 0) {
-        br.Position = dObj.Data.MeshStructOffset;
-
-        var firstPObj = new PObj(this);
-        firstPObj.Read(br);
-
-        dObj.FirstPObj = firstPObj;
-      }
-
-      this.ReadDObjIntoJObj_(br, jObj, dObj.Data.NextObjectOffset);
-    }
   }
 
   public static class BinaryReaderExtensions {
     public static Vector2 ReadVector2(this IBinaryReader br,
-                                      VertexDescriptorData descriptor) {
+                                      VertexDescriptor descriptor) {
       var vec2 = new Vector2();
       br.ReadIntoVector(descriptor,
                         new Span<Vector2>(ref vec2).Cast<Vector2, float>());
@@ -213,7 +177,7 @@ namespace dat.schema {
     }
 
     public static Vector3 ReadVector3(this IBinaryReader br,
-                                      VertexDescriptorData descriptor) {
+                                      VertexDescriptor descriptor) {
       var vec3 = new Vector3();
       br.ReadIntoVector(descriptor,
                         new Span<Vector3>(ref vec3).Cast<Vector3, float>());
@@ -221,7 +185,7 @@ namespace dat.schema {
     }
 
     public static Vector4 ReadVector4(this IBinaryReader br,
-                                      VertexDescriptorData descriptor) {
+                                      VertexDescriptor descriptor) {
       var vec4 = new Vector4();
       br.ReadIntoVector(descriptor,
                         new Span<Vector4>(ref vec4).Cast<Vector4, float>());
@@ -229,7 +193,7 @@ namespace dat.schema {
     }
 
     public static void ReadIntoVector(this IBinaryReader br,
-                                      VertexDescriptorData descriptor,
+                                      VertexDescriptor descriptor,
                                       Span<float> floats) {
       Asserts.True(floats.Length >= descriptor.ComponentCount);
 
@@ -361,66 +325,5 @@ namespace dat.schema {
 
       return RootNodeType.Undefined;
     }
-  }
-
-  [BinarySchema]
-  public partial class VertexDescriptorData : IBinaryConvertible {
-    public GxAttribute Attribute { get; set; }
-
-    [IntegerFormat(SchemaIntegerType.UINT32)]
-    public GxAttributeType AttributeType { get; set; }
-
-
-    [IntegerFormat(SchemaIntegerType.UINT32)]
-    public GxComponentCount ComponentCountType { get; set; }
-
-    [Ignore]
-    public int ComponentCount => this.Attribute switch {
-        GxAttribute.POS => this.ComponentCountType switch {
-            GxComponentCount.POS_XY  => 2,
-            GxComponentCount.POS_XYZ => 3,
-        },
-        GxAttribute.NRM => this.ComponentCountType switch {
-            GxComponentCount.NRM_XYZ => 3,
-        },
-        GxAttribute.TEX0 or GxAttribute.TEX1 => this.ComponentCountType switch {
-            GxComponentCount.TEX_S  => 1,
-            GxComponentCount.TEX_ST => 2,
-        },
-    };
-
-
-    [IntegerFormat(SchemaIntegerType.UINT32)]
-    public uint RawComponentType { get; set; }
-
-    [Ignore]
-    public GxComponentType AxesComponentType
-      => (GxComponentType) this.RawComponentType;
-
-    [Ignore]
-    public ColorComponentType ColorComponentType
-      => (ColorComponentType) this.RawComponentType;
-
-
-    public byte Scale { get; set; }
-
-    public byte Padding { get; set; }
-
-    public ushort Stride { get; set; }
-
-    public uint ArrayOffset { get; set; }
-  }
-
-  public class VertexDescriptor {
-    public VertexDescriptorData Data { get; } = new();
-  }
-
-  public enum ColorComponentType : uint {
-    RGB565,
-    RGB888,
-    RGBX8888,
-    RGBA4444,
-    RGBA6,
-    RGBA8888,
   }
 }

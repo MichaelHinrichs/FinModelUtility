@@ -56,7 +56,7 @@ namespace dat.schema {
     public JObjFlags Flags { get; set; }
     public uint FirstChildBoneOffset { get; set; }
     public uint NextSiblingBoneOffset { get; set; }
-    public uint ObjectStructOffset { get; set; }
+    public uint FirstDObjOffset { get; set; }
     public Vector3f RotationRadians { get; } = new();
     public Vector3f Scale { get; } = new();
     public Vector3f Position { get; } = new();
@@ -65,12 +65,25 @@ namespace dat.schema {
     public uint UnknownPointer { get; set; }
   }
 
+  /// <summary>
+  ///   Joint object.
+  /// </summary>
   public class JObj {
     public JObjData Data { get; } = new();
 
     public string Name { get; set; }
 
-    public List<DObj> DObjs { get; } = new();
+    public DObj FirstDObj { get; set; }
+
+    public IEnumerable<DObj> DObjs {
+      get {
+        var current = this.FirstDObj;
+        while (current != null) {
+          yield return current;
+          current = current.NextDObj;
+        }
+      }
+    }
 
     public List<JObj> Children { get; } = new();
   }

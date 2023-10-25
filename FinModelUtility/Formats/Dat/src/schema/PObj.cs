@@ -60,10 +60,9 @@ namespace dat.schema {
           // Reads vertex descriptors
           while (true) {
             var vertexDescriptor = new VertexDescriptor();
-            var vertexDescriptorData = vertexDescriptor.Data;
-            vertexDescriptorData.Read(br);
+            vertexDescriptor.Read(br);
 
-            if (vertexDescriptorData.Attribute == GxAttribute.NULL) {
+            if (vertexDescriptor.Attribute == GxAttribute.NULL) {
               break;
             }
 
@@ -124,13 +123,12 @@ namespace dat.schema {
                   IColor? color = null;
 
                   foreach (var vertexDescriptor in this.VertexDescriptors) {
-                    var vertexDescriptorData = vertexDescriptor.Data;
-                    var vertexAttribute = vertexDescriptorData.Attribute;
-                    var vertexFormat = vertexDescriptorData.AttributeType;
+                    var vertexAttribute = vertexDescriptor.Attribute;
+                    var vertexFormat = vertexDescriptor.AttributeType;
 
                     if (vertexAttribute == GxAttribute.CLR0 &&
                         vertexFormat == GxAttributeType.DIRECT) {
-                      switch (vertexDescriptor.Data.ColorComponentType) {
+                      switch (vertexDescriptor.ColorComponentType) {
                         case ColorComponentType.RGB565: {
                           color = ColorUtil.ParseRgb565(br.ReadUInt16());
                           break;
@@ -193,8 +191,8 @@ namespace dat.schema {
                         _ => throw new NotImplementedException(),
                     };
 
-                    var offset = vertexDescriptorData.ArrayOffset +
-                                 vertexDescriptorData.Stride * value;
+                    var offset = vertexDescriptor.ArrayOffset +
+                                 vertexDescriptor.Stride * value;
 
                     switch (vertexAttribute) {
                       case GxAttribute.PNMTXIDX: {
@@ -204,25 +202,25 @@ namespace dat.schema {
                       case GxAttribute.POS: {
                         position = br.SubreadAt(
                             offset,
-                            sbr => sbr.ReadVector3(vertexDescriptorData));
+                            sbr => sbr.ReadVector3(vertexDescriptor));
                         break;
                       }
                       case GxAttribute.NRM: {
                         normal = br.SubreadAt(
                             offset,
-                            sbr => sbr.ReadVector3(vertexDescriptorData));
+                            sbr => sbr.ReadVector3(vertexDescriptor));
                         break;
                       }
                       case GxAttribute.TEX0: {
                         uv0 = br.SubreadAt(
                             offset,
-                            sbr => sbr.ReadVector2(vertexDescriptorData));
+                            sbr => sbr.ReadVector2(vertexDescriptor));
                         break;
                       }
                       case GxAttribute.TEX1: {
                         uv1 = br.SubreadAt(
                             offset,
-                            sbr => sbr.ReadVector2(vertexDescriptorData));
+                            sbr => sbr.ReadVector2(vertexDescriptor));
                         break;
                       }
                       default: throw new NotImplementedException();
