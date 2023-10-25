@@ -1,9 +1,10 @@
 ﻿using System.Drawing;
 
+using dat.image;
+
 using fin.image;
 
 using gx;
-using gx.image;
 
 using schema.binary;
 
@@ -40,7 +41,7 @@ namespace dat.schema {
       // TODO: Add support for indexed textures
       try {
         br.Position = imageDataOffset;
-        this.Image = new GxImageReader(width, height, format).ReadImage(br);
+        this.Image = new DatImageReader(width, height, format).ReadImage(br);
       } catch {
         this.Image = FinImage.Create1x1FromColor(Color.Magenta);
       }

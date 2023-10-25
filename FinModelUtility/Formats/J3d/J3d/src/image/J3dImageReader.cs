@@ -3,13 +3,15 @@ using fin.image.io;
 using fin.image.io.image;
 using fin.image.io.pixel;
 
+using gx;
+
 using schema.binary;
 
-namespace gx.image {
-  public class GxImageReader : IImageReader {
+namespace j3d.image {
+  public class J3dImageReader : IImageReader {
     private readonly IImageReader impl_;
 
-    public GxImageReader(int width, int height, GxTextureFormat format) {
+    public J3dImageReader(int width, int height, GxTextureFormat format) {
       this.impl_ = this.CreateImpl_(width, height, format);
     }
 

@@ -18,6 +18,7 @@
     RGBA5553,
     RGBA8888,
     RGBA16161616,
+    AR88GB88,
 
     HILO88,
 

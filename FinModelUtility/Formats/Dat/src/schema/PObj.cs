@@ -223,7 +223,10 @@ namespace dat.schema {
                             sbr => sbr.ReadVector2(vertexDescriptor));
                         break;
                       }
-                      default: throw new NotImplementedException();
+                      default: {
+                        break;
+                        //throw new NotImplementedException();
+                      }
                     }
                   }
 

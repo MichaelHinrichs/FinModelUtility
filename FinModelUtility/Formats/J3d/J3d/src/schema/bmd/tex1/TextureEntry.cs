@@ -6,7 +6,8 @@ using fin.schema;
 using fin.util.color;
 
 using gx;
-using gx.image;
+
+using j3d.image;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -126,7 +127,7 @@ namespace j3d.schema.bmd.tex1 {
 
     public unsafe IImage ToBitmap() {
       try {
-        return new GxImageReader(this.Width, this.Height, this.Format).ReadImage(
+        return new J3dImageReader(this.Width, this.Height, this.Format).ReadImage(
             this.Data,
             Endianness.BigEndian);
       } catch { }
