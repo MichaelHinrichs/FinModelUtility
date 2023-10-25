@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using fin.color;
 using fin.image;
 using fin.image.formats;
 using fin.model;
@@ -230,21 +229,21 @@ namespace j3d.exporter {
 
     public ColorType ColorType { get; }
 
-    private static ColorType GetColorType_(TextureFormat textureFormat) {
+    private static ColorType GetColorType_(GxTextureFormat textureFormat) {
       switch (textureFormat) {
-        case TextureFormat.I4:
-        case TextureFormat.I8:
-        case TextureFormat.A4_I4:
-        case TextureFormat.A8_I8:
+        case GxTextureFormat.I4:
+        case GxTextureFormat.I8:
+        case GxTextureFormat.A4_I4:
+        case GxTextureFormat.A8_I8:
           return ColorType.INTENSITY;
 
-        case TextureFormat.R5_G6_B5:
-        case TextureFormat.A3_RGB5:
-        case TextureFormat.ARGB8:
-        case TextureFormat.INDEX4:
-        case TextureFormat.INDEX8:
-        case TextureFormat.INDEX14_X2:
-        case TextureFormat.S3TC1:
+        case GxTextureFormat.R5_G6_B5:
+        case GxTextureFormat.A3_RGB5:
+        case GxTextureFormat.ARGB8:
+        case GxTextureFormat.INDEX4:
+        case GxTextureFormat.INDEX8:
+        case GxTextureFormat.INDEX14_X2:
+        case GxTextureFormat.S3TC1:
           return ColorType.COLOR;
 
         default:

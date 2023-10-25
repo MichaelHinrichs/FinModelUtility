@@ -147,4 +147,18 @@
     KASel_K2_A = 0x1E,  // K2[A] Register
     KASel_K3_A = 0x1F   // K3[A] Register
   }
+
+  public enum GxTextureFormat : byte {
+    I4 = 0,
+    I8 = 1,
+    A4_I4 = 2,
+    A8_I8 = 3,
+    R5_G6_B5 = 4,
+    A3_RGB5 = 5,
+    ARGB8 = 6,
+    INDEX4 = 8,
+    INDEX8 = 9,
+    INDEX14_X2 = 10, // 0x0000000A
+    S3TC1 = 14, // 0x0000000E
+  }
 }

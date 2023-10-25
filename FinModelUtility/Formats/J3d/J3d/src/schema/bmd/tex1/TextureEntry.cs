@@ -6,8 +6,7 @@ using fin.schema;
 using fin.util.color;
 
 using gx;
-
-using j3d.image;
+using gx.image;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -15,20 +14,6 @@ using schema.binary.attributes;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace j3d.schema.bmd.tex1 {
-  public enum TextureFormat : byte {
-    I4 = 0,
-    I8 = 1,
-    A4_I4 = 2,
-    A8_I8 = 3,
-    R5_G6_B5 = 4,
-    A3_RGB5 = 5,
-    ARGB8 = 6,
-    INDEX4 = 8,
-    INDEX8 = 9,
-    INDEX14_X2 = 10, // 0x0000000A
-    S3TC1 = 14, // 0x0000000E
-  }
-
   /// <summary>
   ///   Shamelessly stolen from Hack.io:
   ///   https://github.com/SuperHackio/Hack.io/blob/6b06dc5829bcde6f41f04673fdd544eeef37a5c3/Hack.io.J3D/J3DTexture.cs#L1421
@@ -61,7 +46,8 @@ namespace j3d.schema.bmd.tex1 {
   [BinarySchema]
   [LocalPositions]
   public partial class TextureEntry : IBinaryConvertible {
-    public TextureFormat Format;
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    public GxTextureFormat Format;
     public JutTransparency AlphaSetting;
     public ushort Width;
     public ushort Height;
@@ -140,7 +126,7 @@ namespace j3d.schema.bmd.tex1 {
 
     public unsafe IImage ToBitmap() {
       try {
-        return new J3dImageReader(this.Width, this.Height, this.Format).ReadImage(
+        return new GxImageReader(this.Width, this.Height, this.Format).ReadImage(
             this.Data,
             Endianness.BigEndian);
       } catch { }
@@ -149,8 +135,8 @@ namespace j3d.schema.bmd.tex1 {
       var height = this.Height;
 
       Rgba32Image bitmap;
-      var isIndex4 = this.Format == TextureFormat.INDEX4;
-      var isIndex8 = this.Format == TextureFormat.INDEX8;
+      var isIndex4 = this.Format == GxTextureFormat.INDEX4;
+      var isIndex8 = this.Format == GxTextureFormat.INDEX8;
       if (isIndex4 || isIndex8) {
         bitmap = new Rgba32Image(isIndex4 ? PixelFormat.P4 : PixelFormat.P8,
                                  width,
@@ -202,17 +188,17 @@ namespace j3d.schema.bmd.tex1 {
         int num3 = (int) this.Height + (8 - (int) this.Height % 8) % 8;
         int num4 = (int) this.Height + (4 - (int) this.Height % 4) % 4;
         return this.Format switch {
-            TextureFormat.I4         => num1 * num3 / 2,
-            TextureFormat.I8         => num1 * num4,
-            TextureFormat.A4_I4      => num1 * num4,
-            TextureFormat.A8_I8      => num2 * num4 * 2,
-            TextureFormat.R5_G6_B5   => num2 * num4 * 2,
-            TextureFormat.A3_RGB5    => num2 * num4 * 2,
-            TextureFormat.ARGB8      => num2 * num4 * 4,
-            TextureFormat.INDEX4     => num1 * num3 / 2,
-            TextureFormat.INDEX8     => num1 * num4,
-            TextureFormat.INDEX14_X2 => num2 * num4 * 2,
-            TextureFormat.S3TC1      => num2 * num4 / 2,
+            GxTextureFormat.I4         => num1 * num3 / 2,
+            GxTextureFormat.I8         => num1 * num4,
+            GxTextureFormat.A4_I4      => num1 * num4,
+            GxTextureFormat.A8_I8      => num2 * num4 * 2,
+            GxTextureFormat.R5_G6_B5   => num2 * num4 * 2,
+            GxTextureFormat.A3_RGB5    => num2 * num4 * 2,
+            GxTextureFormat.ARGB8      => num2 * num4 * 4,
+            GxTextureFormat.INDEX4     => num1 * num3 / 2,
+            GxTextureFormat.INDEX8     => num1 * num4,
+            GxTextureFormat.INDEX14_X2 => num2 * num4 * 2,
+            GxTextureFormat.S3TC1      => num2 * num4 / 2,
             _                        => -1
         };
       }

@@ -26,7 +26,7 @@ namespace fin.image.io.image {
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;
 
-      var tileXCount = this.width_ / this.tileReader_.TileWidth;
+      var tileXCount = (int) Math.Ceiling(1f * this.width_ / this.tileReader_.TileWidth);
       var tileYCount = this.height_ / this.tileReader_.TileHeight;
 
       for (var tileY = 0; tileY < tileYCount; ++tileY) {

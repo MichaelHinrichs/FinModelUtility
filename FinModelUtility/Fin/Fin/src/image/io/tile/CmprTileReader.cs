@@ -68,7 +68,8 @@ namespace fin.image.io.tile {
               indicesBuffer,
               tileX * TileWidth + i * SUB_TILE_SIZE_IN_AXIS,
               tileY * TileHeight + j * SUB_TILE_SIZE_IN_AXIS,
-              imageWidth);
+              imageWidth,
+              imageHeight);
         }
       }
     }
@@ -82,16 +83,25 @@ namespace fin.image.io.tile {
         Span<byte> indicesBuffer,
         int imageX,
         int imageY,
-        int imageWidth) {
+        int imageWidth,
+        int imageHeight) {
       br.ReadUInt16s(shortBuffer);
       DecodeCmprPalette_(shortBuffer, paletteBuffer);
 
       br.ReadBytes(indicesBuffer);
       for (var j = 0; j < 4; ++j) {
+        if (imageY + j >= imageHeight) {
+          break;
+        }
+        
         var indices = indicesBuffer[j];
         var scan0Offset = (imageY + j) * imageWidth + imageX;
 
         for (var i = 0; i < 4; ++i) {
+          if (imageX + i >= imageWidth) {
+            break;
+          }
+
           var index = (indices >> (2 * (3 - i))) & 0b11;
           scan0[scan0Offset + i] = paletteBuffer[index];
         }

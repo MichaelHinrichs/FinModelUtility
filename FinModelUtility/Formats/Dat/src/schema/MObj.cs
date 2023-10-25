@@ -13,13 +13,13 @@ namespace dat.schema {
     public uint Unk1 { get; set; }
     public uint Unk2 { get; set; }
 
-    private uint tObjOffset_;
+    public uint TObjOffset { get; set; }
 
     [Ignore]
-    private bool hasTObj_ => this.tObjOffset_ != 0;
+    private bool hasTObj_ => this.TObjOffset != 0;
 
     [RIfBoolean(nameof(hasTObj_))]
-    [RAtPosition(nameof(tObjOffset_))]
+    [RAtPosition(nameof(TObjOffset))]
     public TObj? TObj { get; set; }
   
     // TODO: What is this used for, is this another MObj?

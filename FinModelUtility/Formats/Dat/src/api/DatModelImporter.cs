@@ -48,11 +48,41 @@ namespace dat.api {
         }
       }
 
-      // Adds vertices
+      // Adds mesh and materials
+      var finMaterialManager = finModel.MaterialManager;
+      var finMaterialsByMObjOffset = new Dictionary<uint, IMaterial>();
+      var finTexturesByTObjOffset = new Dictionary<uint, ITexture>();
+
       var finSkin = finModel.Skin;
       var finMesh = finSkin.AddMesh();
       foreach (var jObj in dat.RootJObjs) {
         foreach (var dObj in jObj.DObjs) {
+          // Gets material
+          IMaterial? finMaterial = null;
+          var mObj = dObj.MObj;
+          var mObjOffset = dObj.Header.MObjOffset;
+          if (mObj != null && !finMaterialsByMObjOffset.TryGetValue(
+                  mObjOffset,
+                  out finMaterial)) {
+            var tObj = mObj.TObj;
+            if (tObj == null) {
+              finMaterial = finMaterialManager.AddNullMaterial();
+            } else {
+              var tObjOffset = mObj.TObjOffset;
+              if (!finTexturesByTObjOffset.TryGetValue(
+                      tObjOffset,
+                      out var finTexture)) {
+                finTexture = finMaterialManager.CreateTexture(tObj.Image);
+                finTexturesByTObjOffset[tObjOffset] = finTexture;
+              }
+
+              finMaterial = finMaterialManager.AddTextureMaterial(finTexture);
+            }
+
+            finMaterialsByMObjOffset[mObjOffset] = finMaterial;
+          }
+
+          // Adds polygons
           foreach (var pObj in dObj.PObjs) {
             foreach (var datPrimitive in pObj.Primitives) {
               var finVertices =
@@ -78,19 +108,15 @@ namespace dat.api {
                       })
                       .ToArray();
 
-              switch (datPrimitive.Type) {
-                case GxOpcode.DRAW_TRIANGLES: {
-                  finMesh.AddTriangles(finVertices);
-                  break;
-                }
-                case GxOpcode.DRAW_QUADS: {
-                  finMesh.AddQuads(finVertices);
-                  break;
-                }
-                case GxOpcode.DRAW_TRIANGLE_STRIP: {
-                  finMesh.AddTriangleStrip(finVertices);
-                  break;
-                }
+              var finPrimitive = datPrimitive.Type switch {
+                  GxOpcode.DRAW_TRIANGLES => finMesh.AddTriangles(finVertices),
+                  GxOpcode.DRAW_QUADS     => finMesh.AddQuads(finVertices),
+                  GxOpcode.DRAW_TRIANGLE_STRIP => finMesh.AddTriangleStrip(
+                      finVertices)
+              };
+
+              if (finMaterial != null) {
+                finPrimitive.SetMaterial(finMaterial);
               }
             }
           }
