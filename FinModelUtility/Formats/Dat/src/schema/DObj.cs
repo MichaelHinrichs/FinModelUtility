@@ -1,6 +1,11 @@
-﻿using schema.binary;
+﻿using fin.data.queues;
+
+using schema.binary;
 
 namespace dat.schema {
+  /// <summary>
+  ///   Data object.
+  /// </summary>
   [BinarySchema]
   public partial class DObjData : IBinaryConvertible {
     public uint StringOffset { get; set; }
@@ -13,6 +18,16 @@ namespace dat.schema {
     public DObjData Data { get; } = new();
     public string Name { get; set; }
 
-    public List<PObj> PObjs { get; } = new();
+    public PObj? FirstPObj { get; set; }
+
+    public IEnumerable<PObj> PObjs {
+      get {
+        var current = this.FirstPObj;
+        while (current != null) {
+          yield return current;
+          current = current.NextPObj;
+        }
+      }
+    }
   }
 }

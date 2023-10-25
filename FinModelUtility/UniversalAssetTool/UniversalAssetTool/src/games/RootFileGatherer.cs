@@ -1,6 +1,7 @@
 ﻿using fin.io.bundles;
 
 using uni.config;
+using uni.games.animal_crossing;
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.chibi_robo;
@@ -37,6 +38,7 @@ namespace uni.games {
               : new AnnotatedFileBundleGathererAccumulator();
 
       var gatherers = new IAnnotatedFileBundleGatherer[] {
+          new AnimalCrossingFileGatherer(),
           new BattalionWars1AnnotatedFileGatherer(),
           new BattalionWars2AnnotatedFileGatherer(),
           new ChibiRoboAnnotatedFileGatherer(),

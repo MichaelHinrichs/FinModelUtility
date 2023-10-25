@@ -49,11 +49,11 @@ namespace fin.schema.vector {
   public sealed partial class Vector3f : BVector3<float>,
                                          IVector3,
                                          IBinaryConvertible {
-    public static bool operator ==(Vector3f lhs, Vector3f rhs)
-      => lhs.Equals(rhs);
+    public static bool operator ==(Vector3f? lhs, Vector3f? rhs)
+      => lhs?.Equals(rhs) ?? (rhs == null);
 
-    public static bool operator !=(Vector3f lhs, Vector3f rhs)
-      => !lhs.Equals(rhs);
+    public static bool operator !=(Vector3f? lhs, Vector3f? rhs)
+      => (!lhs?.Equals(rhs)) ?? (rhs != null);
 
     public override bool Equals(object? obj) {
       if (Object.ReferenceEquals(this, obj)) {

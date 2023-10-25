@@ -1,4 +1,13 @@
-﻿using fin.util.asserts;
+﻿using System.Diagnostics;
+using System.Numerics;
+
+using CommunityToolkit.HighPerformance;
+
+using fin.color;
+using fin.model;
+using fin.schema.vector;
+using fin.util.asserts;
+using fin.util.color;
 using fin.util.enums;
 
 using gx;
@@ -18,6 +27,10 @@ namespace dat.schema {
   // SObj: Scene object
   // TObj: texture
 
+  /// <summary>
+  ///   References:
+  ///     - https://github.com/jam1garner/Smash-Forge/blob/c0075bca364366bbea2d3803f5aeae45a4168640/Smash%20Forge/Filetypes/Melee/DAT.cs
+  /// </summary>
   public class Dat : IBinaryDeserializable {
     private readonly List<RootNode> rootNodes_ = new();
     private readonly HashSet<uint> validOffsets_ = new();
@@ -31,7 +44,7 @@ namespace dat.schema {
     public List<JObj> RootJObjs { get; } = new();
 
     public void Read(IBinaryReader br) {
-      Dat.vertexDescriptorValue_ = (uint) 0;
+      this.VertexDescriptorValue = (uint) 0;
 
       var fileHeader = br.ReadNew<FileHeader>();
       Asserts.Equal(br.Length, fileHeader.FileSize);
@@ -67,7 +80,7 @@ namespace dat.schema {
         rootNode.Data.Read(br);
 
         br.SubreadAt(this.stringTableOffset_ + rootNode.Data.StringOffset,
-                   sbr => { rootNode.Name = sbr.ReadStringNT(); });
+                     sbr => { rootNode.Name = sbr.ReadStringNT(); });
 
         this.rootNodes_.Add(rootNode);
       }
@@ -97,7 +110,7 @@ namespace dat.schema {
       return true;
     }
 
-    private static uint vertexDescriptorValue_;
+    public uint VertexDescriptorValue { get; set; }
 
     private void ReadJObs_(IBinaryReader br) {
       var jObjQueue =
@@ -112,6 +125,9 @@ namespace dat.schema {
         jObjQueue.Enqueue((rootNode, null, rootNode.Data.DataOffset));
       }
 
+      br.Position = this.dataBlockOffset_;
+      br.PushLocalSpace();
+
       this.RootJObjs.Clear();
       while (jObjQueue.Count > 0) {
         var (rootNode, parentJObj, jObjDataOffset) = jObjQueue.Dequeue();
@@ -125,7 +141,7 @@ namespace dat.schema {
           parentJObj.Children.Add(jObj);
         }
 
-        br.Position = this.dataBlockOffset_ + jObjDataOffset;
+        br.Position = jObjDataOffset;
         jObjData.Read(br);
 
         var jObjNameOffset = jObjData.StringOffset;
@@ -157,6 +173,8 @@ namespace dat.schema {
           jObjQueue.Enqueue((rootNode, parentJObj, nextSiblingOffset));
         }
       }
+
+      br.PopLocalSpace();
     }
 
     private void ReadDObjIntoJObj_(IBinaryReader br,
@@ -169,144 +187,77 @@ namespace dat.schema {
       var dObj = new DObj();
       jObj.DObjs.Add(dObj);
 
-      br.Position = this.dataBlockOffset_ + objectStructOffset;
+      br.Position = objectStructOffset;
       dObj.Data.Read(br);
 
-      this.ReadPObjIntoDObj_(br, dObj, dObj.Data.MeshStructOffset);
+      if (dObj.Data.MeshStructOffset != 0) {
+        br.Position = dObj.Data.MeshStructOffset;
+
+        var firstPObj = new PObj(this);
+        firstPObj.Read(br);
+
+        dObj.FirstPObj = firstPObj;
+      }
 
       this.ReadDObjIntoJObj_(br, jObj, dObj.Data.NextObjectOffset);
     }
+  }
 
-    private void ReadPObjIntoDObj_(IBinaryReader br,
-                                   DObj dObj,
-                                   uint pObjDataOffset) {
-      if (!this.AssertNullOrValidPointer_(pObjDataOffset)) {
-        return;
-      }
-
-      br.Position = this.dataBlockOffset_ + pObjDataOffset;
-
-      var pObj = new PObj();
-      dObj.PObjs.Add(pObj);
-
-      var pObjData = pObj.Data;
-      pObjData.Read(br);
-
-      var pObjType = pObjData.Flags & PObjFlags.OBJTYPE_SKIN;
-      switch (pObjType) {
-        case PObjFlags.OBJTYPE_SKIN: {
-          br.Position = this.dataBlockOffset_ +
-                        pObjData.VertexDescriptorListOffset;
-
-          // Reads vertex descriptors
-          while (true) {
-            var vertexDescriptor = new VertexDescriptor();
-            var vertexDescriptorData = vertexDescriptor.Data;
-            vertexDescriptorData.Read(br);
-
-            if (vertexDescriptorData.Attribute == GxAttribute.NULL) {
-              break;
-            }
-
-            pObj.VertexDescriptors.Add(vertexDescriptor);
-          }
-
-          var startingOffset =
-              br.Position =
-                  this.dataBlockOffset_ + pObjData.DisplayOffset;
-
-          // Reads display list
-          while (br.Position - startingOffset < pObjData.nDisp * 32) {
-            var opcode = (GxOpcode) br.ReadByte();
-            if (opcode == GxOpcode.NOP) {
-              break;
-            }
-
-            switch (opcode) {
-              case GxOpcode.LOAD_CP_REG: {
-                var command = br.ReadByte();
-                var value = br.ReadUInt32();
-
-                if (command == 0x50) {
-                  Dat.vertexDescriptorValue_ &= ~((uint) 0x1FFFF);
-                  Dat.vertexDescriptorValue_ |= value;
-                } else if (command == 0x60) {
-                  value <<= 17;
-                  Dat.vertexDescriptorValue_ &= 0x1FFFF;
-                  Dat.vertexDescriptorValue_ |= value;
-                } else {
-                  throw new NotImplementedException();
-                }
-
-                break;
-              }
-              case GxOpcode.LOAD_XF_REG: {
-                var lengthMinusOne = br.ReadUInt16();
-                var length = lengthMinusOne + 1;
-
-                // http://hitmen.c02.at/files/yagcd/yagcd/chap5.html#sec5.11.4
-                var firstXfRegisterAddress = br.ReadUInt16();
-
-                var values = br.ReadUInt32s(length);
-                // TODO: Implement
-                break;
-              }
-              case GxOpcode.DRAW_TRIANGLES:
-              case GxOpcode.DRAW_QUADS:
-              case GxOpcode.DRAW_TRIANGLE_STRIP: {
-                var vertexCount = br.ReadUInt16();
-
-                for (var i = 0; i < vertexCount; ++i) {
-                  foreach (var vertexDescriptor in
-                           pObj.VertexDescriptors) {
-                    var vertexAttribute = vertexDescriptor.Data.Attribute;
-                    var vertexFormat =
-                        vertexDescriptor.Data.AttributeType;
-
-                    var value = vertexFormat switch {
-                        GxAttributeType.DIRECT => br.ReadByte(),
-                        GxAttributeType.INDEX_8 => br.ReadByte(),
-                        GxAttributeType.INDEX_16 => br.ReadUInt16(),
-                        _ => throw new NotImplementedException(),
-                    };
-
-                    switch (vertexAttribute) {
-                      case GxAttribute.PNMTXIDX: {
-                        Asserts.Equal(0, value % 3);
-                        value /= 3;
-                        break;
-                      }
-                      case GxAttribute.POS: {
-                        break;
-                      }
-                      case GxAttribute.NRM: {
-                        break;
-                      }
-                    }
-                  }
-                }
-
-                break;
-              }
-              default: {
-                break;
-              }
-            }
-          }
-
-          break;
-        }
-        case PObjFlags.OBJTYPE_ENVELOPE: {
-          break;
-        }
-        case PObjFlags.OBJTYPE_SHAPEANIM: {
-          break;
-        }
-        default: throw new NotImplementedException();
-      }
-
-      this.ReadPObjIntoDObj_(br, dObj, pObjData.NextPObjOffset);
+  public static class BinaryReaderExtensions {
+    public static Vector2 ReadVector2(this IBinaryReader br,
+                                      VertexDescriptorData descriptor) {
+      var vec2 = new Vector2();
+      br.ReadIntoVector(descriptor,
+                        new Span<Vector2>(ref vec2).Cast<Vector2, float>());
+      return vec2;
     }
+
+    public static Vector3 ReadVector3(this IBinaryReader br,
+                                      VertexDescriptorData descriptor) {
+      var vec3 = new Vector3();
+      br.ReadIntoVector(descriptor,
+                        new Span<Vector3>(ref vec3).Cast<Vector3, float>());
+      return vec3;
+    }
+
+    public static Vector4 ReadVector4(this IBinaryReader br,
+                                      VertexDescriptorData descriptor) {
+      var vec4 = new Vector4();
+      br.ReadIntoVector(descriptor,
+                        new Span<Vector4>(ref vec4).Cast<Vector4, float>());
+      return vec4;
+    }
+
+    public static void ReadIntoVector(this IBinaryReader br,
+                                      VertexDescriptorData descriptor,
+                                      Span<float> floats) {
+      Asserts.True(floats.Length >= descriptor.ComponentCount);
+
+      var scaleMultiplier = 1f / (1 << descriptor.Scale);
+      for (var i = 0; i < descriptor.ComponentCount; ++i) {
+        floats[i] = scaleMultiplier * descriptor.AxesComponentType switch {
+            GxComponentType.U8  => br.ReadByte(),
+            GxComponentType.S8  => br.ReadByte(),
+            GxComponentType.U16 => br.ReadUInt16(),
+            GxComponentType.S16 => br.ReadInt16(),
+            GxComponentType.F32 => br.ReadSingle(),
+        };
+      }
+    }
+  }
+
+  public class DatPrimitive {
+    public required GxOpcode Type { get; init; }
+    public required IReadOnlyList<DatVertex> Vertices { get; init; }
+  }
+
+  public class DatVertex {
+    public required int BoneId { get; init; }
+    public required Vector3 Position { get; init; }
+    public Vector3? Normal { get; init; }
+    public Vector2? Uv0 { get; init; }
+    public Vector2? Uv1 { get; init; }
+    public IColor? Color { get; init; }
   }
 
   [BinarySchema]
@@ -379,27 +330,35 @@ namespace dat.schema {
       if (name.EndsWith("_Share_joint")) {
         return RootNodeType.JObj;
       }
+
       if (name.EndsWith("_TopN_joint")) {
         return RootNodeType.TOPN_JOINT;
       }
+
       if (name.EndsWith("_matanim_joint")) {
         return RootNodeType.MATANIM_JOINT;
       }
+
       if (name.EndsWith("_image")) {
         return RootNodeType.IMAGE;
       }
+
       if (name.EndsWith("_scene_data")) {
         return RootNodeType.SCENE_DATA;
       }
+
       if (name.EndsWith("_scene_modelset")) {
         return RootNodeType.SCENE_MODELSET;
       }
+
       if (name.EndsWith("_tlut")) {
         return RootNodeType.TLUT;
       }
+
       if (name.EndsWith("_tlut_desc")) {
         return RootNodeType.TLUT_DESC;
       }
+
       return RootNodeType.Undefined;
     }
   }
@@ -411,13 +370,39 @@ namespace dat.schema {
     [IntegerFormat(SchemaIntegerType.UINT32)]
     public GxAttributeType AttributeType { get; set; }
 
-    [IntegerFormat(SchemaIntegerType.UINT32)]
-    public GxComponentCount CompCnt { get; set; }
 
     [IntegerFormat(SchemaIntegerType.UINT32)]
-    public GxComponentType CompType { get; set; }
+    public GxComponentCount ComponentCountType { get; set; }
 
-    public byte CompShift { get; set; }
+    [Ignore]
+    public int ComponentCount => this.Attribute switch {
+        GxAttribute.POS => this.ComponentCountType switch {
+            GxComponentCount.POS_XY  => 2,
+            GxComponentCount.POS_XYZ => 3,
+        },
+        GxAttribute.NRM => this.ComponentCountType switch {
+            GxComponentCount.NRM_XYZ => 3,
+        },
+        GxAttribute.TEX0 or GxAttribute.TEX1 => this.ComponentCountType switch {
+            GxComponentCount.TEX_S  => 1,
+            GxComponentCount.TEX_ST => 2,
+        },
+    };
+
+
+    [IntegerFormat(SchemaIntegerType.UINT32)]
+    public uint RawComponentType { get; set; }
+
+    [Ignore]
+    public GxComponentType AxesComponentType
+      => (GxComponentType) this.RawComponentType;
+
+    [Ignore]
+    public ColorComponentType ColorComponentType
+      => (ColorComponentType) this.RawComponentType;
+
+
+    public byte Scale { get; set; }
 
     public byte Padding { get; set; }
 
@@ -428,5 +413,14 @@ namespace dat.schema {
 
   public class VertexDescriptor {
     public VertexDescriptorData Data { get; } = new();
+  }
+
+  public enum ColorComponentType : uint {
+    RGB565,
+    RGB888,
+    RGBX8888,
+    RGBA4444,
+    RGBA6,
+    RGBA8888,
   }
 }

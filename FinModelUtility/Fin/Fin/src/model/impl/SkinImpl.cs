@@ -350,6 +350,29 @@ namespace fin.model.impl {
 
               break;
             }
+            case PrimitiveType.QUADS: {
+              for (var v = 0; v < pointsCount; v += 4) {
+                if (VertexOrder == VertexOrder.FLIP) {
+                  yield return v + 1;
+                  yield return v + 0;
+                  yield return v + 2;
+
+                  yield return v + 3;
+                  yield return v + 2;
+                  yield return v + 0;
+                } else {
+                  yield return v + 0;
+                  yield return v + 1;
+                  yield return v + 2;
+
+                  yield return v + 2;
+                  yield return v + 3;
+                  yield return v + 0;
+                }
+              }
+
+              break;
+            }
             default: throw new NotImplementedException();
           }
         }
