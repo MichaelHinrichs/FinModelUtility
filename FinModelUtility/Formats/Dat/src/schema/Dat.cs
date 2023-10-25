@@ -3,7 +3,9 @@
 using CommunityToolkit.HighPerformance;
 
 using fin.color;
+using fin.data.queues;
 using fin.util.asserts;
+using fin.util.enumerables;
 
 using gx;
 
@@ -34,6 +36,14 @@ namespace dat.schema {
     private uint stringTableOffset_;
 
     public List<JObj> RootJObjs { get; } = new();
+
+    public IEnumerable<JObj> JObjs => this.RootJObjs.SelectMany(
+        this.EnumerateSelfAndChildrenWithinJObj_);
+
+    private IEnumerable<JObj> EnumerateSelfAndChildrenWithinJObj_(JObj jObj)
+      => jObj.Yield()
+             .Concat(jObj.Children.SelectMany(
+                         this.EnumerateSelfAndChildrenWithinJObj_));
 
     public void Read(IBinaryReader br) {
       this.VertexDescriptorValue = (uint) 0;
@@ -136,16 +146,6 @@ namespace dat.schema {
         br.Position = jObjDataOffset;
         jObjData.Read(br);
 
-        var jObjNameOffset = jObjData.StringOffset;
-        if (this.AssertNullOrValidPointer_(jObjNameOffset)) {
-          if (this.stringTableOffset_ + jObjNameOffset >= br.Length) {
-            ;
-          }
-
-          br.Position = this.stringTableOffset_ + jObjNameOffset;
-          jObj.Name = br.ReadStringNT();
-        }
-
         if (jObj.Data.FirstDObjOffset != 0) {
           br.Position = jObj.Data.FirstDObjOffset;
           jObj.FirstDObj = new DObj(this);
@@ -164,6 +164,30 @@ namespace dat.schema {
       }
 
       br.PopLocalSpace();
+
+      // Reads names
+      {
+        br.Position = this.stringTableOffset_;
+        br.PushLocalSpace();
+
+        foreach (var jObj in this.JObjs) {
+          var jObjStringOffset = jObj.Data.StringOffset;
+          if (jObjStringOffset != 0) {
+            br.Position = jObjStringOffset;
+            jObj.Name = br.ReadStringNT();
+          }
+
+          foreach (var dObj in jObj.DObjs) {
+            var dObjStringOffset = dObj.Header.StringOffset;
+            if (dObjStringOffset != 0) {
+              br.Position = dObjStringOffset;
+              dObj.Name = br.ReadStringNT();
+            }
+          }
+        }
+
+        br.PopLocalSpace();
+      }
     }
   }
 
@@ -268,7 +292,6 @@ namespace dat.schema {
     Undefined,
     JObj,
 
-    TOPN_JOINT,
     MATANIM_JOINT,
     IMAGE,
     SCENE_DATA,
@@ -287,16 +310,15 @@ namespace dat.schema {
       set => this.Type = RootNode.GetTypeFromName_(this.name_ = value);
     }
 
+    public override string ToString() => $"[{Type}]: {Name}";
+
     public RootNodeType Type { get; private set; }
 
     private static RootNodeType GetTypeFromName_(string name) {
       // TODO: Use flags for this instead
-      if (name.EndsWith("_Share_joint")) {
+      if (name.EndsWith("_joint") && !name.Contains("matanim") &&
+          !name.Contains("anim_joint")) {
         return RootNodeType.JObj;
-      }
-
-      if (name.EndsWith("_TopN_joint")) {
-        return RootNodeType.TOPN_JOINT;
       }
 
       if (name.EndsWith("_matanim_joint")) {

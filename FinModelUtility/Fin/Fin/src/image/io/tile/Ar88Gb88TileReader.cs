@@ -25,9 +25,10 @@ namespace fin.image.io.tile {
         for (int y1 = y; y1 < y + this.TileHeight; y1++) {
           for (int x1 = x; x1 < x + this.TileWidth; x1++) {
             var offset = y1 * imageWidth + x1;
-            var pixel = br.ReadUInt16();
 
-            if (x1 > imageWidth || y1 > imageHeight) {
+            var pixel = br.ReadUInt16();
+            
+            if (x1 >= imageWidth || y1 >= imageHeight) {
               continue;
             }
 

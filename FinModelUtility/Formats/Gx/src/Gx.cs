@@ -161,4 +161,10 @@
     INDEX14_X2 = 10, // 0x0000000A
     S3TC1 = 14, // 0x0000000E
   }
+
+  public enum GxPaletteFormat : byte {
+    PAL_A8_I8 = 0,
+    PAL_R5_G6_B5 = 1,
+    PAL_A3_RGB5 = 2,
+  }
 }

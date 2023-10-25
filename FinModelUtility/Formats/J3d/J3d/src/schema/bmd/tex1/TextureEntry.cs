@@ -38,12 +38,6 @@ namespace j3d.schema.bmd.tex1 {
     SPECIAL = 0xCC
   }
 
-  public enum PaletteFormat : byte {
-    PAL_A8_I8,
-    PAL_R5_G6_B5,
-    PAL_A3_RGB5,
-  }
-
   [BinarySchema]
   [LocalPositions]
   public partial class TextureEntry : IBinaryConvertible {
@@ -58,7 +52,8 @@ namespace j3d.schema.bmd.tex1 {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool PalettesEnabled;
 
-    public PaletteFormat PaletteFormat;
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    public GxPaletteFormat PaletteFormat;
 
     [WLengthOfSequence(nameof(palette))]
     public ushort NrPaletteEntries;
@@ -92,14 +87,14 @@ namespace j3d.schema.bmd.tex1 {
       br.Position = this.PaletteOffset;
       for (var i = 0; i < this.NrPaletteEntries; ++i) {
         switch (this.PaletteFormat) {
-          case PaletteFormat.PAL_A8_I8: {
+          case GxPaletteFormat.PAL_A8_I8: {
             var alpha = br.ReadByte();
             var intensity = br.ReadByte();
             this.palette[i] =
                 new Rgba32(intensity, intensity, intensity, alpha);
             break;
           }
-          case PaletteFormat.PAL_R5_G6_B5: {
+          case GxPaletteFormat.PAL_R5_G6_B5: {
             ColorUtil.SplitRgb565(br.ReadUInt16(),
                                   out var r,
                                   out var b,
@@ -108,7 +103,7 @@ namespace j3d.schema.bmd.tex1 {
             break;
           }
           // TODO: There seems to be a bug reading the palette, these colors look weird
-          case PaletteFormat.PAL_A3_RGB5: {
+          case GxPaletteFormat.PAL_A3_RGB5: {
             ColorUtil.SplitRgb5A3(br.ReadUInt16(),
                                   out var r,
                                   out var g,

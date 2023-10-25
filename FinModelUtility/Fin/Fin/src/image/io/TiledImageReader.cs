@@ -1,4 +1,6 @@
-﻿using fin.image.io.tile;
+﻿using System;
+
+using fin.image.io.tile;
 
 using schema.binary;
 
@@ -75,8 +77,8 @@ namespace fin.image.io {
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;
 
-      var tileXCount = this.width_ / this.tileReader_.TileWidth;
-      var tileYCount = this.height_ / this.tileReader_.TileHeight;
+      var tileXCount = (int) Math.Ceiling(1f * this.width_ / this.tileReader_.TileWidth);
+      var tileYCount = (int) Math.Ceiling(1f * this.height_ / this.tileReader_.TileHeight);
 
       for (var tileY = 0; tileY < tileYCount; ++tileY) {
         for (var tileX = 0; tileX < tileXCount; ++tileX) {

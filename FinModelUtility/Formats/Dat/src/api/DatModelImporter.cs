@@ -55,7 +55,7 @@ namespace dat.api {
 
       var finSkin = finModel.Skin;
       var finMesh = finSkin.AddMesh();
-      foreach (var jObj in dat.RootJObjs) {
+      foreach (var jObj in dat.JObjs) {
         foreach (var dObj in jObj.DObjs) {
           // Gets material
           IMaterial? finMaterial = null;
