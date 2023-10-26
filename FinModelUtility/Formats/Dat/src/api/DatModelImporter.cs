@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 
+using Assimp;
 using Assimp.Unmanaged;
 
 using dat.schema;
@@ -22,9 +23,11 @@ namespace dat.api {
           modelFileBundle.PrimaryDatFile.ReadNew<Dat>(Endianness.BigEndian);
 
       var finModel = new ModelImpl();
+      var finSkin = finModel.Skin;
 
       // Adds skeleton
       var finBoneByJObj = new Dictionary<JObj, IBone>();
+      var boneWeightsByJObj = new Dictionary<JObj, IBoneWeights>();
       var boneQueue = new Queue<(IBone finParentBone, JObj datBone)>();
       foreach (var datRootBone in dat.RootJObjs) {
         boneQueue.Enqueue((finModel.Skeleton.Root, datRootBone));
@@ -50,6 +53,8 @@ namespace dat.api {
         finBone.Name = jObj.Name;
 
         finBoneByJObj[jObj] = finBone;
+        boneWeightsByJObj[jObj] =
+            finSkin.GetOrCreateBoneWeights(VertexSpace.BONE, finBone);
 
         foreach (var datChildBone in jObj.Children) {
           boneQueue.Enqueue((finBone, datChildBone));
@@ -61,9 +66,10 @@ namespace dat.api {
       var finMaterialsByMObjOffset = new Dictionary<uint, IMaterial>();
       var finTexturesByTObjOffset = new Dictionary<uint, ITexture>();
 
-      var finSkin = finModel.Skin;
       var finMesh = finSkin.AddMesh();
       foreach (var jObj in dat.JObjs) {
+        var defaultBoneWeights = boneWeightsByJObj[jObj];
+
         foreach (var dObj in jObj.DObjs) {
           // Gets material
           IMaterial? finMaterial = null;
@@ -92,7 +98,8 @@ namespace dat.api {
                 }
               }
 
-              finMaterial = finMaterialManager.AddTextureMaterial(firstTexture!);
+              finMaterial =
+                  finMaterialManager.AddTextureMaterial(firstTexture!);
             }
 
             finMaterial.Name = mObj.Name ?? mObjOffset.ToHex();
@@ -111,7 +118,7 @@ namespace dat.api {
                                      .Select(
                                          pObjWeight => new BoneWeight(
                                              finBoneByJObj[pObjWeight.JObj],
-                                             null,
+                                             pObjWeight.JObj.InverseBindMatrix,
                                              pObjWeight.Weight
                                          ))
                                      .ToArray()))
@@ -137,9 +144,14 @@ namespace dat.api {
                           finVertex.SetUv(1, uv1.X, uv1.Y);
                         }
 
-                        if (datVertex.WeightId != null && finWeights != null) {
-                          finVertex.SetBoneWeights(
-                              finWeights[datVertex.WeightId.Value]);
+                        // TODO: Is this right???
+                        if (datVertex.WeightId != null) {
+                          if (finWeights != null) {
+                            finVertex.SetBoneWeights(
+                                finWeights[datVertex.WeightId.Value]);
+                          }
+                        } else {
+                          finVertex.SetBoneWeights(defaultBoneWeights);
                         }
 
                         return finVertex;

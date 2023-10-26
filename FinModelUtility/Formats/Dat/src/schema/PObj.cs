@@ -19,7 +19,6 @@ namespace dat.schema {
   [Flags]
   public enum PObjFlags : ushort {
     OBJTYPE_SKIN = 0 << 12,
-    USE_BONES_DIRECTLY = 1 << 2,
     OBJTYPE_SHAPEANIM = 1 << 12,
     OBJTYPE_ENVELOPE = 1 << 13,
     OBJTYPE_MASK = 0x3000,
@@ -114,7 +113,7 @@ namespace dat.schema {
         var pObjWeights = this.Weights = new List<IList<PObjWeight>>();
 
         // Weight list is children of a given bone
-        if (this.Header.Flags.CheckFlag(PObjFlags.USE_BONES_DIRECTLY)) {
+        if (!this.Header.Flags.CheckFlag(PObjFlags.OBJTYPE_ENVELOPE)) {
           var currentJObjOffset = weightListOffset;
           while (currentJObjOffset != 0) {
             var jObj = this.dat_.JObjByOffset[currentJObjOffset];

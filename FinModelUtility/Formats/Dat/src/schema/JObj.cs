@@ -88,7 +88,7 @@ namespace dat.schema {
 
     public List<JObj> Children { get; } = new();
 
-    public IFinMatrix4x4 InverseBindMatrix { get; set; }
+    public IFinMatrix4x4? InverseBindMatrix { get; set; }
 
     public override string ToString() => this.Name;
   }

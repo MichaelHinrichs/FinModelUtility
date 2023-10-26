@@ -1,16 +1,10 @@
 ﻿using System.Numerics;
 
-using CommunityToolkit.HighPerformance;
-
-using fin.color;
-using fin.data.queues;
 using fin.math.matrix.four;
-using fin.schema.matrix;
+using fin.model.impl;
 using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.hex;
-
-using gx;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -157,10 +151,24 @@ namespace dat.schema {
         br.Position = jObjDataOffset;
         jObjData.Read(br);
 
-        br.Position = jObjData.InverseBindMatrixOffset;
-        var inverseBindMatrixValues = new float[4 * 4];
-        br.ReadSingles(inverseBindMatrixValues.AsSpan(0, 4 * 3));
-        jObj.InverseBindMatrix = new FinMatrix4x4(inverseBindMatrixValues).TransposeInPlace();
+        if (jObjData.InverseBindMatrixOffset != 0) {
+          br.Position = jObjData.InverseBindMatrixOffset;
+
+          var inverseBindMatrixValues = new float[4 * 4];
+          br.ReadSingles(inverseBindMatrixValues.AsSpan(0, 4 * 3));
+          inverseBindMatrixValues[15] = 1;
+          jObj.InverseBindMatrix =
+              new FinMatrix4x4(inverseBindMatrixValues).TransposeInPlace();
+
+          var parentInverseBindMatrix =
+              parentJObj?.InverseBindMatrix ?? FinMatrix4x4.IDENTITY;
+          var thisInverseBindMatrix =
+              parentInverseBindMatrix.CloneAndInvert()
+                                     .MultiplyInPlace(jObj.InverseBindMatrix!);
+
+          var thisMatrix = thisInverseBindMatrix.CloneAndInvert();
+          ;
+        }
 
         var firstChildOffset = jObj.Data.FirstChildBoneOffset;
         if (this.AssertNullOrValidPointer_(firstChildOffset)) {
