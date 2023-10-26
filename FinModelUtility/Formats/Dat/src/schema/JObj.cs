@@ -86,5 +86,7 @@ namespace dat.schema {
     }
 
     public List<JObj> Children { get; } = new();
+
+    public override string ToString() => this.Name;
   }
 }

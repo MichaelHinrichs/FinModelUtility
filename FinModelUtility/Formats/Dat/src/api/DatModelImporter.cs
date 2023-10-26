@@ -1,4 +1,6 @@
-﻿using Assimp.Unmanaged;
+﻿using System.Runtime.InteropServices.ComTypes;
+
+using Assimp.Unmanaged;
 
 using dat.schema;
 
@@ -20,6 +22,7 @@ namespace dat.api {
       var finModel = new ModelImpl();
 
       // Adds skeleton
+      var finBoneByJObj = new Dictionary<JObj, IBone>();
       var boneQueue = new Queue<(IBone finParentBone, JObj datBone)>();
       foreach (var datRootBone in dat.RootJObjs) {
         boneQueue.Enqueue((finModel.Skeleton.Root, datRootBone));
@@ -42,6 +45,7 @@ namespace dat.api {
                              datBoneData.Scale.X,
                              datBoneData.Scale.Y,
                              datBoneData.Scale.Z);
+        finBoneByJObj[datBone] = finBone;
 
         foreach (var datChildBone in datBone.Children) {
           boneQueue.Enqueue((finBone, datChildBone));
@@ -84,6 +88,21 @@ namespace dat.api {
 
           // Adds polygons
           foreach (var pObj in dObj.PObjs) {
+            var vertexSpace = pObj.VertexSpace;
+            var finWeights =
+                pObj.Weights
+                    ?.Select(pObjWeights => finSkin.GetOrCreateBoneWeights(
+                                 vertexSpace,
+                                 pObjWeights
+                                     .Select(
+                                         pObjWeight => new BoneWeight(
+                                             finBoneByJObj[pObjWeight.JObj],
+                                             null,
+                                             pObjWeight.Weight
+                                         ))
+                                     .ToArray()))
+                    .ToArray();
+
             foreach (var datPrimitive in pObj.Primitives) {
               var finVertices =
                   datPrimitive
@@ -102,6 +121,11 @@ namespace dat.api {
                         if (datVertex.Uv1 != null) {
                           var uv1 = datVertex.Uv1.Value;
                           finVertex.SetUv(1, uv1.X, uv1.Y);
+                        }
+
+                        if (datVertex.WeightId != null && finWeights != null) {
+                          finVertex.SetBoneWeights(
+                              finWeights[datVertex.WeightId.Value]);
                         }
 
                         return finVertex;

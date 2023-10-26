@@ -6,6 +6,7 @@ using fin.color;
 using fin.data.queues;
 using fin.util.asserts;
 using fin.util.enumerables;
+using fin.util.hex;
 
 using gx;
 
@@ -39,6 +40,9 @@ namespace dat.schema {
 
     public IEnumerable<JObj> JObjs => this.RootJObjs.SelectMany(
         this.EnumerateSelfAndChildrenWithinJObj_);
+
+    private Dictionary<uint, JObj> jObjByOffset_ = new();
+    public IReadOnlyDictionary<uint, JObj> JObjByOffset => this.jObjByOffset_;
 
     private IEnumerable<JObj> EnumerateSelfAndChildrenWithinJObj_(JObj jObj)
       => jObj.Yield()
@@ -97,6 +101,8 @@ namespace dat.schema {
       }
 
       this.ReadJObs_(br);
+      this.ReadDObjs_(br);
+      this.ReadNames_(br);
     }
 
     private bool AssertNullOrValidPointer_(uint pointer) {
@@ -137,6 +143,9 @@ namespace dat.schema {
         var jObj = new JObj();
         var jObjData = jObj.Data;
 
+        this.jObjByOffset_[jObjDataOffset] = jObj;
+        jObj.Name = jObjDataOffset.ToHex();
+
         if (parentJObj == null) {
           this.RootJObjs.Add(jObj);
         } else {
@@ -145,12 +154,6 @@ namespace dat.schema {
 
         br.Position = jObjDataOffset;
         jObjData.Read(br);
-
-        if (jObj.Data.FirstDObjOffset != 0) {
-          br.Position = jObj.Data.FirstDObjOffset;
-          jObj.FirstDObj = new DObj(this);
-          jObj.FirstDObj.Read(br);
-        }
 
         var firstChildOffset = jObj.Data.FirstChildBoneOffset;
         if (this.AssertNullOrValidPointer_(firstChildOffset)) {
@@ -164,88 +167,45 @@ namespace dat.schema {
       }
 
       br.PopLocalSpace();
+    }
 
-      // Reads names
-      {
-        br.Position = this.stringTableOffset_;
-        br.PushLocalSpace();
+    private void ReadDObjs_(IBinaryReader br) {
+      br.Position = this.dataBlockOffset_;
+      br.PushLocalSpace();
 
-        foreach (var jObj in this.JObjs) {
-          var jObjStringOffset = jObj.Data.StringOffset;
-          if (jObjStringOffset != 0) {
-            br.Position = jObjStringOffset;
-            jObj.Name = br.ReadStringNT();
-          }
+      foreach (var jObj in this.JObjs) {
+        if (jObj.Data.FirstDObjOffset != 0) {
+          br.Position = jObj.Data.FirstDObjOffset;
+          jObj.FirstDObj = new DObj(this);
+          jObj.FirstDObj.Read(br);
+        }
+      }
 
-          foreach (var dObj in jObj.DObjs) {
-            var dObjStringOffset = dObj.Header.StringOffset;
-            if (dObjStringOffset != 0) {
-              br.Position = dObjStringOffset;
-              dObj.Name = br.ReadStringNT();
-            }
-          }
+      br.PopLocalSpace();
+    }
+
+    private void ReadNames_(IBinaryReader br) {
+      br.Position = this.stringTableOffset_;
+      br.PushLocalSpace();
+
+      foreach (var jObj in this.JObjs) {
+        var jObjStringOffset = jObj.Data.StringOffset;
+        if (jObjStringOffset != 0) {
+          br.Position = jObjStringOffset;
+          jObj.Name = br.ReadStringNT();
         }
 
-        br.PopLocalSpace();
+        foreach (var dObj in jObj.DObjs) {
+          var dObjStringOffset = dObj.Header.StringOffset;
+          if (dObjStringOffset != 0) {
+            br.Position = dObjStringOffset;
+            dObj.Name = br.ReadStringNT();
+          }
+        }
       }
+
+      br.PopLocalSpace();
     }
-  }
-
-  public static class BinaryReaderExtensions {
-    public static Vector2 ReadVector2(this IBinaryReader br,
-                                      VertexDescriptor descriptor) {
-      var vec2 = new Vector2();
-      br.ReadIntoVector(descriptor,
-                        new Span<Vector2>(ref vec2).Cast<Vector2, float>());
-      return vec2;
-    }
-
-    public static Vector3 ReadVector3(this IBinaryReader br,
-                                      VertexDescriptor descriptor) {
-      var vec3 = new Vector3();
-      br.ReadIntoVector(descriptor,
-                        new Span<Vector3>(ref vec3).Cast<Vector3, float>());
-      return vec3;
-    }
-
-    public static Vector4 ReadVector4(this IBinaryReader br,
-                                      VertexDescriptor descriptor) {
-      var vec4 = new Vector4();
-      br.ReadIntoVector(descriptor,
-                        new Span<Vector4>(ref vec4).Cast<Vector4, float>());
-      return vec4;
-    }
-
-    public static void ReadIntoVector(this IBinaryReader br,
-                                      VertexDescriptor descriptor,
-                                      Span<float> floats) {
-      Asserts.True(floats.Length >= descriptor.ComponentCount);
-
-      var scaleMultiplier = 1f / (1 << descriptor.Scale);
-      for (var i = 0; i < descriptor.ComponentCount; ++i) {
-        floats[i] = scaleMultiplier * descriptor.AxesComponentType switch {
-            GxComponentType.U8  => br.ReadByte(),
-            GxComponentType.S8  => br.ReadByte(),
-            GxComponentType.U16 => br.ReadUInt16(),
-            GxComponentType.S16 => br.ReadInt16(),
-            GxComponentType.F32 => br.ReadSingle(),
-        };
-      }
-    }
-  }
-
-  public class DatPrimitive {
-    public required GxOpcode Type { get; init; }
-    public required IReadOnlyList<DatVertex> Vertices { get; init; }
-  }
-
-  public class DatVertex {
-    public required int BoneId { get; init; }
-    public required Vector3 Position { get; init; }
-    public Vector3? Normal { get; init; }
-    public Vector2? Uv0 { get; init; }
-    public Vector2? Uv1 { get; init; }
-    public IColor? Color { get; init; }
   }
 
   [BinarySchema]

@@ -1,11 +1,18 @@
-﻿using System.Numerics;
+﻿using CommunityToolkit.HighPerformance;
 
 using fin.color;
+using fin.model;
+using fin.util.asserts;
 using fin.util.color;
+using fin.util.enumerables;
 
 using gx;
 
 using schema.binary;
+
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
+using Vector4 = System.Numerics.Vector4;
 
 namespace dat.schema {
   [Flags]
@@ -45,6 +52,9 @@ namespace dat.schema {
 
     public List<VertexDescriptor> VertexDescriptors { get; } = new();
     public List<DatPrimitive> Primitives { get; } = new();
+
+    public VertexSpace VertexSpace { get; private set; }
+    public List<IList<PObjWeight>>? Weights { get; private set; }
 
     public void Read(IBinaryReader br) {
       this.Header.Read(br);
@@ -95,9 +105,64 @@ namespace dat.schema {
         return;
       }
 
-      br.Position = this.Header.DisplayListOffset;
+      this.VertexSpace = ((int) this.Header.Flags & 0x3000) == 0x0000
+          ? VertexSpace.BONE
+          : VertexSpace.WORLD;
+
+      var weightListOffset = this.Header.WeightListOffset;
+      if (weightListOffset != 0) {
+        var pObjWeights = this.Weights = new List<IList<PObjWeight>>();
+
+        switch ((int) this.Header.Flags & 0x3000) {
+          // Weight list is children of a given bone
+          case 0x0000: {
+            var currentJObjOffset = weightListOffset;
+            while (currentJObjOffset != 0) {
+              var jObj = this.dat_.JObjByOffset[currentJObjOffset];
+              pObjWeights.Add(new PObjWeight {
+                  JObj = jObj,
+                  Weight = 1,
+              }.AsList());
+              currentJObjOffset = jObj.Data.FirstChildBoneOffset;
+            }
+
+            break;
+          }
+          // TODO: Does nothing, is this correct????
+          case 0x1000: {
+            break;
+          }
+          // Weight list is read out
+          case 0x2000: {
+            br.Position = this.Header.WeightListOffset;
+            int offset = 0;
+            while ((offset = br.ReadInt32()) != 0) {
+              br.SubreadAt(
+                  offset,
+                  sbr => {
+                    var weights = new List<PObjWeight>();
+
+                    uint jObjOffset;
+                    while ((jObjOffset = sbr.ReadUInt32()) != 0) {
+                      var weight = sbr.ReadSingle();
+                      weights.Add(new PObjWeight {
+                          JObj = this.dat_.JObjByOffset[jObjOffset],
+                          Weight = weight,
+                      });
+                    }
+
+                    pObjWeights.Add(weights);
+                  });
+            }
+
+            break;
+          }
+        }
+      }
+
 
       // Reads display list
+      br.Position = this.Header.DisplayListOffset;
       for (var d = 0; d < this.Header.DisplayListSize; ++d) {
         var opcode = (GxOpcode) br.ReadByte();
 
@@ -143,7 +208,7 @@ namespace dat.schema {
             var vertices = new DatVertex[vertexCount];
 
             for (var i = 0; i < vertexCount; ++i) {
-              var boneId = -1;
+              int? weightId = null;
               Vector3? position = null;
               Vector3? normal = null;
               Vector2? uv0 = null;
@@ -174,7 +239,7 @@ namespace dat.schema {
 
                 switch (vertexAttribute) {
                   case GxAttribute.PNMTXIDX: {
-                    boneId = value;
+                    weightId = value;
                     break;
                   }
                   case GxAttribute.POS: {
@@ -210,7 +275,7 @@ namespace dat.schema {
 
               if (position != null) {
                 vertices[i] = new DatVertex {
-                    BoneId = boneId,
+                    WeightId = weightId / 3,
                     Position = position.Value,
                     Normal = normal,
                     Uv0 = uv0,
@@ -281,7 +346,72 @@ namespace dat.schema {
               br.ReadByte(),
               br.ReadByte());
         }
+        default: {
+          throw new NotImplementedException();
+        }
       }
     }
+  }
+
+  public static class BinaryReaderExtensions {
+    public static Vector2 ReadVector2(this IBinaryReader br,
+                                      VertexDescriptor descriptor) {
+      var vec2 = new Vector2();
+      br.ReadIntoVector(descriptor,
+                        new Span<Vector2>(ref vec2).Cast<Vector2, float>());
+      return vec2;
+    }
+
+    public static Vector3 ReadVector3(this IBinaryReader br,
+                                      VertexDescriptor descriptor) {
+      var vec3 = new Vector3();
+      br.ReadIntoVector(descriptor,
+                        new Span<Vector3>(ref vec3).Cast<Vector3, float>());
+      return vec3;
+    }
+
+    public static Vector4 ReadVector4(this IBinaryReader br,
+                                      VertexDescriptor descriptor) {
+      var vec4 = new Vector4();
+      br.ReadIntoVector(descriptor,
+                        new Span<Vector4>(ref vec4).Cast<Vector4, float>());
+      return vec4;
+    }
+
+    public static void ReadIntoVector(this IBinaryReader br,
+                                      VertexDescriptor descriptor,
+                                      Span<float> floats) {
+      Asserts.True(floats.Length >= descriptor.ComponentCount);
+
+      var scaleMultiplier = 1f / (1 << descriptor.Scale);
+      for (var i = 0; i < descriptor.ComponentCount; ++i) {
+        floats[i] = scaleMultiplier * descriptor.AxesComponentType switch {
+            GxComponentType.U8  => br.ReadByte(),
+            GxComponentType.S8  => br.ReadByte(),
+            GxComponentType.U16 => br.ReadUInt16(),
+            GxComponentType.S16 => br.ReadInt16(),
+            GxComponentType.F32 => br.ReadSingle(),
+        };
+      }
+    }
+  }
+
+  public class DatPrimitive {
+    public required GxOpcode Type { get; init; }
+    public required IReadOnlyList<DatVertex> Vertices { get; init; }
+  }
+
+  public class DatVertex {
+    public required int? WeightId { get; init; }
+    public required Vector3 Position { get; init; }
+    public Vector3? Normal { get; init; }
+    public Vector2? Uv0 { get; init; }
+    public Vector2? Uv1 { get; init; }
+    public IColor? Color { get; init; }
+  }
+
+  public class PObjWeight {
+    public required JObj JObj { get; init; }
+    public required float Weight { get; init; }
   }
 }
