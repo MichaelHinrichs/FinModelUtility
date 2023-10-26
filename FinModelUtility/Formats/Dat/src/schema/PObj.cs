@@ -156,59 +156,9 @@ namespace dat.schema {
 
                 if (vertexAttribute == GxAttribute.CLR0 &&
                     vertexFormat == GxAttributeType.DIRECT) {
-                  switch (vertexDescriptor.ColorComponentType) {
-                    case ColorComponentType.RGB565: {
-                      color = ColorUtil.ParseRgb565(br.ReadUInt16());
-                      break;
-                    }
-                    case ColorComponentType.RGB888: {
-                      color = FinColor.FromRgbBytes(
-                          br.ReadByte(),
-                          br.ReadByte(),
-                          br.ReadByte());
-                      break;
-                    }
-                    case ColorComponentType.RGBX8888: {
-                      color = FinColor.FromRgbBytes(
-                          br.ReadByte(),
-                          br.ReadByte(),
-                          br.ReadByte());
-                      br.ReadByte();
-                      break;
-                    }
-                    case ColorComponentType.RGBA4444: {
-                      ColorUtil.SplitRgba4444(
-                          br.ReadUInt16(),
-                          out var r,
-                          out var g,
-                          out var b,
-                          out var a);
-                      color = FinColor.FromRgbaBytes(r, g, b, a);
-                      break;
-                    }
-                    case ColorComponentType.RGBA6: {
-                      var c = br.ReadUInt24();
-                      var r = ((((c >> 18) & 0x3F) << 2) |
-                               (((c >> 18) & 0x3F) >> 4)) / (float) 0xFF;
-                      var g = ((((c >> 12) & 0x3F) << 2) |
-                               (((c >> 12) & 0x3F) >> 4)) / (float) 0xFF;
-                      var b = ((((c >> 6) & 0x3F) << 2) |
-                               (((c >> 6) & 0x3F) >> 4)) / (float) 0xFF;
-                      var a = ((((c) & 0x3F) << 2) | (((c) & 0x3F) >> 4)) /
-                              (float) 0xFF;
-                      color = FinColor.FromRgbaFloats(r, g, b, a);
-                      break;
-                    }
-                    case ColorComponentType.RGBA8888: {
-                      color = FinColor.FromRgbaBytes(
-                          br.ReadByte(),
-                          br.ReadByte(),
-                          br.ReadByte(),
-                          br.ReadByte());
-                      break;
-                    }
-                  }
-
+                  color = ReadColorAttribute_(
+                      br,
+                      vertexDescriptor.ColorComponentType);
                   continue;
                 }
 
@@ -279,6 +229,57 @@ namespace dat.schema {
           default: {
             break;
           }
+        }
+      }
+    }
+
+    private IColor ReadColorAttribute_(IBinaryReader br,
+                                       ColorComponentType colorComponentType) {
+      switch (colorComponentType) {
+        case ColorComponentType.RGB565: {
+          return ColorUtil.ParseRgb565(br.ReadUInt16());
+        }
+        case ColorComponentType.RGB888: {
+          return FinColor.FromRgbBytes(
+              br.ReadByte(),
+              br.ReadByte(),
+              br.ReadByte());
+        }
+        case ColorComponentType.RGBX8888: {
+          var color = FinColor.FromRgbBytes(
+              br.ReadByte(),
+              br.ReadByte(),
+              br.ReadByte());
+          br.ReadByte();
+          return color;
+        }
+        case ColorComponentType.RGBA4444: {
+          ColorUtil.SplitRgba4444(
+              br.ReadUInt16(),
+              out var r,
+              out var g,
+              out var b,
+              out var a);
+          return FinColor.FromRgbaBytes(r, g, b, a);
+        }
+        case ColorComponentType.RGBA6: {
+          var c = br.ReadUInt24();
+          var r = ((((c >> 18) & 0x3F) << 2) |
+                   (((c >> 18) & 0x3F) >> 4)) / (float) 0xFF;
+          var g = ((((c >> 12) & 0x3F) << 2) |
+                   (((c >> 12) & 0x3F) >> 4)) / (float) 0xFF;
+          var b = ((((c >> 6) & 0x3F) << 2) |
+                   (((c >> 6) & 0x3F) >> 4)) / (float) 0xFF;
+          var a = ((((c) & 0x3F) << 2) | (((c) & 0x3F) >> 4)) /
+                  (float) 0xFF;
+          return FinColor.FromRgbaFloats(r, g, b, a);
+        }
+        case ColorComponentType.RGBA8888: {
+          return FinColor.FromRgbaBytes(
+              br.ReadByte(),
+              br.ReadByte(),
+              br.ReadByte(),
+              br.ReadByte());
         }
       }
     }
