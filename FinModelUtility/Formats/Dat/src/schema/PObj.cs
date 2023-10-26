@@ -5,6 +5,7 @@ using fin.model;
 using fin.util.asserts;
 using fin.util.color;
 using fin.util.enumerables;
+using fin.util.enums;
 
 using gx;
 
@@ -18,6 +19,7 @@ namespace dat.schema {
   [Flags]
   public enum PObjFlags : ushort {
     OBJTYPE_SKIN = 0 << 12,
+    USE_BONES_DIRECTLY = 1 << 2,
     OBJTYPE_SHAPEANIM = 1 << 12,
     OBJTYPE_ENVELOPE = 1 << 13,
     OBJTYPE_MASK = 0x3000,
@@ -105,61 +107,46 @@ namespace dat.schema {
         return;
       }
 
-      this.VertexSpace = ((int) this.Header.Flags & 0x3000) == 0x0000
-          ? VertexSpace.BONE
-          : VertexSpace.WORLD;
+      this.VertexSpace = VertexSpace.BONE;
 
       var weightListOffset = this.Header.WeightListOffset;
       if (weightListOffset != 0) {
         var pObjWeights = this.Weights = new List<IList<PObjWeight>>();
 
-        switch ((int) this.Header.Flags & 0x3000) {
-          // Weight list is children of a given bone
-          case 0x0000: {
-            var currentJObjOffset = weightListOffset;
-            while (currentJObjOffset != 0) {
-              var jObj = this.dat_.JObjByOffset[currentJObjOffset];
-              pObjWeights.Add(new PObjWeight {
-                  JObj = jObj,
-                  Weight = 1,
-              }.AsList());
-              currentJObjOffset = jObj.Data.FirstChildBoneOffset;
-            }
-
-            break;
+        // Weight list is children of a given bone
+        if (this.Header.Flags.CheckFlag(PObjFlags.USE_BONES_DIRECTLY)) {
+          var currentJObjOffset = weightListOffset;
+          while (currentJObjOffset != 0) {
+            var jObj = this.dat_.JObjByOffset[currentJObjOffset];
+            pObjWeights.Add(new PObjWeight {
+                JObj = jObj,
+                Weight = 1,
+            }.AsList());
+            currentJObjOffset = jObj.Data.FirstChildBoneOffset;
           }
-          // TODO: Does nothing, is this correct????
-          case 0x1000: {
-            break;
-          }
-          // Weight list is read out
-          case 0x2000: {
-            br.Position = this.Header.WeightListOffset;
-            int offset = 0;
-            while ((offset = br.ReadInt32()) != 0) {
-              br.SubreadAt(
-                  offset,
-                  sbr => {
-                    var weights = new List<PObjWeight>();
+        } else {
+          br.Position = this.Header.WeightListOffset;
+          int offset = 0;
+          while ((offset = br.ReadInt32()) != 0) {
+            br.SubreadAt(
+                offset,
+                sbr => {
+                  var weights = new List<PObjWeight>();
 
-                    uint jObjOffset;
-                    while ((jObjOffset = sbr.ReadUInt32()) != 0) {
-                      var weight = sbr.ReadSingle();
-                      weights.Add(new PObjWeight {
-                          JObj = this.dat_.JObjByOffset[jObjOffset],
-                          Weight = weight,
-                      });
-                    }
+                  uint jObjOffset;
+                  while ((jObjOffset = sbr.ReadUInt32()) != 0) {
+                    var weight = sbr.ReadSingle();
+                    weights.Add(new PObjWeight {
+                        JObj = this.dat_.JObjByOffset[jObjOffset],
+                        Weight = weight,
+                    });
+                  }
 
-                    pObjWeights.Add(weights);
-                  });
-            }
-
-            break;
+                  pObjWeights.Add(weights);
+                });
           }
         }
       }
-
 
       // Reads display list
       br.Position = this.Header.DisplayListOffset;

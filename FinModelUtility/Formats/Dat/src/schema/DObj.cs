@@ -20,7 +20,7 @@ namespace dat.schema {
     }
 
     public DObjHeader Header { get; } = new();
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public DObj? NextDObj { get; private set; }
     public MObj? MObj { get; private set; }

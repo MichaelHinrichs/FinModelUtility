@@ -4,6 +4,8 @@ using CommunityToolkit.HighPerformance;
 
 using fin.color;
 using fin.data.queues;
+using fin.math.matrix.four;
+using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.hex;
@@ -155,6 +157,11 @@ namespace dat.schema {
         br.Position = jObjDataOffset;
         jObjData.Read(br);
 
+        br.Position = jObjData.InverseBindMatrixOffset;
+        var inverseBindMatrixValues = new float[4 * 4];
+        br.ReadSingles(inverseBindMatrixValues.AsSpan(0, 4 * 3));
+        jObj.InverseBindMatrix = new FinMatrix4x4(inverseBindMatrixValues).TransposeInPlace();
+
         var firstChildOffset = jObj.Data.FirstChildBoneOffset;
         if (this.AssertNullOrValidPointer_(firstChildOffset)) {
           jObjQueue.Enqueue((rootNode, jObj, firstChildOffset));
@@ -200,6 +207,23 @@ namespace dat.schema {
           if (dObjStringOffset != 0) {
             br.Position = dObjStringOffset;
             dObj.Name = br.ReadStringNT();
+          }
+
+          var mObj = dObj.MObj;
+          if (mObj != null) {
+            var mObjStringOffset = mObj.StringOffset;
+            if (mObjStringOffset != 0) {
+              br.Position = mObjStringOffset;
+              mObj.Name = br.ReadStringNT();
+            }
+
+            foreach (var (_, tObj) in mObj.TObjsAndOffsets) {
+              var tObjStringOffset = tObj.StringOffset;
+              if (tObjStringOffset != 0) {
+                br.Position = tObj.StringOffset;
+                tObj.Name = br.ReadStringNT();
+              }
+            }
           }
         }
       }

@@ -1,4 +1,5 @@
-﻿using fin.schema;
+﻿using fin.math.matrix.four;
+using fin.schema;
 using fin.schema.vector;
 
 using schema.binary;
@@ -71,7 +72,7 @@ namespace dat.schema {
   public class JObj {
     public JObjData Data { get; } = new();
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public DObj FirstDObj { get; set; }
 
@@ -86,6 +87,8 @@ namespace dat.schema {
     }
 
     public List<JObj> Children { get; } = new();
+
+    public IFinMatrix4x4 InverseBindMatrix { get; set; }
 
     public override string ToString() => this.Name;
   }

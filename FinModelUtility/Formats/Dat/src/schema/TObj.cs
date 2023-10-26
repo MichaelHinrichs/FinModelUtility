@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-using dat.image;
+﻿using dat.image;
 
 using fin.image;
 using fin.image.formats;
@@ -17,14 +15,24 @@ namespace dat.schema {
   ///   Texture object.
   ///
   ///   Shamelessly copied from:
-  ///   https://github.com/jam1garner/Smash-Forge/blob/c0075bca364366bbea2d3803f5aeae45a4168640/Smash%20Forge/Filetypes/Melee/DAT.cs#L1281
-  ///   https://github.com/jam1garner/Smash-Forge/blob/c0075bca364366bbea2d3803f5aeae45a4168640/Smash%20Forge/Filetypes/Melee/LibWii/TLP.cs#L166
+  ///    - https://github.com/jam1garner/Smash-Forge/blob/c0075bca364366bbea2d3803f5aeae45a4168640/Smash%20Forge/Filetypes/Melee/DAT.cs#L1281
+  ///    - https://github.com/jam1garner/Smash-Forge/blob/c0075bca364366bbea2d3803f5aeae45a4168640/Smash%20Forge/Filetypes/Melee/LibWii/TLP.cs#L166
+  ///    - https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Common/HSD_TOBJ.cs#L92
   /// </summary>
   public class TObj : IBinaryDeserializable {
+    public uint StringOffset { get; private set; }
+    public string? Name { get; set; }
+
     public IImage Image { get; private set; }
 
+    public uint NextTObjOffset { get; private set; }
+    public TObj? NextTObj { get; private set; }
+
     public unsafe void Read(IBinaryReader br) {
-      br.Position += 4 * 13;
+      this.StringOffset = br.ReadUInt32();
+      this.NextTObjOffset = br.ReadUInt32();
+
+      br.Position += 4 * 11;
 
       var wrapS = br.ReadUInt32();
       var wrapT = br.ReadUInt32();
@@ -139,6 +147,11 @@ namespace dat.schema {
             }
           }
         }
+      }
+
+      if (this.NextTObjOffset != 0) {
+        br.Position = this.NextTObjOffset;
+        this.NextTObj = br.ReadNew<TObj>();
       }
     }
   }

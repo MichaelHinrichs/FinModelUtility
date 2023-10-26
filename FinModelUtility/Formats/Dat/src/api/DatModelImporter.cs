@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices.ComTypes;
+﻿using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 
 using Assimp.Unmanaged;
 
@@ -8,6 +9,7 @@ using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
+using fin.util.hex;
 
 using gx;
 
@@ -29,9 +31,9 @@ namespace dat.api {
       }
 
       while (boneQueue.Count > 0) {
-        var (finParentBone, datBone) = boneQueue.Dequeue();
+        var (finParentBone, jObj) = boneQueue.Dequeue();
 
-        var datBoneData = datBone.Data;
+        var datBoneData = jObj.Data;
 
         var finBone =
             finParentBone.AddChild(datBoneData.Position.X,
@@ -45,9 +47,11 @@ namespace dat.api {
                              datBoneData.Scale.X,
                              datBoneData.Scale.Y,
                              datBoneData.Scale.Z);
-        finBoneByJObj[datBone] = finBone;
+        finBone.Name = jObj.Name;
 
-        foreach (var datChildBone in datBone.Children) {
+        finBoneByJObj[jObj] = finBone;
+
+        foreach (var datChildBone in jObj.Children) {
           boneQueue.Enqueue((finBone, datChildBone));
         }
       }
@@ -68,20 +72,30 @@ namespace dat.api {
           if (mObj != null && !finMaterialsByMObjOffset.TryGetValue(
                   mObjOffset,
                   out finMaterial)) {
-            var tObj = mObj.TObj;
-            if (tObj == null) {
+            var tObjsAndOffsets = mObj.TObjsAndOffsets.ToArray();
+            if (tObjsAndOffsets.Length == 0) {
               finMaterial = finMaterialManager.AddNullMaterial();
             } else {
-              var tObjOffset = mObj.TObjOffset;
-              if (!finTexturesByTObjOffset.TryGetValue(
-                      tObjOffset,
-                      out var finTexture)) {
-                finTexture = finMaterialManager.CreateTexture(tObj.Image);
-                finTexturesByTObjOffset[tObjOffset] = finTexture;
+              ITexture? firstTexture = null;
+              foreach (var (tObjOffset, tObj) in tObjsAndOffsets) {
+                if (!finTexturesByTObjOffset.TryGetValue(
+                        tObjOffset,
+                        out var finTexture)) {
+                  finTexture = finMaterialManager.CreateTexture(tObj.Image);
+                  finTexture.Name = tObj.Name ?? tObjOffset.ToHex();
+
+                  finTexturesByTObjOffset[tObjOffset] = finTexture;
+                }
+
+                if (firstTexture == null) {
+                  firstTexture = finTexture;
+                }
               }
 
-              finMaterial = finMaterialManager.AddTextureMaterial(finTexture);
+              finMaterial = finMaterialManager.AddTextureMaterial(firstTexture!);
             }
+
+            finMaterial.Name = mObj.Name ?? mObjOffset.ToHex();
 
             finMaterialsByMObjOffset[mObjOffset] = finMaterial;
           }
