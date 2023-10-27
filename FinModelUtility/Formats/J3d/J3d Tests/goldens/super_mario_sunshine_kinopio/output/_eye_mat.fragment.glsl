@@ -10,7 +10,14 @@ struct Light {
 
 uniform Light lights[8];
 
-uniform sampler2D texture0;
+
+struct Texture {
+  sampler2D sampler;
+  vec2 clampS;
+  vec2 clampT;
+  mat2x3 transform;
+};
+uniform Texture texture0;
 uniform sampler2D texture1;
 uniform vec3 color_GxMaterialColor0;
 uniform vec3 color_GxAmbientColor0;
@@ -42,9 +49,9 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp(texture(texture0, uv0).rgb*clamp((color_GxColor0 + texture(texture1, uv0).rgb*(vec3(1) + vec3(-1)*vec3(0.625)) + color_GxMaterialColor0*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1)*vec3(0.625)), 0, 1), 0, 1);
+  vec3 colorComponent = clamp(texture(texture0.sampler, clamp((texture0.transform * uv0).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb*clamp((color_GxColor0 + texture(texture1, uv0).rgb*(vec3(1) + vec3(-1)*vec3(0.625)) + color_GxMaterialColor0*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1)*vec3(0.625)), 0, 1), 0, 1);
 
-  float alphaComponent = scalar_GxAlpha0*texture(texture0, uv0).a;
+  float alphaComponent = scalar_GxAlpha0*texture(texture0.sampler, clamp((texture0.transform * uv0).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).a;
 
   fragColor = vec4(colorComponent, alphaComponent);
 }

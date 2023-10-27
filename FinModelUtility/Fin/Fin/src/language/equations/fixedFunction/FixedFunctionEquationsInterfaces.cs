@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace fin.language.equations.fixedFunction {
   public interface IFixedFunctionEquations<TIdentifier> {
@@ -49,7 +50,12 @@ namespace fin.language.equations.fixedFunction {
         IColorValue value);
 
     bool HasInput(TIdentifier identifier);
-    bool DoOutputsDependOn(TIdentifier[] outputIdentifiers, IValue value);
+
+    bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
+                           TIdentifier[] identifiers);
+
+    bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
+                           IValue value);
   }
 
   public interface IIdentifiedValue<out TIdentifier> : IValue {
@@ -76,7 +82,8 @@ namespace fin.language.equations.fixedFunction {
       where TValue : IValue<TValue, TConstant, TTerm, TExpression>
       where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
       where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue
-      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>, TValue {
+      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>,
+      TValue {
     TExpression Add(TValue term1, params TValue[] terms);
     TExpression Subtract(TValue term1, params TValue[] terms);
     TTerm Multiply(TValue factor1, params TValue[] factors);
@@ -93,14 +100,16 @@ namespace fin.language.equations.fixedFunction {
       where TValue : IValue<TValue, TConstant, TTerm, TExpression>
       where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
       where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue
-      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>, TValue;
+      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>,
+      TValue;
 
   public interface ITerm<TValue, TConstant, out TTerm, out TExpression>
       : ITerm, IValue<TValue, TConstant, TTerm, TExpression>
       where TValue : IValue<TValue, TConstant, TTerm, TExpression>
       where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
       where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue
-      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>, TValue {
+      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>,
+      TValue {
     IReadOnlyList<TValue> NumeratorFactors { get; }
     IReadOnlyList<TValue>? DenominatorFactors { get; }
   }
@@ -110,7 +119,8 @@ namespace fin.language.equations.fixedFunction {
       where TValue : IValue<TValue, TConstant, TTerm, TExpression>
       where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
       where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue
-      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>, TValue {
+      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>,
+      TValue {
     IReadOnlyList<TValue> Terms { get; }
   }
 }

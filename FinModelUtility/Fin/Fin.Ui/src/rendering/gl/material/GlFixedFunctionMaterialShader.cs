@@ -9,11 +9,6 @@ namespace fin.ui.rendering.gl.material {
       : BGlMaterialShader<IReadOnlyFixedFunctionMaterial> {
     private readonly IFixedFunctionRegisters registers_;
 
-    private readonly int[] textureLocations_ =
-        new int[MaterialConstants.MAX_TEXTURES];
-
-    private IList<GlTexture> textures_;
-
     private readonly Dictionary<IColorRegister, int> colorRegisterLocations_ =
         new();
 
@@ -29,33 +24,35 @@ namespace fin.ui.rendering.gl.material {
       this.registers_ = fixedFunctionMaterial.Registers;
     }
 
-    protected override void DisposeInternal() {
-      if (this.DisposeTextures) {
-        foreach (var texture in this.textures_) {
-          GlMaterialConstants.DisposeIfNotCommon(texture);
-        }
-      }
-    }
+    protected override void DisposeInternal() { }
 
     protected override void Setup(
         IReadOnlyFixedFunctionMaterial material,
         GlShaderProgram impl) {
-      for (var i = 0; i < MaterialConstants.MAX_TEXTURES; ++i) {
-        this.textureLocations_[i] =
-            impl.GetUniformLocation($"texture{i}");
-      }
-
       var finTextures = material.TextureSources;
 
-      this.textures_ = new List<GlTexture>();
+      var outputIdentifiers = new[] {
+          FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA
+      };
+      var equations = material.Equations;
       for (var i = 0; i < MaterialConstants.MAX_TEXTURES; ++i) {
+        if (!equations.DoOutputsDependOn(
+                outputIdentifiers,
+                new[] {
+                    FixedFunctionSource.TEXTURE_COLOR_0 + i,
+                    FixedFunctionSource.TEXTURE_ALPHA_0 + i
+                })) {
+          continue;
+        }
+
         var finTexture = i < (finTextures?.Count ?? 0)
             ? finTextures[i]
             : null;
+        var glTexture = finTexture != null
+            ? GlTexture.FromTexture(finTexture)
+            : GlMaterialConstants.NULL_WHITE_TEXTURE;
 
-        this.textures_.Add(finTexture != null
-                               ? GlTexture.FromTexture(finTexture)
-                               : GlMaterialConstants.NULL_WHITE_TEXTURE);
+        this.SetUpTexture($"texture{i}", i, finTexture, glTexture);
       }
 
       var registers = material.Registers;
@@ -72,19 +69,6 @@ namespace fin.ui.rendering.gl.material {
 
     protected override void PassUniformsAndBindTextures(
         GlShaderProgram shaderProgram) {
-      for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
-        var location = this.textureLocations_[t];
-        if (location == -1) {
-          continue;
-        }
-
-        GL.Uniform1(location, t);
-      }
-
-      for (var i = 0; i < this.textures_.Count; ++i) {
-        this.textures_[i].Bind(i);
-      }
-
       foreach (var colorRegister in this.registers_.ColorRegisters) {
         var location = this.colorRegisterLocations_[colorRegister];
         if (location == -1) {

@@ -13,8 +13,8 @@ namespace fin.math.matrix.three {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3x2 FromRotation(float rotation)
-      => Matrix3x2.CreateRotation(rotation);
+    public static Matrix3x2 FromRotation(float radians)
+      => Matrix3x2.CreateRotation(radians);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -38,7 +38,7 @@ namespace fin.math.matrix.three {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3x2 FromTrss(
         Vector2? translation,
-        float? rotation,
+        float? rotationRadians,
         Vector2? scale,
         float? skewXRadians) {
       var dst = Matrix3x2.Identity;
@@ -47,8 +47,8 @@ namespace fin.math.matrix.three {
         dst = Matrix3x2.Multiply(FromTranslation(translation.Value), dst);
       }
 
-      if (rotation != null) {
-        dst = Matrix3x2.Multiply(FromRotation(rotation.Value), dst);
+      if (rotationRadians != null) {
+        dst = Matrix3x2.Multiply(FromRotation(rotationRadians.Value), dst);
       }
 
       if (scale != null) {

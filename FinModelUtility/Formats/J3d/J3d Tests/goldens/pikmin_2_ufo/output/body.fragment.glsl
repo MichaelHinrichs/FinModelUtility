@@ -10,7 +10,14 @@ struct Light {
 
 uniform Light lights[8];
 
-uniform sampler2D texture0;
+
+struct Texture {
+  sampler2D sampler;
+  vec2 clampS;
+  vec2 clampT;
+  mat2x3 transform;
+};
+uniform Texture texture0;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 uniform vec3 color_GxMaterialColor0;
@@ -44,7 +51,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp(clamp(color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1)*texture(texture1, uv0).rgb*vec3(2), 0, 1) + texture(texture2, uv0).rgb*clamp((color_GxColor0 + texture(texture0, acos(normalUv) / 3.14159).rgb*(vec3(1) + vec3(-1)*texture(texture0, acos(normalUv) / 3.14159).rgb) + texture(texture0, acos(normalUv) / 3.14159).rgb*texture(texture0, acos(normalUv) / 3.14159).rgb)*vec3(2), 0, 1)*color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1), 0, 1);
+  vec3 colorComponent = clamp(clamp(color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1)*texture(texture1, uv0).rgb*vec3(2), 0, 1) + texture(texture2, uv0).rgb*clamp((color_GxColor0 + texture(texture0.sampler, clamp((texture0.transform * (acos(normalUv) / 3.14159)).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb*(vec3(1) + vec3(-1)*texture(texture0.sampler, clamp((texture0.transform * (acos(normalUv) / 3.14159)).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb) + texture(texture0.sampler, clamp((texture0.transform * (acos(normalUv) / 3.14159)).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb*texture(texture0.sampler, clamp((texture0.transform * (acos(normalUv) / 3.14159)).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb)*vec3(2), 0, 1)*color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1), 0, 1);
 
   float alphaComponent = scalar_GxMaterialAlpha0;
 

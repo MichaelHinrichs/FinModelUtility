@@ -1,14 +1,31 @@
 ﻿using System.Numerics;
 
 using fin.math;
+using fin.math.matrix.three;
 using fin.model;
+using fin.model.io.exporters.gltf;
 using fin.shaders.glsl;
 
 using OpenTK.Graphics.OpenGL;
 
 namespace fin.ui.rendering.gl.material {
+  public class CachedTextureUniformData {
+    public required int TextureIndex { get; init; }
+    public required ITexture? FinTexture { get; init; }
+    public required GlTexture GlTexture { get; init; }
+    public required IReadOnlyFinMatrix3x2 Transform { get; init; }
+
+    public required int SamplerLocation { get; init; }
+    public required int ClampSLocation { get; init; }
+    public required int ClampTLocation { get; init; }
+    public required int TransformLocation { get; init; }
+  }
+
   public abstract class BGlMaterialShader<TMaterial> : IGlMaterialShader
       where TMaterial : IReadOnlyMaterial {
+    private LinkedList<CachedTextureUniformData> cachedTextureUniformDatas_ =
+        new();
+
     private readonly IModel model_;
     private readonly ILighting? lighting_;
     private readonly IBoneTransformManager? boneTransformManager_;
@@ -90,6 +107,14 @@ namespace fin.ui.rendering.gl.material {
 
     private void ReleaseUnmanagedResources_() {
       this.impl_.Dispose();
+
+      if (this.DisposeTextures) {
+        foreach (var cachedTextureUniformData in cachedTextureUniformDatas_) {
+          GlMaterialConstants.DisposeIfNotCommon(
+              cachedTextureUniformData.GlTexture);
+        }
+      }
+
       this.DisposeInternal();
     }
 
@@ -142,6 +167,11 @@ namespace fin.ui.rendering.gl.material {
         this.SetUpLightUniforms_(this.lighting_, MaterialConstants.MAX_LIGHTS);
       }
 
+      foreach (var cachedTextureUniformData in
+               this.cachedTextureUniformDatas_) {
+        this.BindTextureAndSetUpUniforms_(cachedTextureUniformData);
+      }
+
       this.PassUniformsAndBindTextures(this.impl_);
     }
 
@@ -181,6 +211,81 @@ namespace fin.ui.rendering.gl.material {
                     color.Bf,
                     color.Af);
       }
+    }
+
+    protected void SetUpTexture(
+        string textureName,
+        int textureIndex,
+        ITexture? finTexture,
+        GlTexture glTexture) {
+      var cachedTextureUniformData = new CachedTextureUniformData {
+          TextureIndex = textureIndex,
+          FinTexture = finTexture,
+          GlTexture = glTexture,
+          Transform = CalculateTextureTransform_(finTexture),
+          SamplerLocation =
+              this.impl_.GetUniformLocation($"{textureName}.sampler"),
+          ClampSLocation =
+              this.impl_.GetUniformLocation($"{textureName}.clampS"),
+          ClampTLocation =
+              this.impl_.GetUniformLocation($"{textureName}.clampT"),
+          TransformLocation =
+              this.impl_.GetUniformLocation($"{textureName}.transform"),
+      };
+
+      this.cachedTextureUniformDatas_.AddLast(cachedTextureUniformData);
+    }
+
+    private static IReadOnlyFinMatrix3x2 CalculateTextureTransform_(
+        ITexture? texture) {
+      if (texture == null) {
+        return FinMatrix3x2.IDENTITY;
+      }
+
+      var textureOffset = texture.Offset;
+      var textureScale = texture.Scale;
+      var textureRotationRadians = texture.RotationRadians;
+
+      if (textureOffset == null &&
+          textureScale == null &&
+          textureRotationRadians == null) {
+        return FinMatrix3x2.IDENTITY;
+      }
+
+      Vector2? offset = null;
+      if (textureOffset != null) {
+        offset = new Vector2(textureOffset.X, textureOffset.Y);
+      }
+
+      Vector2? scale = null;
+      if (textureScale != null) {
+        offset = new Vector2(textureScale.X, textureScale.Y);
+      }
+
+      return FinMatrix3x2Util.FromTrss(offset,
+                                       textureRotationRadians,
+                                       scale,
+                                       null);
+    }
+
+    private unsafe void BindTextureAndSetUpUniforms_(
+        CachedTextureUniformData uniformData) {
+      uniformData.GlTexture.Bind(uniformData.TextureIndex);
+      GL.Uniform1(uniformData.SamplerLocation, uniformData.TextureIndex);
+
+      var clampS = uniformData.FinTexture?.ClampS;
+      GL.Uniform2(uniformData.ClampSLocation,
+                  clampS?.X ?? -10000,
+                  clampS?.Y ?? 10000);
+
+      var clampT = uniformData.FinTexture?.ClampT;
+      GL.Uniform2(uniformData.ClampTLocation,
+                  clampT?.X ?? -10000,
+                  clampT?.Y ?? 10000);
+
+      var mat = uniformData.Transform.Impl;
+      var ptr = (float*) &mat;
+      GL.UniformMatrix2x3(uniformData.TransformLocation, 1, true, ptr);
     }
   }
 }

@@ -303,6 +303,7 @@ namespace fin.model {
     CLAMP,
     REPEAT,
     MIRROR_REPEAT,
+    MIRROR_CLAMP,
   }
 
   public enum ColorType {
@@ -347,16 +348,20 @@ namespace fin.model {
     TextureMagFilter MagFilter { get; set; }
     TextureMinFilter MinFilter { get; set; }
 
-    IReadOnlyVector2 Offset { get; }
+    IReadOnlyVector2? ClampS { get; set; }
+    IReadOnlyVector2? ClampT { get; set; }
+
+    IReadOnlyVector2? Offset { get; }
     ITexture SetOffset(float x, float y);
 
-    IReadOnlyVector2 Scale { get; }
+    IReadOnlyVector2? Scale { get; }
     ITexture SetScale(float x, float y);
 
-    float RotationDegrees { get; }
+    float? RotationRadians { get; }
+    float? RotationDegrees { get; }
+    ITexture SetRotationRadians(float rotationRadians);
     ITexture SetRotationDegrees(float rotationDegrees);
 
-    // TODO: UV Scaling
     // TODO: Support fixed # of repeats
     // TODO: Support animated textures
     // TODO: Support animated texture index param

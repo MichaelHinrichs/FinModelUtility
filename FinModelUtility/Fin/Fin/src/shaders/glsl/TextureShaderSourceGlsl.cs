@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 
 using fin.model;
 using fin.model.extensions;
@@ -10,6 +11,7 @@ namespace fin.shaders.glsl {
                                    bool useBoneMatrices) {
       this.VertexShaderSource = GlslUtil.GetVertexSrc(model, useBoneMatrices);
 
+      var diffuseTexture = material.Textures.FirstOrDefault();
       var hasNormals = model.Skin.HasNormalsForMaterial(material);
 
       var fragmentSrc = new StringBuilder();
@@ -19,7 +21,17 @@ namespace fin.shaders.glsl {
         fragmentSrc.Append(
             $"""
 
+
              {GlslUtil.GetLightHeader(true)}
+             """);
+      }
+
+      if (GlslUtil.RequiresFancyTextureData(diffuseTexture)) {
+        fragmentSrc.Append(
+            $"""
+
+
+             {GlslUtil.GetTextureStruct()}
              """);
       }
 
@@ -27,7 +39,7 @@ namespace fin.shaders.glsl {
           $"""
 
 
-           uniform sampler2D diffuseTexture;
+           uniform {GlslUtil.GetTypeOfTexture(diffuseTexture)} diffuseTexture;
            uniform float {GlslConstants.UNIFORM_USE_LIGHTING_NAME};
 
            out vec4 fragColor;
@@ -59,14 +71,14 @@ namespace fin.shaders.glsl {
       }
 
       fragmentSrc.Append(
-          """
+          $$"""
 
 
-          void main() {
-            vec4 diffuseColor = texture(diffuseTexture, uv0);
-          
-            fragColor = diffuseColor * vertexColor0;
-          """);
+            void main() {
+              vec4 diffuseColor = {{GlslUtil.ReadColorFromTexture("diffuseTexture", "uv0", diffuseTexture)}};
+            
+              fragColor = diffuseColor * vertexColor0;
+            """);
 
       if (hasNormals) {
         fragmentSrc.Append(

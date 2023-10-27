@@ -113,7 +113,8 @@ namespace fin.ui.rendering.gl {
             (int) (texture.MagFilter switch {
                 TextureMagFilter.NEAR => OpenTK.Graphics.OpenGL.TextureMagFilter
                                                .Nearest,
-                TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL.TextureMagFilter.Linear,
+                TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL
+                                                 .TextureMagFilter.Linear,
             }));
       }
       GL.BindTexture(target, UNDEFINED_ID);
@@ -229,8 +230,9 @@ namespace fin.ui.rendering.gl {
             WrapMode.CLAMP => hasBorderColor
                 ? TextureWrapMode.ClampToBorder
                 : TextureWrapMode.ClampToEdge,
-            WrapMode.REPEAT        => TextureWrapMode.Repeat,
-            WrapMode.MIRROR_REPEAT => TextureWrapMode.MirroredRepeat,
+            WrapMode.REPEAT => TextureWrapMode.Repeat,
+            WrapMode.MIRROR_CLAMP or WrapMode.MIRROR_REPEAT
+                => TextureWrapMode.MirroredRepeat,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(wrapMode),
                 wrapMode,

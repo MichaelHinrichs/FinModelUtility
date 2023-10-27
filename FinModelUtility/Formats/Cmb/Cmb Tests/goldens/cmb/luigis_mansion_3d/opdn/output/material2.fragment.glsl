@@ -42,7 +42,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = (color_3dsColor3 + vec3(texture(texture0, uv0).rgb.g))*(vec3(texture(texture1, uv0).rgb.b)*texture(texture2, asin(normalUv) / 3.14159 + 0.5).rgb + color_3dsColor2*vec3(1 + -1*vertexColor0.rgb.r*vertexColor0.rgb.r*2) + vertexColor0.rgb)*texture(texture1, uv0).rgb*vec3(2)*individualLightColors[0].rgb;
+  vec3 colorComponent = (color_3dsColor3 + vec3(texture(texture0, uv0).rgb.g))*(vec3(texture(texture1, uv0).rgb.b)*texture(texture2, (asin(normalUv) / 3.14159 + 0.5)).rgb + color_3dsColor2*vec3(1 + -1*vertexColor0.rgb.r*vertexColor0.rgb.r*2) + vertexColor0.rgb)*texture(texture1, uv0).rgb*vec3(2)*individualLightColors[0].rgb;
 
   float alphaComponent = vertexColor0.a*texture(texture1, uv0).a*scalar_3dsAlpha1;
 

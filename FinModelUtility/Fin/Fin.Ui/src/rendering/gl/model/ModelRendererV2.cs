@@ -1,5 +1,4 @@
-﻿using fin.data;
-using fin.data.dictionaries;
+﻿using fin.data.dictionaries;
 using fin.math;
 using fin.model;
 

@@ -10,7 +10,6 @@ struct Light {
 
 uniform Light lights[8];
 
-uniform sampler2D texture0;
 uniform sampler2D texture1;
 uniform float scalar_3dsAlpha1;
 

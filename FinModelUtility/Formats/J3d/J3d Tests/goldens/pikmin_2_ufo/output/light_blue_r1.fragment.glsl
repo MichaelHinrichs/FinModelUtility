@@ -10,9 +10,16 @@ struct Light {
 
 uniform Light lights[8];
 
-uniform sampler2D texture0;
-uniform sampler2D texture1;
-uniform sampler2D texture2;
+
+struct Texture {
+  sampler2D sampler;
+  vec2 clampS;
+  vec2 clampT;
+  mat2x3 transform;
+};
+uniform Texture texture0;
+uniform Texture texture1;
+uniform Texture texture2;
 uniform vec3 color_GxMaterialColor0;
 uniform vec3 color_GxAmbientColor0;
 uniform vec3 color_GxMaterialColor1;
@@ -45,7 +52,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp((color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1) + texture(texture2, uv0).rgb*color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1)*(vec3(1) + vec3(-1)*texture(texture1, uv0).rgb) + color_GxMaterialColor1*clamp((individualLightColors[7].rgb + clamp(color_GxAmbientColor1, 0, 1)), 0, 1)*texture(texture0, acos(normalUv) / 3.14159).rgb*vec3(4)*texture(texture1, uv0).rgb)*vec3(2), 0, 1);
+  vec3 colorComponent = clamp((color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1) + texture(texture2.sampler, clamp((texture2.transform * uv0).xy, vec2(texture2.clampS.x, texture2.clampT.x), vec2(texture2.clampS.y, texture2.clampT.y))).rgb*color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1)*(vec3(1) + vec3(-1)*texture(texture1.sampler, clamp((texture1.transform * uv0).xy, vec2(texture1.clampS.x, texture1.clampT.x), vec2(texture1.clampS.y, texture1.clampT.y))).rgb) + color_GxMaterialColor1*clamp((individualLightColors[7].rgb + clamp(color_GxAmbientColor1, 0, 1)), 0, 1)*texture(texture0.sampler, clamp((texture0.transform * (acos(normalUv) / 3.14159)).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb*vec3(4)*texture(texture1.sampler, clamp((texture1.transform * uv0).xy, vec2(texture1.clampS.x, texture1.clampT.x), vec2(texture1.clampS.y, texture1.clampT.y))).rgb)*vec3(2), 0, 1);
 
   float alphaComponent = scalar_GxMaterialAlpha0;
 

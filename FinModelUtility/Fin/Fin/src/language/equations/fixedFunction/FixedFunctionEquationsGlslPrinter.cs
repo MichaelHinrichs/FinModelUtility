@@ -10,12 +10,6 @@ using fin.util.asserts;
 
 namespace fin.language.equations.fixedFunction {
   public class FixedFunctionEquationsGlslPrinter {
-    private readonly IReadOnlyList<ITexture?> textures_;
-
-    public FixedFunctionEquationsGlslPrinter(IReadOnlyList<ITexture> textures) {
-      this.textures_ = textures;
-    }
-
     public string Print(IReadOnlyFixedFunctionMaterial material) {
       var sb = new StringBuilder();
 
@@ -30,18 +24,26 @@ namespace fin.language.equations.fixedFunction {
         IReadOnlyFixedFunctionMaterial material) {
       var equations = material.Equations;
       var registers = material.Registers;
+      var textures = material.TextureSources;
 
       os.WriteLine("# version 400");
       os.WriteLine();
 
-      var hasIndividualLights = Enumerable
-                                .Range(0, MaterialConstants.MAX_LIGHTS)
-                                .Select(
-                                    i => new[] {
-                                        FixedFunctionSource.LIGHT_0_COLOR + i,
-                                        FixedFunctionSource.LIGHT_0_ALPHA + i
-                                    }.Any(equations.HasInput))
-                                .ToArray();
+      var outputIdentifiers = new[] {
+          FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA,
+      };
+
+      var hasIndividualLights =
+          Enumerable
+              .Range(0, MaterialConstants.MAX_LIGHTS)
+              .Select(
+                  i => equations.DoOutputsDependOn(
+                      outputIdentifiers,
+                      new[] {
+                          FixedFunctionSource.LIGHT_0_COLOR + i,
+                          FixedFunctionSource.LIGHT_0_ALPHA + i
+                      }))
+              .ToArray();
       var dependsOnAnIndividualLight =
           hasIndividualLights.Any(value => value);
 
@@ -49,20 +51,38 @@ namespace fin.language.equations.fixedFunction {
         os.WriteLine(GlslUtil.GetLightHeader(false));
       }
 
+      var dependsOnIndividualTextures =
+          Enumerable
+              .Range(0, MaterialConstants.MAX_TEXTURES)
+              .Select(
+                  i => equations
+                      .DoOutputsDependOn(
+                          outputIdentifiers,
+                          new[] {
+                              FixedFunctionSource.TEXTURE_COLOR_0 + i,
+                              FixedFunctionSource.TEXTURE_ALPHA_0 + i
+                          }))
+              .ToArray();
+      var dependsOnAnyTextures =
+          dependsOnIndividualTextures.Any(value => value);
+
+      if (dependsOnIndividualTextures
+          .Select((dependsOnTexture, i) => (i, dependsOnTexture))
+          .Where(tuple => tuple.dependsOnTexture)
+          .Any(tuple => GlslUtil.RequiresFancyTextureData(
+                   textures[tuple.i]))) {
+        os.WriteLine(GlslUtil.GetTextureStruct());
+      }
+
       var hadUniform = false;
       for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
-        if (new[] {
-                FixedFunctionSource.TEXTURE_COLOR_0 + t,
-                FixedFunctionSource.TEXTURE_ALPHA_0 + t
-            }.Any(equations.HasInput)) {
+        if (dependsOnIndividualTextures[t]) {
           hadUniform = true;
-          os.WriteLine($"uniform sampler2D texture{t};");
+          os.WriteLine(
+              $"uniform {GlslUtil.GetTypeOfTexture(textures[t])} texture{t};");
         }
       }
 
-      var outputIdentifiers = new[] {
-          FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA,
-      };
       foreach (var colorRegister in registers.ColorRegisters) {
         if (equations.DoOutputsDependOn(outputIdentifiers, colorRegister)) {
           hadUniform = true;
@@ -86,7 +106,7 @@ namespace fin.language.equations.fixedFunction {
         }
       };
 
-      if (material.TextureSources.Any(
+      if (dependsOnAnyTextures && textures.Any(
               texture => texture?.UvType is UvType.SPHERICAL
                                             or UvType.LINEAR)) {
         writeLineBetweenUniformsAndIns();
@@ -109,7 +129,7 @@ namespace fin.language.equations.fixedFunction {
       }
 
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
-        if (material.TextureSources.Any(texture => texture?.UvIndex == i)) {
+        if (textures.Any(texture => texture?.UvIndex == i)) {
           writeLineBetweenUniformsAndIns();
           os.WriteLine($"in vec2 uv{i};");
         }
@@ -152,7 +172,7 @@ namespace fin.language.equations.fixedFunction {
           equations.ColorOutputs[FixedFunctionSource.OUTPUT_COLOR];
 
       os.Write("  vec3 colorComponent = ");
-      this.PrintColorValue_(os, outputColor.ColorValue);
+      this.PrintColorValue_(os, outputColor.ColorValue, textures);
       os.WriteLine(";");
       os.WriteLine();
 
@@ -160,7 +180,7 @@ namespace fin.language.equations.fixedFunction {
           equations.ScalarOutputs[FixedFunctionSource.OUTPUT_ALPHA];
 
       os.Write("  float alphaComponent = ");
-      this.PrintScalarValue_(os, outputAlpha.ScalarValue);
+      this.PrintScalarValue_(os, outputAlpha.ScalarValue, textures);
       os.WriteLine(";");
       os.WriteLine();
 
@@ -352,20 +372,21 @@ namespace fin.language.equations.fixedFunction {
     private void PrintScalarValue_(
         StringWriter os,
         IScalarValue value,
+        IReadOnlyList<ITexture> textures,
         bool wrapExpressions = false) {
       if (value is IScalarExpression expression) {
         if (wrapExpressions) {
           os.Write("(");
         }
 
-        this.PrintScalarExpression_(os, expression);
+        this.PrintScalarExpression_(os, expression, textures);
         if (wrapExpressions) {
           os.Write(")");
         }
       } else if (value is IScalarTerm term) {
-        this.PrintScalarTerm_(os, term);
+        this.PrintScalarTerm_(os, term, textures);
       } else if (value is IScalarFactor factor) {
-        this.PrintScalarFactor_(os, factor);
+        this.PrintScalarFactor_(os, factor, textures);
       } else {
         Asserts.Fail("Unsupported value type!");
       }
@@ -373,7 +394,8 @@ namespace fin.language.equations.fixedFunction {
 
     private void PrintScalarExpression_(
         StringWriter os,
-        IScalarExpression expression) {
+        IScalarExpression expression,
+        IReadOnlyList<ITexture> textures) {
       var terms = expression.Terms;
 
       for (var i = 0; i < terms.Count; ++i) {
@@ -383,13 +405,14 @@ namespace fin.language.equations.fixedFunction {
           os.Write(" + ");
         }
 
-        this.PrintScalarValue_(os, term);
+        this.PrintScalarValue_(os, term, textures);
       }
     }
 
     private void PrintScalarTerm_(
         StringWriter os,
-        IScalarTerm scalarTerm) {
+        IScalarTerm scalarTerm,
+        IReadOnlyList<ITexture> textures) {
       var numerators = scalarTerm.NumeratorFactors;
       var denominators = scalarTerm.DenominatorFactors;
 
@@ -401,7 +424,7 @@ namespace fin.language.equations.fixedFunction {
             os.Write("*");
           }
 
-          this.PrintScalarValue_(os, numerator, true);
+          this.PrintScalarValue_(os, numerator, textures, true);
         }
       } else {
         os.Write(1);
@@ -413,17 +436,18 @@ namespace fin.language.equations.fixedFunction {
 
           os.Write("/");
 
-          this.PrintScalarValue_(os, denominator, true);
+          this.PrintScalarValue_(os, denominator, textures, true);
         }
       }
     }
 
     private void PrintScalarFactor_(
         StringWriter os,
-        IScalarFactor factor) {
+        IScalarFactor factor,
+        IReadOnlyList<ITexture> textures) {
       if (factor is IScalarIdentifiedValue<FixedFunctionSource>
           identifiedValue) {
-        this.PrintScalarIdentifiedValue_(os, identifiedValue);
+        this.PrintScalarIdentifiedValue_(os, identifiedValue, textures);
       } else if (factor is IScalarNamedValue namedValue) {
         this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
@@ -431,9 +455,9 @@ namespace fin.language.equations.fixedFunction {
       } else if
           (factor is IColorNamedValueSwizzle<FixedFunctionSource>
            namedSwizzle) {
-        this.PrintColorNamedValueSwizzle_(os, namedSwizzle);
+        this.PrintColorNamedValueSwizzle_(os, namedSwizzle, textures);
       } else if (factor is IColorValueSwizzle swizzle) {
-        this.PrintColorValueSwizzle_(os, swizzle);
+        this.PrintColorValueSwizzle_(os, swizzle, textures);
       } else {
         Asserts.Fail("Unsupported factor type!");
       }
@@ -446,11 +470,13 @@ namespace fin.language.equations.fixedFunction {
 
     private void PrintScalarIdentifiedValue_(
         StringWriter os,
-        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue)
-      => os.Write(this.GetScalarIdentifiedValue_(identifiedValue));
+        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue,
+        IReadOnlyList<ITexture> textures)
+      => os.Write(this.GetScalarIdentifiedValue_(identifiedValue, textures));
 
     private string GetScalarIdentifiedValue_(
-        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue) {
+        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue,
+        IReadOnlyList<ITexture> textures) {
       var id = identifiedValue.Identifier;
       var isTextureAlpha = id is >= FixedFunctionSource.TEXTURE_ALPHA_0
                                  and <= FixedFunctionSource.TEXTURE_ALPHA_7;
@@ -459,7 +485,7 @@ namespace fin.language.equations.fixedFunction {
         var textureIndex =
             (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
 
-        var textureText = this.GetTextureValue_(textureIndex);
+        var textureText = this.GetTextureValue_(textureIndex, textures);
         var textureValueText = $"{textureText}.a";
 
         return textureValueText;
@@ -495,6 +521,7 @@ namespace fin.language.equations.fixedFunction {
     private void PrintColorValue_(
         StringWriter os,
         IColorValue value,
+        IReadOnlyList<ITexture> textures,
         WrapType wrapType = WrapType.NEVER) {
       var clamp = value.Clamp;
 
@@ -509,7 +536,7 @@ namespace fin.language.equations.fixedFunction {
           os.Write("(");
         }
 
-        this.PrintColorExpression_(os, expression);
+        this.PrintColorExpression_(os, expression, textures);
         if (wrapExpressions) {
           os.Write(")");
         }
@@ -519,7 +546,7 @@ namespace fin.language.equations.fixedFunction {
           os.Write("(");
         }
 
-        this.PrintColorTerm_(os, term);
+        this.PrintColorTerm_(os, term, textures);
         if (wrapTerms) {
           os.Write(")");
         }
@@ -529,12 +556,12 @@ namespace fin.language.equations.fixedFunction {
           os.Write("(");
         }
 
-        this.PrintColorFactor_(os, factor);
+        this.PrintColorFactor_(os, factor, textures);
         if (wrapFactors) {
           os.Write(")");
         }
       } else if (value is IColorValueTernaryOperator ternaryOperator) {
-        this.PrintColorTernaryOperator_(os, ternaryOperator);
+        this.PrintColorTernaryOperator_(os, ternaryOperator, textures);
       } else {
         Asserts.Fail("Unsupported value type!");
       }
@@ -546,7 +573,8 @@ namespace fin.language.equations.fixedFunction {
 
     private void PrintColorExpression_(
         StringWriter os,
-        IColorExpression expression) {
+        IColorExpression expression,
+        IReadOnlyList<ITexture> textures) {
       var terms = expression.Terms;
 
       for (var i = 0; i < terms.Count; ++i) {
@@ -556,13 +584,14 @@ namespace fin.language.equations.fixedFunction {
           os.Write(" + ");
         }
 
-        this.PrintColorValue_(os, term);
+        this.PrintColorValue_(os, term, textures);
       }
     }
 
     private void PrintColorTerm_(
         StringWriter os,
-        IColorTerm scalarTerm) {
+        IColorTerm scalarTerm,
+        IReadOnlyList<ITexture> textures) {
       var numerators = scalarTerm.NumeratorFactors;
       var denominators = scalarTerm.DenominatorFactors;
 
@@ -574,7 +603,7 @@ namespace fin.language.equations.fixedFunction {
             os.Write("*");
           }
 
-          this.PrintColorValue_(os, numerator, WrapType.EXPRESSIONS);
+          this.PrintColorValue_(os, numerator, textures, WrapType.EXPRESSIONS);
         }
       } else {
         os.Write(1);
@@ -586,17 +615,21 @@ namespace fin.language.equations.fixedFunction {
 
           os.Write("/");
 
-          this.PrintColorValue_(os, denominator, WrapType.EXPRESSIONS);
+          this.PrintColorValue_(os,
+                                denominator,
+                                textures,
+                                WrapType.EXPRESSIONS);
         }
       }
     }
 
     private void PrintColorFactor_(
         StringWriter os,
-        IColorFactor factor) {
+        IColorFactor factor,
+        IReadOnlyList<ITexture> textures) {
       if (factor is IColorIdentifiedValue<FixedFunctionSource>
           identifiedValue) {
-        this.PrintColorIdentifiedValue_(os, identifiedValue);
+        this.PrintColorIdentifiedValue_(os, identifiedValue, textures);
       } else if (factor is IColorNamedValue namedValue) {
         this.PrintColorNamedValue_(os, namedValue);
       } else {
@@ -608,15 +641,15 @@ namespace fin.language.equations.fixedFunction {
           var b = factor.B;
 
           os.Write("vec3(");
-          this.PrintScalarValue_(os, r);
+          this.PrintScalarValue_(os, r, textures);
           os.Write(",");
-          this.PrintScalarValue_(os, g);
+          this.PrintScalarValue_(os, g, textures);
           os.Write(",");
-          this.PrintScalarValue_(os, b);
+          this.PrintScalarValue_(os, b, textures);
           os.Write(")");
         } else {
           os.Write("vec3(");
-          this.PrintScalarValue_(os, factor.Intensity!);
+          this.PrintScalarValue_(os, factor.Intensity!, textures);
           os.Write(")");
         }
       }
@@ -624,8 +657,9 @@ namespace fin.language.equations.fixedFunction {
 
     private void PrintColorIdentifiedValue_(
         StringWriter os,
-        IColorIdentifiedValue<FixedFunctionSource> identifiedValue)
-      => os.Write(this.GetColorNamedValue_(identifiedValue));
+        IColorIdentifiedValue<FixedFunctionSource> identifiedValue,
+        IReadOnlyList<ITexture> textures)
+      => os.Write(this.GetColorNamedValue_(identifiedValue, textures));
 
     private void PrintColorNamedValue_(
         StringWriter os,
@@ -633,7 +667,8 @@ namespace fin.language.equations.fixedFunction {
       => os.Write($"color_{namedValue.Name}");
 
     private string GetColorNamedValue_(
-        IColorIdentifiedValue<FixedFunctionSource> identifiedValue) {
+        IColorIdentifiedValue<FixedFunctionSource> identifiedValue,
+        IReadOnlyList<ITexture> textures) {
       var id = identifiedValue.Identifier;
       var isTextureColor = id is >= FixedFunctionSource.TEXTURE_COLOR_0
                                  and <= FixedFunctionSource.TEXTURE_COLOR_7;
@@ -646,7 +681,7 @@ namespace fin.language.equations.fixedFunction {
                 ? (int) id - (int) FixedFunctionSource.TEXTURE_COLOR_0
                 : (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
 
-        var textureText = this.GetTextureValue_(textureIndex);
+        var textureText = this.GetTextureValue_(textureIndex, textures);
         var textureValueText = isTextureColor
             ? $"{textureText}.rgb"
             : $"vec3({textureText}.a)";
@@ -688,39 +723,44 @@ namespace fin.language.equations.fixedFunction {
       return value >= min && value <= max;
     }
 
-    private string GetTextureValue_(int textureIndex) {
-      var texture = this.textures_[textureIndex];
+    private string GetTextureValue_(int textureIndex,
+                                    IReadOnlyList<ITexture> textures) {
+      var texture = textures[textureIndex];
 
       var uvText = texture?.UvType switch {
           UvType.STANDARD  => $"uv{texture.UvIndex}",
-          UvType.SPHERICAL => "asin(normalUv) / 3.14159 + 0.5",
-          UvType.LINEAR    => "acos(normalUv) / 3.14159",
+          UvType.SPHERICAL => "(asin(normalUv) / 3.14159 + 0.5)",
+          UvType.LINEAR    => "(acos(normalUv) / 3.14159)",
           _                => throw new ArgumentOutOfRangeException()
       };
 
-      var textureText = $"texture(texture{textureIndex}, {uvText})";
+      var textureText =
+          GlslUtil.ReadColorFromTexture($"texture{textureIndex}",
+                                        uvText,
+                                        texture);
       return textureText;
     }
 
     private void PrintColorTernaryOperator_(
         StringWriter os,
-        IColorValueTernaryOperator ternaryOperator) {
+        IColorValueTernaryOperator ternaryOperator,
+        IReadOnlyList<ITexture> textures) {
       os.Write('(');
       switch (ternaryOperator.ComparisonType) {
         case BoolComparisonType.EQUAL_TO: {
           os.Write("abs(");
-          this.PrintScalarValue_(os, ternaryOperator.Lhs);
+          this.PrintScalarValue_(os, ternaryOperator.Lhs, textures);
           os.Write(" - ");
-          this.PrintScalarValue_(os, ternaryOperator.Rhs);
+          this.PrintScalarValue_(os, ternaryOperator.Rhs, textures);
           os.Write(")");
           os.Write(" < ");
           os.Write("(1.0 / 255)");
           break;
         }
         case BoolComparisonType.GREATER_THAN: {
-          this.PrintScalarValue_(os, ternaryOperator.Lhs);
+          this.PrintScalarValue_(os, ternaryOperator.Lhs, textures);
           os.Write(" > ");
-          this.PrintScalarValue_(os, ternaryOperator.Rhs);
+          this.PrintScalarValue_(os, ternaryOperator.Rhs, textures);
           break;
         }
         default:
@@ -729,16 +769,17 @@ namespace fin.language.equations.fixedFunction {
       }
 
       os.Write(" ? ");
-      this.PrintColorValue_(os, ternaryOperator.TrueValue);
+      this.PrintColorValue_(os, ternaryOperator.TrueValue, textures);
       os.Write(" : ");
-      this.PrintColorValue_(os, ternaryOperator.FalseValue);
+      this.PrintColorValue_(os, ternaryOperator.FalseValue, textures);
       os.Write(')');
     }
 
     private void PrintColorNamedValueSwizzle_(
         StringWriter os,
-        IColorNamedValueSwizzle<FixedFunctionSource> swizzle) {
-      this.PrintColorIdentifiedValue_(os, swizzle.Source);
+        IColorNamedValueSwizzle<FixedFunctionSource> swizzle,
+        IReadOnlyList<ITexture> textures) {
+      this.PrintColorIdentifiedValue_(os, swizzle.Source, textures);
       os.Write(".");
       os.Write(swizzle.SwizzleType switch {
           ColorSwizzle.R => 'r',
@@ -749,8 +790,9 @@ namespace fin.language.equations.fixedFunction {
 
     private void PrintColorValueSwizzle_(
         StringWriter os,
-        IColorValueSwizzle swizzle) {
-      this.PrintColorValue_(os, swizzle.Source, WrapType.ALWAYS);
+        IColorValueSwizzle swizzle,
+        IReadOnlyList<ITexture> textures) {
+      this.PrintColorValue_(os, swizzle.Source, textures, WrapType.ALWAYS);
       os.Write(".");
       os.Write(swizzle.SwizzleType);
     }

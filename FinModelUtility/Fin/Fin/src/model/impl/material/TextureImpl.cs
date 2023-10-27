@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
@@ -66,8 +67,10 @@ namespace fin.model.impl {
       public TextureMinFilter MinFilter { get; set; } =
         TextureMinFilter.LINEAR_MIPMAP_LINEAR;
 
+      public IReadOnlyVector2? ClampS { get; set; }
+      public IReadOnlyVector2? ClampT { get; set; }
 
-      public IReadOnlyVector2 Offset { get; private set; } = new Vector2f();
+      public IReadOnlyVector2? Offset { get; private set; }
 
       public ITexture SetOffset(float x, float y) {
         this.Offset = new Vector2f { X = x, Y = y };
@@ -75,8 +78,7 @@ namespace fin.model.impl {
       }
 
 
-      public IReadOnlyVector2 Scale { get; private set; } =
-        new Vector2f { X = 1, Y = 1 };
+      public IReadOnlyVector2? Scale { get; private set; }
 
       public ITexture SetScale(float x, float y) {
         this.Scale = new Vector2f { X = x, Y = y };
@@ -84,13 +86,16 @@ namespace fin.model.impl {
       }
 
 
-      public float RotationDegrees { get; private set; }
+      public float? RotationRadians { get; private set; }
+      public float? RotationDegrees => this.RotationRadians / MathF.PI * 180;
 
-      public ITexture SetRotationDegrees(float rotationDegrees) {
-        this.RotationDegrees = rotationDegrees;
+      public ITexture SetRotationRadians(float rotationRadians) {
+        this.RotationRadians = rotationRadians;
         return this;
       }
 
+      public ITexture SetRotationDegrees(float rotationDegrees)
+        => SetRotationRadians(rotationDegrees / 180 * MathF.PI);
 
       public override int GetHashCode() {
         int hash = 216613626;

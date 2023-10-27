@@ -21,8 +21,8 @@ namespace fin.math.matrix.three {
       => new FinMatrix3x2(SystemMatrix3x2Util.FromTranslation(x, y));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IFinMatrix3x2 FromRotation(float rotation)
-      => new FinMatrix3x2(SystemMatrix3x2Util.FromRotation(rotation));
+    public static IFinMatrix3x2 FromRotation(float radians)
+      => new FinMatrix3x2(SystemMatrix3x2Util.FromRotation(radians));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix3x2 FromScale(float scale)
@@ -44,20 +44,20 @@ namespace fin.math.matrix.three {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix3x2 FromTrss(Vector2? translation,
-                                         float? rotation,
+                                         float? rotationRadians,
                                          Vector2? scale,
                                          float? skewXRadians)
-      => FinMatrix3x2Util.FromTrss(translation, rotation, scale, skewXRadians, new FinMatrix3x2());
+      => FinMatrix3x2Util.FromTrss(translation, rotationRadians, scale, skewXRadians, new FinMatrix3x2());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix3x2 FromTrss(Vector2? translation,
-                                        float? rotation,
+                                        float? rotationRadians,
                                         Vector2? scale,
                                         float? skewXRadians,
                                         IFinMatrix3x2 dst) {
       dst.CopyFrom(
           SystemMatrix3x2Util.FromTrss(translation,
-                                       rotation,
+                                       rotationRadians,
                                        scale,
                                        skewXRadians));
       return dst;

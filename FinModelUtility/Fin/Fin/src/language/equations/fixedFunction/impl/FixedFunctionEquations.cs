@@ -1,4 +1,8 @@
-﻿using fin.data.queues;
+﻿using System.Linq;
+using System.Collections.Generic;
+
+using fin.data.queues;
+using fin.util.linq;
 
 namespace fin.language.equations.fixedFunction {
   public partial class FixedFunctionEquations<TIdentifier> :
@@ -8,7 +12,21 @@ namespace fin.language.equations.fixedFunction {
          this.ScalarInputs.ContainsKey(identifier);
 
     public bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
-                                  IValue value) {
+                                  IValue value)
+      => this.EnumerateOutputs_(outputIdentifiers)
+             .Any(someValue => someValue.Equals(value));
+
+    public bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
+                                  TIdentifier[] identifiers) {
+      var identifierSet = identifiers.ToHashSet();
+      return this.EnumerateOutputs_(outputIdentifiers)
+                 .WhereIs<IValue, IIdentifiedValue<TIdentifier>>()
+                 .Any(someValue
+                          => identifierSet.Contains(someValue.Identifier));
+    }
+
+    private IEnumerable<IValue> EnumerateOutputs_(
+        TIdentifier[] outputIdentifiers) {
       var colorQueue = new FinQueue<IColorValue>();
       var scalarQueue = new FinQueue<IScalarValue>();
 
@@ -30,11 +48,10 @@ namespace fin.language.equations.fixedFunction {
         if (colorQueue.TryDequeue(out var colorValue)) {
           didUpdate = true;
 
-          if (colorValue.Equals(value)) {
-            return true;
-          }
+          yield return colorValue;
 
           switch (colorValue) {
+            case IColorConstant:
             case IColorInput<TIdentifier>: {
               break;
             }
@@ -82,11 +99,10 @@ namespace fin.language.equations.fixedFunction {
         if (scalarQueue.TryDequeue(out var scalarValue)) {
           didUpdate = true;
 
-          if (scalarValue.Equals(value)) {
-            return true;
-          }
+          yield return scalarValue;
 
           switch (scalarValue) {
+            case IScalarConstant:
             case IScalarInput<TIdentifier>: {
               break;
             }
@@ -102,6 +118,10 @@ namespace fin.language.equations.fixedFunction {
               colorQueue.Enqueue(colorValueSwizzle.Source);
               break;
             }
+            case IColorNamedValueSwizzle<TIdentifier> colorNamedValueSwizzle: {
+              colorQueue.Enqueue(colorNamedValueSwizzle.Source);
+              break;
+            }
             case IScalarExpression scalarExpression: {
               scalarQueue.Enqueue(scalarExpression.Terms);
               break;
@@ -114,11 +134,12 @@ namespace fin.language.equations.fixedFunction {
 
               break;
             }
+            default: {
+              break;
+            }
           }
         }
       } while (didUpdate);
-
-      return false;
     }
   }
 }

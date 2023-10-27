@@ -1,5 +1,6 @@
 # version 400
 
+
 struct Light {
   bool enabled;
   vec3 position;

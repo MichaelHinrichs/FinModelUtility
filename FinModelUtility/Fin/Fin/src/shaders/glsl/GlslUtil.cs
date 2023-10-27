@@ -148,5 +148,48 @@ void main() {");
             }
             """;
     }
+
+
+    public static string GetTextureStruct() {
+      return
+          """
+
+          struct Texture {
+            sampler2D sampler;
+            vec2 clampS;
+            vec2 clampT;
+            mat2x3 transform;
+          };
+          """;
+    }
+
+    public static string GetTypeOfTexture(ITexture? finTexture)
+      => RequiresFancyTextureData(finTexture) ? "Texture" : "sampler2D";
+
+    public static string ReadColorFromTexture(
+        string textureName,
+        string uvName,
+        ITexture? finTexture) {
+      if (!RequiresFancyTextureData(finTexture)) {
+        return $"texture({textureName}, {uvName})";
+      }
+
+      return
+          $"texture({textureName}.sampler, " +
+          "clamp(" +
+          $"({textureName}.transform * {uvName}).xy, " +
+          $"vec2({textureName}.clampS.x, {textureName}.clampT.x), " +
+          $"vec2({textureName}.clampS.y, {textureName}.clampT.y)" +
+          ")" + // clamp
+          ")"; // texture
+    }
+
+    public static bool RequiresFancyTextureData(ITexture? finTexture)
+      => finTexture != null &&
+         (finTexture.Offset != null ||
+          finTexture.RotationRadians != null ||
+          finTexture.Scale != null ||
+          finTexture.ClampS != null ||
+          finTexture.ClampT != null);
   }
 }

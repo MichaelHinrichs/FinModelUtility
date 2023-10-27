@@ -22,9 +22,9 @@ namespace fin.model.io.exporters.gltf {
               GltfTextureUtil.ConvertMagFilter_(finTexture.MagFilter));
 
       textureBuilder.WithTransform(
-          new Vector2(finTexture.Offset.X, finTexture.Offset.Y),
-          new Vector2(finTexture.Scale.X, finTexture.Scale.Y),
-          finTexture.RotationDegrees);
+          new Vector2(finTexture.Offset?.X ?? 0, finTexture.Offset?.Y ?? 0),
+          new Vector2(finTexture.Scale?.X ?? 1, finTexture.Scale?.Y ?? 1),
+          finTexture.RotationDegrees ?? 0);
 
       return textureBuilder;
     }

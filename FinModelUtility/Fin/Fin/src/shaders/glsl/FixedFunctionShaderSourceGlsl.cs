@@ -10,7 +10,7 @@ namespace fin.shaders.glsl {
       GlslUtil.GetVertexSrc(model, useBoneMatrices);
 
     public string FragmentShaderSource { get; } =
-      new FixedFunctionEquationsGlslPrinter(material.TextureSources)
+      new FixedFunctionEquationsGlslPrinter()
           .Print(material);
   }
 }

@@ -14,8 +14,12 @@ namespace gx {
       var mirror = gxWrapMode.CheckFlag(GxWrapMode.GX_MIRROR);
       var repeat = gxWrapMode.CheckFlag(GxWrapMode.GX_CLAMP);
 
-      if (mirror) {
+      if (mirror && repeat) {
         return WrapMode.MIRROR_REPEAT;
+      }
+
+      if (mirror) {
+        return WrapMode.MIRROR_CLAMP;
       }
 
       if (repeat) {

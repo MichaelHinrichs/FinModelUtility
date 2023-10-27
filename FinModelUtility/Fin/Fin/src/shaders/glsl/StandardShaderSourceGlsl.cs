@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 
 using fin.model;
 using fin.model.extensions;
@@ -18,6 +19,11 @@ namespace fin.shaders.glsl {
       var fragmentShaderSrc = new StringBuilder();
       fragmentShaderSrc.Append("# version 400");
 
+      var diffuseTexture = material.DiffuseTexture;
+      var normalTexture = material.NormalTexture;
+      var ambientOcclusionTexture = material.AmbientOcclusionTexture;
+      var emissiveTexture = material.EmissiveTexture;
+
       if (hasNormals) {
         fragmentShaderSrc.Append(
             $"""
@@ -27,26 +33,35 @@ namespace fin.shaders.glsl {
              """);
       }
 
+      if (material.Textures.Any(GlslUtil.RequiresFancyTextureData)) {
+        fragmentShaderSrc.Append(
+            $"""
+
+
+             {GlslUtil.GetTextureStruct()}
+             """);
+      }
+
       fragmentShaderSrc.Append(
-          """
+          $"""
 
 
-          uniform sampler2D diffuseTexture;
+          uniform {GlslUtil.GetTypeOfTexture(diffuseTexture)} diffuseTexture;
           """);
 
       if (hasNormalTexture) {
         fragmentShaderSrc.Append(
-            """
+            $"""
 
-            uniform sampler2D normalTexture;
+            uniform {GlslUtil.GetTypeOfTexture(normalTexture)} normalTexture;
             """);
       }
 
       fragmentShaderSrc.Append(
           $"""
 
-           uniform sampler2D ambientOcclusionTexture;
-           uniform sampler2D emissiveTexture;
+           uniform {GlslUtil.GetTypeOfTexture(ambientOcclusionTexture)} ambientOcclusionTexture;
+           uniform {GlslUtil.GetTypeOfTexture(emissiveTexture)} emissiveTexture;
            uniform float {GlslConstants.UNIFORM_USE_LIGHTING_NAME};
 
            out vec4 fragColor;
@@ -80,33 +95,33 @@ namespace fin.shaders.glsl {
       }
 
       fragmentShaderSrc.Append(
-          """
+          $$"""
 
-          
-          void main() {
-            vec4 diffuseColor = texture(diffuseTexture, uv0);
-            vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
-            vec4 emissiveColor = texture(emissiveTexture, uv0);
-          
-            fragColor = diffuseColor * vertexColor0;
-          """);
+
+            void main() {
+              vec4 diffuseColor = {{GlslUtil.ReadColorFromTexture("diffuseTexture", "uv0", diffuseTexture)}};
+              vec4 ambientOcclusionColor = {{GlslUtil.ReadColorFromTexture("ambientOcclusionTexture", "uv0", ambientOcclusionTexture)}};
+              vec4 emissiveColor = {{GlslUtil.ReadColorFromTexture("emissiveTexture", "uv0", emissiveTexture)}};
+            
+              fragColor = diffuseColor * vertexColor0;
+            """);
 
       if (hasNormals) {
         if (!hasNormalTexture) {
           fragmentShaderSrc.Append(
               """
-
+              
                             
                 vec3 fragNormal = vertexNormal;
               """);
         } else {
           fragmentShaderSrc.Append(
-              """
-
-              
-                vec3 textureNormal = texture(normalTexture, uv0).xyz * 2 - 1;
-                vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);
-              """);
+              $"""
+               
+               
+                 vec3 textureNormal = {GlslUtil.ReadColorFromTexture("normalTexture", "uv0", normalTexture)}.xyz * 2 - 1;
+                 vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);
+               """);
         }
 
         // TODO: Is this right?
@@ -120,16 +135,16 @@ namespace fin.shaders.glsl {
 
       // TODO: Is this right?
       fragmentShaderSrc.Append(
-              $$"""
-               
-                 fragColor.rgb += emissiveColor.rgb;
-                 fragColor.rgb = min(fragColor.rgb, 1);
-               
-                 if (fragColor.a < {{GlslConstants.MIN_ALPHA_BEFORE_DISCARD_TEXT}}) {
-                   discard;
-                 }
-               }
-               """);
+          $$"""
+            
+              fragColor.rgb += emissiveColor.rgb;
+              fragColor.rgb = min(fragColor.rgb, 1);
+            
+              if (fragColor.a < {{GlslConstants.MIN_ALPHA_BEFORE_DISCARD_TEXT}}) {
+                discard;
+              }
+            }
+            """);
 
       this.FragmentShaderSource = fragmentShaderSrc.ToString();
     }
