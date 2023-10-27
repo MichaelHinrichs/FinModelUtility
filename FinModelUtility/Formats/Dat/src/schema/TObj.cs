@@ -28,6 +28,9 @@ namespace dat.schema {
     public GxWrapMode WrapS { get; private set; }
     public GxWrapMode WrapT { get; private set; }
 
+    public byte ScaleS { get; private set; }
+    public byte ScaleT { get; private set; }
+
     public uint NextTObjOffset { get; private set; }
     public TObj? NextTObj { get; private set; }
 
@@ -40,8 +43,8 @@ namespace dat.schema {
       this.WrapS = (GxWrapMode) br.ReadUInt32();
       this.WrapT = (GxWrapMode) br.ReadUInt32();
 
-      var scaleW = br.ReadByte();
-      var scaleH = br.ReadByte();
+      this.ScaleS = br.ReadByte();
+      this.ScaleT = br.ReadByte();
 
       br.Position += 2 + 12;
 
@@ -104,7 +107,6 @@ namespace dat.schema {
             }
           }
 
-
           var bitmap = new Rgba32Image(
               isIndex4 ? PixelFormat.P4 : PixelFormat.P8,
               width,
@@ -115,7 +117,18 @@ namespace dat.schema {
           var ptr = imageLock.pixelScan0;
 
           br.Position = imageDataOffset;
-          var dataLength = width * height;
+
+          var blockWidth = 8;
+          var blockHeight = isIndex4 ? 8 : 4;
+
+          var tileCountX = (int) Math.Ceiling(1f * height / blockHeight);
+          var tileCountY = (int) Math.Ceiling(1f * width / blockWidth);
+
+          var paddedWidth = blockWidth * tileCountX;
+          var paddedHeight = blockHeight * tileCountY;
+
+          var indexCount = paddedWidth * paddedHeight;
+          var dataLength = indexCount;
           if (isIndex4) {
             dataLength >>= 1;
           }
@@ -123,7 +136,7 @@ namespace dat.schema {
           var data = br.ReadBytes(dataLength);
           byte[] indices;
           if (isIndex4) {
-            indices = new byte[width * height];
+            indices = new byte[indexCount];
             for (var i = 0; i < data.Length; ++i) {
               var two = data[i];
 
@@ -137,16 +150,19 @@ namespace dat.schema {
             indices = data;
           }
 
-          var blockWidth = 8;
-          var blockHeight = isIndex4 ? 8 : 4;
-
           var index = 0;
-          for (var ty = 0; ty < height / blockHeight; ty++) {
-            for (var tx = 0; tx < width / blockWidth; tx++) {
+          for (var ty = 0; ty < tileCountX; ty++) {
+            for (var tx = 0; tx < tileCountY; tx++) {
               for (var y = 0; y < blockHeight; ++y) {
                 for (var x = 0; x < blockWidth; ++x) {
-                  ptr[(ty * blockHeight + y) * width + (tx * blockWidth + x)] =
-                      palette[indices[index++]];
+                  var px = tx * blockWidth + x;
+                  var py = ty * blockHeight + y;
+
+                  if (px < width && py < height) {
+                    ptr[py * width + px] = palette[indices[index]];
+                  }
+
+                  ++index;
                 }
               }
             }

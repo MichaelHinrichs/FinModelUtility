@@ -16,6 +16,7 @@ namespace fin.math.matrix.three {
 
       matrix.CopyTranslationInto(out var actualTranslation);
 
+      Assert.AreEqual(expectedTranslation, matrix.Impl.Translation);
       Assert.AreEqual(expectedTranslation, actualTranslation);
     }
 
@@ -28,6 +29,7 @@ namespace fin.math.matrix.three {
 
       matrix.CopyRotationInto(out var actualRotation);
 
+      Assert.AreEqual(Vector2.Zero, matrix.Impl.Translation);
       Asserts.IsRoughly(expectedRotation, actualRotation);
     }
 
@@ -39,6 +41,7 @@ namespace fin.math.matrix.three {
 
       matrix.CopyScaleInto(out var actualScale);
 
+      Assert.AreEqual(Vector2.Zero, matrix.Impl.Translation);
       Assert.AreEqual(expectedScale, actualScale);
     }
 
@@ -61,6 +64,7 @@ namespace fin.math.matrix.three {
       trs.CopyScaleInto(out var actualScale);
       trs.CopySkewXRadiansInto(out var actualSkew);
 
+      Assert.AreEqual(expectedTranslation, trs.Impl.Translation);
       Assert.AreEqual(expectedTranslation, actualTranslation);
       
       Asserts.IsRoughly(expectedRotation, actualRotation);

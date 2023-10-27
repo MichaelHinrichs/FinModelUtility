@@ -258,7 +258,7 @@ namespace fin.ui.rendering.gl.material {
 
       Vector2? scale = null;
       if (textureScale != null) {
-        offset = new Vector2(textureScale.X, textureScale.Y);
+        scale = new Vector2(textureScale.X, textureScale.Y);
       }
 
       return FinMatrix3x2Util.FromTrss(offset,

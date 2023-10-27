@@ -91,6 +91,8 @@ namespace dat.api {
                   finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
                   finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
 
+                  finTexture.SetScale(tObj.ScaleS, tObj.ScaleT);
+
                   finTexturesByTObjOffset[tObjOffset] = finTexture;
                 }
 
