@@ -7,6 +7,7 @@ using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
 using fin.shaders.glsl;
+using fin.util.enums;
 using fin.util.hex;
 
 using gx;
@@ -200,30 +201,52 @@ namespace dat.api {
             FixedFunctionSource.TEXTURE_ALPHA_0);
       }
 
+      var renderMode = mObj.RenderMode;
       var material = mObj.Material;
-      var diffuseRgba = material.DiffuseColor;
-      var diffuseColor =
-          colorOps.Multiply(
-              equations.CreateOrGetColorInput(
-                  FixedFunctionSource.LIGHT_0_COLOR),
-              equations.CreateColorConstant(diffuseRgba.Rf,
-                                            diffuseRgba.Gf,
-                                            diffuseRgba.Bf));
 
-      var ambientRgba = material.AmbientColor;
-      var ambientColor =
-          equations.CreateColorConstant(ambientRgba.Rf,
-                                        ambientRgba.Gf,
-                                        ambientRgba.Bf);
+      var outputColor = textureColor;
 
-      var lightColor = colorOps.Add(ambientColor, diffuseColor);
+      if (renderMode.CheckFlag(RenderMode.VERTEX)) {
+        outputColor = colorOps.Multiply(outputColor, vertexColor);
+      }
 
-      var outputColor = colorOps.Multiply(textureColor, vertexColor);
-      outputColor = colorOps.Multiply(outputColor, lightColor);
+      // TODO: Is this right??
+      if (renderMode.CheckFlag(RenderMode.DIFFUSE)) {
+        var ambientRgba = material.AmbientColor;
+        var ambientColor =
+            equations.CreateColorConstant(ambientRgba.Rf,
+                                          ambientRgba.Gf,
+                                          ambientRgba.Bf);
+        var diffuseRgba = material.DiffuseColor;
+        var diffuseColor =
+            colorOps.Multiply(
+                equations.CreateOrGetColorInput(
+                    FixedFunctionSource.LIGHT_0_COLOR),
+                equations.CreateColorConstant(diffuseRgba.Rf,
+                                              diffuseRgba.Gf,
+                                              diffuseRgba.Bf));
 
-      var outputAlpha = scalarOps.Multiply(textureAlpha, vertexAlpha);
-      outputAlpha = scalarOps.MultiplyWithConstant(outputAlpha, diffuseRgba.Af);
-      outputAlpha = scalarOps.MultiplyWithConstant(outputAlpha, material.Alpha);
+        var lightColor = colorOps.Add(ambientColor, diffuseColor);
+        outputColor = colorOps.Multiply(outputColor, lightColor);
+      } else if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
+        var diffuseRgba = material.DiffuseColor;
+        var diffuseColor = equations.CreateColorConstant(diffuseRgba.Rf,
+          diffuseRgba.Gf,
+          diffuseRgba.Bf);
+
+        outputColor = colorOps.Multiply(outputColor, diffuseColor);
+      }
+
+      var outputAlpha = textureAlpha;
+      if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
+        outputAlpha = scalarOps.Multiply(outputAlpha, vertexAlpha);
+      }
+
+      if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
+        outputAlpha =
+            scalarOps.MultiplyWithConstant(outputAlpha, material.Alpha);
+      }
+
 
       equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
                                   outputColor ?? colorOps.Zero);
