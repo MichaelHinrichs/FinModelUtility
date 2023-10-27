@@ -42,7 +42,7 @@ void main() {
 
   vec3 colorComponent = texture(texture1, uv0).rgb*individualLightColors[0].rgb + individualLightColors[0].rgb*texture(texture1, uv0).rgb;
 
-  float alphaComponent = (vertexColor0.a*texture(texture2, (asin(normalUv) / 3.14159 + 0.5)).a + scalar_3dsAlpha0)*scalar_3dsAlpha1;
+  float alphaComponent = (vertexColor0.a*texture(texture2, asin(normalUv) / 3.14159 + 0.5).a + scalar_3dsAlpha0)*scalar_3dsAlpha1;
 
   fragColor = vec4(colorComponent, alphaComponent);
 }

@@ -726,19 +726,25 @@ namespace fin.language.equations.fixedFunction {
     private string GetTextureValue_(int textureIndex,
                                     IReadOnlyList<ITexture> textures) {
       var texture = textures[textureIndex];
-
-      var uvText = texture?.UvType switch {
-          UvType.STANDARD  => $"uv{texture.UvIndex}",
-          UvType.SPHERICAL => "(asin(normalUv) / 3.14159 + 0.5)",
-          UvType.LINEAR    => "(acos(normalUv) / 3.14159)",
-          _                => throw new ArgumentOutOfRangeException()
+      var textureName = $"texture{textureIndex}";
+      return texture.UvType switch {
+          UvType.STANDARD
+              => GlslUtil.ReadColorFromTexture(textureName,
+                                               $"uv{texture.UvIndex}",
+                                               texture),
+          UvType.SPHERICAL
+              => GlslUtil.ReadColorFromTexture(
+                  textureName,
+                  "normalUv",
+                  uv => $"asin({uv}) / 3.14159 + 0.5",
+                  texture),
+          UvType.LINEAR
+              => GlslUtil.ReadColorFromTexture(
+                  textureName,
+                  "normalUv",
+                  uv => $"acos({uv}) / 3.14159",
+                  texture),
       };
-
-      var textureText =
-          GlslUtil.ReadColorFromTexture($"texture{textureIndex}",
-                                        uvText,
-                                        texture);
-      return textureText;
     }
 
     private void PrintColorTernaryOperator_(

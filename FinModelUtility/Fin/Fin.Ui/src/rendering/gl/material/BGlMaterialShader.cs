@@ -14,6 +14,7 @@ namespace fin.ui.rendering.gl.material {
     public required GlTexture GlTexture { get; init; }
     public required IReadOnlyFinMatrix3x2 Transform { get; init; }
 
+    public required bool HasFancyData { get; init; }
     public required int SamplerLocation { get; init; }
     public required int ClampMinLocation { get; init; }
     public required int ClampMaxLocation { get; init; }
@@ -217,19 +218,35 @@ namespace fin.ui.rendering.gl.material {
         int textureIndex,
         ITexture? finTexture,
         GlTexture glTexture) {
+      int samplerLocation;
+      int clampMinLocation = -1;
+      int clampMaxLocation = -1;
+      int transformLocation = -1;
+
+      var hasFancyData = GlslUtil.RequiresFancyTextureData(finTexture);
+      if (!hasFancyData) {
+        samplerLocation = this.impl_.GetUniformLocation($"{textureName}");
+      } else {
+        samplerLocation =
+            this.impl_.GetUniformLocation($"{textureName}.sampler");
+        clampMinLocation =
+            this.impl_.GetUniformLocation($"{textureName}.clampMin");
+        clampMaxLocation =
+            this.impl_.GetUniformLocation($"{textureName}.clampMax");
+        transformLocation =
+            this.impl_.GetUniformLocation($"{textureName}.transform");
+      }
+
       var cachedTextureUniformData = new CachedTextureUniformData {
           TextureIndex = textureIndex,
           FinTexture = finTexture,
           GlTexture = glTexture,
           Transform = CalculateTextureTransform_(finTexture),
-          SamplerLocation =
-              this.impl_.GetUniformLocation($"{textureName}.sampler"),
-          ClampMinLocation =
-              this.impl_.GetUniformLocation($"{textureName}.clampMin"),
-          ClampMaxLocation =
-              this.impl_.GetUniformLocation($"{textureName}.clampMax"),
-          TransformLocation =
-              this.impl_.GetUniformLocation($"{textureName}.transform"),
+          HasFancyData = hasFancyData,
+          SamplerLocation = samplerLocation,
+          ClampMinLocation = clampMinLocation,
+          ClampMaxLocation = clampMaxLocation,
+          TransformLocation = transformLocation,
       };
 
       this.cachedTextureUniformDatas_.AddLast(cachedTextureUniformData);
@@ -272,38 +289,40 @@ namespace fin.ui.rendering.gl.material {
       uniformData.GlTexture.Bind(uniformData.TextureIndex);
       GL.Uniform1(uniformData.SamplerLocation, uniformData.TextureIndex);
 
-      OpenTK.Vector2 clampMin = new(-10000);
-      OpenTK.Vector2 clampMax = new(10000);
+      if (uniformData.HasFancyData) {
+        OpenTK.Vector2 clampMin = new(-10000);
+        OpenTK.Vector2 clampMax = new(10000);
 
-      if (uniformData.FinTexture?.WrapModeU == WrapMode.MIRROR_CLAMP) {
-        clampMin.X = -1;
-        clampMax.X = 2;
+        if (uniformData.FinTexture?.WrapModeU == WrapMode.MIRROR_CLAMP) {
+          clampMin.X = -1;
+          clampMax.X = 2;
+        }
+
+        if (uniformData.FinTexture?.WrapModeV == WrapMode.MIRROR_CLAMP) {
+          clampMin.Y = -1;
+          clampMax.Y = 2;
+        }
+
+        var clampS = uniformData.FinTexture?.ClampS;
+        var clampT = uniformData.FinTexture?.ClampT;
+
+        if (clampS != null) {
+          clampMin.X = clampS.X;
+          clampMax.X = clampS.Y;
+        }
+
+        if (clampT != null) {
+          clampMin.Y = clampT.X;
+          clampMax.Y = clampT.Y;
+        }
+
+        GL.Uniform2(uniformData.ClampMinLocation, clampMin);
+        GL.Uniform2(uniformData.ClampMaxLocation, clampMax);
+
+        var mat = uniformData.Transform.Impl;
+        var ptr = (float*) &mat;
+        GL.UniformMatrix2x3(uniformData.TransformLocation, 1, true, ptr);
       }
-
-      if (uniformData.FinTexture?.WrapModeV == WrapMode.MIRROR_CLAMP) {
-        clampMin.Y = -1;
-        clampMax.Y = 2;
-      }
-
-      var clampS = uniformData.FinTexture?.ClampS;
-      var clampT = uniformData.FinTexture?.ClampT;
-
-      if (clampS != null) {
-        clampMin.X = clampS.X;
-        clampMax.X = clampS.Y;
-      }
-
-      if (clampT != null) {
-        clampMin.Y = clampT.X;
-        clampMax.Y = clampT.Y;
-      }
-
-      GL.Uniform2(uniformData.ClampMinLocation, clampMin);
-      GL.Uniform2(uniformData.ClampMaxLocation, clampMax);
-
-      var mat = uniformData.Transform.Impl;
-      var ptr = (float*) &mat;
-      GL.UniformMatrix2x3(uniformData.TransformLocation, 1, true, ptr);
     }
   }
 }

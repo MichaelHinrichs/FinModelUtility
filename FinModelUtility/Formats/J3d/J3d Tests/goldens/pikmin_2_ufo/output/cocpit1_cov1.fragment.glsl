@@ -51,7 +51,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp((color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1)*(vec3(1) + vec3(-1)*color_GxColor3) + texture(texture0.sampler, clamp((texture0.transform * (acos(normalUv) / 3.14159)).xy, texture0.clampMin, texture0.clampMax)).rgb*color_GxColor3 + color_GxMaterialColor1*clamp((individualLightColors[7].rgb + clamp(color_GxAmbientColor1, 0, 1)), 0, 1))*vec3(2), 0, 1);
+  vec3 colorComponent = clamp((color_GxMaterialColor0*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1)*(vec3(1) + vec3(-1)*color_GxColor3) + texture(texture0.sampler, clamp(acos((texture0.transform * normalUv).xy) / 3.14159, texture0.clampMin, texture0.clampMax)).rgb*color_GxColor3 + color_GxMaterialColor1*clamp((individualLightColors[7].rgb + clamp(color_GxAmbientColor1, 0, 1)), 0, 1))*vec3(2), 0, 1);
 
   float alphaComponent = 0.6470588235294118*scalar_GxMaterialAlpha1;
 

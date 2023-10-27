@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Text;
 
 using fin.model;
@@ -168,16 +169,23 @@ void main() {");
 
     public static string ReadColorFromTexture(
         string textureName,
-        string uvName,
+        string rawUvName,
+        ITexture? finTexture)
+      => ReadColorFromTexture(textureName, rawUvName, t => t, finTexture);
+
+    public static string ReadColorFromTexture(
+        string textureName,
+        string rawUvName,
+        Func<string, string> uvConverter,
         ITexture? finTexture) {
       if (!RequiresFancyTextureData(finTexture)) {
-        return $"texture({textureName}, {uvName})";
+        return $"texture({textureName}, {uvConverter(rawUvName)})";
       }
 
       return
           $"texture({textureName}.sampler, " +
           "clamp(" +
-          $"({textureName}.transform * {uvName}).xy, " +
+          $"{uvConverter($"({textureName}.transform * {rawUvName}).xy")}, " +
           $"{textureName}.clampMin, " +
           $"{textureName}.clampMax" +
           ")" + // clamp
