@@ -213,6 +213,12 @@ namespace dat.schema {
                   continue;
                 }
 
+                if (vertexAttribute == GxAttribute.PNMTXIDX &&
+                    vertexFormat == GxAttributeType.DIRECT) {
+                  weightId = br.ReadByte() / 3;
+                  continue;
+                }
+
                 var value = vertexFormat switch {
                     GxAttributeType.DIRECT => br.ReadByte(),
                     GxAttributeType.INDEX_8 => br.ReadByte(),
@@ -224,10 +230,6 @@ namespace dat.schema {
                              vertexDescriptor.Stride * value;
 
                 switch (vertexAttribute) {
-                  case GxAttribute.PNMTXIDX: {
-                    weightId = value;
-                    break;
-                  }
                   case GxAttribute.POS: {
                     position = br.SubreadAt(
                         offset,
@@ -261,7 +263,7 @@ namespace dat.schema {
 
               if (position != null) {
                 vertices[i] = new DatVertex {
-                    WeightId = weightId / 3,
+                    WeightId = weightId,
                     Position = position.Value,
                     Normal = normal,
                     Uv0 = uv0,

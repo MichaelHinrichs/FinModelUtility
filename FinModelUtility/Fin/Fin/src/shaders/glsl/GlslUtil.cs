@@ -143,7 +143,7 @@ void main() {");
             vec3 applyLightingColor(vec3 diffuseColor,{{(withAmbientOcclusion ? " float ambientOcclusionAmount," : "")}} vec3 vertexNormal) {
               vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
             
-              vec3 mergedLightColor = {{(withAmbientOcclusion ? "ambientOcclusionAmount * " : "")}}min(ambientLightColor + mergedDiffuseLightColor, 1);
+              vec3 mergedLightColor = min({{(withAmbientOcclusion ? "ambientOcclusionAmount * " : "")}}ambientLightColor + mergedDiffuseLightColor, 1);
               return diffuseColor * mergedLightColor;
             }
             """;

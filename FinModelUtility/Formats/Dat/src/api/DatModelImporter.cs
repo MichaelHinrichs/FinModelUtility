@@ -1,15 +1,12 @@
-﻿using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-
-using Assimp;
-using Assimp.Unmanaged;
-
-using dat.schema;
+﻿using dat.schema;
 
 using fin.io;
+using fin.language.equations.fixedFunction;
+using fin.language.equations.fixedFunction.impl;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
+using fin.shaders.glsl;
 using fin.util.hex;
 
 using gx;
@@ -79,11 +76,11 @@ namespace dat.api {
                   mObjOffset,
                   out finMaterial)) {
             var tObjsAndOffsets = mObj.TObjsAndOffsets.ToArray();
-            if (tObjsAndOffsets.Length == 0) {
-              finMaterial = finMaterialManager.AddNullMaterial();
-            } else {
-              ITexture? firstTexture = null;
-              foreach (var (tObjOffset, tObj) in tObjsAndOffsets) {
+
+            var finTextures = new ITexture[tObjsAndOffsets.Length];
+            if (tObjsAndOffsets.Length > 0) {
+              for (var i = 0; i < tObjsAndOffsets.Length; i++) {
+                var (tObjOffset, tObj) = tObjsAndOffsets[i];
                 if (!finTexturesByTObjOffset.TryGetValue(
                         tObjOffset,
                         out var finTexture)) {
@@ -93,19 +90,22 @@ namespace dat.api {
                   finTexturesByTObjOffset[tObjOffset] = finTexture;
                 }
 
-                if (firstTexture == null) {
-                  firstTexture = finTexture;
-                }
+                finTextures[i] = finTexture;
               }
-
-              finMaterial =
-                  finMaterialManager.AddTextureMaterial(firstTexture!);
             }
 
-            finMaterial.Name = mObj.Name ?? mObjOffset.ToHex();
+            var fixedFunctionMaterial =
+                finMaterialManager.AddFixedFunctionMaterial();
+            finMaterial = fixedFunctionMaterial;
 
-            finMaterialsByMObjOffset[mObjOffset] = finMaterial;
+            this.PopulateFixedFunctionMaterial_(mObj,
+                                                finTextures,
+                                                fixedFunctionMaterial);
           }
+
+          finMaterial.Name = mObj.Name ?? mObjOffset.ToHex();
+
+          finMaterialsByMObjOffset[mObjOffset] = finMaterial;
 
           // Adds polygons
           foreach (var pObj in dObj.PObjs) {
@@ -174,6 +174,68 @@ namespace dat.api {
       }
 
       return finModel;
+    }
+
+    private void PopulateFixedFunctionMaterial_(
+        MObj mObj,
+        IReadOnlyList<ITexture> finTextures,
+        IFixedFunctionMaterial fixedFunctionMaterial) {
+      var equations = fixedFunctionMaterial.Equations;
+
+      var colorOps = new ColorFixedFunctionOps(equations);
+      var scalarOps = new ScalarFixedFunctionOps(equations);
+
+      var vertexColor = equations.CreateOrGetColorInput(
+          FixedFunctionSource.VERTEX_COLOR_0);
+      var vertexAlpha = equations.CreateOrGetScalarInput(
+          FixedFunctionSource.VERTEX_ALPHA_0);
+
+      IColorValue textureColor = colorOps.One;
+      IScalarValue textureAlpha = scalarOps.One;
+      if (finTextures.Count > 0) {
+        fixedFunctionMaterial.SetTextureSource(0, finTextures[0]);
+        textureColor = equations.CreateOrGetColorInput(
+            FixedFunctionSource.TEXTURE_COLOR_0);
+        textureAlpha = equations.CreateOrGetScalarInput(
+            FixedFunctionSource.TEXTURE_ALPHA_0);
+      }
+
+      var material = mObj.Material;
+      var diffuseRgba = material.DiffuseColor;
+      var diffuseColor =
+          colorOps.Multiply(
+              equations.CreateOrGetColorInput(
+                  FixedFunctionSource.LIGHT_0_COLOR),
+              equations.CreateColorConstant(diffuseRgba.Rf,
+                                            diffuseRgba.Gf,
+                                            diffuseRgba.Bf));
+
+      var ambientRgba = material.AmbientColor;
+      var ambientColor =
+          equations.CreateColorConstant(ambientRgba.Rf,
+                                        ambientRgba.Gf,
+                                        ambientRgba.Bf);
+
+      var lightColor = colorOps.Add(ambientColor, diffuseColor);
+
+      var outputColor = colorOps.Multiply(textureColor, vertexColor);
+      outputColor = colorOps.Multiply(outputColor, lightColor);
+
+      var outputAlpha = scalarOps.Multiply(textureAlpha, vertexAlpha);
+      outputAlpha = scalarOps.MultiplyWithConstant(outputAlpha, diffuseRgba.Af);
+      outputAlpha = scalarOps.MultiplyWithConstant(outputAlpha, material.Alpha);
+
+      equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
+                                  outputColor ?? colorOps.Zero);
+      equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
+                                   outputAlpha ?? scalarOps.Zero);
+
+      fixedFunctionMaterial.SetAlphaCompare(
+          AlphaOp.Or,
+          AlphaCompareType.GEqual,
+          GlslConstants.MIN_ALPHA_BEFORE_DISCARD,
+          AlphaCompareType.Never,
+          0);
     }
   }
 }

@@ -120,16 +120,16 @@ namespace fin.shaders.glsl {
 
       // TODO: Is this right?
       fragmentShaderSrc.Append(
-          """
-          
-            fragColor.rgb += emissiveColor.rgb;
-            fragColor.rgb = min(fragColor.rgb, 1);
-          
-            if (fragColor.a < .95) {
-              discard;
-            }
-          }
-          """);
+              $$"""
+               
+                 fragColor.rgb += emissiveColor.rgb;
+                 fragColor.rgb = min(fragColor.rgb, 1);
+               
+                 if (fragColor.a < {{GlslConstants.MIN_ALPHA_BEFORE_DISCARD_TEXT}}) {
+                   discard;
+                 }
+               }
+               """);
 
       this.FragmentShaderSource = fragmentShaderSrc.ToString();
     }

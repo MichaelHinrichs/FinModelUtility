@@ -38,7 +38,7 @@ namespace fin.shaders.glsl {
       if (hasNormals) {
         fragmentSrc.Append(
             """
-            
+
             in vec3 vertexNormal;
             """);
       }
@@ -78,14 +78,14 @@ namespace fin.shaders.glsl {
       }
 
       fragmentSrc.Append(
-          """
-
-          
-            if (fragColor.a < .95) {
-              discard;
+          $$"""
+            
+            
+              if (fragColor.a < {{GlslConstants.MIN_ALPHA_BEFORE_DISCARD_TEXT}}) {
+                discard;
+              }
             }
-          }
-          """);
+            """);
 
       this.FragmentShaderSource = fragmentSrc.ToString();
     }

@@ -159,15 +159,6 @@ namespace dat.schema {
           inverseBindMatrixValues[15] = 1;
           jObj.InverseBindMatrix =
               new FinMatrix4x4(inverseBindMatrixValues).TransposeInPlace();
-
-          var parentInverseBindMatrix =
-              parentJObj?.InverseBindMatrix ?? FinMatrix4x4.IDENTITY;
-          var thisInverseBindMatrix =
-              parentInverseBindMatrix.CloneAndInvert()
-                                     .MultiplyInPlace(jObj.InverseBindMatrix!);
-
-          var thisMatrix = thisInverseBindMatrix.CloneAndInvert();
-          ;
         }
 
         var firstChildOffset = jObj.Data.FirstChildBoneOffset;

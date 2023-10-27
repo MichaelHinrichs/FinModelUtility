@@ -49,7 +49,7 @@ vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {
 vec3 applyLightingColor(vec3 diffuseColor, float ambientOcclusionAmount, vec3 vertexNormal) {
   vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
 
-  vec3 mergedLightColor = ambientOcclusionAmount * min(ambientLightColor + mergedDiffuseLightColor, 1);
+  vec3 mergedLightColor = min(ambientOcclusionAmount * ambientLightColor + mergedDiffuseLightColor, 1);
   return diffuseColor * mergedLightColor;
 }
 
