@@ -374,7 +374,7 @@ namespace dat.schema {
       for (var i = 0; i < descriptor.ComponentCount; ++i) {
         floats[i] = scaleMultiplier * descriptor.AxesComponentType switch {
             GxComponentType.U8  => br.ReadByte(),
-            GxComponentType.S8  => br.ReadByte(),
+            GxComponentType.S8  => br.ReadSByte(),
             GxComponentType.U16 => br.ReadUInt16(),
             GxComponentType.S16 => br.ReadInt16(),
             GxComponentType.F32 => br.ReadSingle(),
