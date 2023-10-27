@@ -1,23 +1,20 @@
-﻿using dat.schema;
+﻿using Assimp.Unmanaged;
+
+using dat.schema;
 
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
-using fin.math.matrix.four;
-using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
 using fin.shaders.glsl;
-using fin.util.enumerables;
 using fin.util.enums;
 using fin.util.hex;
 
 using gx;
 
 using schema.binary;
-
-using static schema.binary.BinarySchemaContainerParser;
 
 namespace dat.api {
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {
@@ -96,6 +93,12 @@ namespace dat.api {
 
                   finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
                   finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
+
+                  finTexture.UvType = tObj.Flags.GetCoord() switch {
+                      Coord.UV         => UvType.STANDARD,
+                      Coord.REFLECTION => UvType.SPHERICAL,
+                      _                => UvType.STANDARD
+                  };
 
                   // Why tf does Melee have 3D texture transforms......
                   // https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRawViewer/Converters/ModelExporter.cs#L526
@@ -222,12 +225,9 @@ namespace dat.api {
       var vertexAlpha = equations.CreateOrGetScalarInput(
           FixedFunctionSource.VERTEX_ALPHA_0);
 
-      (TObj, ITexture)? firstTObjAndFinTexture =
-          tObjsAndFinTextures.Count > 0 ? tObjsAndFinTextures[0] : null;
-      if (firstTObjAndFinTexture != null) {
-        fixedFunctionMaterial.SetTextureSource(
-            0,
-            firstTObjAndFinTexture.Value.Item2);
+      for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
+        var (_, finTexture) = tObjsAndFinTextures[i];
+        fixedFunctionMaterial.SetTextureSource(i, finTexture);
       }
 
       var renderMode = mObj.RenderMode;
@@ -247,14 +247,13 @@ namespace dat.api {
         outputColor = colorOps.Multiply(outputColor, vertexColor);
       }
 
-      if (firstTObjAndFinTexture != null) {
-        var textureColor0 = equations.CreateOrGetColorInput(
-            FixedFunctionSource.TEXTURE_COLOR_0);
-
-        var (tObj, _) = firstTObjAndFinTexture.Value;
+      for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
+        var (tObj, _) = tObjsAndFinTextures[i];
+        var textureColor = equations.CreateOrGetColorInput(
+            FixedFunctionSource.TEXTURE_COLOR_0 + i);
         switch (tObj.Flags.GetColorMap()) {
           case ColorMap.NONE: {
-            // TODO: What should this do?
+            // TODO: Is this right?
             break;
           }
           case ColorMap.ALPHA_MASK: {
@@ -267,17 +266,17 @@ namespace dat.api {
           }
           case ColorMap.BLEND: {
             // TODO: Is this right?
-            outputColor = colorOps.Multiply(outputColor, textureColor0);
+            outputColor = colorOps.Multiply(outputColor, textureColor);
             break;
           }
           case ColorMap.MODULATE: {
             // TODO: Is this right?
-            outputColor = colorOps.Multiply(outputColor, textureColor0);
+            outputColor = colorOps.Multiply(outputColor, textureColor);
             break;
           }
           case ColorMap.REPLACE: {
             // TODO: Is this right?
-            outputColor = textureColor0;
+            outputColor = textureColor;
             break;
           }
           case ColorMap.PASS: {
@@ -285,11 +284,11 @@ namespace dat.api {
             break;
           }
           case ColorMap.ADD: {
-            outputColor = colorOps.Add(outputColor, textureColor0);
+            outputColor = colorOps.Add(outputColor, textureColor);
             break;
           }
           case ColorMap.SUB: {
-            outputColor = colorOps.Subtract(outputColor, textureColor0);
+            outputColor = colorOps.Subtract(outputColor, textureColor);
             break;
           }
         }
@@ -326,11 +325,47 @@ namespace dat.api {
             scalarOps.MultiplyWithConstant(outputAlpha, material!.Alpha);
       }
 
-      if (firstTObjAndFinTexture != null) {
-        outputAlpha =
-            scalarOps.Multiply(outputAlpha,
-                               equations.CreateOrGetScalarInput(
-                                   FixedFunctionSource.TEXTURE_ALPHA_0));
+      for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
+        var (tObj, _) = tObjsAndFinTextures[i];
+        var textureAlpha = equations.CreateOrGetScalarInput(
+            FixedFunctionSource.TEXTURE_ALPHA_0);
+        switch (tObj.Flags.GetAlphaMap()) {
+          case AlphaMap.NONE: {
+            // TODO: Is this right?
+            break;
+          }
+          case AlphaMap.ALPHA_MASK: {
+            // TODO: What should this do?
+            break;
+          }
+          case AlphaMap.BLEND: {
+            // TODO: Is this right?
+            outputAlpha = scalarOps.Multiply(outputAlpha, textureAlpha);
+            break;
+          }
+          case AlphaMap.MODULATE: {
+            // TODO: Is this right?
+            outputAlpha = scalarOps.Multiply(outputAlpha, textureAlpha);
+            break;
+          }
+          case AlphaMap.REPLACE: {
+            // TODO: Is this right?
+            outputAlpha = textureAlpha;
+            break;
+          }
+          case AlphaMap.PASS: {
+            // TODO: What should this do?
+            break;
+          }
+          case AlphaMap.ADD: {
+            outputAlpha = scalarOps.Add(outputAlpha, textureAlpha);
+            break;
+          }
+          case AlphaMap.SUB: {
+            outputAlpha = scalarOps.Subtract(outputAlpha, textureAlpha);
+            break;
+          }
+        }
       }
 
       equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,

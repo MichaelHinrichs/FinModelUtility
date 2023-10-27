@@ -25,6 +25,7 @@ namespace dat.schema {
     LIGHTMAP_AMBIENT = (1 << 6),
     LIGHTMAP_EXT = (1 << 7),
     LIGHTMAP_SHADOW = (1 << 8),
+
     //COLORMAP_NONE = (0 << 16),
     COLORMAP_ALPHA_MASK = (1 << 16),
     COLORMAP_RGB_MASK = (2 << 16),
@@ -34,6 +35,7 @@ namespace dat.schema {
     COLORMAP_PASS = (6 << 16),
     COLORMAP_ADD = (7 << 16),
     COLORMAP_SUB = (8 << 16),
+
     //ALPHAMAP_NONE = (0 << 20),
     ALPHAMAP_ALPHA_MASK = (1 << 20),
     ALPHAMAP_BLEND = (2 << 20),
@@ -44,6 +46,15 @@ namespace dat.schema {
     ALPHAMAP_SUB = (7 << 20),
     BUMP = (1 << 24),
     MTX_DIRTY = (1 << 31)
+  }
+
+  public enum Coord {
+    UV = TObjFlags.COORD_UV,
+    REFLECTION = TObjFlags.COORD_REFLECTION,
+    HILIGHT = TObjFlags.COORD_HILIGHT,
+    SHADOW = TObjFlags.COORD_SHADOW,
+    TOON = TObjFlags.COORD_TOON,
+    GRADATION = TObjFlags.COORD_GRADATION,
   }
 
   public enum ColorMap {
@@ -58,7 +69,31 @@ namespace dat.schema {
     SUB = TObjFlags.COLORMAP_SUB,
   }
 
+  public enum AlphaMap {
+    NONE = 0,
+    ALPHA_MASK = TObjFlags.ALPHAMAP_ALPHA_MASK,
+    BLEND = TObjFlags.ALPHAMAP_BLEND,
+    MODULATE = TObjFlags.ALPHAMAP_MODULATE,
+    REPLACE = TObjFlags.ALPHAMAP_REPLACE,
+    PASS = TObjFlags.ALPHAMAP_PASS,
+    ADD = TObjFlags.ALPHAMAP_ADD,
+    SUB = TObjFlags.ALPHAMAP_SUB,
+  }
+
   public static class TObjFlagsExtensions {
+    public static Coord GetCoord(this TObjFlags flags) {
+      var mask = 7 << 0;
+      var maskedFlags = (TObjFlags) ((int) flags & mask);
+      return maskedFlags switch {
+          TObjFlags.COORD_UV         => Coord.UV,
+          TObjFlags.COORD_REFLECTION => Coord.REFLECTION,
+          TObjFlags.COORD_HILIGHT    => Coord.HILIGHT,
+          TObjFlags.COORD_SHADOW     => Coord.SHADOW,
+          TObjFlags.COORD_TOON       => Coord.TOON,
+          TObjFlags.COORD_GRADATION  => Coord.GRADATION,
+      };
+    }
+
     public static ColorMap GetColorMap(this TObjFlags flags) {
       var mask = 15 << 16;
       var maskedFlags = (TObjFlags) ((int) flags & mask);
@@ -74,6 +109,21 @@ namespace dat.schema {
           0                             => ColorMap.NONE,
       };
     }
+
+    public static AlphaMap GetAlphaMap(this TObjFlags flags) {
+      var mask = 7 << 20;
+      var maskedFlags = (TObjFlags) ((int) flags & mask);
+      return maskedFlags switch {
+          TObjFlags.ALPHAMAP_ALPHA_MASK => AlphaMap.ALPHA_MASK,
+          TObjFlags.ALPHAMAP_BLEND      => AlphaMap.BLEND,
+          TObjFlags.ALPHAMAP_MODULATE   => AlphaMap.MODULATE,
+          TObjFlags.ALPHAMAP_REPLACE    => AlphaMap.REPLACE,
+          TObjFlags.ALPHAMAP_PASS       => AlphaMap.PASS,
+          TObjFlags.ALPHAMAP_ADD        => AlphaMap.ADD,
+          TObjFlags.ALPHAMAP_SUB        => AlphaMap.SUB,
+          0                             => AlphaMap.NONE,
+      };
+    }
   }
 
   /// <summary>
@@ -87,7 +137,7 @@ namespace dat.schema {
   public class TObj : IBinaryDeserializable {
     public uint StringOffset { get; private set; }
     public string? Name { get; set; }
-    
+
     public uint NextTObjOffset { get; private set; }
     public TObj? NextTObj { get; private set; }
 
