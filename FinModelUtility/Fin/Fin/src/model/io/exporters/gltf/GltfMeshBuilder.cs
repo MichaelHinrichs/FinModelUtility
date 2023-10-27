@@ -169,10 +169,7 @@ namespace fin.model.io.exporters.gltf {
               break;
             }
             case PrimitiveType.QUADS: {
-              var quads =
-                  gltfMeshBuilder.UsePrimitive(
-                      materialBuilder,
-                      4);
+              var quads = gltfMeshBuilder.UsePrimitive(materialBuilder);
               for (var v = 0; v < pointsCount; v += 4) {
                 quads.AddQuadrangle(vertices[v + 0],
                                     vertices[v + 1],

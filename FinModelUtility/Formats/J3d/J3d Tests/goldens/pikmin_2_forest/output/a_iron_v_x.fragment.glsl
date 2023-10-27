@@ -15,7 +15,8 @@ struct Texture {
   sampler2D sampler;
   vec2 clampMin;
   vec2 clampMax;
-  mat2x3 transform;
+  mat2x3 transform2d;
+  mat4 transform3d;
 };
 uniform Texture texture0;
 uniform Texture texture1;
@@ -47,7 +48,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp(vertexColor0.rgb*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1)*texture(texture0.sampler, clamp((texture0.transform * uv0).xy, texture0.clampMin, texture0.clampMax)).rgb*texture(texture1.sampler, clamp((texture1.transform * uv1).xy, texture1.clampMin, texture1.clampMax)).rgb*vec3(2), 0, 1);
+  vec3 colorComponent = clamp(vertexColor0.rgb*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1)*texture(texture0.sampler, clamp((texture0.transform2d * uv0).xy, texture0.clampMin, texture0.clampMax)).rgb*texture(texture1.sampler, clamp((texture1.transform2d * uv1).xy, texture1.clampMin, texture1.clampMax)).rgb*vec3(2), 0, 1);
 
   float alphaComponent = vertexColor0.a;
 
