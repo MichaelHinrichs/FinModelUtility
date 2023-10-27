@@ -53,8 +53,8 @@ namespace j3d.exporter {
                 var type = ImageUtil.GetTransparencyType(bmdTexture.Image);
 
                 texture.Name = bmdTexture.Name;
-                texture.WrapModeU = GetWrapMode_(bmdTexture.WrapModeS);
-                texture.WrapModeV = GetWrapMode_(bmdTexture.WrapModeT);
+                texture.WrapModeU = bmdTexture.WrapModeS.ToFinWrapMode();
+                texture.WrapModeV = bmdTexture.WrapModeT.ToFinWrapMode();
                 texture.MinFilter = bmdTexture.MinTextureFilter switch {
                     GX_MIN_TEXTURE_FILTER.GX_NEAR   => TextureMinFilter.NEAR,
                     GX_MIN_TEXTURE_FILTER.GX_LINEAR => TextureMinFilter.LINEAR,
@@ -117,21 +117,6 @@ namespace j3d.exporter {
                         this.textures_,
                         lazyTextureMap))
                 .ToList();
-    }
-
-    private static WrapMode GetWrapMode_(GX_WRAP_TAG wrapMode) {
-      var mirror = (wrapMode & GX_WRAP_TAG.GX_MIRROR) != 0;
-      var repeat = (wrapMode & GX_WRAP_TAG.GX_REPEAT) != 0;
-
-      if (mirror) {
-        return WrapMode.MIRROR_REPEAT;
-      }
-
-      if (repeat) {
-        return WrapMode.REPEAT;
-      }
-
-      return WrapMode.CLAMP;
     }
   }
 }

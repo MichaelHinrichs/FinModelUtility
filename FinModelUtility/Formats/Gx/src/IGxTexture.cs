@@ -2,13 +2,6 @@
 using fin.model;
 
 namespace gx {
-  public enum GX_WRAP_TAG : byte {
-    GX_CLAMP,
-    GX_REPEAT,
-    GX_MIRROR,
-    GX_MAXTEXWRAPMODE,
-  }
-
   public enum GX_MAG_TEXTURE_FILTER : byte {
     GX_NEAR,
     GX_LINEAR,
@@ -28,8 +21,8 @@ namespace gx {
   public interface IGxTexture {
     string Name { get; }
     IImage Image { get; }
-    GX_WRAP_TAG WrapModeS { get; }
-    GX_WRAP_TAG WrapModeT { get; }
+    GxWrapMode WrapModeS { get; }
+    GxWrapMode WrapModeT { get; }
     GX_MAG_TEXTURE_FILTER MagTextureFilter { get; }
     GX_MIN_TEXTURE_FILTER MinTextureFilter { get; }
     ColorType ColorType { get; }
@@ -38,8 +31,8 @@ namespace gx {
   public class GxTexture2d : IGxTexture {
     public string Name { get; set; }
     public IImage Image { get; set; }
-    public GX_WRAP_TAG WrapModeS { get; set; }
-    public GX_WRAP_TAG WrapModeT { get; set; }
+    public GxWrapMode WrapModeS { get; set; }
+    public GxWrapMode WrapModeT { get; set; }
 
     public GX_MIN_TEXTURE_FILTER MinTextureFilter { get; set; } =
       GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_LIN;

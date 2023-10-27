@@ -35,11 +35,11 @@ namespace mod.api {
         _ => WrapMode.REPEAT,
       };
 
-    public static GX_WRAP_TAG ConvertGcnToGx(TilingMode tilingMode)
+    public static GxWrapMode ConvertGcnToGx(TilingMode tilingMode)
       => tilingMode switch {
-        TilingMode.CLAMP => GX_WRAP_TAG.GX_CLAMP,
-        TilingMode.MIRROR_REPEAT => GX_WRAP_TAG.GX_MIRROR,
-        _ => GX_WRAP_TAG.GX_REPEAT,
+        TilingMode.CLAMP => GxWrapMode.GX_CLAMP,
+        TilingMode.MIRROR_REPEAT => GxWrapMode.GX_MIRROR,
+        _ => GxWrapMode.GX_REPEAT,
       };
 
     public IModel ImportModel(ModModelFileBundle modelFileBundle) {

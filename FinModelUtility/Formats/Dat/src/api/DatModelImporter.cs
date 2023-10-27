@@ -88,6 +88,9 @@ namespace dat.api {
                   finTexture = finMaterialManager.CreateTexture(tObj.Image);
                   finTexture.Name = tObj.Name ?? tObjOffset.ToHex();
 
+                  finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
+                  finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
+
                   finTexturesByTObjOffset[tObjOffset] = finTexture;
                 }
 

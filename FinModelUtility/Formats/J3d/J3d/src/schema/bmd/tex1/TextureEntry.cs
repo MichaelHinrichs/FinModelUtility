@@ -46,8 +46,8 @@ namespace j3d.schema.bmd.tex1 {
     public JutTransparency AlphaSetting;
     public ushort Width;
     public ushort Height;
-    public GX_WRAP_TAG WrapS;
-    public GX_WRAP_TAG WrapT;
+    public GxWrapMode WrapS;
+    public GxWrapMode WrapT;
 
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool PalettesEnabled;

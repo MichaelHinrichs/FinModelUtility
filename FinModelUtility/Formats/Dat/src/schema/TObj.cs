@@ -25,6 +25,9 @@ namespace dat.schema {
 
     public IImage Image { get; private set; }
 
+    public GxWrapMode WrapS { get; private set; }
+    public GxWrapMode WrapT { get; private set; }
+
     public uint NextTObjOffset { get; private set; }
     public TObj? NextTObj { get; private set; }
 
@@ -34,8 +37,9 @@ namespace dat.schema {
 
       br.Position += 4 * 11;
 
-      var wrapS = br.ReadUInt32();
-      var wrapT = br.ReadUInt32();
+      this.WrapS = (GxWrapMode) br.ReadUInt32();
+      this.WrapT = (GxWrapMode) br.ReadUInt32();
+
       var scaleW = br.ReadByte();
       var scaleH = br.ReadByte();
 
@@ -101,9 +105,10 @@ namespace dat.schema {
           }
 
 
-          var bitmap = new Rgba32Image(isIndex4 ? PixelFormat.P4 : PixelFormat.P8,
-                                   width,
-                                   height);
+          var bitmap = new Rgba32Image(
+              isIndex4 ? PixelFormat.P4 : PixelFormat.P8,
+              width,
+              height);
           this.Image = bitmap;
 
           using var imageLock = bitmap.Lock();

@@ -222,8 +222,8 @@ namespace j3d.exporter {
     private TextureEntry DefaultHeader { get; }
     private TextureEntry? OverrideHeader { get; }
 
-    public GX_WRAP_TAG WrapModeS => this.Header.WrapS;
-    public GX_WRAP_TAG WrapModeT => this.Header.WrapT;
+    public GxWrapMode WrapModeS => this.Header.WrapS;
+    public GxWrapMode WrapModeT => this.Header.WrapT;
     public GX_MIN_TEXTURE_FILTER MinTextureFilter => this.Header.MinFilter;
     public GX_MAG_TEXTURE_FILTER MagTextureFilter => this.Header.MagFilter;
 
