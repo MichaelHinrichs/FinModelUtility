@@ -13,8 +13,8 @@ uniform Light lights[8];
 
 struct Texture {
   sampler2D sampler;
-  vec2 clampS;
-  vec2 clampT;
+  vec2 clampMin;
+  vec2 clampMax;
   mat2x3 transform;
 };
 uniform Texture texture0;
@@ -45,9 +45,9 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp(texture(texture0.sampler, clamp((texture0.transform * uv0).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb*vertexColor0.rgb*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1), 0, 1);
+  vec3 colorComponent = clamp(texture(texture0.sampler, clamp((texture0.transform * uv0).xy, texture0.clampMin, texture0.clampMax)).rgb*vertexColor0.rgb*clamp((individualLightColors[0].rgb + individualLightColors[1].rgb + color_GxAmbientColor0), 0, 1), 0, 1);
 
-  float alphaComponent = texture(texture0.sampler, clamp((texture0.transform * uv0).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).a*vertexColor0.a;
+  float alphaComponent = texture(texture0.sampler, clamp((texture0.transform * uv0).xy, texture0.clampMin, texture0.clampMax)).a*vertexColor0.a;
 
   fragColor = vec4(colorComponent, alphaComponent);
 }

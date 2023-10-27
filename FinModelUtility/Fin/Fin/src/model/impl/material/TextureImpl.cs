@@ -7,6 +7,7 @@ using fin.color;
 using fin.image;
 using fin.io;
 using fin.schema.vector;
+using fin.util.hash;
 using fin.util.image;
 
 namespace fin.model.impl {
@@ -97,14 +98,11 @@ namespace fin.model.impl {
       public ITexture SetRotationDegrees(float rotationDegrees)
         => SetRotationRadians(rotationDegrees / 180 * MathF.PI);
 
-      public override int GetHashCode() {
-        int hash = 216613626;
-        var sub = 16780669;
-        hash = hash * sub ^ Image.GetHashCode();
-        hash = hash * sub ^ WrapModeU.GetHashCode();
-        hash = hash * sub ^ WrapModeU.GetHashCode();
-        return hash;
-      }
+      public override int GetHashCode()
+        => new FluentHash()
+           .With(Image)
+           .With(WrapModeU)
+           .With(WrapModeV);
 
       public override bool Equals(object? other) {
         if (ReferenceEquals(null, other)) {

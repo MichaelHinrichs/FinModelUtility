@@ -13,8 +13,8 @@ uniform Light lights[8];
 
 struct Texture {
   sampler2D sampler;
-  vec2 clampS;
-  vec2 clampT;
+  vec2 clampMin;
+  vec2 clampMax;
   mat2x3 transform;
 };
 uniform Texture texture0;
@@ -49,7 +49,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp(texture(texture1.sampler, clamp((texture1.transform * uv1).xy, vec2(texture1.clampS.x, texture1.clampT.x), vec2(texture1.clampS.y, texture1.clampT.y))).rgb*clamp(clamp((texture(texture0.sampler, clamp((texture0.transform * uv0).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).rgb + clamp((vec3(1) + vec3(-1)*texture(texture2.sampler, clamp((texture2.transform * (acos(normalUv) / 3.14159)).xy, vec2(texture2.clampS.x, texture2.clampT.x), vec2(texture2.clampS.y, texture2.clampT.y))).rgb), 0, 1)*(vec3(1) + vec3(-1)*vec3(texture(texture0.sampler, clamp((texture0.transform * uv0).xy, vec2(texture0.clampS.x, texture0.clampT.x), vec2(texture0.clampS.y, texture0.clampT.y))).a))), 0, 1)*vertexColor0.rgb*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1), 0, 1)*vec3(2), 0, 1);
+  vec3 colorComponent = clamp(texture(texture1.sampler, clamp((texture1.transform * uv1).xy, texture1.clampMin, texture1.clampMax)).rgb*clamp(clamp((texture(texture0.sampler, clamp((texture0.transform * uv0).xy, texture0.clampMin, texture0.clampMax)).rgb + clamp((vec3(1) + vec3(-1)*texture(texture2.sampler, clamp((texture2.transform * (acos(normalUv) / 3.14159)).xy, texture2.clampMin, texture2.clampMax)).rgb), 0, 1)*(vec3(1) + vec3(-1)*vec3(texture(texture0.sampler, clamp((texture0.transform * uv0).xy, texture0.clampMin, texture0.clampMax)).a))), 0, 1)*vertexColor0.rgb*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1), 0, 1)*vec3(2), 0, 1);
 
   float alphaComponent = vertexColor0.a;
 

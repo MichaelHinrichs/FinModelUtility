@@ -1,5 +1,4 @@
 ﻿using fin.model;
-using fin.util.enums;
 
 namespace gx {
   [Flags]
@@ -11,8 +10,8 @@ namespace gx {
 
   public static class GxWrapModeExtensions {
     public static WrapMode ToFinWrapMode(this GxWrapMode gxWrapMode) {
-      var mirror = gxWrapMode.CheckFlag(GxWrapMode.GX_MIRROR);
-      var repeat = gxWrapMode.CheckFlag(GxWrapMode.GX_CLAMP);
+      var mirror = (gxWrapMode & GxWrapMode.GX_MIRROR) != 0;
+      var repeat = (gxWrapMode & GxWrapMode.GX_REPEAT) != 0;
 
       if (mirror && repeat) {
         return WrapMode.MIRROR_REPEAT;

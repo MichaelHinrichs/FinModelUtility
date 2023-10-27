@@ -31,9 +31,10 @@ namespace fin.model.io.exporters.gltf {
 
     private static TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)
       => wrapMode switch {
-          WrapMode.CLAMP         => TextureWrapMode.CLAMP_TO_EDGE,
-          WrapMode.REPEAT        => TextureWrapMode.REPEAT,
-          WrapMode.MIRROR_REPEAT => TextureWrapMode.MIRRORED_REPEAT,
+          WrapMode.CLAMP  => TextureWrapMode.CLAMP_TO_EDGE,
+          WrapMode.REPEAT => TextureWrapMode.REPEAT,
+          WrapMode.MIRROR_CLAMP or WrapMode.MIRROR_REPEAT => TextureWrapMode
+              .MIRRORED_REPEAT,
           _ => throw new ArgumentOutOfRangeException(
               nameof(wrapMode),
               wrapMode,

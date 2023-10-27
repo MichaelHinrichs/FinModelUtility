@@ -13,8 +13,8 @@ uniform Light lights[8];
 
 struct Texture {
   sampler2D sampler;
-  vec2 clampS;
-  vec2 clampT;
+  vec2 clampMin;
+  vec2 clampMax;
   mat2x3 transform;
 };
 uniform sampler2D texture0;
@@ -54,7 +54,7 @@ void main() {
 
   vec3 colorComponent = color_GxMaterialColor0*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1)*clamp((color_GxColor6*(vec3(1) + vec3(-1)*texture(texture0, uv0).rgb) + color_GxColor5*texture(texture0, uv0).rgb), 0, 1);
 
-  float alphaComponent = texture(texture2.sampler, clamp((texture2.transform * uv1).xy, vec2(texture2.clampS.x, texture2.clampT.x), vec2(texture2.clampS.y, texture2.clampT.y))).a*texture(texture1.sampler, clamp((texture1.transform * uv1).xy, vec2(texture1.clampS.x, texture1.clampT.x), vec2(texture1.clampS.y, texture1.clampT.y))).a*scalar_GxMaterialAlpha0*texture(texture0, uv0).a;
+  float alphaComponent = texture(texture2.sampler, clamp((texture2.transform * uv1).xy, texture2.clampMin, texture2.clampMax)).a*texture(texture1.sampler, clamp((texture1.transform * uv1).xy, texture1.clampMin, texture1.clampMax)).a*scalar_GxMaterialAlpha0*texture(texture0, uv0).a;
 
   fragColor = vec4(colorComponent, alphaComponent);
 }

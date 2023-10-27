@@ -3,7 +3,6 @@
 using fin.math;
 using fin.math.matrix.three;
 using fin.model;
-using fin.model.io.exporters.gltf;
 using fin.shaders.glsl;
 
 using OpenTK.Graphics.OpenGL;
@@ -16,8 +15,8 @@ namespace fin.ui.rendering.gl.material {
     public required IReadOnlyFinMatrix3x2 Transform { get; init; }
 
     public required int SamplerLocation { get; init; }
-    public required int ClampSLocation { get; init; }
-    public required int ClampTLocation { get; init; }
+    public required int ClampMinLocation { get; init; }
+    public required int ClampMaxLocation { get; init; }
     public required int TransformLocation { get; init; }
   }
 
@@ -225,10 +224,10 @@ namespace fin.ui.rendering.gl.material {
           Transform = CalculateTextureTransform_(finTexture),
           SamplerLocation =
               this.impl_.GetUniformLocation($"{textureName}.sampler"),
-          ClampSLocation =
-              this.impl_.GetUniformLocation($"{textureName}.clampS"),
-          ClampTLocation =
-              this.impl_.GetUniformLocation($"{textureName}.clampT"),
+          ClampMinLocation =
+              this.impl_.GetUniformLocation($"{textureName}.clampMin"),
+          ClampMaxLocation =
+              this.impl_.GetUniformLocation($"{textureName}.clampMax"),
           TransformLocation =
               this.impl_.GetUniformLocation($"{textureName}.transform"),
       };
@@ -273,15 +272,34 @@ namespace fin.ui.rendering.gl.material {
       uniformData.GlTexture.Bind(uniformData.TextureIndex);
       GL.Uniform1(uniformData.SamplerLocation, uniformData.TextureIndex);
 
-      var clampS = uniformData.FinTexture?.ClampS;
-      GL.Uniform2(uniformData.ClampSLocation,
-                  clampS?.X ?? -10000,
-                  clampS?.Y ?? 10000);
+      OpenTK.Vector2 clampMin = new(-10000);
+      OpenTK.Vector2 clampMax = new(10000);
 
+      if (uniformData.FinTexture?.WrapModeU == WrapMode.MIRROR_CLAMP) {
+        clampMin.X = -1;
+        clampMax.X = 2;
+      }
+
+      if (uniformData.FinTexture?.WrapModeV == WrapMode.MIRROR_CLAMP) {
+        clampMin.Y = -1;
+        clampMax.Y = 2;
+      }
+
+      var clampS = uniformData.FinTexture?.ClampS;
       var clampT = uniformData.FinTexture?.ClampT;
-      GL.Uniform2(uniformData.ClampTLocation,
-                  clampT?.X ?? -10000,
-                  clampT?.Y ?? 10000);
+
+      if (clampS != null) {
+        clampMin.X = clampS.X;
+        clampMax.X = clampS.Y;
+      }
+
+      if (clampT != null) {
+        clampMin.Y = clampT.X;
+        clampMax.Y = clampT.Y;
+      }
+
+      GL.Uniform2(uniformData.ClampMinLocation, clampMin);
+      GL.Uniform2(uniformData.ClampMaxLocation, clampMax);
 
       var mat = uniformData.Transform.Impl;
       var ptr = (float*) &mat;
