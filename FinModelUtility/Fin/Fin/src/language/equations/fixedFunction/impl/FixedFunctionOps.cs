@@ -5,13 +5,14 @@ namespace fin.language.equations.fixedFunction.impl {
     public const bool SIMPLIFY = true;
   }
 
-  public interface IFixedFunctionOps<TValue, TTerm, TExpression>
-      where TValue : IValue<TValue, TTerm, TExpression>
-      where TTerm : ITerm<TValue, TTerm, TExpression>
-      where TExpression : IExpression<TValue, TTerm, TExpression> {
-    TValue Zero { get; }
-    TValue Half { get; }
-    TValue One { get; }
+  public interface IFixedFunctionOps<TValue, TConstant, TTerm, TExpression>
+      where TValue : IValue<TValue, TConstant, TTerm, TExpression>
+      where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
+      where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue
+      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>, TValue {
+    TConstant Zero { get; }
+    TConstant Half { get; }
+    TConstant One { get; }
 
     bool IsZero(TValue? value) => value == null || value.Equals(this.Zero);
 
@@ -23,14 +24,15 @@ namespace fin.language.equations.fixedFunction.impl {
     TValue? MultiplyWithConstant(TValue? lhs, double constant);
   }
 
-  public abstract class BFixedFunctionOps<TValue, TTerm, TExpression>
-      : IFixedFunctionOps<TValue, TTerm, TExpression>
-      where TValue : IValue<TValue, TTerm, TExpression>
-      where TTerm : ITerm<TValue, TTerm, TExpression>
-      where TExpression : IExpression<TValue, TTerm, TExpression> {
-    public abstract TValue Zero { get; }
-    public abstract TValue Half { get; }
-    public abstract TValue One { get; }
+  public abstract class BFixedFunctionOps<TValue, TConstant, TTerm, TExpression>
+      : IFixedFunctionOps<TValue, TConstant, TTerm, TExpression>
+      where TValue : IValue<TValue, TConstant, TTerm, TExpression>
+      where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
+      where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue
+      where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>, TValue {
+    public abstract TConstant Zero { get; }
+    public abstract TConstant Half { get; }
+    public abstract TConstant One { get; }
 
     public bool IsZero(TValue? value) => value?.Equals(this.Zero) ?? true;
 
@@ -76,12 +78,12 @@ namespace fin.language.equations.fixedFunction.impl {
   }
 
   public class ColorFixedFunctionOps
-      : BFixedFunctionOps<IColorValue, IColorTerm, IColorExpression> {
+      : BFixedFunctionOps<IColorValue, IColorConstant, IColorTerm, IColorExpression> {
     private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
-    private readonly IScalarValue scZero_;
-    private readonly IScalarValue scOne_;
-    private readonly IScalarValue scMinusOne_;
+    private readonly IScalarConstant scZero_;
+    private readonly IScalarConstant scOne_;
+    private readonly IScalarConstant scMinusOne_;
 
     public ColorFixedFunctionOps(
         IFixedFunctionEquations<FixedFunctionSource> equations) {
@@ -99,9 +101,9 @@ namespace fin.language.equations.fixedFunction.impl {
     private bool IsZero_(IScalarValue? value)
       => value?.Equals(this.scZero_) ?? true;
 
-    public override IColorValue Zero { get; }
-    public override IColorValue Half { get; }
-    public override IColorValue One { get; }
+    public override IColorConstant Zero { get; }
+    public override IColorConstant Half { get; }
+    public override IColorConstant One { get; }
 
     public override IColorValue? Add(IColorValue? lhs, IColorValue? rhs) {
       if (!FixedFunctionOpsConstants.SIMPLIFY) {
@@ -236,7 +238,7 @@ namespace fin.language.equations.fixedFunction.impl {
   }
 
   public class ScalarFixedFunctionOps
-      : BFixedFunctionOps<IScalarValue, IScalarTerm, IScalarExpression> {
+      : BFixedFunctionOps<IScalarValue, IScalarConstant, IScalarTerm, IScalarExpression> {
     private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
     private readonly IScalarValue scMinusOne_;
@@ -251,9 +253,9 @@ namespace fin.language.equations.fixedFunction.impl {
       this.scMinusOne_ = equations.CreateScalarConstant(-1);
     }
 
-    public override IScalarValue Zero { get; }
-    public override IScalarValue Half { get; }
-    public override IScalarValue One { get; }
+    public override IScalarConstant Zero { get; }
+    public override IScalarConstant Half { get; }
+    public override IScalarConstant One { get; }
 
     public override IScalarValue? AddWithScalar(
         IScalarValue? lhs,

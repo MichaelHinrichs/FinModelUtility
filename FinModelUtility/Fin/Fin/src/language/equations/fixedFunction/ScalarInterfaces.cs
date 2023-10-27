@@ -3,24 +3,24 @@
     IScalarValue ScalarValue { get; }
   }
 
-  public interface IScalarIdentifiedValue<TIdentifier> :
+  public interface IScalarIdentifiedValue<out TIdentifier> :
       IIdentifiedValue<TIdentifier>,
       IScalarFactor {
     IScalarValue ScalarValue { get; }
   }
 
-  public interface
-      IScalarInput<TIdentifier> : IScalarIdentifiedValue<TIdentifier> {
+  public interface IScalarInput<out TIdentifier>
+      : IScalarIdentifiedValue<TIdentifier> {
     IScalarConstant DefaultValue { get; }
     IScalarConstant? CustomValue { get; set; }
   }
 
-  public interface IScalarOutput<TIdentifier>
+  public interface IScalarOutput<out TIdentifier>
       : IScalarIdentifiedValue<TIdentifier> { }
 
 
   public interface IScalarValue
-      : IValue<IScalarValue, IScalarTerm, IScalarExpression> {
+      : IValue<IScalarValue, IScalarConstant, IScalarTerm, IScalarExpression> {
     bool Clamp { get; set; }
 
     IColorValueTernaryOperator TernaryOperator(
@@ -32,16 +32,20 @@
 
   public interface IScalarTerm
       : IScalarValue,
-        ITerm<IScalarValue, IScalarTerm, IScalarExpression> { }
+        ITerm<IScalarValue, IScalarConstant, IScalarTerm, IScalarExpression> { }
 
   public interface IScalarExpression
       : IScalarValue,
-        IExpression<IScalarValue, IScalarTerm, IScalarExpression> { }
+        IExpression<IScalarValue, IScalarConstant, IScalarTerm,
+            IScalarExpression> { }
 
 
   public interface IScalarFactor : IScalarValue { }
 
-  public interface IScalarConstant : IScalarFactor {
+  public interface IScalarConstant
+      : IScalarFactor,
+        IConstant<IScalarValue, IScalarConstant, IScalarTerm,
+            IScalarExpression> {
     double Value { get; }
   }
 }
