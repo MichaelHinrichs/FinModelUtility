@@ -159,7 +159,8 @@ void main() {");
             sampler2D sampler;
             vec2 clampMin;
             vec2 clampMax;
-            mat2x3 transform;
+            mat2x3 transform2d;
+            mat4 transform3d;
           };
           """;
     }
@@ -182,10 +183,16 @@ void main() {");
         return $"texture({textureName}, {uvConverter(rawUvName)})";
       }
 
+      string transformedUv;
+      if (!(finTexture?.IsTransform3d ?? false)) {
+        transformedUv = $"({textureName}.transform2d * {rawUvName}).xy";
+      } else {
+        transformedUv = $"({textureName}.transform3d * vec4({rawUvName}, 0, 1)).xy";
+      }
       return
           $"texture({textureName}.sampler, " +
           "clamp(" +
-          $"{uvConverter($"({textureName}.transform * {rawUvName}).xy")}, " +
+          $"{uvConverter(transformedUv)}, " +
           $"{textureName}.clampMin, " +
           $"{textureName}.clampMax" +
           ")" + // clamp

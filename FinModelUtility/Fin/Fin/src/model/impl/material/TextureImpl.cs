@@ -71,32 +71,53 @@ namespace fin.model.impl {
       public IReadOnlyVector2? ClampS { get; set; }
       public IReadOnlyVector2? ClampT { get; set; }
 
-      public IReadOnlyVector2? Offset { get; private set; }
 
-      public ITexture SetOffset(float x, float y) {
-        this.Offset = new Vector2f { X = x, Y = y };
+      public bool IsTransform3d { get; private set; }
+
+
+      public IReadOnlyVector3? Offset { get; private set; }
+
+      public ITexture SetOffset2d(float x, float y) {
+        this.Offset = new Vector3f { X = x, Y = y };
+        return this;
+      }
+
+      public ITexture SetOffset3d(float x, float y, float z) {
+        this.Offset = new Vector3f { X = x, Y = y, Z = z };
+        this.IsTransform3d = true;
         return this;
       }
 
 
-      public IReadOnlyVector2? Scale { get; private set; }
+      public IReadOnlyVector3? Scale { get; private set; }
 
-      public ITexture SetScale(float x, float y) {
-        this.Scale = new Vector2f { X = x, Y = y };
+      public ITexture SetScale2d(float x, float y) {
+        this.Scale = new Vector3f { X = x, Y = y };
+        return this;
+      }
+
+      public ITexture SetScale3d(float x, float y, float z) {
+        this.Scale = new Vector3f { X = x, Y = y, Z = z };
+        this.IsTransform3d = true;
         return this;
       }
 
 
-      public float? RotationRadians { get; private set; }
-      public float? RotationDegrees => this.RotationRadians / MathF.PI * 180;
+      public IReadOnlyVector3? RotationRadians { get; private set; }
 
-      public ITexture SetRotationRadians(float rotationRadians) {
-        this.RotationRadians = rotationRadians;
+      public ITexture SetRotationRadians2d(float rotationRadians) {
+        this.RotationRadians = new Vector3f { Z = rotationRadians };
         return this;
       }
 
-      public ITexture SetRotationDegrees(float rotationDegrees)
-        => SetRotationRadians(rotationDegrees / 180 * MathF.PI);
+      public ITexture SetRotationRadians3d(float xRadians,
+                                           float yRadians,
+                                           float zRadians) {
+        this.RotationRadians = new Vector3f
+            { X = xRadians, Y = yRadians, Z = zRadians };
+        this.IsTransform3d = true;
+        return this;
+      }
 
       public override int GetHashCode()
         => new FluentHash()

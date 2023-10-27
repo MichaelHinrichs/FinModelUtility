@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using fin.data.lazy;
@@ -99,11 +100,11 @@ namespace j3d.exporter {
 
                   var texTranslation = texMatrix.Translation;
                   var texScale = texMatrix.Scale;
-                  var texRotationDegrees = texMatrix.Rotation / 32768f * 180;
+                  var texRotationRadians = texMatrix.Rotation / 32768f * MathF.PI;
 
-                  texture.SetOffset(texTranslation.X, texTranslation.Y)
-                         .SetScale(texScale.X, texScale.Y)
-                         .SetRotationDegrees(texRotationDegrees);
+                  texture.SetOffset2d(texTranslation.X, texTranslation.Y)
+                         .SetScale2d(texScale.X, texScale.Y)
+                         .SetRotationRadians2d(texRotationRadians);
                 }
 
                 return texture;

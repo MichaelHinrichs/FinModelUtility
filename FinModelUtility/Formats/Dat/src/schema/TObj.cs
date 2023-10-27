@@ -2,6 +2,7 @@
 
 using fin.image;
 using fin.image.formats;
+using fin.schema.vector;
 using fin.util.color;
 
 using gx;
@@ -11,6 +12,70 @@ using schema.binary;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace dat.schema {
+  [Flags]
+  public enum TObjFlags {
+    COORD_UV = (0 << 0),
+    COORD_REFLECTION = (1 << 0),
+    COORD_HILIGHT = (2 << 0),
+    COORD_SHADOW = (3 << 0),
+    COORD_TOON = (4 << 0),
+    COORD_GRADATION = (5 << 0),
+    LIGHTMAP_DIFFUSE = (1 << 4),
+    LIGHTMAP_SPECULAR = (1 << 5),
+    LIGHTMAP_AMBIENT = (1 << 6),
+    LIGHTMAP_EXT = (1 << 7),
+    LIGHTMAP_SHADOW = (1 << 8),
+    //COLORMAP_NONE = (0 << 16),
+    COLORMAP_ALPHA_MASK = (1 << 16),
+    COLORMAP_RGB_MASK = (2 << 16),
+    COLORMAP_BLEND = (3 << 16),
+    COLORMAP_MODULATE = (4 << 16),
+    COLORMAP_REPLACE = (5 << 16),
+    COLORMAP_PASS = (6 << 16),
+    COLORMAP_ADD = (7 << 16),
+    COLORMAP_SUB = (8 << 16),
+    //ALPHAMAP_NONE = (0 << 20),
+    ALPHAMAP_ALPHA_MASK = (1 << 20),
+    ALPHAMAP_BLEND = (2 << 20),
+    ALPHAMAP_MODULATE = (3 << 20),
+    ALPHAMAP_REPLACE = (4 << 20),
+    ALPHAMAP_PASS = (5 << 20),
+    ALPHAMAP_ADD = (6 << 20),
+    ALPHAMAP_SUB = (7 << 20),
+    BUMP = (1 << 24),
+    MTX_DIRTY = (1 << 31)
+  }
+
+  public enum ColorMap {
+    NONE = 0,
+    ALPHA_MASK = TObjFlags.COLORMAP_ALPHA_MASK,
+    RGB_MASK = TObjFlags.COLORMAP_RGB_MASK,
+    BLEND = TObjFlags.COLORMAP_BLEND,
+    MODULATE = TObjFlags.COLORMAP_MODULATE,
+    REPLACE = TObjFlags.COLORMAP_REPLACE,
+    PASS = TObjFlags.COLORMAP_PASS,
+    ADD = TObjFlags.COLORMAP_ADD,
+    SUB = TObjFlags.COLORMAP_SUB,
+  }
+
+  public static class TObjFlagsExtensions {
+    public static ColorMap GetColorMap(this TObjFlags flags) {
+      var mask = 15 << 16;
+      var maskedFlags = (TObjFlags) ((int) flags & mask);
+      return maskedFlags switch {
+          TObjFlags.COLORMAP_ALPHA_MASK => ColorMap.ALPHA_MASK,
+          TObjFlags.COLORMAP_RGB_MASK   => ColorMap.RGB_MASK,
+          TObjFlags.COLORMAP_BLEND      => ColorMap.BLEND,
+          TObjFlags.COLORMAP_MODULATE   => ColorMap.MODULATE,
+          TObjFlags.COLORMAP_REPLACE    => ColorMap.REPLACE,
+          TObjFlags.COLORMAP_PASS       => ColorMap.PASS,
+          TObjFlags.COLORMAP_ADD        => ColorMap.ADD,
+          TObjFlags.COLORMAP_SUB        => ColorMap.SUB,
+          0                             => ColorMap.NONE,
+      };
+    }
+  }
+
   /// <summary>
   ///   Texture object.
   ///
@@ -22,31 +87,49 @@ namespace dat.schema {
   public class TObj : IBinaryDeserializable {
     public uint StringOffset { get; private set; }
     public string? Name { get; set; }
+    
+    public uint NextTObjOffset { get; private set; }
+    public TObj? NextTObj { get; private set; }
 
-    public IImage Image { get; private set; }
+    public GxTexGenSrc TexGenSrc { get; private set; }
+
+    public Vector3f RotationRadians { get; private set; }
+    public Vector3f Scale { get; private set; }
+    public Vector3f Translation { get; private set; }
 
     public GxWrapMode WrapS { get; private set; }
     public GxWrapMode WrapT { get; private set; }
 
-    public byte ScaleS { get; private set; }
-    public byte ScaleT { get; private set; }
+    public byte RepeatS { get; private set; }
+    public byte RepeatT { get; private set; }
 
-    public uint NextTObjOffset { get; private set; }
-    public TObj? NextTObj { get; private set; }
+    public TObjFlags Flags { get; private set; }
+
+    public IImage Image { get; private set; }
 
     public unsafe void Read(IBinaryReader br) {
       this.StringOffset = br.ReadUInt32();
       this.NextTObjOffset = br.ReadUInt32();
 
-      br.Position += 4 * 11;
+      br.Position += 4;
+
+      this.TexGenSrc = (GxTexGenSrc) br.ReadUInt32();
+
+      this.RotationRadians = br.ReadNew<Vector3f>();
+      this.Scale = br.ReadNew<Vector3f>();
+      this.Translation = br.ReadNew<Vector3f>();
 
       this.WrapS = (GxWrapMode) br.ReadUInt32();
       this.WrapT = (GxWrapMode) br.ReadUInt32();
 
-      this.ScaleS = br.ReadByte();
-      this.ScaleT = br.ReadByte();
+      this.RepeatS = br.ReadByte();
+      this.RepeatT = br.ReadByte();
 
-      br.Position += 2 + 12;
+      br.Position += 2;
+
+      this.Flags = (TObjFlags) br.ReadUInt32();
+
+      br.Position += 4 * 2;
 
       var imageOffset = br.ReadUInt32();
       var paletteOffset = br.ReadUInt32();

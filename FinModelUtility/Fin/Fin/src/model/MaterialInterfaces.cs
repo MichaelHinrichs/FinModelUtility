@@ -351,16 +351,19 @@ namespace fin.model {
     IReadOnlyVector2? ClampS { get; set; }
     IReadOnlyVector2? ClampT { get; set; }
 
-    IReadOnlyVector2? Offset { get; }
-    ITexture SetOffset(float x, float y);
+    bool IsTransform3d { get; }
 
-    IReadOnlyVector2? Scale { get; }
-    ITexture SetScale(float x, float y);
+    IReadOnlyVector3? Offset { get; }
+    ITexture SetOffset2d(float x, float y);
+    ITexture SetOffset3d(float x, float y, float z);
 
-    float? RotationRadians { get; }
-    float? RotationDegrees { get; }
-    ITexture SetRotationRadians(float rotationRadians);
-    ITexture SetRotationDegrees(float rotationDegrees);
+    IReadOnlyVector3? Scale { get; }
+    ITexture SetScale2d(float x, float y);
+    ITexture SetScale3d(float x, float y, float z);
+
+    IReadOnlyVector3? RotationRadians { get; }
+    ITexture SetRotationRadians2d(float rotationRadians);
+    ITexture SetRotationRadians3d(float xRadians, float yRadians, float zRadians);
 
     // TODO: Support fixed # of repeats
     // TODO: Support animated textures

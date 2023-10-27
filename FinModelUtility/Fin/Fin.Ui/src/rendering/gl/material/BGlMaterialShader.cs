@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
 
 using fin.math;
+using fin.math.matrix.four;
 using fin.math.matrix.three;
+using fin.math.rotations;
 using fin.model;
 using fin.shaders.glsl;
 
@@ -12,13 +14,16 @@ namespace fin.ui.rendering.gl.material {
     public required int TextureIndex { get; init; }
     public required ITexture? FinTexture { get; init; }
     public required GlTexture GlTexture { get; init; }
-    public required IReadOnlyFinMatrix3x2 Transform { get; init; }
+
+    public required IReadOnlyFinMatrix3x2? Transform2d { get; init; }
+    public required IReadOnlyFinMatrix4x4? Transform3d { get; init; }
 
     public required bool HasFancyData { get; init; }
     public required int SamplerLocation { get; init; }
     public required int ClampMinLocation { get; init; }
     public required int ClampMaxLocation { get; init; }
-    public required int TransformLocation { get; init; }
+    public required int Transform2dLocation { get; init; }
+    public required int Transform3dLocation { get; init; }
   }
 
   public abstract class BGlMaterialShader<TMaterial> : IGlMaterialShader
@@ -221,7 +226,8 @@ namespace fin.ui.rendering.gl.material {
       int samplerLocation;
       int clampMinLocation = -1;
       int clampMaxLocation = -1;
-      int transformLocation = -1;
+      int transform2dLocation = -1;
+      int transform3dLocation = -1;
 
       var hasFancyData = GlslUtil.RequiresFancyTextureData(finTexture);
       if (!hasFancyData) {
@@ -233,26 +239,36 @@ namespace fin.ui.rendering.gl.material {
             this.impl_.GetUniformLocation($"{textureName}.clampMin");
         clampMaxLocation =
             this.impl_.GetUniformLocation($"{textureName}.clampMax");
-        transformLocation =
-            this.impl_.GetUniformLocation($"{textureName}.transform");
+        transform2dLocation =
+            this.impl_.GetUniformLocation($"{textureName}.transform2d");
+        transform3dLocation =
+            this.impl_.GetUniformLocation($"{textureName}.transform3d");
       }
+
+      var isTransform3d = finTexture?.IsTransform3d ?? false;
 
       var cachedTextureUniformData = new CachedTextureUniformData {
           TextureIndex = textureIndex,
           FinTexture = finTexture,
           GlTexture = glTexture,
-          Transform = CalculateTextureTransform_(finTexture),
+          Transform2d = isTransform3d
+              ? null
+              : CalculateTextureTransform2d_(finTexture),
+          Transform3d = isTransform3d
+              ? CalculateTextureTransform3d_(finTexture)
+              : null,
           HasFancyData = hasFancyData,
           SamplerLocation = samplerLocation,
           ClampMinLocation = clampMinLocation,
           ClampMaxLocation = clampMaxLocation,
-          TransformLocation = transformLocation,
+          Transform2dLocation = transform2dLocation,
+          Transform3dLocation = transform3dLocation,
       };
 
       this.cachedTextureUniformDatas_.AddLast(cachedTextureUniformData);
     }
 
-    private static IReadOnlyFinMatrix3x2 CalculateTextureTransform_(
+    private static IReadOnlyFinMatrix3x2 CalculateTextureTransform2d_(
         ITexture? texture) {
       if (texture == null) {
         return FinMatrix3x2.IDENTITY;
@@ -279,9 +295,46 @@ namespace fin.ui.rendering.gl.material {
       }
 
       return FinMatrix3x2Util.FromTrss(offset,
-                                       textureRotationRadians,
+                                       textureRotationRadians?.Z,
                                        scale,
                                        null);
+    }
+
+    private static IReadOnlyFinMatrix4x4 CalculateTextureTransform3d_(
+        ITexture? texture) {
+      if (texture == null) {
+        return FinMatrix4x4.IDENTITY;
+      }
+
+      var textureOffset = texture.Offset;
+      var textureScale = texture.Scale;
+      var textureRotationRadians = texture.RotationRadians;
+
+      if (textureOffset == null &&
+          textureScale == null &&
+          textureRotationRadians == null) {
+        return FinMatrix4x4.IDENTITY;
+      }
+
+      Position? offset = null;
+      if (textureOffset != null) {
+        offset =
+            new Position(textureOffset.X, textureOffset.Y, textureOffset.Z);
+      }
+
+      Quaternion? rotation = null;
+      if (textureRotationRadians != null) {
+        rotation = QuaternionUtil.CreateZyx(textureRotationRadians.X,
+                                            textureRotationRadians.Y,
+                                            textureRotationRadians.Z);
+      }
+
+      Scale? scale = null;
+      if (textureScale != null) {
+        scale = new(textureScale.X, textureScale.Y, textureScale.Z);
+      }
+
+      return FinMatrix4x4Util.FromTrs(offset, rotation, scale);
     }
 
     private unsafe void BindTextureAndSetUpUniforms_(
@@ -319,9 +372,14 @@ namespace fin.ui.rendering.gl.material {
         GL.Uniform2(uniformData.ClampMinLocation, clampMin);
         GL.Uniform2(uniformData.ClampMaxLocation, clampMax);
 
-        var mat = uniformData.Transform.Impl;
-        var ptr = (float*) &mat;
-        GL.UniformMatrix2x3(uniformData.TransformLocation, 1, true, ptr);
+        if (!(uniformData.FinTexture?.IsTransform3d ?? false)) {
+          var mat2d = uniformData.Transform2d!.Impl;
+          var ptr = (float*) &mat2d;
+          GL.UniformMatrix2x3(uniformData.Transform2dLocation, 1, true, ptr);
+        } else {
+          var mat3d = uniformData.Transform3d!.Impl;
+          GlTransform.UniformMatrix4(uniformData.Transform3dLocation, mat3d);
+        }
       }
     }
   }

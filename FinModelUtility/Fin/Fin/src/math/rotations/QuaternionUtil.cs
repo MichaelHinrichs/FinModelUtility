@@ -4,14 +4,27 @@ using System.Runtime.CompilerServices;
 
 using fin.model;
 
+using Quaternion = System.Numerics.Quaternion;
+
 namespace fin.math.rotations {
   public static class QuaternionUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Create(IRotation rotation)
       => QuaternionUtil.CreateZyx(rotation.XRadians,
-                               rotation.YRadians,
-                               rotation.ZRadians);
+                                  rotation.YRadians,
+                                  rotation.ZRadians);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Quaternion CreateXyz(
+        float xRadians,
+        float yRadians,
+        float zRadians) {
+      return Quaternion.CreateFromAxisAngle(Vector3.UnitX, xRadians) *
+             Quaternion.CreateFromAxisAngle(Vector3.UnitY, yRadians) *
+             Quaternion.CreateFromAxisAngle(Vector3.UnitZ, zRadians);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion CreateZyx(
         float xRadians,
         float yRadians,

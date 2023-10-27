@@ -24,7 +24,7 @@ namespace fin.model.io.exporters.gltf {
       textureBuilder.WithTransform(
           new Vector2(finTexture.Offset?.X ?? 0, finTexture.Offset?.Y ?? 0),
           new Vector2(finTexture.Scale?.X ?? 1, finTexture.Scale?.Y ?? 1),
-          finTexture.RotationDegrees ?? 0);
+          finTexture.RotationRadians?.Z ?? 0);
 
       return textureBuilder;
     }

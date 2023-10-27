@@ -3,16 +3,21 @@
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
+using fin.math.matrix.four;
+using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
 using fin.shaders.glsl;
+using fin.util.enumerables;
 using fin.util.enums;
 using fin.util.hex;
 
 using gx;
 
 using schema.binary;
+
+using static schema.binary.BinarySchemaContainerParser;
 
 namespace dat.api {
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {
@@ -78,7 +83,8 @@ namespace dat.api {
                   out finMaterial)) {
             var tObjsAndOffsets = mObj.TObjsAndOffsets.ToArray();
 
-            var finTextures = new ITexture[tObjsAndOffsets.Length];
+            var tObjsAndFinTextures =
+                new (TObj, ITexture)[tObjsAndOffsets.Length];
             if (tObjsAndOffsets.Length > 0) {
               for (var i = 0; i < tObjsAndOffsets.Length; i++) {
                 var (tObjOffset, tObj) = tObjsAndOffsets[i];
@@ -91,12 +97,30 @@ namespace dat.api {
                   finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
                   finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
 
-                  finTexture.SetScale(tObj.ScaleS, tObj.ScaleT);
+                  // Why tf does Melee have 3D texture transforms......
+                  // https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRawViewer/Converters/ModelExporter.cs#L526
+
+                  var tObjTranslation = tObj.Translation;
+                  var tObjRotationRadians = tObj.RotationRadians;
+                  var tObjScale = tObj.Scale;
+
+                  // TODO: Still isn't working.....
+                  finTexture.SetRotationRadians3d(
+                      -tObjTranslation.X,
+                      -tObjTranslation.Y,
+                      -tObjTranslation.Z);
+                  finTexture.SetOffset3d(-tObjRotationRadians.X,
+                                         -tObjRotationRadians.Y,
+                                         -tObjRotationRadians.Z);
+                  finTexture.SetScale3d(
+                      tObj.RepeatS / tObjScale.X,
+                      tObj.RepeatT / tObjScale.Y,
+                      1 / tObjScale.Z);
 
                   finTexturesByTObjOffset[tObjOffset] = finTexture;
                 }
 
-                finTextures[i] = finTexture;
+                tObjsAndFinTextures[i] = (tObj, finTexture);
               }
             }
 
@@ -105,7 +129,7 @@ namespace dat.api {
             finMaterial = fixedFunctionMaterial;
 
             this.PopulateFixedFunctionMaterial_(mObj,
-                                                finTextures,
+                                                tObjsAndFinTextures,
                                                 fixedFunctionMaterial);
           }
 
@@ -124,7 +148,8 @@ namespace dat.api {
                                      .Select(
                                          pObjWeight => new BoneWeight(
                                              finBoneByJObj[pObjWeight.JObj],
-                                             pObjWeight.JObj.InverseBindMatrix,
+                                             pObjWeight.JObj
+                                                 .InverseBindMatrix,
                                              pObjWeight.Weight
                                          ))
                                      .ToArray()))
@@ -165,8 +190,9 @@ namespace dat.api {
                       .ToArray();
 
               var finPrimitive = datPrimitive.Type switch {
-                  GxOpcode.DRAW_TRIANGLES => finMesh.AddTriangles(finVertices),
-                  GxOpcode.DRAW_QUADS     => finMesh.AddQuads(finVertices),
+                  GxOpcode.DRAW_TRIANGLES =>
+                      finMesh.AddTriangles(finVertices),
+                  GxOpcode.DRAW_QUADS => finMesh.AddQuads(finVertices),
                   GxOpcode.DRAW_TRIANGLE_STRIP => finMesh.AddTriangleStrip(
                       finVertices)
               };
@@ -184,7 +210,7 @@ namespace dat.api {
 
     private void PopulateFixedFunctionMaterial_(
         MObj mObj,
-        IReadOnlyList<ITexture> finTextures,
+        IReadOnlyList<(TObj, ITexture)> tObjsAndFinTextures,
         IFixedFunctionMaterial fixedFunctionMaterial) {
       var equations = fixedFunctionMaterial.Equations;
 
@@ -196,23 +222,77 @@ namespace dat.api {
       var vertexAlpha = equations.CreateOrGetScalarInput(
           FixedFunctionSource.VERTEX_ALPHA_0);
 
-      IColorValue textureColor = colorOps.One;
-      IScalarValue textureAlpha = scalarOps.One;
-      if (finTextures.Count > 0) {
-        fixedFunctionMaterial.SetTextureSource(0, finTextures[0]);
-        textureColor = equations.CreateOrGetColorInput(
-            FixedFunctionSource.TEXTURE_COLOR_0);
-        textureAlpha = equations.CreateOrGetScalarInput(
-            FixedFunctionSource.TEXTURE_ALPHA_0);
+      (TObj, ITexture)? firstTObjAndFinTexture =
+          tObjsAndFinTextures.Count > 0 ? tObjsAndFinTextures[0] : null;
+      if (firstTObjAndFinTexture != null) {
+        fixedFunctionMaterial.SetTextureSource(
+            0,
+            firstTObjAndFinTexture.Value.Item2);
       }
 
       var renderMode = mObj.RenderMode;
       var material = mObj.Material;
 
-      var outputColor = textureColor;
+      IColorValue? outputColor = colorOps.One;
+      if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
+        var diffuseRgba = material.DiffuseColor;
+        var diffuseColor = equations.CreateColorConstant(diffuseRgba.Rf,
+          diffuseRgba.Gf,
+          diffuseRgba.Bf);
+
+        outputColor = diffuseColor;
+      }
 
       if (renderMode.CheckFlag(RenderMode.VERTEX)) {
         outputColor = colorOps.Multiply(outputColor, vertexColor);
+      }
+
+      if (firstTObjAndFinTexture != null) {
+        var textureColor0 = equations.CreateOrGetColorInput(
+            FixedFunctionSource.TEXTURE_COLOR_0);
+
+        var (tObj, _) = firstTObjAndFinTexture.Value;
+        switch (tObj.Flags.GetColorMap()) {
+          case ColorMap.NONE: {
+            // TODO: What should this do?
+            break;
+          }
+          case ColorMap.ALPHA_MASK: {
+            // TODO: What should this do?
+            break;
+          }
+          case ColorMap.RGB_MASK: {
+            // TODO: What should this do?
+            break;
+          }
+          case ColorMap.BLEND: {
+            // TODO: Is this right?
+            outputColor = colorOps.Multiply(outputColor, textureColor0);
+            break;
+          }
+          case ColorMap.MODULATE: {
+            // TODO: Is this right?
+            outputColor = colorOps.Multiply(outputColor, textureColor0);
+            break;
+          }
+          case ColorMap.REPLACE: {
+            // TODO: Is this right?
+            outputColor = textureColor0;
+            break;
+          }
+          case ColorMap.PASS: {
+            // TODO: What should this do?
+            break;
+          }
+          case ColorMap.ADD: {
+            outputColor = colorOps.Add(outputColor, textureColor0);
+            break;
+          }
+          case ColorMap.SUB: {
+            outputColor = colorOps.Subtract(outputColor, textureColor0);
+            break;
+          }
+        }
       }
 
       // TODO: Is this right??
@@ -233,25 +313,25 @@ namespace dat.api {
 
         var lightColor = colorOps.Add(ambientColor, diffuseColor);
         outputColor = colorOps.Multiply(outputColor, lightColor);
-      } else if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
-        var diffuseRgba = material.DiffuseColor;
-        var diffuseColor = equations.CreateColorConstant(diffuseRgba.Rf,
-          diffuseRgba.Gf,
-          diffuseRgba.Bf);
-
-        outputColor = colorOps.Multiply(outputColor, diffuseColor);
       }
 
-      var outputAlpha = textureAlpha;
+      IScalarValue? outputAlpha = scalarOps.One;
+
       if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
-        outputAlpha = scalarOps.Multiply(outputAlpha, vertexAlpha);
+        outputAlpha = vertexAlpha;
       }
 
       if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
         outputAlpha =
-            scalarOps.MultiplyWithConstant(outputAlpha, material.Alpha);
+            scalarOps.MultiplyWithConstant(outputAlpha, material!.Alpha);
       }
 
+      if (firstTObjAndFinTexture != null) {
+        outputAlpha =
+            scalarOps.Multiply(outputAlpha,
+                               equations.CreateOrGetScalarInput(
+                                   FixedFunctionSource.TEXTURE_ALPHA_0));
+      }
 
       equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
                                   outputColor ?? colorOps.Zero);
