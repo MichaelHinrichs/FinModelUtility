@@ -37,7 +37,7 @@ namespace fin.image.formats {
 
     public override bool HasAlphaChannel => false;
 
-    public void GetI8Bytes(Span<byte> bytes)
-      => this.Impl.CopyPixelDataTo(bytes);
+    public void GetI8Bytes(Span<L8> dst)
+      => this.Impl.CopyPixelDataTo(dst);
   }
 }

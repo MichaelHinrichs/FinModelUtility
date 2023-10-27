@@ -3,10 +3,10 @@ using System.Linq;
 
 using fin.color;
 using fin.image;
+using fin.image.formats;
 using fin.image.io;
 using fin.image.io.pixel;
 using fin.math;
-using fin.src.image.formats;
 using fin.util.color;
 
 using schema.binary;

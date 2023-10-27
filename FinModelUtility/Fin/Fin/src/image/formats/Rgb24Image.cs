@@ -38,7 +38,7 @@ namespace fin.image.formats {
 
     public override bool HasAlphaChannel => false;
 
-    public void GetRgb24Bytes(Span<byte> bytes)
-      => this.Impl.CopyPixelDataTo(bytes);
+    public void GetRgb24Bytes(Span<Rgb24> dst)
+      => this.Impl.CopyPixelDataTo(dst);
   }
 }

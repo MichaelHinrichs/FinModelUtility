@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-
-using fin.color;
-using fin.image;
-using fin.image.formats;
+﻿using fin.color;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace fin.src.image.formats {
+namespace fin.image.formats {
   public class IndexedImage16 : BIndexedImage {
     private readonly IImage<L16> impl_;
 

@@ -239,7 +239,8 @@ namespace dat.schema {
                   case GxAttribute.NRM: {
                     normal = br.SubreadAt(
                         offset,
-                        sbr => sbr.ReadVector3(vertexDescriptor));
+                        sbr => Vector3.Normalize(
+                            sbr.ReadVector3(vertexDescriptor)));
                     break;
                   }
                   case GxAttribute.TEX0: {
@@ -371,7 +372,7 @@ namespace dat.schema {
                                       Span<float> floats) {
       Asserts.True(floats.Length >= descriptor.ComponentCount);
 
-      var scaleMultiplier = 1f / (1 << descriptor.Scale);
+      var scaleMultiplier = 1f / MathF.Pow(2, descriptor.Scale);
       for (var i = 0; i < descriptor.ComponentCount; ++i) {
         floats[i] = scaleMultiplier * descriptor.AxesComponentType switch {
             GxComponentType.U8  => br.ReadByte(),

@@ -36,7 +36,7 @@ namespace fin.image.formats {
 
     public override bool HasAlphaChannel => true;
 
-    public void GetIa16Bytes(Span<byte> bytes)
-      => this.Impl.CopyPixelDataTo(bytes);
+    public void GetIa16Bytes(Span<La16> dst)
+      => this.Impl.CopyPixelDataTo(dst);
   }
 }

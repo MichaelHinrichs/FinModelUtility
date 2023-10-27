@@ -1,12 +1,16 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
 
+using CommunityToolkit.HighPerformance;
+
 using fin.data.disposables;
 using fin.image;
 using fin.image.formats;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
+
+using SixLabors.ImageSharp.PixelFormats;
 
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
@@ -130,28 +134,28 @@ namespace fin.ui.rendering.gl {
           pixelBytes = pool_.Rent(4 * imageWidth * imageHeight);
           pixelInternalFormat = PixelInternalFormat.Rgba;
           pixelFormat = PixelFormat.Rgba;
-          rgba32Image.GetRgba32Bytes(pixelBytes);
+          rgba32Image.GetRgba32Bytes(pixelBytes.AsSpan().Cast<byte, Rgba32>());
           break;
         }
         case Rgb24Image rgb24Image: {
           pixelBytes = pool_.Rent(3 * imageWidth * imageHeight);
           pixelInternalFormat = PixelInternalFormat.Rgb;
           pixelFormat = PixelFormat.Rgb;
-          rgb24Image.GetRgb24Bytes(pixelBytes);
+          rgb24Image.GetRgb24Bytes(pixelBytes.AsSpan().Cast<byte, Rgb24>());
           break;
         }
         case La16Image ia16Image: {
           pixelBytes = pool_.Rent(2 * imageWidth * imageHeight);
           pixelInternalFormat = PixelInternalFormat.LuminanceAlpha;
           pixelFormat = PixelFormat.LuminanceAlpha;
-          ia16Image.GetIa16Bytes(pixelBytes);
+          ia16Image.GetIa16Bytes(pixelBytes.AsSpan().Cast<byte, La16>());
           break;
         }
         case L8Image i8Image: {
           pixelBytes = pool_.Rent(imageWidth * imageHeight);
           pixelInternalFormat = PixelInternalFormat.Luminance;
           pixelFormat = PixelFormat.Luminance;
-          i8Image.GetI8Bytes(pixelBytes);
+          i8Image.GetI8Bytes(pixelBytes.AsSpan().Cast<byte, L8>());
           break;
         }
         default: {
@@ -175,6 +179,9 @@ namespace fin.ui.rendering.gl {
         }
       }
 
+      // This is required to fix a rare issue with alignment:
+      // https://stackoverflow.com/questions/52460143/texture-not-showing-correctly
+      GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
       GL.TexImage2D(TextureTarget.Texture2D,
                     0,
                     pixelInternalFormat,
