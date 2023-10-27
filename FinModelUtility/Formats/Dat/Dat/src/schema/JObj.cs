@@ -90,6 +90,6 @@ namespace dat.schema {
 
     public IFinMatrix4x4? InverseBindMatrix { get; set; }
 
-    public override string ToString() => this.Name;
+    public override string? ToString() => this.Name;
   }
 }
