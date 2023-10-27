@@ -293,14 +293,15 @@ namespace cmb.material {
           TexCombinerAlphaOp.OneMinusAlpha => (Channel.A, true),
       };
 
-    private TValue? Combine_<TValue, TTerm, TExpression>(
-        IFixedFunctionOps<TValue, TTerm, TExpression> fixedFunctionOps,
+    private TValue? Combine_<TValue, TConstant, TTerm, TExpression>(
+        IFixedFunctionOps<TValue, TConstant, TTerm, TExpression> fixedFunctionOps,
         IReadOnlyList<TValue?> sources,
         TexCombineMode combineMode,
         TexCombineScale combineScale)
-        where TValue : IValue<TValue, TTerm, TExpression>
-        where TTerm : ITerm<TValue, TTerm, TExpression>
-        where TExpression : IExpression<TValue, TTerm, TExpression> {
+        where TValue : IValue<TValue, TConstant, TTerm, TExpression>
+        where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
+        where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue
+        where TExpression : IExpression<TValue, TConstant, TTerm, TExpression>, TValue {
       // TODO: Implement dot-product ones
       var combinedValue = combineMode switch {
           TexCombineMode.Replace => sources[0],

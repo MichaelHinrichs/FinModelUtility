@@ -36,24 +36,14 @@ namespace fin.language.equations.fixedFunction {
         StringWriter os,
         IFixedFunctionEquations<TIdentifier> equations) {
       os.WriteLine("Scalar inputs:");
-      foreach (var (id, input) in equations.ScalarInputs) {
-        os.Write(id);
-        os.Write(": ");
-        this.PrintScalarConstant_(
-            os,
-            input.CustomValue ?? input.DefaultValue);
-        os.Write("\n");
+      foreach (var (id, _) in equations.ScalarInputs) {
+        os.WriteLine(id);
       }
 
       os.WriteLine();
       os.WriteLine("Color inputs:");
-      foreach (var (id, input) in equations.ColorInputs) {
-        os.Write(id);
-        os.Write(": ");
-        this.PrintColorFactor_(
-            os,
-            input.CustomValue ?? input.DefaultValue);
-        os.Write("\n");
+      foreach (var (id, _) in equations.ColorInputs) {
+        os.WriteLine(id);
       }
 
 

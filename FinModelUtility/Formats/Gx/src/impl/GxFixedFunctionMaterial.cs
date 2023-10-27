@@ -121,8 +121,6 @@ namespace gx {
       var registers = Asserts.CastNonnull(materialManager.Registers);
 
       var colorZero = equations.CreateColorConstant(0);
-      var colorHalf = equations.CreateColorConstant(.5);
-      var colorOne = equations.CreateColorConstant(1);
 
       var scZero = equations.CreateScalarConstant(0);
       var scOne = equations.CreateScalarConstant(1);
@@ -144,12 +142,10 @@ namespace gx {
       var vertexColors = new IColorValue[2];
       var vertexAlphas = new IScalarValue[2];
       for (byte i = 0; i < 2; i++) {
-        vertexColors[i] = equations.CreateColorInput(
-            FixedFunctionSource.VERTEX_COLOR_0 + i,
-            colorZero);
-        vertexAlphas[i] = equations.CreateScalarInput(
-            FixedFunctionSource.VERTEX_ALPHA_0 + i,
-            scZero);
+        vertexColors[i] = equations.CreateOrGetColorInput(
+            FixedFunctionSource.VERTEX_COLOR_0 + i);
+        vertexAlphas[i] = equations.CreateOrGetScalarInput(
+            FixedFunctionSource.VERTEX_ALPHA_0 + i);
       }
 
       for (var i = 0; i < 4; ++i) {
@@ -207,7 +203,7 @@ namespace gx {
                              activeLight;
               mergedLightColor = colorFixedFunctionOps.Add(
                   mergedLightColor,
-                  equations.CreateOrGetColorInput(lightSrc, colorZero));
+                  equations.CreateOrGetColorInput(lightSrc));
             }
 
             var illuminationColor =
@@ -272,7 +268,7 @@ namespace gx {
                              activeLight;
               mergedLightAlpha = scalarFixedFunctionOps.Add(
                   mergedLightAlpha,
-                  equations.CreateOrGetScalarInput(lightSrc, scZero));
+                  equations.CreateOrGetScalarInput(lightSrc));
             }
 
             var illuminationAlpha =

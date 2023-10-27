@@ -33,24 +33,12 @@ namespace fin.language.equations.fixedFunction {
       return this.scalarConstants_[v] = new ScalarConstant(v);
     }
 
-    public IScalarInput<TIdentifier> CreateScalarInput(
-        TIdentifier identifier,
-        IScalarConstant defaultValue) {
-      Asserts.False(this.scalarInputs_.ContainsKey(identifier));
-      return this.CreateOrGetScalarInput(identifier, defaultValue);
-    }
-
     public IScalarInput<TIdentifier> CreateOrGetScalarInput(
-        TIdentifier identifier)
-      => CreateOrGetScalarInput(identifier, this.CreateScalarConstant(0));
-
-    public IScalarInput<TIdentifier> CreateOrGetScalarInput(
-        TIdentifier identifier,
-        IScalarConstant defaultValue) {
+        TIdentifier identifier) {
       Asserts.False(this.scalarOutputs_.ContainsKey(identifier));
 
       if (!this.scalarInputs_.TryGetValue(identifier, out var input)) {
-        input = new ScalarInput(identifier, defaultValue);
+        input = new ScalarInput(identifier);
         this.scalarInputs_[identifier] = input;
       }
 
@@ -69,29 +57,15 @@ namespace fin.language.equations.fixedFunction {
     }
 
 
-    private class ScalarInput : BScalarValue, IScalarInput<TIdentifier> {
-      public ScalarInput(TIdentifier identifier, IScalarConstant defaultValue) {
-        this.Identifier = identifier;
-        this.DefaultValue = defaultValue;
-      }
-
-      public TIdentifier Identifier { get; }
-
-      public IScalarConstant DefaultValue { get; }
-      public IScalarConstant? CustomValue { get; set; }
-
-      public IScalarValue ScalarValue => this.CustomValue ?? this.DefaultValue;
+    private class ScalarInput(TIdentifier identifier)
+        : BScalarValue, IScalarInput<TIdentifier> {
+      public TIdentifier Identifier { get; } = identifier;
     }
 
-    private class ScalarOutput : BScalarValue, IScalarOutput<TIdentifier> {
-      public ScalarOutput(TIdentifier identifier, IScalarValue value) {
-        this.Identifier = identifier;
-        this.ScalarValue = value;
-      }
-
-      public TIdentifier Identifier { get; }
-
-      public IScalarValue ScalarValue { get; }
+    private class ScalarOutput(TIdentifier identifier, IScalarValue value)
+        : BScalarValue, IScalarOutput<TIdentifier> {
+      public TIdentifier Identifier { get; } = identifier;
+      public IScalarValue ScalarValue { get; } = value;
     }
   }
 

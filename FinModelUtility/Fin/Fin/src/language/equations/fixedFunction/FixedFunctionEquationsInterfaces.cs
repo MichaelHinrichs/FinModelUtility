@@ -22,14 +22,6 @@ namespace fin.language.equations.fixedFunction {
     IReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>
         ScalarInputs { get; }
 
-    IScalarInput<TIdentifier> CreateScalarInput(
-        TIdentifier identifier,
-        IScalarConstant defaultValue);
-
-    IScalarInput<TIdentifier> CreateOrGetScalarInput(
-        TIdentifier identifier,
-        IScalarConstant defaultValue);
-
     IScalarInput<TIdentifier> CreateOrGetScalarInput(
         TIdentifier identifier);
 
@@ -44,14 +36,6 @@ namespace fin.language.equations.fixedFunction {
 
     IReadOnlyDictionary<TIdentifier, IColorInput<TIdentifier>>
         ColorInputs { get; }
-
-    IColorInput<TIdentifier> CreateColorInput(
-        TIdentifier identifier,
-        IColorConstant value);
-
-    IColorInput<TIdentifier> CreateOrGetColorInput(
-        TIdentifier identifier,
-        IColorConstant defaultValue);
 
     IColorInput<TIdentifier> CreateOrGetColorInput(
         TIdentifier identifier);

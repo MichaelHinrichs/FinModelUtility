@@ -150,23 +150,18 @@ namespace modl.api {
             finMaterial.SetTextureSource(1, Asserts.CastNonnull(texture2));
 
             var equations = finMaterial.Equations;
-            var color0 = equations.CreateColorConstant(0);
             var scalar1 = equations.CreateScalarConstant(1);
 
-            var vertexColor0 = equations.CreateColorInput(
-                FixedFunctionSource.VERTEX_COLOR_0,
-                color0);
+            var vertexColor0 = equations.CreateOrGetColorInput(
+                FixedFunctionSource.VERTEX_COLOR_0);
 
-            var textureColor1 = equations.CreateColorInput(
-                FixedFunctionSource.TEXTURE_COLOR_0,
-                color0);
-            var textureColor2 = equations.CreateColorInput(
-                FixedFunctionSource.TEXTURE_COLOR_1,
-                color0);
+            var textureColor1 = equations.CreateOrGetColorInput(
+                FixedFunctionSource.TEXTURE_COLOR_0);
+            var textureColor2 = equations.CreateOrGetColorInput(
+                FixedFunctionSource.TEXTURE_COLOR_1);
 
             var vertexAlpha0 =
-                equations.CreateScalarInput(FixedFunctionSource.VERTEX_ALPHA_0,
-                                            scalar1);
+                equations.CreateOrGetScalarInput(FixedFunctionSource.VERTEX_ALPHA_0);
             var inverseVertexAlpha0 = scalar1.Subtract(vertexAlpha0);
 
             var blendedTextureColor =

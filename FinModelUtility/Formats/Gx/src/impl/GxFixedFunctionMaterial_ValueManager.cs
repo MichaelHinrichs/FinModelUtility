@@ -35,11 +35,9 @@ namespace gx {
             equations.CreateScalarConstant(0);
 
         this.colorUndefined_ =
-            equations.CreateColorInput(FixedFunctionSource.UNDEFINED,
-                                       colorZero);
+            equations.CreateOrGetColorInput(FixedFunctionSource.UNDEFINED);
         this.alphaUndefined_ =
-            equations.CreateScalarInput(FixedFunctionSource.UNDEFINED,
-                                        equations.CreateScalarConstant(0));
+            equations.CreateOrGetScalarInput(FixedFunctionSource.UNDEFINED);
       }
 
       public void UpdateColorRegister(
@@ -104,9 +102,7 @@ namespace gx {
           if (texture == null) {
             this.textureColors_[index] =
                 texture = this.equations_.CreateOrGetColorInput(
-                    (FixedFunctionSource) (FixedFunctionSource.TEXTURE_COLOR_0 +
-                                           index),
-                    this.equations_.CreateColorConstant(0));
+                    FixedFunctionSource.TEXTURE_COLOR_0 + index);
           }
         }
 
@@ -129,9 +125,7 @@ namespace gx {
           if (texture == null) {
             this.textureAlphas_[index] =
                 texture = this.equations_.CreateOrGetColorInput(
-                    (FixedFunctionSource) (FixedFunctionSource.TEXTURE_ALPHA_0 +
-                                           index),
-                    this.equations_.CreateColorConstant(0));
+                    FixedFunctionSource.TEXTURE_ALPHA_0 + index);
           }
         }
 
@@ -152,9 +146,7 @@ namespace gx {
 
           texture =
               this.equations_.CreateOrGetScalarInput(
-                  (FixedFunctionSource) (FixedFunctionSource.TEXTURE_ALPHA_0 +
-                                         index),
-                  this.equations_.CreateScalarConstant(0));
+                  FixedFunctionSource.TEXTURE_ALPHA_0 + index);
         }
 
         return texture;

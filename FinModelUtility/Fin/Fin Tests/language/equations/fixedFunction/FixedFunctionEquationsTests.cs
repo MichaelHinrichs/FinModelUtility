@@ -12,14 +12,12 @@ namespace fin.language.equations.fixedFunction {
     public void TestInOutScalars() {
       var equations = new FixedFunctionEquations<string>();
 
-      var fooIn =
-          equations.CreateScalarInput("fooIn",
-                                      equations.CreateScalarConstant(123));
+      var fooIn = equations.CreateOrGetScalarInput("fooIn");
       var fooOut = equations.CreateScalarOutput("fooOut", fooIn);
 
       this.AssertEquals_(equations,
                          "Scalar inputs:",
-                         "fooIn: 123",
+                         "fooIn",
                          "",
                          "Color inputs:",
                          "",
@@ -36,9 +34,7 @@ namespace fin.language.equations.fixedFunction {
     public void TestInOut() {
       var equations = new FixedFunctionEquations<string>();
 
-      var scIn =
-          equations.CreateScalarInput("scIn",
-                                      equations.CreateScalarConstant(123));
+      var scIn = equations.CreateOrGetScalarInput("scIn");
       var scOut = equations.CreateScalarOutput("scOut", scIn);
 
       var colSc =
@@ -46,7 +42,7 @@ namespace fin.language.equations.fixedFunction {
 
       this.AssertEquals_(equations,
                          "Scalar inputs:",
-                         "scIn: 123",
+                         "scIn",
                          "",
                          "Color inputs:",
                          "",
@@ -64,17 +60,13 @@ namespace fin.language.equations.fixedFunction {
       var equations = new FixedFunctionEquations<string>();
 
       var colRgb1 =
-          equations.CreateColorInput("colRgb1",
-                                     equations.CreateColorConstant(1, 2, 3));
+          equations.CreateOrGetColorInput("colRgb1");
       var colRgb2 =
-          equations.CreateColorInput("colRgb2",
-                                     equations.CreateColorConstant(2, 3, 4));
+          equations.CreateOrGetColorInput("colRgb2");
       var colI1 =
-          equations.CreateColorInput("colI1",
-                                     equations.CreateColorConstant(1));
+          equations.CreateOrGetColorInput("colI1");
       var colI2 =
-          equations.CreateColorInput("colI2",
-                                     equations.CreateColorConstant(2));
+          equations.CreateOrGetColorInput("colI2");
 
       var colOutput =
           equations.CreateColorOutput("colOutput",
@@ -85,10 +77,10 @@ namespace fin.language.equations.fixedFunction {
                          "Scalar inputs:",
                          "",
                          "Color inputs:",
-                         "colRgb1: rgb<1,2,3>",
-                         "colRgb2: rgb<2,3,4>",
-                         "colI1: i<1>",
-                         "colI2: i<2>",
+                         "colRgb1",
+                         "colRgb2",
+                         "colI1",
+                         "colI2",
                          "",
                          "",
                          "Scalar outputs:",
@@ -104,17 +96,13 @@ namespace fin.language.equations.fixedFunction {
       var equations = new FixedFunctionEquations<string>();
 
       var colRgb1 =
-          equations.CreateColorInput("colRgb1",
-                                     equations.CreateColorConstant(1, 2, 3));
+          equations.CreateOrGetColorInput("colRgb1");
       var colRgb2 =
-          equations.CreateColorInput("colRgb2",
-                                     equations.CreateColorConstant(2, 3, 4));
+          equations.CreateOrGetColorInput("colRgb2");
       var colI1 =
-          equations.CreateColorInput("colI1",
-                                     equations.CreateColorConstant(1));
+          equations.CreateOrGetColorInput("colI1");
       var colI2 =
-          equations.CreateColorInput("colI2",
-                                     equations.CreateColorConstant(2));
+          equations.CreateOrGetColorInput("colI2");
 
       var scR1 = equations.CreateScalarOutput("scR1", colI1.R);
       var scR2 = equations.CreateScalarOutput("scR2", colRgb1.R);
@@ -132,10 +120,10 @@ namespace fin.language.equations.fixedFunction {
                          "Scalar inputs:",
                          "",
                          "Color inputs:",
-                         "colRgb1: rgb<1,2,3>",
-                         "colRgb2: rgb<2,3,4>",
-                         "colI1: i<1>",
-                         "colI2: i<2>",
+                         "colRgb1",
+                         "colRgb2",
+                         "colI1",
+                         "colI2",
                          "",
                          "",
                          "Scalar outputs:",
@@ -155,8 +143,7 @@ namespace fin.language.equations.fixedFunction {
       var equations = new FixedFunctionEquations<string>();
 
       var colRgb =
-          equations.CreateColorInput("colRgb",
-                                     equations.CreateColorConstant(1, 2, 3));
+          equations.CreateOrGetColorInput("colRgb");
       var colGbr =
           equations.CreateColorOutput("colGbr",
                                       equations.CreateColor(
@@ -168,7 +155,7 @@ namespace fin.language.equations.fixedFunction {
                          "Scalar inputs:",
                          "",
                          "Color inputs:",
-                         "colRgb: rgb<1,2,3>",
+                         "colRgb",
                          "",
                          "",
                          "Scalar outputs:",

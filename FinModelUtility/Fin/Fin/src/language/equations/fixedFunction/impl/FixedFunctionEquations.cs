@@ -30,12 +30,15 @@ namespace fin.language.equations.fixedFunction {
         if (colorQueue.TryDequeue(out var colorValue)) {
           didUpdate = true;
 
-          if (colorValue == value) {
+          if (colorValue.Equals(value)) {
             return true;
           }
 
           switch (colorValue) {
-            case IColorIdentifiedValue<TIdentifier> colorIdentifiedValue: {
+            case IColorInput<TIdentifier>: {
+              break;
+            }
+            case IColorOutput<TIdentifier> colorIdentifiedValue: {
               colorQueue.Enqueue(colorIdentifiedValue.ColorValue);
               break;
             }
@@ -79,12 +82,15 @@ namespace fin.language.equations.fixedFunction {
         if (scalarQueue.TryDequeue(out var scalarValue)) {
           didUpdate = true;
 
-          if (scalarValue == value) {
+          if (scalarValue.Equals(value)) {
             return true;
           }
 
           switch (scalarValue) {
-            case IScalarIdentifiedValue<TIdentifier> scalarIdentifiedValue: {
+            case IScalarInput<TIdentifier>: {
+              break;
+            }
+            case IScalarOutput<TIdentifier> scalarIdentifiedValue: {
               scalarQueue.Enqueue(scalarIdentifiedValue.ScalarValue);
               break;
             }

@@ -5,18 +5,15 @@
 
   public interface IScalarIdentifiedValue<out TIdentifier> :
       IIdentifiedValue<TIdentifier>,
-      IScalarFactor {
-    IScalarValue ScalarValue { get; }
-  }
+      IScalarFactor;
 
   public interface IScalarInput<out TIdentifier>
-      : IScalarIdentifiedValue<TIdentifier> {
-    IScalarConstant DefaultValue { get; }
-    IScalarConstant? CustomValue { get; set; }
-  }
+      : IScalarIdentifiedValue<TIdentifier>;
 
   public interface IScalarOutput<out TIdentifier>
-      : IScalarIdentifiedValue<TIdentifier> { }
+      : IScalarIdentifiedValue<TIdentifier> {
+    IScalarValue ScalarValue { get; }
+  }
 
 
   public interface IScalarValue

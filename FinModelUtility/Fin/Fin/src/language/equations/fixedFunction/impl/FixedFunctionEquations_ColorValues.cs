@@ -80,24 +80,12 @@ namespace fin.language.equations.fixedFunction {
       return this.scalarValueColorConstants_[key] = new ColorWrapper(intensity);
     }
 
-    public IColorInput<TIdentifier> CreateColorInput(
-        TIdentifier identifier,
-        IColorConstant defaultValue) {
-      Asserts.False(this.colorInputs_.ContainsKey(identifier));
-      return this.CreateOrGetColorInput(identifier, defaultValue);
-    }
-
     public IColorInput<TIdentifier> CreateOrGetColorInput(
-        TIdentifier identifier)
-      => CreateOrGetColorInput(identifier, this.CreateColorConstant(0));
-
-    public IColorInput<TIdentifier> CreateOrGetColorInput(
-        TIdentifier identifier,
-        IColorConstant defaultValue) {
+        TIdentifier identifier) {
       Asserts.False(this.colorOutputs_.ContainsKey(identifier));
 
       if (!this.colorInputs_.TryGetValue(identifier, out var input)) {
-        input = new ColorInput(identifier, defaultValue);
+        input = new ColorInput(identifier);
         this.colorInputs_[identifier] = input;
       }
 
@@ -116,18 +104,9 @@ namespace fin.language.equations.fixedFunction {
     }
 
 
-    private class ColorInput : BColorValue, IColorInput<TIdentifier> {
-      public ColorInput(TIdentifier identifier, IColorConstant defaultValue) {
-        this.Identifier = identifier;
-        this.DefaultValue = defaultValue;
-      }
-
-      public TIdentifier Identifier { get; }
-
-      public IColorConstant DefaultValue { get; }
-      public IColorConstant? CustomValue { get; set; }
-
-      public IColorValue ColorValue => this.CustomValue ?? this.DefaultValue;
+    private class ColorInput(TIdentifier identifier)
+        : BColorValue, IColorInput<TIdentifier> {
+      public TIdentifier Identifier { get; } = identifier;
 
       public override IScalarValue? Intensity
         => throw new NotSupportedException();
@@ -142,15 +121,10 @@ namespace fin.language.equations.fixedFunction {
         => new ColorNamedValueSwizzle(this, ColorSwizzle.B);
     }
 
-    private class ColorOutput : BColorValue, IColorOutput<TIdentifier> {
-      public ColorOutput(TIdentifier identifier, IColorValue value) {
-        this.Identifier = identifier;
-        this.ColorValue = value;
-      }
-
-      public TIdentifier Identifier { get; }
-
-      public IColorValue ColorValue { get; }
+    private class ColorOutput(TIdentifier identifier, IColorValue value)
+        : BColorValue, IColorOutput<TIdentifier> {
+      public TIdentifier Identifier { get; } = identifier;
+      public IColorValue ColorValue { get; } = value;
 
       public override IScalarValue? Intensity => null;
 

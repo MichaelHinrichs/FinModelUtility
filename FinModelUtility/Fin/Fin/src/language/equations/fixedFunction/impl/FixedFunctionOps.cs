@@ -5,7 +5,7 @@ namespace fin.language.equations.fixedFunction.impl {
     public const bool SIMPLIFY = true;
   }
 
-  public interface IFixedFunctionOps<TValue, TConstant, TTerm, TExpression>
+  public interface IFixedFunctionOps<TValue, out TConstant, TTerm, TExpression>
       where TValue : IValue<TValue, TConstant, TTerm, TExpression>
       where TConstant : IConstant<TValue, TConstant, TTerm, TExpression>, TValue
       where TTerm : ITerm<TValue, TConstant, TTerm, TExpression>, TValue

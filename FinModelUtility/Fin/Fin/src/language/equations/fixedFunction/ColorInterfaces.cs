@@ -5,18 +5,15 @@
 
   public interface IColorIdentifiedValue<out TIdentifier>
       : IIdentifiedValue<TIdentifier>,
-        IColorFactor {
-    IColorValue ColorValue { get; }
-  }
+        IColorFactor;
 
   public interface IColorInput<out TIdentifier>
-      : IColorIdentifiedValue<TIdentifier> {
-    IColorConstant DefaultValue { get; }
-    IColorConstant? CustomValue { get; set; }
-  }
+      : IColorIdentifiedValue<TIdentifier>;
 
   public interface IColorOutput<out TIdentifier>
-      : IColorIdentifiedValue<TIdentifier> { }
+      : IColorIdentifiedValue<TIdentifier> {
+    IColorValue ColorValue { get; }
+  }
 
   public enum ColorSwizzle {
     R,
