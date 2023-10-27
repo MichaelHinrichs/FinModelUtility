@@ -18,13 +18,25 @@ using Vector4 = System.Numerics.Vector4;
 namespace dat.schema {
   [Flags]
   public enum PObjFlags : ushort {
-    OBJTYPE_SKIN = 0 << 12,
+    BIT_1 = (1 << 0),
+    BIT_2 = (1 << 1),
+    UNKNOWN2 = (1 << 2),
+    ANIM = (1 << 3),
+
+    BIT_5 = (1 << 4),
+    BIT_6 = (1 << 5),
+    BIT_7 = (1 << 6),
+    BIT_8 = (1 << 7),
+    BIT_9 = (1 << 8),
+    BIT_10 = (1 << 9),
+    BIT_11 = (1 << 10),
+    BIT_12 = (1 << 11),
+
     OBJTYPE_SHAPEANIM = 1 << 12,
     OBJTYPE_ENVELOPE = 1 << 13,
-    OBJTYPE_MASK = 0x3000,
 
-    CULLFRONT = 1 << 14,
-    CULLBACK = 1 << 15,
+    CULLBACK = (1 << 14),
+    CULLFRONT = (1 << 15)
   }
 
   /// <summary>
@@ -63,35 +75,21 @@ namespace dat.schema {
       // TODO: Read weights
       // https://github.com/jam1garner/Smash-Forge/blob/c0075bca364366bbea2d3803f5aeae45a4168640/Smash%20Forge/Filetypes/Melee/DAT.cs#L1515C21-L1515C38
 
-      var pObjType = this.Header.Flags & PObjFlags.OBJTYPE_SKIN;
-      switch (pObjType) {
-        case PObjFlags.OBJTYPE_SKIN: {
-          br.Position = this.Header.VertexDescriptorListOffset;
+      br.Position = this.Header.VertexDescriptorListOffset;
 
-          // Reads vertex descriptors
-          while (true) {
-            var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.Read(br);
+      // Reads vertex descriptors
+      while (true) {
+        var vertexDescriptor = new VertexDescriptor();
+        vertexDescriptor.Read(br);
 
-            if (vertexDescriptor.Attribute == GxAttribute.NULL) {
-              break;
-            }
-
-            this.VertexDescriptors.Add(vertexDescriptor);
-          }
-
-          this.ReadDisplayList_(br);
-
+        if (vertexDescriptor.Attribute == GxAttribute.NULL) {
           break;
         }
-        case PObjFlags.OBJTYPE_ENVELOPE: {
-          break;
-        }
-        case PObjFlags.OBJTYPE_SHAPEANIM: {
-          break;
-        }
-        default: throw new NotImplementedException();
+
+        this.VertexDescriptors.Add(vertexDescriptor);
       }
+
+      this.ReadDisplayList_(br);
 
       if (this.Header.NextPObjOffset != 0) {
         br.Position = this.Header.NextPObjOffset;
