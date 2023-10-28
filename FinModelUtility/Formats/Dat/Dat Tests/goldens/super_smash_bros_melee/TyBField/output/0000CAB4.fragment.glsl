@@ -8,6 +8,14 @@ struct Texture {
   mat2x3 transform2d;
   mat4 transform3d;
 };
+
+vec2 transformUv3d(mat4 transform3d, vec2 inUv) {
+  vec4 rawTransformedUv = (transform3d * vec4(inUv, 0, 1));
+
+  // We need to manually divide by w for perspective correction!
+  return rawTransformedUv.xy / rawTransformedUv.w;
+}
+
 uniform Texture texture0;
 
 in vec4 vertexColor0;
@@ -16,9 +24,9 @@ in vec2 uv0;
 out vec4 fragColor;
 
 void main() {
-  vec3 colorComponent = vec3(1,0.7529411911964417,0)*texture(texture0.sampler, clamp((texture0.transform3d * vec4(uv0, 0, 1)).xy, texture0.clampMin, texture0.clampMax)).rgb;
+  vec3 colorComponent = vec3(1,0.7529411911964417,0)*texture(texture0.sampler, clamp(transformUv3d(texture0.transform3d, uv0), texture0.clampMin, texture0.clampMax)).rgb;
 
-  float alphaComponent = texture(texture0.sampler, clamp((texture0.transform3d * vec4(uv0, 0, 1)).xy, texture0.clampMin, texture0.clampMax)).a;
+  float alphaComponent = texture(texture0.sampler, clamp(transformUv3d(texture0.transform3d, uv0), texture0.clampMin, texture0.clampMax)).a;
 
   fragColor = vec4(colorComponent, alphaComponent);
 

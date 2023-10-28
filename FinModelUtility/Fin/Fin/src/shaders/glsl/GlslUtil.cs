@@ -162,6 +162,14 @@ void main() {");
             mat2x3 transform2d;
             mat4 transform3d;
           };
+          
+          vec2 transformUv3d(mat4 transform3d, vec2 inUv) {
+            vec4 rawTransformedUv = (transform3d * vec4(inUv, 0, 1));
+  
+            // We need to manually divide by w for perspective correction!
+            return rawTransformedUv.xy / rawTransformedUv.w;
+          }
+          
           """;
     }
 
@@ -187,7 +195,7 @@ void main() {");
       if (!(finTexture?.IsTransform3d ?? false)) {
         transformedUv = $"({textureName}.transform2d * {rawUvName}).xy";
       } else {
-        transformedUv = $"({textureName}.transform3d * vec4({rawUvName}, 0, 1)).xy";
+        transformedUv = $"transformUv3d({textureName}.transform3d, {rawUvName})";
       }
       return
           $"texture({textureName}.sampler, " +

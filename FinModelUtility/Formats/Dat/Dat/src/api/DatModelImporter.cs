@@ -5,6 +5,8 @@ using dat.schema;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
+using fin.math.matrix.four;
+using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
@@ -107,18 +109,41 @@ namespace dat.api {
                   var tObjRotationRadians = tObj.RotationRadians;
                   var tObjScale = tObj.Scale;
 
-                  // TODO: Still isn't working.....
+                  var rawTranslation = new Position(
+                      tObjTranslation.X,
+                      tObjTranslation.Y,
+                      tObjTranslation.Z);
+                  var rawQuaternion = QuaternionUtil.CreateZyx(
+                      tObjRotationRadians.X,
+                      tObjRotationRadians.Y,
+                      tObjRotationRadians.Z);
+                  var rawScale =
+                      new Scale(tObjScale.X, tObjScale.Y, tObjScale.Z);
+
+                  // This is an absolute nightmare, but it works.
+                  FinMatrix4x4Util.FromTrs(rawTranslation,
+                                           rawQuaternion,
+                                           rawScale)
+                                  .InvertInPlace()
+                                  .Decompose(out var outTranslation,
+                                             out var outQuaternion,
+                                             out var outScale);
+
+                  var outRotationRadians =
+                      QuaternionUtil.ToEulerRadians(outQuaternion);
+
+                  finTexture.SetOffset3d(
+                      outTranslation.X,
+                      outTranslation.Y,
+                      outTranslation.Z);
                   finTexture.SetRotationRadians3d(
-                      -tObjTranslation.X,
-                      -tObjTranslation.Y,
-                      -tObjTranslation.Z);
-                  finTexture.SetOffset3d(-tObjRotationRadians.X,
-                                         -tObjRotationRadians.Y,
-                                         -tObjRotationRadians.Z);
+                      outRotationRadians.X,
+                      outRotationRadians.Y,
+                      outRotationRadians.Z);
                   finTexture.SetScale3d(
-                      tObj.RepeatS / tObjScale.X,
-                      tObj.RepeatT / tObjScale.Y,
-                      1 / tObjScale.Z);
+                      tObj.RepeatS * outScale.X,
+                      tObj.RepeatT * outScale.Y,
+                      outScale.Z);
 
                   finTexturesByTObjOffset[tObjOffset] = finTexture;
                 }
@@ -211,6 +236,10 @@ namespace dat.api {
       return finModel;
     }
 
+    /// <summary>
+    ///   Shamelessly copied from:
+    ///   https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRawViewer/Shader/gx_lightmap.frag
+    /// </summary>
     private void PopulateFixedFunctionMaterial_(
         MObj mObj,
         IReadOnlyList<(TObj, ITexture)> tObjsAndFinTextures,
@@ -251,6 +280,7 @@ namespace dat.api {
         var (tObj, _) = tObjsAndFinTextures[i];
         var textureColor = equations.CreateOrGetColorInput(
             FixedFunctionSource.TEXTURE_COLOR_0 + i);
+
         switch (tObj.Flags.GetColorMap()) {
           case ColorMap.NONE: {
             // TODO: Is this right?

@@ -18,6 +18,14 @@ struct Texture {
   mat2x3 transform2d;
   mat4 transform3d;
 };
+
+vec2 transformUv3d(mat4 transform3d, vec2 inUv) {
+  vec4 rawTransformedUv = (transform3d * vec4(inUv, 0, 1));
+
+  // We need to manually divide by w for perspective correction!
+  return rawTransformedUv.xy / rawTransformedUv.w;
+}
+
 uniform Texture texture0;
 uniform Texture texture1;
 uniform vec3 color_GxAmbientColor0;

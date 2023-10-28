@@ -18,6 +18,14 @@ struct Texture {
   mat2x3 transform2d;
   mat4 transform3d;
 };
+
+vec2 transformUv3d(mat4 transform3d, vec2 inUv) {
+  vec4 rawTransformedUv = (transform3d * vec4(inUv, 0, 1));
+
+  // We need to manually divide by w for perspective correction!
+  return rawTransformedUv.xy / rawTransformedUv.w;
+}
+
 uniform Texture texture0;
 
 in vec3 vertexNormal;
@@ -44,7 +52,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = texture(texture0.sampler, clamp((texture0.transform3d * vec4(uv0, 0, 1)).xy, texture0.clampMin, texture0.clampMax)).rgb*(vec3(0.20000000298023224) + individualLightColors[0].rgb*vec3(0.2980392277240753));
+  vec3 colorComponent = texture(texture0.sampler, clamp(transformUv3d(texture0.transform3d, uv0), texture0.clampMin, texture0.clampMax)).rgb*(vec3(0.20000000298023224) + individualLightColors[0].rgb*vec3(0.2980392277240753));
 
   float alphaComponent = 1;
 
