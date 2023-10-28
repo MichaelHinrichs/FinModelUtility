@@ -12,6 +12,9 @@ namespace fin.model.impl {
       public DepthCompareType DepthCompareType { get; set; }
 
       public bool IgnoreLights { get; set; }
+
+      public float Shininess { get; set; } =
+        MaterialConstants.DEFAULT_SHININESS;
     }
   }
 }

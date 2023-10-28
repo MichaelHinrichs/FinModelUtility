@@ -17,6 +17,12 @@ namespace fin.language.equations.fixedFunction {
              .Any(someValue => someValue.Equals(value));
 
     public bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
+                                  TIdentifier identifier)
+      => this.EnumerateOutputs_(outputIdentifiers)
+             .WhereIs<IValue, IIdentifiedValue<TIdentifier>>()
+             .Any(someValue => identifier.Equals(someValue.Identifier));
+
+    public bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
                                   TIdentifier[] identifiers) {
       var identifierSet = identifiers.ToHashSet();
       return this.EnumerateOutputs_(outputIdentifiers)

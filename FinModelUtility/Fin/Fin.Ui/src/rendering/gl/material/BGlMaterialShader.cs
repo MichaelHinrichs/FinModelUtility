@@ -42,8 +42,9 @@ namespace fin.ui.rendering.gl.material {
     private readonly int matricesLocation_;
     private readonly Matrix4x4[] matrices_;
 
-    private readonly int useLightingLocation_;
+    private readonly int shininessLocation_;
 
+    private readonly int useLightingLocation_;
     private readonly int ambientLightColorLocation_;
     private readonly int[] lightEnabledLocations_;
     private readonly int[] lightPositionLocations_;
@@ -74,9 +75,12 @@ namespace fin.ui.rendering.gl.material {
       this.matricesLocation_ = this.impl_.GetUniformLocation(
           GlslConstants.UNIFORM_BONE_MATRICES_NAME);
       this.matrices_ = new Matrix4x4[1 + model.Skin.BoneWeights.Count];
-      this.useLightingLocation_ =
-          this.impl_.GetUniformLocation(
-              GlslConstants.UNIFORM_USE_LIGHTING_NAME);
+
+      this.shininessLocation_ =
+          this.impl_.GetUniformLocation(GlslConstants.UNIFORM_SHININESS_NAME);
+
+      this.useLightingLocation_ = this.impl_.GetUniformLocation(
+          GlslConstants.UNIFORM_USE_LIGHTING_NAME);
 
       this.ambientLightColorLocation_ =
           this.impl_.GetUniformLocation("ambientLightColor");
@@ -165,6 +169,8 @@ namespace fin.ui.rendering.gl.material {
 
       GlTransform.UniformMatrix4s(this.matricesLocation_, this.matrices_);
 
+      GL.Uniform1(this.shininessLocation_, this.Material.Shininess);
+
       GL.Uniform1(this.useLightingLocation_,
                   this.UseLighting && this.lighting_ != null ? 1f : 0f);
 
@@ -181,21 +187,24 @@ namespace fin.ui.rendering.gl.material {
     }
 
     private void SetUpLightUniforms_(ILighting lighting, int max) {
+      var ambientLightStrength = lighting.AmbientLightStrength;
       var ambientLightColor = lighting.AmbientLightColor;
-      GL.Uniform3(this.ambientLightColorLocation_,
-                  ambientLightColor.Rf,
-                  ambientLightColor.Gf,
-                  ambientLightColor.Bf);
+      GL.Uniform4(this.ambientLightColorLocation_,
+                  ambientLightColor.Rf * ambientLightStrength,
+                  ambientLightColor.Gf * ambientLightStrength,
+                  ambientLightColor.Bf * ambientLightStrength,
+                  ambientLightColor.Af * ambientLightStrength);
 
       var lights = lighting.Lights;
       for (var i = 0; i < max; ++i) {
         var isEnabled = i < lights.Count && lights[i].Enabled;
+
         if (!isEnabled) {
           continue;
         }
 
-        GL.Uniform1(this.lightEnabledLocations_[i], 1);
         var light = lights[i];
+        GL.Uniform1(this.lightEnabledLocations_[i], 1);
 
         var position = light.Position;
         GL.Uniform3(this.lightPositionLocations_[i],
@@ -209,12 +218,13 @@ namespace fin.ui.rendering.gl.material {
                     normal.Y,
                     normal.Z);
 
+        var strength = light.Strength;
         var color = light.Color;
         GL.Uniform4(this.lightColorLocations_[i],
-                    color.Rf,
-                    color.Gf,
-                    color.Bf,
-                    color.Af);
+                    color.Rf * strength,
+                    color.Gf * strength,
+                    color.Bf * strength,
+                    color.Af * strength);
       }
     }
 

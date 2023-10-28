@@ -51,6 +51,7 @@ namespace cmb.material {
 
     public void AddCombiners(IReadOnlyList<Combiner?> cmbCombiners) {
       var dependsOnLights =
+          this.cmbMaterial_.isHemiSphereLightingEnabled &&
           cmbCombiners
               .Nonnull()
               .SelectMany(combiner
@@ -60,8 +61,11 @@ namespace cmb.material {
                                        or TexCombinerSource
                                            .FragmentSecondaryColor);
 
-      if (dependsOnLights) {
-        /*var ambientRgba = this.cmbMaterial_.ambientColor;
+      if (!dependsOnLights) {
+        this.lightColor_ = this.equations_.CreateColorConstant(1);
+        this.lightAlpha_ = this.equations_.CreateScalarConstant(1);
+      } else {
+        var ambientRgba = this.cmbMaterial_.ambientColor;
         var ambientColor =
             new ColorConstant(ambientRgba.Rf, ambientRgba.Gf, ambientRgba.Bf);
         var ambientAlpha = new ScalarConstant(ambientRgba.Af);
@@ -72,26 +76,23 @@ namespace cmb.material {
         var diffuseAlpha = new ScalarConstant(diffuseRgba.Af);
 
         this.lightColor_ =
-            this.cOps_.Add(ambientColor,
-                           this.cOps_.Multiply(
-                               this.equations_
-                                   .CreateOrGetColorInput(
-                                       FixedFunctionSource.LIGHT_0_COLOR),
-                               diffuseColor));
+            this.cOps_.Add(
+                this.cOps_.Multiply(
+                    this.equations_.CreateOrGetColorInput(
+                        FixedFunctionSource.LIGHT_AMBIENT_COLOR),
+                    ambientColor),
+                this.cOps_.Multiply(
+                    this.equations_.GetMergedLightDiffuseColor(),
+                    diffuseColor));
         this.lightAlpha_ =
-            this.sOps_.Add(ambientAlpha,
-                           this.sOps_.Multiply(
-                               this.equations_
-                                   .CreateOrGetScalarInput(
-                                       FixedFunctionSource.LIGHT_0_ALPHA),
-                               diffuseAlpha));*/
-
-        this.lightColor_ =
-            this.equations_.CreateOrGetColorInput(
-                FixedFunctionSource.LIGHT_0_COLOR);
-        this.lightAlpha_ =
-            this.equations_.CreateOrGetScalarInput(
-                FixedFunctionSource.LIGHT_0_ALPHA);
+            this.sOps_.Add(
+                this.sOps_.Multiply(
+                    this.equations_.CreateOrGetScalarInput(
+                        FixedFunctionSource.LIGHT_AMBIENT_ALPHA),
+                    ambientAlpha),
+                this.sOps_.Multiply(
+                    this.equations_.GetMergedLightDiffuseAlpha(),
+                    diffuseAlpha));
       }
 
       foreach (var cmbCombiner in cmbCombiners) {

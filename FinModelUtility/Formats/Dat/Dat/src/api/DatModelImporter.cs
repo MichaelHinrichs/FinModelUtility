@@ -2,6 +2,7 @@
 
 using dat.schema;
 
+using fin.color;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -249,154 +250,211 @@ namespace dat.api {
       var colorOps = new ColorFixedFunctionOps(equations);
       var scalarOps = new ScalarFixedFunctionOps(equations);
 
-      var vertexColor = equations.CreateOrGetColorInput(
-          FixedFunctionSource.VERTEX_COLOR_0);
-      var vertexAlpha = equations.CreateOrGetScalarInput(
-          FixedFunctionSource.VERTEX_ALPHA_0);
-
       for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
         var (_, finTexture) = tObjsAndFinTextures[i];
         fixedFunctionMaterial.SetTextureSource(i, finTexture);
       }
 
+      var vertexColor = equations.CreateOrGetColorInput(
+          FixedFunctionSource.VERTEX_COLOR_0);
+      var vertexAlpha = equations.CreateOrGetScalarInput(
+          FixedFunctionSource.VERTEX_ALPHA_0);
+
       var renderMode = mObj.RenderMode;
       var material = mObj.Material;
 
-      IColorValue? outputColor = colorOps.One;
+      IColorValue? diffuseColor = colorOps.One;
+      IScalarValue? diffuseAlpha = scalarOps.One;
+
+      // Constant color
       if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
         var diffuseRgba = material.DiffuseColor;
-        var diffuseColor = equations.CreateColorConstant(diffuseRgba.Rf,
-          diffuseRgba.Gf,
-          diffuseRgba.Bf);
-
-        outputColor = diffuseColor;
-      }
-
-      if (renderMode.CheckFlag(RenderMode.VERTEX)) {
-        outputColor = colorOps.Multiply(outputColor, vertexColor);
-      }
-
-      for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
-        var (tObj, _) = tObjsAndFinTextures[i];
-        var textureColor = equations.CreateOrGetColorInput(
-            FixedFunctionSource.TEXTURE_COLOR_0 + i);
-
-        switch (tObj.Flags.GetColorMap()) {
-          case ColorMap.NONE: {
-            // TODO: Is this right?
-            break;
-          }
-          case ColorMap.ALPHA_MASK: {
-            // TODO: What should this do?
-            break;
-          }
-          case ColorMap.RGB_MASK: {
-            // TODO: What should this do?
-            break;
-          }
-          case ColorMap.BLEND: {
-            // TODO: Is this right?
-            outputColor = colorOps.Multiply(outputColor, textureColor);
-            break;
-          }
-          case ColorMap.MODULATE: {
-            // TODO: Is this right?
-            outputColor = colorOps.Multiply(outputColor, textureColor);
-            break;
-          }
-          case ColorMap.REPLACE: {
-            // TODO: Is this right?
-            outputColor = textureColor;
-            break;
-          }
-          case ColorMap.PASS: {
-            // TODO: What should this do?
-            break;
-          }
-          case ColorMap.ADD: {
-            outputColor = colorOps.Add(outputColor, textureColor);
-            break;
-          }
-          case ColorMap.SUB: {
-            outputColor = colorOps.Subtract(outputColor, textureColor);
-            break;
-          }
-        }
-      }
-
-      // TODO: Is this right??
-      if (renderMode.CheckFlag(RenderMode.DIFFUSE)) {
-        var ambientRgba = material.AmbientColor;
-        var ambientColor =
-            equations.CreateColorConstant(ambientRgba.Rf,
-                                          ambientRgba.Gf,
-                                          ambientRgba.Bf);
-        var diffuseRgba = material.DiffuseColor;
-        var diffuseColor =
-            colorOps.Multiply(
-                equations.CreateOrGetColorInput(
-                    FixedFunctionSource.LIGHT_0_COLOR),
-                equations.CreateColorConstant(diffuseRgba.Rf,
-                                              diffuseRgba.Gf,
-                                              diffuseRgba.Bf));
-
-        var lightColor = colorOps.Add(ambientColor, diffuseColor);
-        outputColor = colorOps.Multiply(outputColor, lightColor);
-      }
-
-      IScalarValue? outputAlpha = scalarOps.One;
-
-      if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
-        outputAlpha = vertexAlpha;
+        diffuseColor = equations.CreateColorConstant(
+            diffuseRgba.Rf,
+            diffuseRgba.Gf,
+            diffuseRgba.Bf);
       }
 
       if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
-        outputAlpha =
-            scalarOps.MultiplyWithConstant(outputAlpha, material!.Alpha);
+        diffuseAlpha =
+            scalarOps.MultiplyWithConstant(diffuseAlpha, material!.Alpha);
       }
 
-      for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
-        var (tObj, _) = tObjsAndFinTextures[i];
-        var textureAlpha = equations.CreateOrGetScalarInput(
-            FixedFunctionSource.TEXTURE_ALPHA_0);
-        switch (tObj.Flags.GetAlphaMap()) {
-          case AlphaMap.NONE: {
-            // TODO: Is this right?
+      // Vertex color
+      if (renderMode.CheckFlag(RenderMode.VERTEX)) {
+        diffuseColor = colorOps.Multiply(diffuseColor, vertexColor);
+      }
+
+      if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
+        diffuseAlpha = scalarOps.Multiply(diffuseAlpha, vertexAlpha);
+      }
+
+      IColorValue? ambientColor = equations.CreateColorConstant(
+          material.AmbientColor.Rf,
+          material.AmbientColor.Gf,
+          material.AmbientColor.Bf);
+      IScalarValue? ambientAlpha = equations.CreateScalarConstant(
+          material.AmbientColor.Af);
+
+      IColorValue? specularColor = equations.CreateColorConstant(
+          material.SpecularColor.Rf,
+          material.SpecularColor.Gf,
+          material.SpecularColor.Bf);
+      IScalarValue? specularAlpha = equations.CreateScalarConstant(
+          material.SpecularColor.Af);
+
+      // Texture passes
+      foreach (var type in new[] {
+                   TObjFlags.LIGHTMAP_DIFFUSE,
+                   TObjFlags.LIGHTMAP_AMBIENT,
+                   TObjFlags.LIGHTMAP_SPECULAR
+               }) {
+        IColorValue? color;
+        IScalarValue? alpha;
+
+        switch (type) {
+          case TObjFlags.LIGHTMAP_DIFFUSE: {
+            color = diffuseColor;
+            alpha = diffuseAlpha;
             break;
           }
-          case AlphaMap.ALPHA_MASK: {
-            // TODO: What should this do?
+          case TObjFlags.LIGHTMAP_AMBIENT: {
+            color = ambientColor;
+            alpha = ambientAlpha;
             break;
           }
-          case AlphaMap.BLEND: {
-            // TODO: Is this right?
-            outputAlpha = scalarOps.Multiply(outputAlpha, textureAlpha);
+          case TObjFlags.LIGHTMAP_SPECULAR: {
+            color = specularColor;
+            alpha = specularAlpha;
             break;
           }
-          case AlphaMap.MODULATE: {
-            // TODO: Is this right?
-            outputAlpha = scalarOps.Multiply(outputAlpha, textureAlpha);
+          default: throw new NotImplementedException();
+        }
+
+        for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
+          var (tObj, _) = tObjsAndFinTextures[i];
+          if (!tObj.Flags.CheckFlag(type)) {
+            continue;
+          }
+
+          var textureColor = equations.CreateOrGetColorInput(
+              FixedFunctionSource.TEXTURE_COLOR_0 + i);
+          var textureAlpha = equations.CreateOrGetScalarInput(
+              FixedFunctionSource.TEXTURE_ALPHA_0 + i);
+
+          switch (tObj.Flags.GetColorMap()) {
+            case ColorMap.NONE:
+            case ColorMap.PASS: {
+              // As you might guess from the name, does nothing.
+              break;
+            }
+            case ColorMap.ALPHA_MASK: {
+              // TODO: Is this right?
+              color = colorOps.MixWithScalar(color, textureColor, textureAlpha);
+              break;
+            }
+            case ColorMap.RGB_MASK: {
+              // TODO: What should this do?
+              break;
+            }
+            case ColorMap.BLEND: {
+              color = colorOps.MixWithConstant(color,
+                                               textureColor,
+                                               tObj.Blending);
+              break;
+            }
+            case ColorMap.MODULATE: {
+              color = colorOps.Multiply(color, textureColor);
+              break;
+            }
+            case ColorMap.REPLACE: {
+              color = textureColor;
+              break;
+            }
+            case ColorMap.ADD: {
+              color = colorOps.Add(
+                  color,
+                  colorOps.MultiplyWithScalar(textureColor, textureAlpha));
+              break;
+            }
+            case ColorMap.SUB: {
+              color = colorOps.Subtract(
+                  color,
+                  colorOps.MultiplyWithScalar(textureColor, textureAlpha));
+              break;
+            }
+          }
+
+          switch (tObj.Flags.GetAlphaMap()) {
+            case AlphaMap.NONE:
+            case AlphaMap.PASS: {
+              // As you might guess from the name, does nothing.
+              break;
+            }
+            case AlphaMap.ALPHA_MASK: {
+              // TODO: What should this do?
+              break;
+            }
+            case AlphaMap.BLEND: {
+              alpha = scalarOps.MixWithConstant(
+                  alpha,
+                  textureAlpha,
+                  tObj.Blending);
+              break;
+            }
+            case AlphaMap.MODULATE: {
+              alpha = scalarOps.Multiply(alpha, textureAlpha);
+              break;
+            }
+            case AlphaMap.REPLACE: {
+              alpha = textureAlpha;
+              break;
+            }
+            case AlphaMap.ADD: {
+              alpha = scalarOps.Add(alpha, textureAlpha);
+              break;
+            }
+            case AlphaMap.SUB: {
+              alpha = scalarOps.Subtract(alpha, textureAlpha);
+              break;
+            }
+          }
+        }
+
+        switch (type) {
+          case TObjFlags.LIGHTMAP_DIFFUSE: {
+            diffuseColor = color;
+            diffuseAlpha = alpha;
             break;
           }
-          case AlphaMap.REPLACE: {
-            // TODO: Is this right?
-            outputAlpha = textureAlpha;
+          case TObjFlags.LIGHTMAP_AMBIENT: {
+            ambientColor = color;
+            ambientAlpha = alpha;
             break;
           }
-          case AlphaMap.PASS: {
-            // TODO: What should this do?
-            break;
-          }
-          case AlphaMap.ADD: {
-            outputAlpha = scalarOps.Add(outputAlpha, textureAlpha);
-            break;
-          }
-          case AlphaMap.SUB: {
-            outputAlpha = scalarOps.Subtract(outputAlpha, textureAlpha);
+          case TObjFlags.LIGHTMAP_SPECULAR: {
+            specularColor = color;
+            specularAlpha = alpha;
             break;
           }
         }
       }
+
+      var lightingColor = colorOps.Add(
+          colorOps.Multiply(
+              ambientColor,
+              equations.CreateOrGetColorInput(
+                  FixedFunctionSource.LIGHT_AMBIENT_COLOR)),
+          equations.GetMergedLightDiffuseColor());
+
+      // We double it because all the other kids do. (Other fixed-function games.)
+      lightingColor = colorOps.MultiplyWithConstant(lightingColor, 2);
+
+      var outputColor = colorOps.Multiply(
+          lightingColor,
+          diffuseColor);
+
+      var outputAlpha = diffuseAlpha;
 
       equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
                                   outputColor ?? colorOps.Zero);

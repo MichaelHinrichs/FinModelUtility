@@ -155,6 +155,8 @@ namespace dat.schema {
 
     public TObjFlags Flags { get; private set; }
 
+    public float Blending { get; private set; }
+
     public IImage Image { get; private set; }
 
     public unsafe void Read(IBinaryReader br) {
@@ -179,7 +181,9 @@ namespace dat.schema {
 
       this.Flags = (TObjFlags) br.ReadUInt32();
 
-      br.Position += 4 * 2;
+      this.Blending = br.ReadSingle();
+
+      br.Position += 4;
 
       var imageOffset = br.ReadUInt32();
       var paletteOffset = br.ReadUInt32();

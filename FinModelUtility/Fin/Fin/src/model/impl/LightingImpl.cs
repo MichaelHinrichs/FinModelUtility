@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 
 using fin.color;
 using fin.schema.vector;
@@ -19,8 +20,10 @@ namespace fin.model.impl {
       return light;
     }
 
+    public float AmbientLightStrength { get; set; } = .1f;
+
     public IColor AmbientLightColor { get; set; } =
-      FinColor.FromIntensityFloat(.3f);
+      FinColor.FromSystemColor(Color.White);
 
     private class LightImpl : ILight {
       public string Name { get; private set; }
@@ -46,6 +49,8 @@ namespace fin.model.impl {
         return this;
       }
 
+      public float Strength { get; set; } = 1;
+
       public IColor Color { get; private set; } =
         FinColor.FromRgbaFloats(1, 1, 1, 1);
 
@@ -53,6 +58,7 @@ namespace fin.model.impl {
         this.Color = color;
         return this;
       }
+
 
       public IReadOnlyVector3 CosineAttenuation { get; private set; }
 
@@ -63,7 +69,8 @@ namespace fin.model.impl {
 
       public IReadOnlyVector3 DistanceAttenuation { get; private set; }
 
-      public ILight SetDistanceAttenuation(IReadOnlyVector3 distanceAttenuation) {
+      public ILight
+          SetDistanceAttenuation(IReadOnlyVector3 distanceAttenuation) {
         this.DistanceAttenuation = distanceAttenuation;
         return this;
       }

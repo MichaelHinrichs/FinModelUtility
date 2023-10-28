@@ -199,7 +199,7 @@ namespace gx {
             IColorValue? mergedLightColor = null;
             // TODO: Should these be averaged?
             foreach (var activeLight in activeLights) {
-              var lightSrc = FixedFunctionSource.LIGHT_0_COLOR +
+              var lightSrc = FixedFunctionSource.LIGHT_DIFFUSE_COLOR_0 +
                              activeLight;
               mergedLightColor = colorFixedFunctionOps.Add(
                   mergedLightColor,
@@ -264,7 +264,7 @@ namespace gx {
             IScalarValue? mergedLightAlpha = null;
             // TODO: Should these be averaged?
             foreach (var activeLight in activeLights) {
-              var lightSrc = FixedFunctionSource.LIGHT_0_ALPHA +
+              var lightSrc = FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_0 +
                              activeLight;
               mergedLightAlpha = scalarFixedFunctionOps.Add(
                   mergedLightAlpha,

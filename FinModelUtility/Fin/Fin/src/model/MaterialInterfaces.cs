@@ -66,6 +66,7 @@ namespace fin.model {
     DepthCompareType DepthCompareType { get; }
 
     bool IgnoreLights { get; }
+    float Shininess { get; }
   }
 
   public interface IMaterial : IReadOnlyMaterial {
@@ -77,6 +78,7 @@ namespace fin.model {
     new DepthCompareType DepthCompareType { get; set; }
 
     new bool IgnoreLights { get; set; }
+    new float Shininess { get; set; }
   }
 
 
@@ -216,23 +218,44 @@ namespace fin.model {
     OUTPUT_COLOR,
     OUTPUT_ALPHA,
 
-    LIGHT_0_COLOR,
-    LIGHT_1_COLOR,
-    LIGHT_2_COLOR,
-    LIGHT_3_COLOR,
-    LIGHT_4_COLOR,
-    LIGHT_5_COLOR,
-    LIGHT_6_COLOR,
-    LIGHT_7_COLOR,
+    LIGHT_AMBIENT_COLOR,
+    LIGHT_AMBIENT_ALPHA,
 
-    LIGHT_0_ALPHA,
-    LIGHT_1_ALPHA,
-    LIGHT_2_ALPHA,
-    LIGHT_3_ALPHA,
-    LIGHT_4_ALPHA,
-    LIGHT_5_ALPHA,
-    LIGHT_6_ALPHA,
-    LIGHT_7_ALPHA,
+    LIGHT_DIFFUSE_COLOR_0,
+    LIGHT_DIFFUSE_COLOR_1,
+    LIGHT_DIFFUSE_COLOR_2,
+    LIGHT_DIFFUSE_COLOR_3,
+    LIGHT_DIFFUSE_COLOR_4,
+    LIGHT_DIFFUSE_COLOR_5,
+    LIGHT_DIFFUSE_COLOR_6,
+    LIGHT_DIFFUSE_COLOR_7,
+
+    LIGHT_DIFFUSE_ALPHA_0,
+    LIGHT_DIFFUSE_ALPHA_1,
+    LIGHT_DIFFUSE_ALPHA_2,
+    LIGHT_DIFFUSE_ALPHA_3,
+    LIGHT_DIFFUSE_ALPHA_4,
+    LIGHT_DIFFUSE_ALPHA_5,
+    LIGHT_DIFFUSE_ALPHA_6,
+    LIGHT_DIFFUSE_ALPHA_7,
+
+    LIGHT_SPECULAR_COLOR_0,
+    LIGHT_SPECULAR_COLOR_1,
+    LIGHT_SPECULAR_COLOR_2,
+    LIGHT_SPECULAR_COLOR_3,
+    LIGHT_SPECULAR_COLOR_4,
+    LIGHT_SPECULAR_COLOR_5,
+    LIGHT_SPECULAR_COLOR_6,
+    LIGHT_SPECULAR_COLOR_7,
+
+    LIGHT_SPECULAR_ALPHA_0,
+    LIGHT_SPECULAR_ALPHA_1,
+    LIGHT_SPECULAR_ALPHA_2,
+    LIGHT_SPECULAR_ALPHA_3,
+    LIGHT_SPECULAR_ALPHA_4,
+    LIGHT_SPECULAR_ALPHA_5,
+    LIGHT_SPECULAR_ALPHA_6,
+    LIGHT_SPECULAR_ALPHA_7,
 
     UNDEFINED,
   }

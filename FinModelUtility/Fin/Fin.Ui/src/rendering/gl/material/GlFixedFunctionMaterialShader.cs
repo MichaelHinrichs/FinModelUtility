@@ -31,13 +31,9 @@ namespace fin.ui.rendering.gl.material {
         GlShaderProgram impl) {
       var finTextures = material.TextureSources;
 
-      var outputIdentifiers = new[] {
-          FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA
-      };
       var equations = material.Equations;
       for (var i = 0; i < MaterialConstants.MAX_TEXTURES; ++i) {
         if (!equations.DoOutputsDependOn(
-                outputIdentifiers,
                 new[] {
                     FixedFunctionSource.TEXTURE_COLOR_0 + i,
                     FixedFunctionSource.TEXTURE_ALPHA_0 + i

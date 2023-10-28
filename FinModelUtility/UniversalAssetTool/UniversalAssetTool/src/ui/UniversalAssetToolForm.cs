@@ -6,6 +6,7 @@ using fin.data.queues;
 using fin.model.io.exporters.assimp;
 using fin.io;
 using fin.io.bundles;
+using fin.language.equations.fixedFunction;
 using fin.model;
 using fin.model.io;
 using fin.scene;
@@ -210,8 +211,12 @@ public partial class UniversalAssetToolForm : Form {
 
         var equations = finFixedFunctionMaterial.Equations;
         for (var i = 0; i < 8; ++i) {
-          if (equations.HasInput(FixedFunctionSource.LIGHT_0_ALPHA + i) ||
-              equations.HasInput(FixedFunctionSource.LIGHT_0_COLOR + i)) {
+          if (equations.DoOutputsDependOn(new[] {
+                  FixedFunctionSource.LIGHT_DIFFUSE_COLOR_0 + i,
+                  FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_0 + i,
+                  FixedFunctionSource.LIGHT_SPECULAR_COLOR_0 + i,
+                  FixedFunctionSource.LIGHT_SPECULAR_ALPHA_0 + i,
+              })) {
             neededLightIndices.Add(i);
           }
         }
@@ -223,19 +228,24 @@ public partial class UniversalAssetToolForm : Form {
     }
 
     if (neededLightIndices.Count == 0) {
-      neededLightIndices.Add(0);
+      for (var i = 0; i < 3; ++i) {
+        neededLightIndices.Add(i);
+      }
     }
 
     var enabledCount = neededLightIndices.Count;
     var lightColors = enabledCount == 1
         ? new[] { Color.White }
         : new[] {
+            Color.White,
             Color.Pink,
             Color.LightBlue,
             Color.DarkSeaGreen,
             Color.PaleGoldenrod,
             Color.Lavender,
-            Color.Bisque
+            Color.Bisque,
+            Color.Blue,
+            Color.Red
         };
 
     var maxLightIndex = neededLightIndices.Max();
@@ -248,15 +258,18 @@ public partial class UniversalAssetToolForm : Form {
       }
 
       light.SetColor(FinColor.FromSystemColor(lightColors[currentIndex]));
+      light.Strength = .8f / enabledCount;
 
       var angleInRadians = 2 * MathF.PI *
-          (1f * currentIndex) / enabledCount;
+          (1f * currentIndex) / (enabledCount + 1);
 
       light.SetNormal(new Vector3f {
           X = (float) (.5f * Math.Cos(angleInRadians)),
           Y = (float) (.5f * Math.Sin(angleInRadians)),
           Z = -.5f,
       });
+
+      currentIndex++;
     }
 
     return lighting;
@@ -334,11 +347,11 @@ public partial class UniversalAssetToolForm : Form {
     if (result == DialogResult.OK) {
       var outputFile = new FinFile(saveFileDialog.FileName);
       ExporterUtil.Export(modelFileBundle,
-                            () => model,
-                            outputFile.AssertGetParent(),
-                            new[] { outputFile.FileType },
-                            true,
-                            outputFile.NameWithoutExtension);
+                          () => model,
+                          outputFile.AssertGetParent(),
+                          new[] { outputFile.FileType },
+                          true,
+                          outputFile.NameWithoutExtension);
     }
   }
 

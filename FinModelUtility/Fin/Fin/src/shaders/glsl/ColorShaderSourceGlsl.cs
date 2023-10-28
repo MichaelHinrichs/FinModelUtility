@@ -27,6 +27,7 @@ namespace fin.shaders.glsl {
           $"""
 
            uniform vec4 diffuseColor;
+           uniform float {GlslConstants.UNIFORM_SHININESS_NAME};
            uniform float {GlslConstants.UNIFORM_USE_LIGHTING_NAME};
 
            out vec4 fragColor;
@@ -37,6 +38,7 @@ namespace fin.shaders.glsl {
       if (hasNormals) {
         fragmentSrc.Append(
             """
+            in vec3 vertexPosition;
             in vec3 vertexNormal;
             """);
       }
@@ -45,7 +47,9 @@ namespace fin.shaders.glsl {
         fragmentSrc.Append(
             $"""
 
-             {GlslUtil.GetLightFunctions(false)}
+             {GlslUtil.GetIndividualLightColorsFunction()}
+             
+             {GlslUtil.GetMergedLightColorsFunctions(false)}
              """
         );
       }
@@ -62,7 +66,7 @@ namespace fin.shaders.glsl {
             $"""
              
                fragColor.rgb =
-                   mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal),  {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
+                   mix(fragColor.rgb, applyMergedLightingColors(vertexPosition, vertexNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, fragColor, vec4(1)).rgb,  {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
              """);
       }
 

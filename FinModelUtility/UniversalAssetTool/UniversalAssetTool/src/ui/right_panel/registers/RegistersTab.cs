@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 
 using fin.color;
+using fin.language.equations.fixedFunction;
 using fin.model;
 using fin.util.linq;
 using fin.util.strings;
@@ -77,17 +78,12 @@ namespace uni.ui.right_panel.registers {
                               .OrderBy(reg => reg.Name, comparer)
                               .ToArray();
 
-        var outputIdentifiers = new[] {
-            FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA
-        };
-
         var colorRegistersSection = createSection("Color registers");
         {
           var row = 0;
           foreach (var colorRegister in colorRegisters) {
-            if (!allEquations.Any(equations => equations.DoOutputsDependOn(
-                                      outputIdentifiers,
-                                      colorRegister))) {
+            if (!allEquations.Any(
+                    equations => equations.DoOutputsDependOn(colorRegister))) {
               continue;
             }
 
@@ -118,9 +114,8 @@ namespace uni.ui.right_panel.registers {
         {
           var row = 0;
           foreach (var scalarRegister in scalarRegisters) {
-            if (!allEquations.Any(equations => equations.DoOutputsDependOn(
-                                      outputIdentifiers,
-                                      scalarRegister))) {
+            if (!allEquations.Any(
+                    equations => equations.DoOutputsDependOn(scalarRegister))) {
               continue;
             }
 

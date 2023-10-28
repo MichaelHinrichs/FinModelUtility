@@ -19,15 +19,19 @@ namespace fin.shaders.glsl {
 
       var vertexSrc = new StringBuilder();
 
-      vertexSrc.Append($@"
-# version 330
+      vertexSrc.Append($"""
 
-uniform mat4 {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME};
-uniform mat4 {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME};");
+                        # version 330
+
+                        uniform mat4 {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME};
+                        uniform mat4 {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME};
+                        """);
 
       if (useBoneMatrices) {
-        vertexSrc.Append(@$"
-uniform mat4 {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[{1 + model.Skin.BoneWeights.Count}];");
+        vertexSrc.Append($"""
+
+                          uniform mat4 {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[{1 + model.Skin.BoneWeights.Count}];
+                          """);
       }
 
       vertexSrc.Append(@$"
@@ -45,6 +49,7 @@ layout(location = {location++}) in int in_MatrixId;");
 layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_UVS)}) in vec2 in_Uvs[{MaterialConstants.MAX_UVS}];
 layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_COLORS)}) in vec4 in_Colors[{MaterialConstants.MAX_COLORS}];
 
+out vec3 vertexPosition;
 out vec3 vertexNormal;
 out vec3 tangent;
 out vec3 binormal;
@@ -71,6 +76,9 @@ void main() {");
   mat4 projectionVertexModelMatrix = {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME} * vertexModelMatrix;
 
   gl_Position = projectionVertexModelMatrix * vec4(in_Position, 1);
+
+  vec4 rawVertexPosition = vertexModelMatrix * vec4(in_Normal, 1);
+  vertexPosition = rawVertexPosition.xyz / rawVertexPosition.w;
   vertexNormal = normalize(vertexModelMatrix * vec4(in_Normal, 0)).xyz;
   tangent = normalize(vertexModelMatrix * vec4(in_Tangent)).xyz;
   binormal = cross(vertexNormal, tangent);
@@ -90,8 +98,10 @@ void main() {");
       }
 
       for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
-        vertexSrc.Append($@"
-  vertexColor{i} = in_Colors[{i}];");
+        vertexSrc.Append($"""
+                          
+                            vertexColor{i} = in_Colors[{i}];
+                          """);
       }
 
       vertexSrc.Append(@"
@@ -100,7 +110,7 @@ void main() {");
       return vertexSrc.ToString();
     }
 
-    public static string GetLightHeader(bool withAmbientLightColor) {
+    public static string GetLightHeader(bool withAmbientLight) {
       return
           $$"""
 
@@ -109,43 +119,80 @@ void main() {");
               vec3 position;
               vec3 normal;
               vec4 color;
+              float shininess;
+              int diffuseFunction;
+              int attenuationFunction;
+              vec3 cosineAttenuation;
+              vec3 distanceAttenuation;
             };
 
             uniform Light lights[{{MaterialConstants.MAX_LIGHTS}}];
-            {{(withAmbientLightColor ? "uniform vec3 ambientLightColor;" : "")}}
+            {{(withAmbientLight ? """
+                                  uniform vec4 ambientLightColor;
+                                  """ : "")}}
             """;
     }
 
-    public static string GetLightFunctions(bool withAmbientOcclusion) {
+    public static string GetIndividualLightColorsFunction() {
+      // Shamelessly stolen from:
+      // https://github.com/LordNed/JStudio/blob/93c5c4479ffb1babefe829cfc9794694a1cb93e6/JStudio/J3D/ShaderGen/VertexShaderGen.cs#L336C9-L336C9
       return
           $$"""
 
-            vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {
-              vec3 diffuseLightNormal = normalize(light.normal);
-              float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
-              float lightAmount = min(diffuseLightAmount, 1);
-              return lightAmount * light.color.rgb;
+            void getLightNormalAndAttenuation(Light light, vec3 position, vec3 normal, out vec3 lightNormal, out float attenuation) {
+              lightNormal = light.normal;
+              attenuation = 1;
+              return;
             }
 
-            vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {
-              int enabledLightCount;
-            
-              vec3 mergedLightColor;
-              for (int i = 0; i < {{MaterialConstants.MAX_LIGHTS}}; ++i) {
-                if (lights[i].enabled) {
-                  enabledLightCount++;
-                  mergedLightColor += getDiffuseLightColor(lights[i], vertexNormal);
-                }
+            void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
+              if (!light.enabled) {
+                 diffuseColor = specularColor = vec4(0);
+                 return;
               }
             
-              return enabledLightCount == 0 ? vec3(1) : mergedLightColor / enabledLightCount;
+              vec3 lightNormal;
+              float attenuation;
+              getLightNormalAndAttenuation(light, position, normal, lightNormal, attenuation);
+            
+              float lightAmount = 1;
+              float diffuseLightAmount = max(-dot(normal, lightNormal), 0);
+              lightAmount = min(diffuseLightAmount, 1);
+            
+              diffuseColor = light.color * lightAmount * attenuation;
+              
+              specularColor = vec4(0);
+            }
+            """;
+    }
+
+    public static string GetMergedLightColorsFunctions(
+        bool withAmbientOcclusion) {
+      return
+          $$"""
+
+            void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
+              for (int i = 0; i < {{MaterialConstants.MAX_LIGHTS}}; ++i) {
+                vec4 currentDiffuseColor;
+                vec4 currentSpecularColor;
+              
+                getIndividualLightColors(lights[i], position, normal, shininess, currentDiffuseColor, currentSpecularColor);
+            
+                diffuseColor += currentDiffuseColor;
+                specularColor += currentSpecularColor;
+              }
             }
 
-            vec3 applyLightingColor(vec3 diffuseColor,{{(withAmbientOcclusion ? " float ambientOcclusionAmount," : "")}} vec3 vertexNormal) {
-              vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
+            vec4 applyMergedLightingColors(vec3 position, vec3 normal, float shininess, vec4 diffuseSurfaceColor, vec4 specularSurfaceColor{{(withAmbientOcclusion ? ", float ambientOcclusionAmount" : "")}}) {
+              vec4 mergedDiffuseLightColor;
+              vec4 mergedSpecularLightColor;
+              getMergedLightColors(position, normal, shininess, mergedDiffuseLightColor, mergedSpecularLightColor);
             
-              vec3 mergedLightColor = min({{(withAmbientOcclusion ? "ambientOcclusionAmount * " : "")}}ambientLightColor + mergedDiffuseLightColor, 1);
-              return diffuseColor * mergedLightColor;
+              // We double it because all the other kids do. (Other fixed-function games.)
+              vec4 diffuseComponent = 2 * diffuseSurfaceColor * ({{(withAmbientOcclusion ? "ambientOcclusionAmount * " : "")}}ambientLightColor + mergedDiffuseLightColor);
+              vec4 specularComponent = specularSurfaceColor * mergedSpecularLightColor;
+              
+              return min(diffuseComponent + specularComponent, 1);
             }
             """;
     }
@@ -162,14 +209,14 @@ void main() {");
             mat2x3 transform2d;
             mat4 transform3d;
           };
-          
+
           vec2 transformUv3d(mat4 transform3d, vec2 inUv) {
             vec4 rawTransformedUv = (transform3d * vec4(inUv, 0, 1));
-  
+          
             // We need to manually divide by w for perspective correction!
             return rawTransformedUv.xy / rawTransformedUv.w;
           }
-          
+
           """;
     }
 
@@ -195,8 +242,10 @@ void main() {");
       if (!(finTexture?.IsTransform3d ?? false)) {
         transformedUv = $"({textureName}.transform2d * {rawUvName}).xy";
       } else {
-        transformedUv = $"transformUv3d({textureName}.transform3d, {rawUvName})";
+        transformedUv =
+            $"transformUv3d({textureName}.transform3d, {rawUvName})";
       }
+
       return
           $"texture({textureName}.sampler, " +
           "clamp(" +

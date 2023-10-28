@@ -19,6 +19,18 @@ namespace fin.language.equations.fixedFunction {
     public IReadOnlyList<IScalarRegister> ScalarRegisters
       => this.scalarRegisters_;
 
+    public IColorRegister AmbientLightColorRegister { get; }
+    public IScalarRegister AmbientLightAmountRegister { get; }
+
+    public FixedFunctionRegisters() {
+      this.AmbientLightColorRegister =
+          this.GetOrCreateColorRegister("ambientLightColor",
+                                        new ColorConstant(1));
+      this.AmbientLightAmountRegister =
+          this.GetOrCreateScalarRegister("ambientLightAmount",
+                                         new ScalarConstant(.1f));
+    }
+
     public IColorRegister GetOrCreateColorRegister(
         string name,
         IColorConstant defaultValue) {
@@ -59,8 +71,9 @@ namespace fin.language.equations.fixedFunction {
       }
 
       public string Name { get; }
+
       // TODO: Consider switching this to a mutable color value and merging these fields
-      public IColorConstant DefaultValue { get; }
+      public IColorConstant DefaultValue { get; set; }
       public IColor Value { get; set; }
 
       public IColorValue ColorValue => this.DefaultValue;
@@ -81,8 +94,9 @@ namespace fin.language.equations.fixedFunction {
       }
 
       public string Name { get; }
+
       // TODO: Consider switching this to a mutable scalar value and merging these fields
-      public IScalarConstant DefaultValue { get; }
+      public IScalarConstant DefaultValue { get; set; }
       public float Value { get; set; }
 
       public IScalarValue ScalarValue => this.DefaultValue;

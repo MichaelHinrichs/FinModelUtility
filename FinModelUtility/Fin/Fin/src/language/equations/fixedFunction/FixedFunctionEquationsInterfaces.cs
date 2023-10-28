@@ -52,10 +52,13 @@ namespace fin.language.equations.fixedFunction {
     bool HasInput(TIdentifier identifier);
 
     bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
-                           TIdentifier[] identifiers);
+                           IValue value);
 
     bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
-                           IValue value);
+                           TIdentifier identifiers);
+
+    bool DoOutputsDependOn(TIdentifier[] outputIdentifiers,
+                           TIdentifier[] identifiers);
   }
 
   public interface IIdentifiedValue<out TIdentifier> : IValue {

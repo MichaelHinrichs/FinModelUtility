@@ -17,12 +17,12 @@ namespace fin.language.equations.fixedFunction {
   }
 
   public interface IColorRegister : IColorNamedValue {
-    IColorConstant DefaultValue { get; }
+    IColorConstant DefaultValue { get; set; }
     IColor Value { get; set; }
   }
 
   public interface IScalarRegister : IScalarNamedValue {
-    IScalarConstant DefaultValue { get; }
+    IScalarConstant DefaultValue { get; set; }
     float Value { get; set; }
   }
 }

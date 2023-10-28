@@ -29,26 +29,31 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("# version 400");
       os.WriteLine();
 
-      var outputIdentifiers = new[] {
-          FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA,
-      };
-
       var hasIndividualLights =
           Enumerable
               .Range(0, MaterialConstants.MAX_LIGHTS)
               .Select(
                   i => equations.DoOutputsDependOn(
-                      outputIdentifiers,
                       new[] {
-                          FixedFunctionSource.LIGHT_0_COLOR + i,
-                          FixedFunctionSource.LIGHT_0_ALPHA + i
+                          FixedFunctionSource.LIGHT_DIFFUSE_COLOR_0 + i,
+                          FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_0 + i,
+                          FixedFunctionSource.LIGHT_SPECULAR_COLOR_0 + i,
+                          FixedFunctionSource.LIGHT_SPECULAR_ALPHA_0 + i
                       }))
               .ToArray();
       var dependsOnAnIndividualLight =
           hasIndividualLights.Any(value => value);
 
-      if (dependsOnAnIndividualLight) {
-        os.WriteLine(GlslUtil.GetLightHeader(false));
+      var dependsOnAmbientLight = equations.DoOutputsDependOn(
+          new[] {
+              FixedFunctionSource.LIGHT_AMBIENT_COLOR,
+              FixedFunctionSource.LIGHT_AMBIENT_ALPHA
+          });
+
+      // TODO: Optimize this if we only need ambient
+      if (dependsOnAnIndividualLight || dependsOnAmbientLight) {
+        os.WriteLine(GlslUtil.GetLightHeader(dependsOnAmbientLight));
+        os.WriteLine($"uniform float {GlslConstants.UNIFORM_SHININESS_NAME};");
       }
 
       var dependsOnIndividualTextures =
@@ -57,7 +62,6 @@ namespace fin.language.equations.fixedFunction {
               .Select(
                   i => equations
                       .DoOutputsDependOn(
-                          outputIdentifiers,
                           new[] {
                               FixedFunctionSource.TEXTURE_COLOR_0 + i,
                               FixedFunctionSource.TEXTURE_ALPHA_0 + i
@@ -84,14 +88,14 @@ namespace fin.language.equations.fixedFunction {
       }
 
       foreach (var colorRegister in registers.ColorRegisters) {
-        if (equations.DoOutputsDependOn(outputIdentifiers, colorRegister)) {
+        if (equations.DoOutputsDependOn(colorRegister)) {
           hadUniform = true;
           os.WriteLine($"uniform vec3 color_{colorRegister.Name};");
         }
       }
 
       foreach (var scalarRegister in registers.ScalarRegisters) {
-        if (equations.DoOutputsDependOn(outputIdentifiers, scalarRegister)) {
+        if (equations.DoOutputsDependOn(scalarRegister)) {
           hadUniform = true;
           os.WriteLine($"uniform float scalar_{scalarRegister.Name};");
         }
@@ -115,14 +119,15 @@ namespace fin.language.equations.fixedFunction {
 
       if (dependsOnAnIndividualLight) {
         writeLineBetweenUniformsAndIns();
+        os.WriteLine("in vec3 vertexPosition;");
         os.WriteLine("in vec3 vertexNormal;");
       }
 
       for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
-        if (new[] {
+        if (equations.DoOutputsDependOn(new[] {
                 FixedFunctionSource.VERTEX_COLOR_0 + i,
                 FixedFunctionSource.VERTEX_ALPHA_0 + i
-            }.Any(equations.HasInput)) {
+            })) {
           writeLineBetweenUniformsAndIns();
           os.WriteLine($"in vec4 vertexColor{i};");
         }
@@ -140,17 +145,12 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine();
 
       if (dependsOnAnIndividualLight) {
-        os.WriteLine(@"vec4 getLightColor(Light light) {
-  if (!light.enabled) {
-    return vec4(0);
-  }
+        os.WriteLine(
+            $"""
 
-  vec3 diffuseLightNormal = normalize(light.normal);
-  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
-  float lightAmount = min(diffuseLightAmount, 1);
-  return lightAmount * light.color;
-}");
-        os.WriteLine();
+            {GlslUtil.GetIndividualLightColorsFunction()}
+            
+            """);
       }
 
       os.WriteLine("void main() {");
@@ -158,11 +158,20 @@ namespace fin.language.equations.fixedFunction {
       // Calculate lighting
       if (dependsOnAnIndividualLight) {
         os.WriteLine(
-            $"  vec4 individualLightColors[{MaterialConstants.MAX_LIGHTS}];");
+            $"""
+               vec4 individualLightDiffuseColors[{MaterialConstants.MAX_LIGHTS}];
+               vec4 individualLightSpecularColors[{MaterialConstants.MAX_LIGHTS}];
+             """);
         os.WriteLine(
             @$"  for (int i = 0; i < {MaterialConstants.MAX_LIGHTS}; ++i) {{");
-        os.WriteLine("    vec4 lightColor = getLightColor(lights[i]);");
-        os.WriteLine("    individualLightColors[i] = lightColor;");
+        os.WriteLine("    vec4 diffuseLightColor;");
+        os.WriteLine("    vec4 specularLightColor;");
+        os.WriteLine(
+            $"    getIndividualLightColors(lights[i], vertexPosition, vertexNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, diffuseLightColor, specularLightColor);");
+        os.WriteLine(
+            "    individualLightDiffuseColors[i] = diffuseLightColor;");
+        os.WriteLine(
+            "    individualLightSpecularColors[i] = specularLightColor;");
         os.WriteLine("  }");
         os.WriteLine();
       }
@@ -492,13 +501,22 @@ namespace fin.language.equations.fixedFunction {
       }
 
       if (IsInRange_(id,
-                     FixedFunctionSource.LIGHT_0_ALPHA,
-                     FixedFunctionSource.LIGHT_7_ALPHA,
-                     out var globalLightAlphaIndex)) {
-        return $"individualLightColors[{globalLightAlphaIndex}].a";
+                     FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_0,
+                     FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_7,
+                     out var globalDiffuseAlphaIndex)) {
+        return $"individualLightDiffuseColors[{globalDiffuseAlphaIndex}].a";
+      }
+
+      if (IsInRange_(id,
+                     FixedFunctionSource.LIGHT_SPECULAR_ALPHA_0,
+                     FixedFunctionSource.LIGHT_SPECULAR_ALPHA_7,
+                     out var globalSpecularAlphaIndex)) {
+        return $"individualLightSpecularColors[{globalSpecularAlphaIndex}].a";
       }
 
       return identifiedValue.Identifier switch {
+          FixedFunctionSource.LIGHT_AMBIENT_ALPHA => "ambientLightColor.a",
+
           FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.a",
           FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.a",
 
@@ -690,20 +708,37 @@ namespace fin.language.equations.fixedFunction {
       }
 
       if (IsInRange_(id,
-                     FixedFunctionSource.LIGHT_0_COLOR,
-                     FixedFunctionSource.LIGHT_7_COLOR,
-                     out var globalLightColorIndex)) {
-        return $"individualLightColors[{globalLightColorIndex}].rgb";
+                     FixedFunctionSource.LIGHT_DIFFUSE_COLOR_0,
+                     FixedFunctionSource.LIGHT_DIFFUSE_COLOR_7,
+                     out var globalDiffuseColorIndex)) {
+        return $"individualLightDiffuseColors[{globalDiffuseColorIndex}].rgb";
       }
 
       if (IsInRange_(id,
-                     FixedFunctionSource.LIGHT_0_ALPHA,
-                     FixedFunctionSource.LIGHT_7_ALPHA,
-                     out var globalLightAlphaIndex)) {
-        return $"individualLightColors[{globalLightAlphaIndex}].aaa";
+                     FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_0,
+                     FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_7,
+                     out var globalDiffuseAlphaIndex)) {
+        return $"individualLightDiffuseColors[{globalDiffuseAlphaIndex}].aaa";
+      }
+
+      if (IsInRange_(id,
+                     FixedFunctionSource.LIGHT_SPECULAR_COLOR_0,
+                     FixedFunctionSource.LIGHT_SPECULAR_COLOR_7,
+                     out var globalSpecularColorIndex)) {
+        return $"individualLightSpecularColors[{globalSpecularColorIndex}].rgb";
+      }
+
+      if (IsInRange_(id,
+                     FixedFunctionSource.LIGHT_SPECULAR_ALPHA_0,
+                     FixedFunctionSource.LIGHT_SPECULAR_ALPHA_7,
+                     out var globalSpecularAlphaIndex)) {
+        return $"individualLightSpecularColors[{globalSpecularAlphaIndex}].aaa";
       }
 
       return identifiedValue.Identifier switch {
+          FixedFunctionSource.LIGHT_AMBIENT_COLOR => "ambientLightColor.rgb",
+          FixedFunctionSource.LIGHT_AMBIENT_ALPHA => "ambientLightColor.aaa",
+
           FixedFunctionSource.VERTEX_COLOR_0 => "vertexColor0.rgb",
           FixedFunctionSource.VERTEX_COLOR_1 => "vertexColor1.rgb",
 

@@ -62,6 +62,7 @@ namespace fin.shaders.glsl {
 
            uniform {GlslUtil.GetTypeOfTexture(ambientOcclusionTexture)} ambientOcclusionTexture;
            uniform {GlslUtil.GetTypeOfTexture(emissiveTexture)} emissiveTexture;
+           uniform float {GlslConstants.UNIFORM_SHININESS_NAME};
            uniform float {GlslConstants.UNIFORM_USE_LIGHTING_NAME};
 
            out vec4 fragColor;
@@ -73,6 +74,7 @@ namespace fin.shaders.glsl {
         fragmentShaderSrc.Append(
             """
 
+            in vec3 vertexPosition;
             in vec3 vertexNormal;
             in vec3 tangent;
             in vec3 binormal;
@@ -90,7 +92,9 @@ namespace fin.shaders.glsl {
             $"""
 
 
-             {GlslUtil.GetLightFunctions(true)}
+             {GlslUtil.GetIndividualLightColorsFunction()}
+             
+             {GlslUtil.GetMergedLightColorsFunctions(true)}
              """);
       }
 
@@ -129,7 +133,7 @@ namespace fin.shaders.glsl {
             $"""
              
              
-               fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
+               fragColor.rgb = mix(fragColor.rgb, applyMergedLightingColors(vertexPosition, fragNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, fragColor, vec4(1), ambientOcclusionColor.r).rgb, {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
              """);
       }
 

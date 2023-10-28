@@ -6,7 +6,9 @@ namespace fin.model {
   // Read only
   public interface IReadOnlyLighting {
     IReadOnlyList<IReadOnlyLight> Lights { get; }
+
     IColor AmbientLightColor { get; }
+    float AmbientLightStrength { get; }
   }
 
   public enum AttenuationFunction {
@@ -27,6 +29,8 @@ namespace fin.model {
 
     IReadOnlyVector3 Position { get; }
     IReadOnlyVector3 Normal { get; }
+
+    float Strength { get; }
     IColor Color { get; }
 
     IReadOnlyVector3 CosineAttenuation { get; }
@@ -37,7 +41,7 @@ namespace fin.model {
   }
 
   // Mutable
-  public interface ILighting: IReadOnlyLighting {
+  public interface ILighting : IReadOnlyLighting {
     IReadOnlyList<IReadOnlyLight> IReadOnlyLighting.Lights => this.Lights;
     new IReadOnlyList<ILight> Lights { get; }
 
@@ -45,6 +49,8 @@ namespace fin.model {
 
     IColor IReadOnlyLighting.AmbientLightColor => this.AmbientLightColor;
     new IColor AmbientLightColor { get; set; }
+    float IReadOnlyLighting.AmbientLightStrength => this.AmbientLightStrength;
+    new float AmbientLightStrength { get; set; }
   }
 
   public interface ILight : IReadOnlyLight {
@@ -55,6 +61,9 @@ namespace fin.model {
 
     ILight SetPosition(IReadOnlyVector3 position);
     ILight SetNormal(IReadOnlyVector3 normal);
+
+    float IReadOnlyLight.Strength => this.Strength;
+    new float Strength { get; set; }
     ILight SetColor(IColor color);
 
     ILight SetCosineAttenuation(IReadOnlyVector3 cosineAttenuation);
