@@ -11,6 +11,13 @@ namespace fin.model {
     float AmbientLightStrength { get; }
   }
 
+  public enum LightSourceType {
+    UNDEFINED,
+    POSITION,
+    RAY,
+    LINE,
+  }
+
   public enum AttenuationFunction {
     NONE,
     SPECULAR,
@@ -27,14 +34,16 @@ namespace fin.model {
     string Name { get; }
     bool Enabled { get; }
 
-    IReadOnlyVector3 Position { get; }
-    IReadOnlyVector3 Normal { get; }
+    LightSourceType SourceType { get; }
+
+    IReadOnlyVector3? Position { get; }
+    IReadOnlyVector3? Normal { get; }
 
     float Strength { get; }
     IColor Color { get; }
 
-    IReadOnlyVector3 CosineAttenuation { get; }
-    IReadOnlyVector3 DistanceAttenuation { get; }
+    IReadOnlyVector3? CosineAttenuation { get; }
+    IReadOnlyVector3? DistanceAttenuation { get; }
 
     AttenuationFunction AttenuationFunction { get; }
     DiffuseFunction DiffuseFunction { get; }

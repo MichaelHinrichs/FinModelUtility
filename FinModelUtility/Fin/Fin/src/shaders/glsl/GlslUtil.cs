@@ -116,10 +116,13 @@ void main() {");
 
             struct Light {
               bool enabled;
+  
+              int sourceType;
               vec3 position;
               vec3 normal;
+
               vec4 color;
-              float shininess;
+              
               int diffuseFunction;
               int attenuationFunction;
               vec3 cosineAttenuation;
@@ -138,11 +141,50 @@ void main() {");
       // https://github.com/LordNed/JStudio/blob/93c5c4479ffb1babefe829cfc9794694a1cb93e6/JStudio/J3D/ShaderGen/VertexShaderGen.cs#L336C9-L336C9
       return
           $$"""
-
             void getLightNormalAndAttenuation(Light light, vec3 position, vec3 normal, out vec3 lightNormal, out float attenuation) {
-              lightNormal = light.normal;
-              attenuation = 1;
-              return;
+              vec3 surfaceToLight = light.position - position;
+              
+              lightNormal = (light.sourceType == {{(int) LightSourceType.LINE}}) 
+                ? light.normal : normalize(surfaceToLight);
+            
+              if (light.attenuationFunction == {{(int) AttenuationFunction.NONE}}) {
+                attenuation = 1;
+                return;
+              }
+              
+
+              // Attenuation is calculated as a fraction, (cosine attenuation) / (distance attenuation).
+            
+              // Numerator (Cosine attenuation)
+              vec3 cosAttn = light.cosineAttenuation;
+              
+              vec3 attnDotLhs = (light.attenuationFunction == {{(int) AttenuationFunction.SPECULAR}})
+                ? normal : lightNormal;
+              float attn = dot(attnDotLhs, light.normal);
+              vec3 attnPowers = vec3(1, attn, attn*attn);
+
+              float attenuationNumerator = max(0, dot(cosAttn, attnPowers));
+
+              // Denominator (Distance attenuation)
+              float attenuationDenominator = 1;
+              if (light.sourceType != {{(int) LightSourceType.LINE}}) {
+                vec3 distAttn = light.distanceAttenuation;
+                
+                if (light.attenuationFunction == {{(int) AttenuationFunction.SPECULAR}}) {
+                  float attn = max(0, dot(normal, light.normal));
+                  if (light.diffuseFunction != {{(int) DiffuseFunction.NONE}}) {
+                    distAttn = normalize(distAttn);
+                  }
+                  
+                  attenuationDenominator = dot(distAttn, attnPowers);
+                } else {
+                  float dist2 = dot(surfaceToLight, surfaceToLight);
+                  float dist = sqrt(dist2);
+                  attenuationDenominator = dot(distAttn, vec3(1, dist, dist2));
+                }
+              }
+
+              attenuation = attenuationNumerator / attenuationDenominator;
             }
 
             void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
@@ -156,8 +198,10 @@ void main() {");
               getLightNormalAndAttenuation(light, position, normal, lightNormal, attenuation);
             
               float lightAmount = 1;
-              float diffuseLightAmount = max(-dot(normal, lightNormal), 0);
-              lightAmount = min(diffuseLightAmount, 1);
+              if (light.diffuseFunction == {{(int) DiffuseFunction.SIGNED}} || light.diffuseFunction == {{(int) DiffuseFunction.CLAMP}}) {
+                float diffuseLightAmount = max(-dot(normal, lightNormal), 0);
+                lightAmount = min(diffuseLightAmount, 1);
+              }
             
               diffuseColor = light.color * lightAmount * attenuation;
               
