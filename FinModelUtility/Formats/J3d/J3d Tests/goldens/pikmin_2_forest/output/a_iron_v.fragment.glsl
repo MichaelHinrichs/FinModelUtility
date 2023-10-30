@@ -126,14 +126,17 @@ void main() {
 
   vec4 individualLightDiffuseColors[8];
   vec4 individualLightSpecularColors[8];
+  
   for (int i = 0; i < 8; ++i) {
     vec4 diffuseLightColor;
     vec4 specularLightColor;
+    
     getIndividualLightColors(lights[i], vertexPosition, fragNormal, shininess, diffuseLightColor, specularLightColor);
+    
     individualLightDiffuseColors[i] = diffuseLightColor;
     individualLightSpecularColors[i] = specularLightColor;
   }
-
+  
   vec3 colorComponent = clamp(texture(texture1.sampler, clamp((texture1.transform2d * uv1).xy, texture1.clampMin, texture1.clampMax)).rgb*clamp(clamp((texture(texture0.sampler, clamp((texture0.transform2d * uv0).xy, texture0.clampMin, texture0.clampMax)).rgb + clamp((vec3(1) + vec3(-1)*texture(texture2.sampler, clamp(acos((texture2.transform2d * normalUv).xy) / 3.14159, texture2.clampMin, texture2.clampMax)).rgb), 0, 1)*(vec3(1) + vec3(-1)*vec3(texture(texture0.sampler, clamp((texture0.transform2d * uv0).xy, texture0.clampMin, texture0.clampMax)).a))), 0, 1)*vertexColor0.rgb*clamp((individualLightDiffuseColors[0].rgb + color_GxAmbientColor0), 0, 1), 0, 1)*vec3(2), 0, 1);
 
   float alphaComponent = vertexColor0.a;

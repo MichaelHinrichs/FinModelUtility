@@ -47,9 +47,11 @@ namespace fin.shaders.glsl {
         fragmentSrc.Append(
             $"""
 
-             {GlslUtil.GetIndividualLightColorsFunction()}
+             {GlslUtil.GetGetIndividualLightColorsFunction()}
              
-             {GlslUtil.GetMergedLightColorsFunctions(false)}
+             {GlslUtil.GetGetMergedLightColorsFunction()}
+             
+             {GlslUtil.GetApplyMergedLightColorsFunction(false)}
              """
         );
       }

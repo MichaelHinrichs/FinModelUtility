@@ -43,6 +43,15 @@ namespace fin.language.equations.fixedFunction {
               .ToArray();
       var dependsOnAnIndividualLight =
           hasIndividualLights.Any(value => value);
+      var dependsOnMergedLights =
+          equations.DoOutputsDependOn(
+              new[] {
+                  FixedFunctionSource.LIGHT_DIFFUSE_COLOR_MERGED,
+                  FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_MERGED,
+                  FixedFunctionSource.LIGHT_SPECULAR_COLOR_MERGED,
+                  FixedFunctionSource.LIGHT_SPECULAR_ALPHA_MERGED,
+              });
+      var dependsOnLights = dependsOnMergedLights || dependsOnAnIndividualLight;
 
       var dependsOnAmbientLight = equations.DoOutputsDependOn(
           new[] {
@@ -51,7 +60,7 @@ namespace fin.language.equations.fixedFunction {
           });
 
       // TODO: Optimize this if we only need ambient
-      if (dependsOnAnIndividualLight || dependsOnAmbientLight) {
+      if (dependsOnLights || dependsOnAmbientLight) {
         os.WriteLine(GlslUtil.GetLightHeader(dependsOnAmbientLight));
         os.WriteLine($"uniform float {GlslConstants.UNIFORM_SHININESS_NAME};");
       }
@@ -117,7 +126,7 @@ namespace fin.language.equations.fixedFunction {
         os.WriteLine("in vec2 normalUv;");
       }
 
-      if (dependsOnAnIndividualLight) {
+      if (dependsOnLights) {
         writeLineBetweenUniformsAndIns();
         os.WriteLine("in vec3 vertexPosition;");
         os.WriteLine("in vec3 vertexNormal;");
@@ -144,39 +153,61 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("out vec4 fragColor;");
       os.WriteLine();
 
-      if (dependsOnAnIndividualLight) {
+      if (dependsOnLights) {
         os.WriteLine(
             $"""
 
-            {GlslUtil.GetIndividualLightColorsFunction()}
-            
-            """);
+             {GlslUtil.GetGetIndividualLightColorsFunction()}
+
+             """);
+
+        if (dependsOnMergedLights) {
+          os.WriteLine($"""
+
+                        {GlslUtil.GetGetMergedLightColorsFunction()}
+
+                        """);
+        }
       }
 
       os.WriteLine("void main() {");
 
       // Calculate lighting
-      if (dependsOnAnIndividualLight) {
+      if (dependsOnLights) {
         os.WriteLine(
             $"""
                // Have to renormalize because the vertex normals can become distorted when interpolated.
                vec3 fragNormal = normalize(vertexNormal);
-             
-               vec4 individualLightDiffuseColors[{MaterialConstants.MAX_LIGHTS}];
-               vec4 individualLightSpecularColors[{MaterialConstants.MAX_LIGHTS}];
+
              """);
-        os.WriteLine(
-            @$"  for (int i = 0; i < {MaterialConstants.MAX_LIGHTS}; ++i) {{");
-        os.WriteLine("    vec4 diffuseLightColor;");
-        os.WriteLine("    vec4 specularLightColor;");
-        os.WriteLine(
-            $"    getIndividualLightColors(lights[i], vertexPosition, fragNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, diffuseLightColor, specularLightColor);");
-        os.WriteLine(
-            "    individualLightDiffuseColors[i] = diffuseLightColor;");
-        os.WriteLine(
-            "    individualLightSpecularColors[i] = specularLightColor;");
-        os.WriteLine("  }");
-        os.WriteLine();
+        // TODO: Optimize this if the shader depends on merged lighting as well as individual lights for some reason.
+        if (dependsOnAnIndividualLight) {
+          os.WriteLine(
+              $$"""
+                 vec4 individualLightDiffuseColors[{{MaterialConstants.MAX_LIGHTS}}];
+                 vec4 individualLightSpecularColors[{{MaterialConstants.MAX_LIGHTS}}];
+                 
+                 for (int i = 0; i < {{MaterialConstants.MAX_LIGHTS}}; ++i) {
+                   vec4 diffuseLightColor;
+                   vec4 specularLightColor;
+                   
+                   getIndividualLightColors(lights[i], vertexPosition, fragNormal, {{GlslConstants.UNIFORM_SHININESS_NAME}}, diffuseLightColor, specularLightColor);
+                   
+                   individualLightDiffuseColors[i] = diffuseLightColor;
+                   individualLightSpecularColors[i] = specularLightColor;
+                 }
+                 
+               """);
+        }
+        if (dependsOnMergedLights) {
+          os.WriteLine(
+              $"""
+                vec4 mergedLightDiffuseColor;
+                vec4 mergedLightSpecularColor;
+                getMergedLightColors(vertexPosition, fragNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, mergedLightDiffuseColor, mergedLightSpecularColor);
+                
+              """);
+        }
       }
 
       // TODO: Get tree of all values that this depends on, in case there needs to be other variables defined before.
@@ -518,6 +549,9 @@ namespace fin.language.equations.fixedFunction {
       }
 
       return identifiedValue.Identifier switch {
+          FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_MERGED => "mergedLightDiffuseColor.a",
+          FixedFunctionSource.LIGHT_SPECULAR_ALPHA_MERGED => "mergedLightSpecularColor.a",
+
           FixedFunctionSource.LIGHT_AMBIENT_ALPHA => "ambientLightColor.a",
 
           FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.a",
@@ -739,6 +773,11 @@ namespace fin.language.equations.fixedFunction {
       }
 
       return identifiedValue.Identifier switch {
+          FixedFunctionSource.LIGHT_DIFFUSE_COLOR_MERGED => "mergedLightDiffuseColor.rgb",
+          FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_MERGED => "mergedLightDiffuseColor.aaa",
+          FixedFunctionSource.LIGHT_SPECULAR_COLOR_MERGED => "mergedLightSpecularColor.rgb",
+          FixedFunctionSource.LIGHT_SPECULAR_ALPHA_MERGED => "mergedLightSpecularColor.aaa",
+
           FixedFunctionSource.LIGHT_AMBIENT_COLOR => "ambientLightColor.rgb",
           FixedFunctionSource.LIGHT_AMBIENT_ALPHA => "ambientLightColor.aaa",
 

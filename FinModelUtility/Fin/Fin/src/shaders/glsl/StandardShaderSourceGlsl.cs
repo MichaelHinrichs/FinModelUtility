@@ -103,9 +103,11 @@ namespace fin.shaders.glsl {
             $"""
 
 
-             {GlslUtil.GetIndividualLightColorsFunction()}
+             {GlslUtil.GetGetIndividualLightColorsFunction()}
 
-             {GlslUtil.GetMergedLightColorsFunctions(true)}
+             {GlslUtil.GetGetMergedLightColorsFunction()}
+             
+             {GlslUtil.GetApplyMergedLightColorsFunction(true)}
              """);
       }
 

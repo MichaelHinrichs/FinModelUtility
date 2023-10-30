@@ -104,21 +104,28 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
   }
 }
 
+
+void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
+  for (int i = 0; i < 8; ++i) {
+    vec4 currentDiffuseColor;
+    vec4 currentSpecularColor;
+  
+    getIndividualLightColors(lights[i], position, normal, shininess, currentDiffuseColor, currentSpecularColor);
+
+    diffuseColor += currentDiffuseColor;
+    specularColor += currentSpecularColor;
+  }
+}
+
 void main() {
   // Have to renormalize because the vertex normals can become distorted when interpolated.
   vec3 fragNormal = normalize(vertexNormal);
 
-  vec4 individualLightDiffuseColors[8];
-  vec4 individualLightSpecularColors[8];
-  for (int i = 0; i < 8; ++i) {
-    vec4 diffuseLightColor;
-    vec4 specularLightColor;
-    getIndividualLightColors(lights[i], vertexPosition, fragNormal, shininess, diffuseLightColor, specularLightColor);
-    individualLightDiffuseColors[i] = diffuseLightColor;
-    individualLightSpecularColors[i] = specularLightColor;
-  }
-
-  vec3 colorComponent = color_3dsColor2*(ambientLightColor.rgb*vec3(0.800000011920929) + individualLightDiffuseColors[0].rgb + individualLightDiffuseColors[1].rgb + individualLightDiffuseColors[2].rgb + individualLightDiffuseColors[3].rgb + individualLightDiffuseColors[4].rgb + individualLightDiffuseColors[5].rgb + individualLightDiffuseColors[6].rgb + individualLightDiffuseColors[7].rgb) + (ambientLightColor.rgb*vec3(0.800000011920929) + individualLightDiffuseColors[0].rgb + individualLightDiffuseColors[1].rgb + individualLightDiffuseColors[2].rgb + individualLightDiffuseColors[3].rgb + individualLightDiffuseColors[4].rgb + individualLightDiffuseColors[5].rgb + individualLightDiffuseColors[6].rgb + individualLightDiffuseColors[7].rgb)*(color_3dsColor3 + texture(texture0, uv0).rgb)*texture(texture1, uv0).rgb;
+  vec4 mergedLightDiffuseColor;
+  vec4 mergedLightSpecularColor;
+  getMergedLightColors(vertexPosition, fragNormal, shininess, mergedLightDiffuseColor, mergedLightSpecularColor);
+  
+  vec3 colorComponent = color_3dsColor2*(ambientLightColor.rgb*vec3(0.800000011920929) + mergedLightDiffuseColor.rgb + mergedLightSpecularColor.rgb*vec3(0.49803921580314636)) + (ambientLightColor.rgb*vec3(0.800000011920929) + mergedLightDiffuseColor.rgb + mergedLightSpecularColor.rgb*vec3(0.49803921580314636))*(color_3dsColor3 + texture(texture0, uv0).rgb)*texture(texture1, uv0).rgb;
 
   float alphaComponent = vertexColor0.a*texture(texture1, uv0).a*scalar_3dsAlpha1*scalar_3dsAlpha2;
 

@@ -140,7 +140,7 @@ out vec4 vertexColor{i};");
             """;
     }
 
-    public static string GetIndividualLightColorsFunction() {
+    public static string GetGetIndividualLightColorsFunction() {
       // Shamelessly stolen from:
       // https://github.com/LordNed/JStudio/blob/93c5c4479ffb1babefe829cfc9794694a1cb93e6/JStudio/J3D/ShaderGen/VertexShaderGen.cs#L336C9-L336C9
       return
@@ -216,11 +216,9 @@ out vec4 vertexColor{i};");
             """;
     }
 
-    public static string GetMergedLightColorsFunctions(
-        bool withAmbientOcclusion) {
+    public static string GetGetMergedLightColorsFunction() {
       return
           $$"""
-
             void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
               for (int i = 0; i < {{MaterialConstants.MAX_LIGHTS}}; ++i) {
                 vec4 currentDiffuseColor;
@@ -232,7 +230,13 @@ out vec4 vertexColor{i};");
                 specularColor += currentSpecularColor;
               }
             }
+            """;
+    }
 
+    public static string GetApplyMergedLightColorsFunction(
+        bool withAmbientOcclusion) {
+      return
+          $$"""
             vec4 applyMergedLightingColors(vec3 position, vec3 normal, float shininess, vec4 diffuseSurfaceColor, vec4 specularSurfaceColor{{(withAmbientOcclusion ? ", float ambientOcclusionAmount" : "")}}) {
               vec4 mergedDiffuseLightColor;
               vec4 mergedSpecularLightColor;

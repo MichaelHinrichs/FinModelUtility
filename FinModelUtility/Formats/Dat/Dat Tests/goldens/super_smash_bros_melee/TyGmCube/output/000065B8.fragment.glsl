@@ -95,21 +95,28 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
   }
 }
 
+
+void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
+  for (int i = 0; i < 8; ++i) {
+    vec4 currentDiffuseColor;
+    vec4 currentSpecularColor;
+  
+    getIndividualLightColors(lights[i], position, normal, shininess, currentDiffuseColor, currentSpecularColor);
+
+    diffuseColor += currentDiffuseColor;
+    specularColor += currentSpecularColor;
+  }
+}
+
 void main() {
   // Have to renormalize because the vertex normals can become distorted when interpolated.
   vec3 fragNormal = normalize(vertexNormal);
 
-  vec4 individualLightDiffuseColors[8];
-  vec4 individualLightSpecularColors[8];
-  for (int i = 0; i < 8; ++i) {
-    vec4 diffuseLightColor;
-    vec4 specularLightColor;
-    getIndividualLightColors(lights[i], vertexPosition, fragNormal, shininess, diffuseLightColor, specularLightColor);
-    individualLightDiffuseColors[i] = diffuseLightColor;
-    individualLightSpecularColors[i] = specularLightColor;
-  }
-
-  vec3 colorComponent = (individualLightDiffuseColors[0].rgb + individualLightDiffuseColors[1].rgb + individualLightDiffuseColors[2].rgb + individualLightDiffuseColors[3].rgb + individualLightDiffuseColors[4].rgb + individualLightDiffuseColors[5].rgb + individualLightDiffuseColors[6].rgb + individualLightDiffuseColors[7].rgb)*vec3(2) + vec3(0.3686274588108063,0.37254902720451355,0.615686297416687)*(individualLightSpecularColors[0].rgb + individualLightSpecularColors[1].rgb + individualLightSpecularColors[2].rgb + individualLightSpecularColors[3].rgb + individualLightSpecularColors[4].rgb + individualLightSpecularColors[5].rgb + individualLightSpecularColors[6].rgb + individualLightSpecularColors[7].rgb);
+  vec4 mergedLightDiffuseColor;
+  vec4 mergedLightSpecularColor;
+  getMergedLightColors(vertexPosition, fragNormal, shininess, mergedLightDiffuseColor, mergedLightSpecularColor);
+  
+  vec3 colorComponent = mergedLightDiffuseColor.rgb*vec3(2) + vec3(0.3686274588108063,0.37254902720451355,0.615686297416687)*mergedLightSpecularColor.rgb;
 
   float alphaComponent = 1;
 

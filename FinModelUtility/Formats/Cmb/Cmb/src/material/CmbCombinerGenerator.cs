@@ -65,6 +65,7 @@ namespace cmb.material {
         this.lightColor_ = this.equations_.CreateColorConstant(1);
         this.lightAlpha_ = this.equations_.CreateScalarConstant(1);
       } else {
+        // TODO: Is this lighting calculation right??
         var ambientRgba = this.cmbMaterial_.ambientColor;
         var ambientColor =
             new ColorConstant(ambientRgba.Rf, ambientRgba.Gf, ambientRgba.Bf);
@@ -75,24 +76,39 @@ namespace cmb.material {
             new ColorConstant(diffuseRgba.Rf, diffuseRgba.Gf, diffuseRgba.Bf);
         var diffuseAlpha = new ScalarConstant(diffuseRgba.Af);
 
+        var specularRgba = this.cmbMaterial_.specular0Color;
+        var specularColor =
+            new ColorConstant(specularRgba.Rf,
+                              specularRgba.Gf,
+                              specularRgba.Bf);
+        var specularAlpha = new ScalarConstant(specularRgba.Af);
+
         this.lightColor_ =
             this.cOps_.Add(
+                this.cOps_.Add(
+                    this.cOps_.Multiply(
+                        this.equations_.CreateOrGetColorInput(
+                            FixedFunctionSource.LIGHT_AMBIENT_COLOR),
+                        ambientColor),
+                    this.cOps_.Multiply(
+                        this.equations_.GetMergedLightDiffuseColor(),
+                        diffuseColor)),
                 this.cOps_.Multiply(
-                    this.equations_.CreateOrGetColorInput(
-                        FixedFunctionSource.LIGHT_AMBIENT_COLOR),
-                    ambientColor),
-                this.cOps_.Multiply(
-                    this.equations_.GetMergedLightDiffuseColor(),
-                    diffuseColor));
+                    this.equations_.GetMergedLightSpecularColor(),
+                    specularColor));
         this.lightAlpha_ =
             this.sOps_.Add(
+                this.sOps_.Add(
+                    this.sOps_.Multiply(
+                        this.equations_.CreateOrGetScalarInput(
+                            FixedFunctionSource.LIGHT_AMBIENT_ALPHA),
+                        ambientAlpha),
+                    this.sOps_.Multiply(
+                        this.equations_.GetMergedLightDiffuseAlpha(),
+                        diffuseAlpha)),
                 this.sOps_.Multiply(
-                    this.equations_.CreateOrGetScalarInput(
-                        FixedFunctionSource.LIGHT_AMBIENT_ALPHA),
-                    ambientAlpha),
-                this.sOps_.Multiply(
-                    this.equations_.GetMergedLightDiffuseAlpha(),
-                    diffuseAlpha));
+                    this.equations_.GetMergedLightSpecularAlpha(),
+                    specularAlpha));
       }
 
       foreach (var cmbCombiner in cmbCombiners) {

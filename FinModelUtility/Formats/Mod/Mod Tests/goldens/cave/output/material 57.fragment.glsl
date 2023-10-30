@@ -99,7 +99,6 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
   }
 }
 
-
 void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
   for (int i = 0; i < 8; ++i) {
     vec4 currentDiffuseColor;
