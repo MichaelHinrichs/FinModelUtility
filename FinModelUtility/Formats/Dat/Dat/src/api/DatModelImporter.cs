@@ -1,8 +1,5 @@
-﻿using Assimp.Unmanaged;
+﻿using dat.schema;
 
-using dat.schema;
-
-using fin.color;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -157,6 +154,8 @@ namespace dat.api {
                 finMaterialManager.AddFixedFunctionMaterial();
             finMaterial = fixedFunctionMaterial;
 
+            finMaterial.Shininess = mObj.Material.Shininess;
+
             this.PopulateFixedFunctionMaterial_(mObj,
                                                 tObjsAndFinTextures,
                                                 fixedFunctionMaterial);
@@ -267,32 +266,33 @@ namespace dat.api {
       IScalarValue? diffuseAlpha = scalarOps.One;
 
       // Constant color
-      if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
-        var diffuseRgba = material.DiffuseColor;
-        diffuseColor = equations.CreateColorConstant(
-            diffuseRgba.Rf,
-            diffuseRgba.Gf,
-            diffuseRgba.Bf);
-      }
+      //if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
+      var diffuseRgba = material.DiffuseColor;
+      diffuseColor = equations.CreateColorConstant(
+          diffuseRgba.Rf,
+          diffuseRgba.Gf,
+          diffuseRgba.Bf);
+      //}
 
-      if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
-        diffuseAlpha =
-            scalarOps.MultiplyWithConstant(diffuseAlpha, material!.Alpha);
-      }
+      //if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
+      diffuseAlpha =
+          scalarOps.MultiplyWithConstant(diffuseAlpha, material!.Alpha);
+      //}
 
       // Vertex color
-      if (renderMode.CheckFlag(RenderMode.VERTEX)) {
-        diffuseColor = colorOps.Multiply(diffuseColor, vertexColor);
-      }
+      //if (renderMode.CheckFlag(RenderMode.VERTEX)) {
+      diffuseColor = colorOps.Multiply(diffuseColor, vertexColor);
+      //}
 
-      if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
-        diffuseAlpha = scalarOps.Multiply(diffuseAlpha, vertexAlpha);
-      }
+      //if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
+      diffuseAlpha = scalarOps.Multiply(diffuseAlpha, vertexAlpha);
+      //}
 
       IColorValue? ambientColor = equations.CreateColorConstant(
           material.AmbientColor.Rf,
           material.AmbientColor.Gf,
           material.AmbientColor.Bf);
+
       IScalarValue? ambientAlpha = equations.CreateScalarConstant(
           material.AmbientColor.Af);
 
@@ -300,6 +300,7 @@ namespace dat.api {
           material.SpecularColor.Rf,
           material.SpecularColor.Gf,
           material.SpecularColor.Bf);
+
       IScalarValue? specularAlpha = equations.CreateScalarConstant(
           material.SpecularColor.Af);
 
@@ -440,7 +441,7 @@ namespace dat.api {
         }
       }
 
-      var lightingColor = colorOps.Add(
+      var ambientAndDiffuseLightingColor = colorOps.Add(
           colorOps.Multiply(
               ambientColor,
               equations.CreateOrGetColorInput(
@@ -448,11 +449,20 @@ namespace dat.api {
           equations.GetMergedLightDiffuseColor());
 
       // We double it because all the other kids do. (Other fixed-function games.)
-      lightingColor = colorOps.MultiplyWithConstant(lightingColor, 2);
+      ambientAndDiffuseLightingColor =
+          colorOps.MultiplyWithConstant(ambientAndDiffuseLightingColor, 2);
 
-      var outputColor = colorOps.Multiply(
-          lightingColor,
+      var ambientAndDiffuseComponent = colorOps.Multiply(
+          ambientAndDiffuseLightingColor,
           diffuseColor);
+
+      var specularComponent = colorOps.Multiply(
+          specularColor,
+          equations.GetMergedLightSpecularColor());
+
+      var outputColor = colorOps.Add(
+          ambientAndDiffuseComponent,
+          specularComponent);
 
       var outputAlpha = diffuseAlpha;
 

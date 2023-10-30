@@ -81,11 +81,14 @@ namespace uni.ui.right_panel.materials {
       var height = this.Height;
 
       {
-        GlTransform.MatrixMode(MatrixMode.Projection);
+        GlTransform.MatrixMode(TransformMatrixMode.PROJECTION);
         GlTransform.LoadIdentity();
         GlTransform.Ortho2d(0, width, height, 0);
 
-        GlTransform.MatrixMode(MatrixMode.Modelview);
+        GlTransform.MatrixMode(TransformMatrixMode.VIEW);
+        GlTransform.LoadIdentity();
+
+        GlTransform.MatrixMode(TransformMatrixMode.MODEL);
         GlTransform.LoadIdentity();
       }
 

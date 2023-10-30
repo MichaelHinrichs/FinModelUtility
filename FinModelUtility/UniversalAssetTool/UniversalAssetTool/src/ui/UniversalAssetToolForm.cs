@@ -23,6 +23,7 @@ using uni.games;
 using uni.ui.common.fileTreeView;
 
 using fin.model.impl;
+using fin.ui.rendering.gl.model;
 
 namespace uni.ui;
 
@@ -191,9 +192,9 @@ public partial class UniversalAssetToolForm : Form {
 
       var finModel = sceneModel.Model;
 
-      var hasNormals = finModel.Skin.Vertices.Any(
-          vertex => vertex is IReadOnlyNormalVertex { LocalNormal: { } });
-      if (!hasNormals) {
+      var useLighting =
+          new UseLightingDetector().ShouldUseLightingFor(finModel);
+      if (!useLighting) {
         continue;
       }
 

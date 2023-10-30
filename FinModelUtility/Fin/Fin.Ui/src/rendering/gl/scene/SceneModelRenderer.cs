@@ -22,15 +22,8 @@ namespace fin.ui.rendering.gl.scene {
                               lighting,
                               sceneModel.BoneTransformManager);
 
-      var hasNormals = false;
-      foreach (var vertex in model.Skin.Vertices) {
-        if (vertex is IReadOnlyNormalVertex { LocalNormal: { } }) {
-          hasNormals = true;
-          break;
-        }
-      }
-
-      this.modelRenderer_.UseLighting = hasNormals;
+      this.modelRenderer_.UseLighting =
+          new UseLightingDetector().ShouldUseLightingFor(model);
 
       this.SkeletonRenderer =
           new SkeletonRenderer(model.Skeleton,

@@ -1,9 +1,6 @@
 ﻿using System.Numerics;
 
 using fin.math;
-using fin.math.matrix.four;
-using fin.math.matrix.three;
-using fin.math.rotations;
 using fin.model;
 using fin.shaders.glsl;
 
@@ -22,12 +19,14 @@ namespace fin.ui.rendering.gl.material {
     private readonly IBoneTransformManager? boneTransformManager_;
     private readonly GlShaderProgram impl_;
 
+    private readonly int modelMatrixLocation_;
     private readonly int modelViewMatrixLocation_;
     private readonly int projectionMatrixLocation_;
 
     private readonly int matricesLocation_;
     private readonly Matrix4x4[] matrices_;
 
+    private readonly int cameraPositionLocation_;
     private readonly int shininessLocation_;
 
     private readonly int useLightingLocation_;
@@ -48,6 +47,9 @@ namespace fin.ui.rendering.gl.material {
           shaderSource.VertexShaderSource,
           shaderSource.FragmentShaderSource);
 
+      this.modelMatrixLocation_ =
+          this.impl_.GetUniformLocation(
+              GlslConstants.UNIFORM_MODEL_MATRIX_NAME);
       this.modelViewMatrixLocation_ =
           this.impl_.GetUniformLocation(
               GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME);
@@ -63,6 +65,10 @@ namespace fin.ui.rendering.gl.material {
 
       this.useLightingLocation_ = this.impl_.GetUniformLocation(
           GlslConstants.UNIFORM_USE_LIGHTING_NAME);
+
+      this.cameraPositionLocation_ =
+          this.impl_.GetUniformLocation(
+              GlslConstants.UNIFORM_CAMERA_POSITION_NAME);
 
       this.ambientLightColorLocation_ =
           this.impl_.GetUniformLocation("ambientLightColor");
@@ -123,13 +129,15 @@ namespace fin.ui.rendering.gl.material {
     public void Use() {
       this.impl_.Use();
 
-      var modelViewMatrix = GlTransform.ModelViewMatrix;
-      GlTransform.UniformMatrix4(this.modelViewMatrixLocation_,
-                                 modelViewMatrix);
+      GlTransform.UniformMatrix4(this.modelMatrixLocation_, GlTransform.ModelMatrix);
+      GlTransform.UniformMatrix4(this.modelViewMatrixLocation_, GlTransform.ModelViewMatrix);
+      GlTransform.UniformMatrix4(this.projectionMatrixLocation_, GlTransform.ProjectionMatrix);
 
-      var projectionMatrix = GlTransform.ProjectionMatrix;
-      GlTransform.UniformMatrix4(this.projectionMatrixLocation_,
-                                 projectionMatrix);
+      var cameraPosition = Camera.Instance;
+      var scCamX = cameraPosition.X;
+      var scCamY = cameraPosition.Y;
+      var scCamZ = cameraPosition.Z;
+      GL.Uniform3(this.cameraPositionLocation_, scCamX, scCamY, scCamZ);
 
       this.matrices_[0] = Matrix4x4.Identity;
       foreach (var boneWeights in this.model_.Skin.BoneWeights) {
@@ -140,7 +148,8 @@ namespace fin.ui.rendering.gl.material {
                                                 .Impl ?? Matrix4x4.Identity;
       }
 
-      GlTransform.UniformMatrix4s(this.matricesLocation_, this.matrices_);
+      GlTransform.UniformMatrix4s(this.matricesLocation_,
+                                  this.matrices_);
 
       GL.Uniform1(this.shininessLocation_, this.Material.Shininess);
 

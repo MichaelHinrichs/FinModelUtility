@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Text;
 
+using fin.math.floats;
 using fin.model;
 
 namespace fin.shaders.glsl {
@@ -23,8 +24,10 @@ namespace fin.shaders.glsl {
 
                         # version 330
 
+                        uniform mat4 {GlslConstants.UNIFORM_MODEL_MATRIX_NAME};
                         uniform mat4 {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME};
                         uniform mat4 {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME};
+                        uniform vec3 {GlslConstants.UNIFORM_CAMERA_POSITION_NAME};
                         """);
 
       if (useBoneMatrices) {
@@ -65,19 +68,20 @@ out vec2 uv{i};");
 out vec4 vertexColor{i};");
       }
 
-      vertexSrc.Append(@"
-void main() {");
+      vertexSrc.Append($$"""
+
+                         void main() {
+                           mat4 mvpMatrix = {{GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME}} * {{GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME}};
+                         """);
 
       if (useBoneMatrices) {
         vertexSrc.Append($@"
-  mat4 vertexMatrix = {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_MatrixId];
-
-  mat4 vertexModelMatrix = {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vertexMatrix;
-  mat4 projectionVertexModelMatrix = {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME} * vertexModelMatrix;
+  mat4 vertexModelMatrix = {GlslConstants.UNIFORM_MODEL_MATRIX_NAME} * {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_MatrixId];
+  mat4 projectionVertexModelMatrix = {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME} * {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_MatrixId];
 
   gl_Position = projectionVertexModelMatrix * vec4(in_Position, 1);
 
-  vec4 rawVertexPosition = vertexModelMatrix * vec4(in_Normal, 1);
+  vec4 rawVertexPosition = vertexModelMatrix * vec4(in_Position, 1);
   vertexPosition = rawVertexPosition.xyz / rawVertexPosition.w;
   vertexNormal = normalize(vertexModelMatrix * vec4(in_Normal, 0)).xyz;
   tangent = normalize(vertexModelMatrix * vec4(in_Tangent)).xyz;
@@ -85,11 +89,11 @@ void main() {");
   normalUv = normalize(projectionVertexModelMatrix * vec4(in_Normal, 0)).xy;");
       } else {
         vertexSrc.Append($@"
-  gl_Position = {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME} * {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Position, 1);
-  vertexNormal = normalize({GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Normal, 0)).xyz;
-  tangent = normalize({GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Tangent)).xyz;
+  gl_Position = mvpMatrix * vec4(in_Position, 1);
+  vertexNormal = normalize({GlslConstants.UNIFORM_MODEL_MATRIX_NAME} * vec4(in_Normal, 0)).xyz;
+  tangent = normalize({GlslConstants.UNIFORM_MODEL_MATRIX_NAME} * vec4(in_Tangent)).xyz;
   binormal = cross(vertexNormal, tangent); 
-  normalUv = normalize({GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME} * {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Normal, 0)).xy;");
+  normalUv = normalize(mvpMatrix * vec4(in_Normal, 0)).xy;");
       }
 
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
@@ -116,11 +120,11 @@ void main() {");
 
             struct Light {
               bool enabled;
-  
+            
               int sourceType;
               vec3 position;
               vec3 normal;
-
+            
               vec4 color;
               
               int diffuseFunction;
@@ -133,6 +137,7 @@ void main() {");
             {{(withAmbientLight ? """
                                   uniform vec4 ambientLightColor;
                                   """ : "")}}
+            uniform vec3 {{GlslConstants.UNIFORM_CAMERA_POSITION_NAME}};
             """;
     }
 
@@ -141,37 +146,37 @@ void main() {");
       // https://github.com/LordNed/JStudio/blob/93c5c4479ffb1babefe829cfc9794694a1cb93e6/JStudio/J3D/ShaderGen/VertexShaderGen.cs#L336C9-L336C9
       return
           $$"""
-            void getLightNormalAndAttenuation(Light light, vec3 position, vec3 normal, out vec3 lightNormal, out float attenuation) {
+            void getSurfaceToLightNormalAndAttenuation(Light light, vec3 position, vec3 normal, out vec3 surfaceToLightNormal, out float attenuation) {
               vec3 surfaceToLight = light.position - position;
               
-              lightNormal = (light.sourceType == {{(int) LightSourceType.LINE}}) 
-                ? light.normal : normalize(surfaceToLight);
+              surfaceToLightNormal = (light.sourceType == {{(int) LightSourceType.LINE}})
+                ? -light.normal : normalize(surfaceToLight);
             
               if (light.attenuationFunction == {{(int) AttenuationFunction.NONE}}) {
                 attenuation = 1;
                 return;
               }
               
-
+            
               // Attenuation is calculated as a fraction, (cosine attenuation) / (distance attenuation).
             
               // Numerator (Cosine attenuation)
               vec3 cosAttn = light.cosineAttenuation;
               
               vec3 attnDotLhs = (light.attenuationFunction == {{(int) AttenuationFunction.SPECULAR}})
-                ? normal : lightNormal;
+                ? normal : surfaceToLightNormal;
               float attn = dot(attnDotLhs, light.normal);
               vec3 attnPowers = vec3(1, attn, attn*attn);
-
+            
               float attenuationNumerator = max(0, dot(cosAttn, attnPowers));
-
+            
               // Denominator (Distance attenuation)
               float attenuationDenominator = 1;
               if (light.sourceType != {{(int) LightSourceType.LINE}}) {
                 vec3 distAttn = light.distanceAttenuation;
                 
                 if (light.attenuationFunction == {{(int) AttenuationFunction.SPECULAR}}) {
-                  float attn = max(0, dot(normal, light.normal));
+                  float attn = max(0, -dot(normal, light.normal));
                   if (light.diffuseFunction != {{(int) DiffuseFunction.NONE}}) {
                     distAttn = normalize(distAttn);
                   }
@@ -183,7 +188,7 @@ void main() {");
                   attenuationDenominator = dot(distAttn, vec3(1, dist, dist2));
                 }
               }
-
+            
               attenuation = attenuationNumerator / attenuationDenominator;
             }
 
@@ -193,19 +198,21 @@ void main() {");
                  return;
               }
             
-              vec3 lightNormal;
+              vec3 surfaceToLightNormal;
               float attenuation;
-              getLightNormalAndAttenuation(light, position, normal, lightNormal, attenuation);
+              getSurfaceToLightNormalAndAttenuation(light, position, normal, surfaceToLightNormal, attenuation);
             
-              float lightAmount = 1;
+              float diffuseLightAmount = 1;
               if (light.diffuseFunction == {{(int) DiffuseFunction.SIGNED}} || light.diffuseFunction == {{(int) DiffuseFunction.CLAMP}}) {
-                float diffuseLightAmount = max(-dot(normal, lightNormal), 0);
-                lightAmount = min(diffuseLightAmount, 1);
+                diffuseLightAmount = max(0, dot(normal, surfaceToLightNormal));
               }
-            
-              diffuseColor = light.color * lightAmount * attenuation;
+              diffuseColor = light.color * diffuseLightAmount * attenuation;
               
-              specularColor = vec4(0);
+              if (dot(normal, surfaceToLightNormal) >= 0) {
+                vec3 surfaceToCameraNormal = normalize(cameraPosition - position);
+                float specularLightAmount = pow(max(0, dot(reflect(-surfaceToLightNormal, normal), surfaceToCameraNormal)), {{GlslConstants.UNIFORM_SHININESS_NAME}});
+                specularColor = light.color * specularLightAmount * attenuation;
+              }
             }
             """;
     }
@@ -236,7 +243,7 @@ void main() {");
               vec4 diffuseComponent = 2 * diffuseSurfaceColor * ({{(withAmbientOcclusion ? "ambientOcclusionAmount * " : "")}}ambientLightColor + mergedDiffuseLightColor);
               vec4 specularComponent = specularSurfaceColor * mergedSpecularLightColor;
               
-              return min(diffuseComponent + specularComponent, 1);
+              return clamp(diffuseComponent + specularComponent, 0, 1);
             }
             """;
     }
@@ -300,14 +307,44 @@ void main() {");
           ")"; // texture
     }
 
-    public static bool RequiresFancyTextureData(ITexture? finTexture)
-      => finTexture != null &&
-         (finTexture.WrapModeU == WrapMode.MIRROR_CLAMP ||
-          finTexture.WrapModeV == WrapMode.MIRROR_CLAMP ||
-          finTexture.Offset != null ||
-          finTexture.RotationRadians != null ||
-          finTexture.Scale != null ||
-          finTexture.ClampS != null ||
-          finTexture.ClampT != null);
+    public static bool RequiresFancyTextureData(ITexture? finTexture) {
+      if (finTexture == null) {
+        return false;
+      }
+
+      if (finTexture.WrapModeU == WrapMode.MIRROR_CLAMP ||
+          finTexture.WrapModeV == WrapMode.MIRROR_CLAMP) {
+        return true;
+      }
+
+      if (finTexture.Offset != null) {
+        var offset = finTexture.Offset;
+        if (!(offset.X.IsRoughly(0) &&
+              offset.Y.IsRoughly(0) &&
+              offset.Z.IsRoughly(0))) {
+          return true;
+        }
+      }
+
+      if (finTexture.RotationRadians != null) {
+        var radians = finTexture.RotationRadians;
+        if (!(radians.X.IsRoughly(0) &&
+              radians.Y.IsRoughly(0) &&
+              radians.Z.IsRoughly(0))) {
+          return true;
+        }
+      }
+
+      if (finTexture.Scale != null) {
+        var scale = finTexture.Scale;
+        if (!(scale.X.IsRoughly(1) &&
+              scale.Y.IsRoughly(1) &&
+              scale.Z.IsRoughly(1))) {
+          return true;
+        }
+      }
+
+      return finTexture.ClampS != null || finTexture.ClampT != null;
+    }
   }
 }

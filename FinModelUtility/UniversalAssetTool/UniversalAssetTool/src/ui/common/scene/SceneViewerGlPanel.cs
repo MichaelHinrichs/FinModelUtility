@@ -293,7 +293,7 @@ namespace uni.ui.common.scene {
       var height = this.Height;
 
       {
-        GlTransform.MatrixMode(MatrixMode.Projection);
+        GlTransform.MatrixMode(TransformMatrixMode.PROJECTION);
         GlTransform.LoadIdentity();
         GlTransform.Perspective(this.fovY_,
                                 1.0 * width / height,
@@ -309,21 +309,31 @@ namespace uni.ui.common.scene {
                            this.camera_.YUp,
                            this.camera_.ZUp);
 
-        GlTransform.MatrixMode(MatrixMode.Modelview);
+        GlTransform.MatrixMode(TransformMatrixMode.VIEW);
+        GlTransform.LoadIdentity();
+
+        GlTransform.MatrixMode(TransformMatrixMode.MODEL);
         GlTransform.LoadIdentity();
       }
 
       {
+        GlTransform.MatrixMode(TransformMatrixMode.VIEW);
+        GlTransform.LoadIdentity();
         GlTransform.Translate(this.camera_.X,
                               this.camera_.Y,
                               this.camera_.Z * .995f);
+
+        GlTransform.MatrixMode(TransformMatrixMode.MODEL);
 
         var skyboxRenderer =
             (IRenderable?) this.singleAreaRenderer_?.CustomSkyboxRenderer ??
             this.backgroundRenderer_;
         skyboxRenderer.Render();
 
+        GlTransform.MatrixMode(TransformMatrixMode.VIEW);
         GlTransform.LoadIdentity();
+        
+        GlTransform.MatrixMode(TransformMatrixMode.MODEL);
       }
 
       GlTransform.Scale(DebugFlags.GLOBAL_SCALE,
