@@ -3,57 +3,135 @@
 
 struct Light {
   bool enabled;
+
+  int sourceType;
   vec3 position;
   vec3 normal;
+
   vec4 color;
+  
+  int diffuseFunction;
+  int attenuationFunction;
+  vec3 cosineAttenuation;
+  vec3 distanceAttenuation;
 };
 
 uniform Light lights[8];
-uniform vec3 ambientLightColor;
+uniform vec4 ambientLightColor;
+uniform vec3 cameraPosition;
 
 uniform sampler2D diffuseTexture;
+uniform float shininess;
 uniform float useLighting;
 
 out vec4 fragColor;
 
 in vec4 vertexColor0;
+in vec3 vertexPosition;
 in vec3 vertexNormal;
 in vec2 uv0;
+void getSurfaceToLightNormalAndAttenuation(Light light, vec3 position, vec3 normal, out vec3 surfaceToLightNormal, out float attenuation) {
+  vec3 surfaceToLight = light.position - position;
+  
+  surfaceToLightNormal = (light.sourceType == 3)
+    ? -light.normal : normalize(surfaceToLight);
 
-vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {
-  vec3 diffuseLightNormal = normalize(light.normal);
-  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
-  float lightAmount = min(diffuseLightAmount, 1);
-  return lightAmount * light.color.rgb;
-}
+  if (light.attenuationFunction == 0) {
+    attenuation = 1;
+    return;
+  }
+  
 
-vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {
-  int enabledLightCount;
+  // Attenuation is calculated as a fraction, (cosine attenuation) / (distance attenuation).
 
-  vec3 mergedLightColor;
-  for (int i = 0; i < 8; ++i) {
-    if (lights[i].enabled) {
-      enabledLightCount++;
-      mergedLightColor += getDiffuseLightColor(lights[i], vertexNormal);
+  // Numerator (Cosine attenuation)
+  vec3 cosAttn = light.cosineAttenuation;
+  
+  vec3 attnDotLhs = (light.attenuationFunction == 1)
+    ? normal : surfaceToLightNormal;
+  float attn = dot(attnDotLhs, light.normal);
+  vec3 attnPowers = vec3(1, attn, attn*attn);
+
+  float attenuationNumerator = max(0, dot(cosAttn, attnPowers));
+
+  // Denominator (Distance attenuation)
+  float attenuationDenominator = 1;
+  if (light.sourceType != 3) {
+    vec3 distAttn = light.distanceAttenuation;
+    
+    if (light.attenuationFunction == 1) {
+      float attn = max(0, -dot(normal, light.normal));
+      if (light.diffuseFunction != 0) {
+        distAttn = normalize(distAttn);
+      }
+      
+      attenuationDenominator = dot(distAttn, attnPowers);
+    } else {
+      float dist2 = dot(surfaceToLight, surfaceToLight);
+      float dist = sqrt(dist2);
+      attenuationDenominator = dot(distAttn, vec3(1, dist, dist2));
     }
   }
 
-  return enabledLightCount == 0 ? vec3(1) : mergedLightColor / enabledLightCount;
+  attenuation = attenuationNumerator / attenuationDenominator;
 }
 
-vec3 applyLightingColor(vec3 diffuseColor, vec3 vertexNormal) {
-  vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
+void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
+  if (!light.enabled) {
+     diffuseColor = specularColor = vec4(0);
+     return;
+  }
 
-  vec3 mergedLightColor = min(ambientLightColor + mergedDiffuseLightColor, 1);
-  return diffuseColor * mergedLightColor;
+  vec3 surfaceToLightNormal;
+  float attenuation;
+  getSurfaceToLightNormalAndAttenuation(light, position, normal, surfaceToLightNormal, attenuation);
+
+  float diffuseLightAmount = 1;
+  if (light.diffuseFunction == 1 || light.diffuseFunction == 2) {
+    diffuseLightAmount = max(0, dot(normal, surfaceToLightNormal));
+  }
+  diffuseColor = light.color * diffuseLightAmount * attenuation;
+  
+  if (dot(normal, surfaceToLightNormal) >= 0) {
+    vec3 surfaceToCameraNormal = normalize(cameraPosition - position);
+    float specularLightAmount = pow(max(0, dot(reflect(-surfaceToLightNormal, normal), surfaceToCameraNormal)), shininess);
+    specularColor = light.color * specularLightAmount * attenuation;
+  }
+}
+
+
+void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
+  for (int i = 0; i < 8; ++i) {
+    vec4 currentDiffuseColor;
+    vec4 currentSpecularColor;
+  
+    getIndividualLightColors(lights[i], position, normal, shininess, currentDiffuseColor, currentSpecularColor);
+
+    diffuseColor += currentDiffuseColor;
+    specularColor += currentSpecularColor;
+  }
+}
+
+vec4 applyMergedLightingColors(vec3 position, vec3 normal, float shininess, vec4 diffuseSurfaceColor, vec4 specularSurfaceColor) {
+  vec4 mergedDiffuseLightColor;
+  vec4 mergedSpecularLightColor;
+  getMergedLightColors(position, normal, shininess, mergedDiffuseLightColor, mergedSpecularLightColor);
+
+  // We double it because all the other kids do. (Other fixed-function games.)
+  vec4 diffuseComponent = 2 * diffuseSurfaceColor * (ambientLightColor + mergedDiffuseLightColor);
+  vec4 specularComponent = specularSurfaceColor * mergedSpecularLightColor;
+  
+  return clamp(diffuseComponent + specularComponent, 0, 1);
 }
 
 void main() {
   vec4 diffuseColor = texture(diffuseTexture, uv0);
 
   fragColor = diffuseColor * vertexColor0;
+  // Have to renormalize because the vertex normals can become distorted when interpolated.
+  vec3 fragNormal = normalize(vertexNormal);
   fragColor.rgb =
-      mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal),  useLighting);
+      mix(fragColor.rgb, applyMergedLightingColors(vertexPosition, fragNormal, shininess, fragColor, vec4(1)).rgb,  useLighting);
 
   if (fragColor.a < .95) {
     discard;

@@ -1,6 +1,7 @@
 # version 400
 
 uniform sampler2D diffuseTexture;
+uniform float shininess;
 uniform float useLighting;
 
 out vec4 fragColor;

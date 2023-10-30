@@ -20,8 +20,6 @@ uniform Texture texture0;
 uniform vec3 color_GxColor2;
 uniform float scalar_GxAlpha2;
 
-in vec4 vertexColor0;
-in vec4 vertexColor1;
 in vec2 uv0;
 
 out vec4 fragColor;

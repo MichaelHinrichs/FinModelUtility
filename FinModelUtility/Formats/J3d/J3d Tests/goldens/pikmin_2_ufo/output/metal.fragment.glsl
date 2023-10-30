@@ -2,9 +2,6 @@
 
 uniform vec3 color_GxColor7;
 
-in vec4 vertexColor0;
-in vec4 vertexColor1;
-
 out vec4 fragColor;
 
 void main() {
