@@ -65,8 +65,10 @@ namespace fin.shaders.glsl {
         fragmentSrc.Append(
             $"""
              
+               // Have to renormalize because the vertex normals can become distorted when interpolated.
+               vec3 fragNormal = normalize(vertexNormal); 
                fragColor.rgb =
-                   mix(fragColor.rgb, applyMergedLightingColors(vertexPosition, vertexNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, fragColor, vec4(1)).rgb,  {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
+                   mix(fragColor.rgb, applyMergedLightingColors(vertexPosition, fragNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, fragColor, vec4(1)).rgb,  {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
              """);
       }
 

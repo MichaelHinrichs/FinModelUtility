@@ -26,6 +26,9 @@ namespace fin.ui.rendering.gl {
 
     public static void ResetGl() {
       GL.ShadeModel(ShadingModel.Smooth);
+
+      GL.Enable(EnableCap.PolygonSmooth);
+      GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
       GL.Enable(EnableCap.PointSmooth);
       GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
 

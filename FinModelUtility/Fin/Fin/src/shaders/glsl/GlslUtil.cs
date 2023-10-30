@@ -81,8 +81,7 @@ out vec4 vertexColor{i};");
 
   gl_Position = projectionVertexModelMatrix * vec4(in_Position, 1);
 
-  vec4 rawVertexPosition = vertexModelMatrix * vec4(in_Position, 1);
-  vertexPosition = rawVertexPosition.xyz / rawVertexPosition.w;
+  vertexPosition = vec3(vertexModelMatrix * vec4(in_Position, 1));
   vertexNormal = normalize(vertexModelMatrix * vec4(in_Normal, 0)).xyz;
   tangent = normalize(vertexModelMatrix * vec4(in_Tangent)).xyz;
   binormal = cross(vertexNormal, tangent);

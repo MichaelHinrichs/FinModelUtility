@@ -115,16 +115,17 @@ namespace fin.shaders.glsl {
           fragmentShaderSrc.Append(
               """
               
-                            
-                vec3 fragNormal = vertexNormal;
+                // Have to renormalize because the vertex normals can become distorted when interpolated.
+                vec3 fragNormal = normalize(vertexNormal);
               """);
         } else {
           fragmentShaderSrc.Append(
               $"""
                
-               
+                 // Have to renormalize because the vertex normals can become distorted when interpolated.
+                 vec3 fragNormal = normalize(vertexNormal);
                  vec3 textureNormal = {GlslUtil.ReadColorFromTexture("normalTexture", "uv0", normalTexture)}.xyz * 2 - 1;
-                 vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);
+                 vec3 fragNormal = normalize(mat3(tangent, binormal, fragNormal) * textureNormal);
                """);
         }
 

@@ -159,6 +159,9 @@ namespace fin.language.equations.fixedFunction {
       if (dependsOnAnIndividualLight) {
         os.WriteLine(
             $"""
+               // Have to renormalize because the vertex normals can become distorted when interpolated.
+               vec3 fragNormal = normalize(vertexNormal);
+             
                vec4 individualLightDiffuseColors[{MaterialConstants.MAX_LIGHTS}];
                vec4 individualLightSpecularColors[{MaterialConstants.MAX_LIGHTS}];
              """);
@@ -167,7 +170,7 @@ namespace fin.language.equations.fixedFunction {
         os.WriteLine("    vec4 diffuseLightColor;");
         os.WriteLine("    vec4 specularLightColor;");
         os.WriteLine(
-            $"    getIndividualLightColors(lights[i], vertexPosition, vertexNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, diffuseLightColor, specularLightColor);");
+            $"    getIndividualLightColors(lights[i], vertexPosition, fragNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, diffuseLightColor, specularLightColor);");
         os.WriteLine(
             "    individualLightDiffuseColors[i] = diffuseLightColor;");
         os.WriteLine(
