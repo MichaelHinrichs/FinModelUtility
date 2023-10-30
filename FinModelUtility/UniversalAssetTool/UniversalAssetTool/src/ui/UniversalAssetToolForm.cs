@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Numerics;
 
 using fin.audio.io;
 using fin.color;
@@ -23,7 +24,9 @@ using uni.games;
 using uni.ui.common.fileTreeView;
 
 using fin.model.impl;
+using fin.ui;
 using fin.ui.rendering.gl.model;
+using MathNet.Numerics.Distributions;
 
 namespace uni.ui;
 
@@ -142,7 +145,7 @@ public partial class UniversalAssetToolForm : Form {
     this.UpdateScene_(fileNode,
                       modelFileBundle,
                       scene,
-                      this.CreateDefaultLightingForScene_(scene));
+                      this.CreateDefaultLightingForScene_(scene, obj));
   }
 
   private void UpdateScene_(IFileTreeLeafNode? fileNode,
@@ -180,7 +183,9 @@ public partial class UniversalAssetToolForm : Form {
     }
   }
 
-  private ILighting? CreateDefaultLightingForScene_(IScene scene) {
+  private ILighting? CreateDefaultLightingForScene_(
+      IScene scene,
+      ISceneObject lightingOwner) {
     var needsLights = false;
     var neededLightIndices = new HashSet<int>();
 
@@ -228,7 +233,11 @@ public partial class UniversalAssetToolForm : Form {
       return null;
     }
 
+    bool attachFirstLightToCamera = false;
+    float individualStrength = .8f / neededLightIndices.Count;
     if (neededLightIndices.Count == 0) {
+      attachFirstLightToCamera = true;
+      individualStrength = .4f;
       for (var i = 0; i < 3; ++i) {
         neededLightIndices.Add(i);
       }
@@ -259,18 +268,43 @@ public partial class UniversalAssetToolForm : Form {
       }
 
       light.SetColor(FinColor.FromSystemColor(lightColors[currentIndex]));
-      light.Strength = .8f / enabledCount;
+      light.Strength = individualStrength;
 
       var angleInRadians = 2 * MathF.PI *
           (1f * currentIndex) / (enabledCount + 1);
 
-      light.SetNormal(new Vector3f {
+      var lightNormal = Vector3.Normalize(new Vector3 {
           X = (float) (.5f * Math.Cos(angleInRadians)),
           Y = (float) (.5f * Math.Sin(angleInRadians)),
-          Z = -.5f,
+          Z = -.6f,
+      });
+      light.SetNormal(new Vector3f {
+          X = lightNormal.X,
+          Y = lightNormal.Y,
+          Z = lightNormal.Z
       });
 
       currentIndex++;
+    }
+
+    if (attachFirstLightToCamera) {
+      var camera = Camera.Instance;
+      var firstLight = lighting.Lights[0];
+
+      var position = new Vector3f();
+      var normal = new Vector3f();
+
+      lightingOwner.SetOnTickHandler(_ => {
+        position.X = camera.X;
+        position.Y = camera.Y;
+        position.Z = camera.Z;
+        firstLight.SetPosition(position);
+
+        normal.X = camera.XNormal;
+        normal.Y = camera.YNormal;
+        normal.Z = camera.ZNormal;
+        firstLight.SetNormal(normal);
+      });
     }
 
     return lighting;
