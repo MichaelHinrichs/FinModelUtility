@@ -22,7 +22,6 @@ uniform vec3 cameraPosition;
 uniform float shininess;
 in vec3 vertexPosition;
 in vec3 vertexNormal;
-in vec4 vertexColor0;
 
 out vec4 fragColor;
 
@@ -110,9 +109,9 @@ void main() {
     individualLightSpecularColors[i] = specularLightColor;
   }
 
-  vec3 colorComponent = (individualLightDiffuseColors[0].rgb + individualLightDiffuseColors[1].rgb + individualLightDiffuseColors[2].rgb + individualLightDiffuseColors[3].rgb + individualLightDiffuseColors[4].rgb + individualLightDiffuseColors[5].rgb + individualLightDiffuseColors[6].rgb + individualLightDiffuseColors[7].rgb)*vec3(2)*vec3(0.04313725605607033,0.0313725508749485,0.07058823853731155)*vertexColor0.rgb + vec3(0.3490196168422699,0.5490196347236633,0.7450980544090271)*(individualLightSpecularColors[0].rgb + individualLightSpecularColors[1].rgb + individualLightSpecularColors[2].rgb + individualLightSpecularColors[3].rgb + individualLightSpecularColors[4].rgb + individualLightSpecularColors[5].rgb + individualLightSpecularColors[6].rgb + individualLightSpecularColors[7].rgb);
+  vec3 colorComponent = (individualLightDiffuseColors[0].rgb + individualLightDiffuseColors[1].rgb + individualLightDiffuseColors[2].rgb + individualLightDiffuseColors[3].rgb + individualLightDiffuseColors[4].rgb + individualLightDiffuseColors[5].rgb + individualLightDiffuseColors[6].rgb + individualLightDiffuseColors[7].rgb)*vec3(2) + vec3(0.3490196168422699,0.5490196347236633,0.7450980544090271)*(individualLightSpecularColors[0].rgb + individualLightSpecularColors[1].rgb + individualLightSpecularColors[2].rgb + individualLightSpecularColors[3].rgb + individualLightSpecularColors[4].rgb + individualLightSpecularColors[5].rgb + individualLightSpecularColors[6].rgb + individualLightSpecularColors[7].rgb);
 
-  float alphaComponent = vertexColor0.a;
+  float alphaComponent = 1;
 
   fragColor = vec4(colorComponent, alphaComponent);
 

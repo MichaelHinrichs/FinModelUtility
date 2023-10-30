@@ -40,7 +40,6 @@ uniform Texture texture0;
 
 in vec3 vertexPosition;
 in vec3 vertexNormal;
-in vec4 vertexColor0;
 in vec2 uv0;
 
 out vec4 fragColor;
@@ -131,7 +130,7 @@ void main() {
 
   vec3 colorComponent = (vec3(0.501960813999176)*ambientLightColor.rgb + individualLightDiffuseColors[0].rgb + individualLightDiffuseColors[1].rgb + individualLightDiffuseColors[2].rgb + individualLightDiffuseColors[3].rgb + individualLightDiffuseColors[4].rgb + individualLightDiffuseColors[5].rgb + individualLightDiffuseColors[6].rgb + individualLightDiffuseColors[7].rgb)*vec3(2)*texture(texture0.sampler, clamp(transformUv3d(texture0.transform3d, uv0), texture0.clampMin, texture0.clampMax)).rgb + individualLightSpecularColors[0].rgb + individualLightSpecularColors[1].rgb + individualLightSpecularColors[2].rgb + individualLightSpecularColors[3].rgb + individualLightSpecularColors[4].rgb + individualLightSpecularColors[5].rgb + individualLightSpecularColors[6].rgb + individualLightSpecularColors[7].rgb;
 
-  float alphaComponent = vertexColor0.a;
+  float alphaComponent = 1;
 
   fragColor = vec4(colorComponent, alphaComponent);
 

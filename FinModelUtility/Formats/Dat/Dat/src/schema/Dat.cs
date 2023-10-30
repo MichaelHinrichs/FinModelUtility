@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-
-using fin.math.matrix.four;
-using fin.model.impl;
+﻿using fin.math.matrix.four;
 using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.hex;

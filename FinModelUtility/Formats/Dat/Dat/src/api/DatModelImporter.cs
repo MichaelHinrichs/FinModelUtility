@@ -266,27 +266,28 @@ namespace dat.api {
       IScalarValue? diffuseAlpha = scalarOps.One;
 
       // Constant color
-      //if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
-      var diffuseRgba = material.DiffuseColor;
-      diffuseColor = equations.CreateColorConstant(
-          diffuseRgba.Rf,
-          diffuseRgba.Gf,
-          diffuseRgba.Bf);
-      //}
+      if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
+        var diffuseRgba = material.DiffuseColor;
+        diffuseColor = equations.CreateColorConstant(
+            diffuseRgba.Rf,
+            diffuseRgba.Gf,
+            diffuseRgba.Bf);
+      }
 
-      //if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
-      diffuseAlpha =
-          scalarOps.MultiplyWithConstant(diffuseAlpha, material!.Alpha);
-      //}
+      if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
+        diffuseAlpha = scalarOps.MultiplyWithConstant(
+            diffuseAlpha,
+            material.DiffuseColor.Af * material!.Alpha);
+      }
 
       // Vertex color
-      //if (renderMode.CheckFlag(RenderMode.VERTEX)) {
-      diffuseColor = colorOps.Multiply(diffuseColor, vertexColor);
-      //}
+      if (renderMode.CheckFlag(RenderMode.VERTEX)) {
+        diffuseColor = colorOps.Multiply(diffuseColor, vertexColor);
+      }
 
-      //if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
-      diffuseAlpha = scalarOps.Multiply(diffuseAlpha, vertexAlpha);
-      //}
+      if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
+        diffuseAlpha = scalarOps.Multiply(diffuseAlpha, vertexAlpha);
+      }
 
       IColorValue? ambientColor = equations.CreateColorConstant(
           material.AmbientColor.Rf,

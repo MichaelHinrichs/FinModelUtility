@@ -50,6 +50,15 @@ namespace fin.ui.rendering.gl.material {
                         3,
                         emissiveFinTexture,
                         emissiveGlTexture);
+
+      var specularFinTexture = material.SpecularTexture;
+      var specularGlTexture = specularFinTexture != null
+          ? GlTexture.FromTexture(specularFinTexture)
+          : GlMaterialConstants.NULL_WHITE_TEXTURE;
+      this.SetUpTexture("specularTexture",
+                        4,
+                        specularFinTexture,
+                        specularGlTexture);
     }
 
     protected override void PassUniformsAndBindTextures(
