@@ -3,17 +3,14 @@ using fin.model;
 using fin.ui.rendering.gl.material;
 
 namespace fin.ui.rendering.gl.model {
-  public class MergedPrimitivesRenderer : IDisposable {
-    // TODO: Set up shader for material
-    // TODO: Use material's textures
-
+  public class MergedMaterialPrimitivesRenderer : IDisposable {
     private readonly GlBufferManager.GlBufferRenderer bufferRenderer_;
 
     private readonly IMaterial? material_;
 
     private readonly IGlMaterialShader? materialShader_;
 
-    public MergedPrimitivesRenderer(
+    public MergedMaterialPrimitivesRenderer(
         IBoneTransformManager? boneTransformManager,
         GlBufferManager bufferManager,
         IModel model,
@@ -30,7 +27,7 @@ namespace fin.ui.rendering.gl.model {
       this.bufferRenderer_ = bufferManager.CreateRenderer(mergedPrimitive);
     }
 
-    ~MergedPrimitivesRenderer() => ReleaseUnmanagedResources_();
+    ~MergedMaterialPrimitivesRenderer() => ReleaseUnmanagedResources_();
 
     public void Dispose() {
       ReleaseUnmanagedResources_();

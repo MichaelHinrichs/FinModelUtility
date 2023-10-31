@@ -74,6 +74,8 @@ namespace fin.model.impl {
         return mesh;
       }
 
+      public bool AllowMaterialRendererMerging { get; set; } = true;
+
       public IReadOnlyList<IBoneWeights> BoneWeights
         => this.boneWeightsDictionary_.List;
 

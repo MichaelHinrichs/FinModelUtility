@@ -99,12 +99,12 @@ namespace fin.model.impl {
         BlendEquation.ADD;
 
       public BlendFactor AlphaSrcFactor { get; private set; } =
-        BlendFactor.SRC_ALPHA;
+        BlendFactor.ONE;
 
       public BlendFactor AlphaDstFactor { get; private set; } =
-        BlendFactor.ONE_MINUS_SRC_ALPHA;
+        BlendFactor.ONE;
 
-      public LogicOp LogicOp { get; private set; } = LogicOp.COPY;
+      public LogicOp LogicOp { get; private set; } = LogicOp.UNDEFINED;
 
 
       public IFixedFunctionMaterial SetAlphaCompare(

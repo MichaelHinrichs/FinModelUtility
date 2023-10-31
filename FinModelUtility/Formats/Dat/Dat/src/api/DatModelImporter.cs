@@ -65,6 +65,7 @@ namespace dat.api {
       var finMaterialsByMObjOffset = new Dictionary<uint, IMaterial>();
       var finTexturesByTObjOffset = new Dictionary<uint, ITexture>();
 
+      finSkin.AllowMaterialRendererMerging = false;
       var finMesh = finSkin.AddMesh();
       foreach (var jObj in dat.JObjs) {
         var defaultBoneWeights = boneWeightsByJObj[jObj];
@@ -174,7 +175,7 @@ namespace dat.api {
             if (peDesc == null) {
               fixedFunctionMaterial.SetAlphaCompare(
                   AlphaOp.Or,
-                  AlphaCompareType.GEqual,
+                  AlphaCompareType.Greater,
                   0,
                   AlphaCompareType.Never,
                   0);

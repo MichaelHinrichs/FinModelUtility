@@ -11,66 +11,20 @@ namespace fin.ui.rendering.gl.model {
   public class ModelRendererV2 : IModelRenderer {
     // TODO: Require passing in a GL context in the constructor.
 
-    private GlBufferManager? bufferManager_;
-    private readonly ILighting? lighting_;
-    private readonly IBoneTransformManager? boneTransformManager_;
-
-    private readonly ListDictionary<IMesh, MergedPrimitivesRenderer>
-        materialMeshRenderers_ = new();
+    private IModelRenderer impl_;
 
     public ModelRendererV2(
         IModel model,
         ILighting? lighting,
         IBoneTransformManager? boneTransformManager = null) {
-      this.Model = model;
-      this.lighting_ = lighting;
-      this.boneTransformManager_ = boneTransformManager;
-    }
-
-    // Generates buffer manager and model within the current GL context.
-    private void GenerateModelIfNull_() {
-      if (this.bufferManager_ != null) {
-        return;
-      }
-
-      this.bufferManager_ = new GlBufferManager(this.Model);
-
-      var primitiveMerger = new PrimitiveMerger();
-      foreach (var mesh in this.Model.Skin.Meshes) {
-        var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
-        var prioritiesByMaterial = new SetDictionary<IMaterial, uint>();
-        foreach (var primitive in mesh.Primitives) {
-          primitivesByMaterial.Add(primitive.Material, primitive);
-          prioritiesByMaterial.Add(primitive.Material,
-                                   primitive.InversePriority);
-        }
-
-        var orderedMaterials =
-            prioritiesByMaterial.OrderBy(pair => pair.Value.Order().First())
-                                .Select(pair => pair.Key)
-                                .ToArray();
-
-        foreach (var material in orderedMaterials) {
-          var primitives = primitivesByMaterial[material];
-          if (!primitiveMerger.TryToMergePrimitives(
-                  primitives,
-                  out var mergedPrimitives)) {
-            continue;
-          }
-
-          this.materialMeshRenderers_.Add(
-              mesh,
-              new MergedPrimitivesRenderer(
-                  this.boneTransformManager_,
-                  this.bufferManager_,
-                  this.Model,
-                  material,
-                  this.lighting_,
-                  mergedPrimitives) {
-                  UseLighting = UseLighting
-              });
-        }
-      }
+      this.impl_ = (model.Skin.AllowMaterialRendererMerging)
+          ? new MergedMaterialMeshesRenderer(
+              model,
+              lighting,
+              boneTransformManager)
+          : new UnmergedMaterialMeshesRenderer(model,
+                                               lighting,
+                                               boneTransformManager);
     }
 
     ~ModelRendererV2() => ReleaseUnmanagedResources_();
@@ -80,49 +34,16 @@ namespace fin.ui.rendering.gl.model {
       GC.SuppressFinalize(this);
     }
 
-    private void ReleaseUnmanagedResources_() {
-      foreach (var (_, materialMeshRenderers) in this.materialMeshRenderers_) {
-        foreach (var materialMeshRenderer in materialMeshRenderers) {
-          materialMeshRenderer.Dispose();
-        }
-      }
+    private void ReleaseUnmanagedResources_() => this.impl_.Dispose();
 
-      materialMeshRenderers_.Clear();
-      this.bufferManager_?.Dispose();
-    }
-
-    public IModel Model { get; }
-    public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; set; }
-    public ISet<IMesh> HiddenMeshes { get; } = new HashSet<IMesh>();
-
-    private bool useLighting_ = false;
+    public IModel Model => this.impl_.Model;
+    public ISet<IMesh> HiddenMeshes => this.impl_.HiddenMeshes;
 
     public bool UseLighting {
-      get => this.useLighting_;
-      set {
-        this.useLighting_ = value;
-        foreach (var (_, materialMeshRenderers) in
-                 this.materialMeshRenderers_) {
-          foreach (var materialMeshRenderer in materialMeshRenderers) {
-            materialMeshRenderer.UseLighting = value;
-          }
-        }
-      }
+      get => this.impl_.UseLighting;
+      set => this.impl_.UseLighting = value;
     }
 
-    public void Render() {
-      this.GenerateModelIfNull_();
-
-      foreach (var (mesh, materialMeshRenderers) in
-               this.materialMeshRenderers_) {
-        if (this.HiddenMeshes?.Contains(mesh) ?? false) {
-          continue;
-        }
-
-        foreach (var materialMeshRenderer in materialMeshRenderers) {
-          materialMeshRenderer.Render();
-        }
-      }
-    }
+    public void Render() => this.impl_.Render();
   }
 }

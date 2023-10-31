@@ -11,6 +11,7 @@ namespace fin.model {
 
     IReadOnlyList<IMesh> Meshes { get; }
     IMesh AddMesh();
+    bool AllowMaterialRendererMerging { get; set; }
 
     IReadOnlyList<IBoneWeights> BoneWeights { get; }
 
