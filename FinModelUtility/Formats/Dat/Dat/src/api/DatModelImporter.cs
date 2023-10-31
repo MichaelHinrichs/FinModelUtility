@@ -154,7 +154,11 @@ namespace dat.api {
                 finMaterialManager.AddFixedFunctionMaterial();
             finMaterial = fixedFunctionMaterial;
 
-            finMaterial.Shininess = mObj.Material.Shininess;
+            var mObjMaterial = mObj.Material;
+            finMaterial.Shininess = mObjMaterial.Shininess;
+            if (mObj.RenderMode.CheckFlag(RenderMode.NO_ZUPDATE)) {
+              finMaterial.DepthMode = DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER;
+            }
 
             this.PopulateFixedFunctionMaterial_(mObj,
                                                 tObjsAndFinTextures,
