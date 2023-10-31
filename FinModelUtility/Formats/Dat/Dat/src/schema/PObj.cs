@@ -195,6 +195,8 @@ namespace dat.schema {
               int? weightId = null;
               Vector3? position = null;
               Vector3? normal = null;
+              Vector3? binormal = null;
+              Vector3? tangent = null;
               Vector2? uv0 = null;
               Vector2? uv1 = null;
               IColor? color = null;
@@ -241,6 +243,19 @@ namespace dat.schema {
                             sbr.ReadVector3(vertexDescriptor)));
                     break;
                   }
+                  case GxAttribute.NBT: {
+                    br.SubreadAt(
+                        offset,
+                        sbr => {
+                          normal = Vector3.Normalize(
+                              sbr.ReadVector3(vertexDescriptor));
+                          binormal = Vector3.Normalize(
+                              sbr.ReadVector3(vertexDescriptor));
+                          tangent = Vector3.Normalize(
+                              sbr.ReadVector3(vertexDescriptor));
+                        });
+                    break;
+                  }
                   case GxAttribute.TEX0: {
                     uv0 = br.SubreadAt(
                         offset,
@@ -265,6 +280,8 @@ namespace dat.schema {
                     WeightId = weightId,
                     Position = position.Value,
                     Normal = normal,
+                    Binormal = binormal,
+                    Tangent = tangent,
                     Uv0 = uv0,
                     Uv1 = uv1,
                     Color = color,
@@ -392,6 +409,8 @@ namespace dat.schema {
     public required int? WeightId { get; init; }
     public required Vector3 Position { get; init; }
     public Vector3? Normal { get; init; }
+    public Vector3? Binormal { get; init; }
+    public Vector3? Tangent { get; init; }
     public Vector2? Uv0 { get; init; }
     public Vector2? Uv1 { get; init; }
     public IColor? Color { get; init; }

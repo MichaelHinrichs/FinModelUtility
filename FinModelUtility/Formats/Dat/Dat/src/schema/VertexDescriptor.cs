@@ -33,6 +33,9 @@ namespace dat.schema {
         GxAttribute.NRM => this.ComponentCountType switch {
             GxComponentCount.NRM_XYZ => 3,
         },
+        GxAttribute.NBT => this.ComponentCountType switch {
+            GxComponentCount.NRM_NBT => 3,
+        },
         GxAttribute.TEX0 or GxAttribute.TEX1 => this.ComponentCountType switch {
             GxComponentCount.TEX_S  => 1,
             GxComponentCount.TEX_ST => 2,

@@ -193,8 +193,9 @@ namespace dat.api {
                       .Vertices
                       .Select(datVertex => {
                         var finVertex = finSkin.AddVertex(datVertex.Position);
-
                         finVertex.SetLocalNormal(datVertex.Normal);
+                        // TODO: Add support for binormal/tangents for bump-mapping
+
                         finVertex.SetColor(datVertex.Color);
 
                         if (datVertex.Uv0 != null) {

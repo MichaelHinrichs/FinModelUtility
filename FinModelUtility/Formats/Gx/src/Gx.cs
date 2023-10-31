@@ -55,7 +55,12 @@
     TEX5 = 18,
     TEX6 = 19,
     TEX7 = 20,
-    MAX = TEX7,
+    POS_MTX_ARRAY = 21,
+    NRM_MTX_ARRAY = 22,
+    TEX_MTX_ARRAY = 23,
+    LIGHT_ARRAY = 24,
+    NBT = 25,
+    MAX = NBT,
     NULL = 0xFF,
   }
 
