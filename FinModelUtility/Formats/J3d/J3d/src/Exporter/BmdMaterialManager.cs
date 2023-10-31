@@ -70,10 +70,8 @@ namespace j3d.exporter {
                     GX_MIN_TEXTURE_FILTER.GX_NEAR2 => TextureMinFilter.NEAR,
                     GX_MIN_TEXTURE_FILTER.GX_NEAR3 => TextureMinFilter.NEAR,
                 };
-                texture.MagFilter = bmdTexture.MagTextureFilter switch {
-                    GX_MAG_TEXTURE_FILTER.GX_NEAR   => TextureMagFilter.NEAR,
-                    GX_MAG_TEXTURE_FILTER.GX_LINEAR => TextureMagFilter.LINEAR,
-                };
+                texture.MagFilter =
+                    bmdTexture.MagTextureFilter.ToFinMagFilter();
                 texture.ColorType = bmdTexture.ColorType;
 
                 var texGenSrc = texCoordGen.TexGenSrc;

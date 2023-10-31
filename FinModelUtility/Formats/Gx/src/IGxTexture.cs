@@ -7,6 +7,15 @@ namespace gx {
     GX_LINEAR,
   }
 
+  public static class GxTextureFilterExtensions {
+    public static TextureMagFilter ToFinMagFilter(
+        this GX_MAG_TEXTURE_FILTER gxMagFilter)
+      => gxMagFilter switch {
+          GX_MAG_TEXTURE_FILTER.GX_NEAR   => TextureMagFilter.NEAR,
+          GX_MAG_TEXTURE_FILTER.GX_LINEAR => TextureMagFilter.LINEAR,
+      };
+  };
+
   public enum GX_MIN_TEXTURE_FILTER : byte {
     GX_NEAR,
     GX_LINEAR,
@@ -39,6 +48,7 @@ namespace gx {
 
     public GX_MAG_TEXTURE_FILTER MagTextureFilter { get; set; } =
       GX_MAG_TEXTURE_FILTER.GX_LINEAR;
+
     public ColorType ColorType { get; set; }
   }
 }

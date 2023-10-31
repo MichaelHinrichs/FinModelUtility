@@ -157,6 +157,8 @@ namespace dat.schema {
 
     public float Blending { get; private set; }
 
+    public GX_MAG_TEXTURE_FILTER MagFilter { get; private set; }
+
     public IImage Image { get; private set; }
 
     public unsafe void Read(IBinaryReader br) {
@@ -183,7 +185,7 @@ namespace dat.schema {
 
       this.Blending = br.ReadSingle();
 
-      br.Position += 4;
+      this.MagFilter = (GX_MAG_TEXTURE_FILTER) br.ReadInt32();
 
       var imageOffset = br.ReadUInt32();
       var paletteOffset = br.ReadUInt32();

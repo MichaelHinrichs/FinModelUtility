@@ -90,9 +90,15 @@ namespace dat.api {
                   finTexture = finMaterialManager.CreateTexture(tObj.Image);
                   finTexture.Name = tObj.Name ?? tObjOffset.ToHex();
 
+                  finTexture.MagFilter = tObj.MagFilter.ToFinMagFilter();
+
                   finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
                   finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
 
+                  finTexture.UvIndex = tObj.TexGenSrc switch {
+                      >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7
+                          => tObj.TexGenSrc - GxTexGenSrc.Tex0
+                  };
                   finTexture.UvType = tObj.Flags.GetCoord() switch {
                       Coord.UV         => UvType.STANDARD,
                       Coord.REFLECTION => UvType.SPHERICAL,

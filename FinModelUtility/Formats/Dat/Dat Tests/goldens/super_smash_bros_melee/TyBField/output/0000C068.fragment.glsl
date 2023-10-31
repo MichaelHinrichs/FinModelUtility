@@ -21,6 +21,7 @@ uniform Texture texture1;
 
 in vec2 normalUv;
 in vec2 uv0;
+in vec2 uv1;
 
 out vec4 fragColor;
 
