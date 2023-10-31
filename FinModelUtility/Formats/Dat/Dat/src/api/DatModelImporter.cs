@@ -1,8 +1,8 @@
-﻿using Assimp.Unmanaged;
-
-using dat.schema;
+﻿using dat.schema;
 
 using fin.data.lazy;
+using fin.image;
+using fin.image.formats;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -18,9 +18,11 @@ using gx;
 
 using schema.binary;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 namespace dat.api {
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {
-    public IModel ImportModel(DatModelFileBundle modelFileBundle) {
+    public unsafe IModel ImportModel(DatModelFileBundle modelFileBundle) {
       var dat =
           modelFileBundle.PrimaryDatFile.ReadNew<Dat>(Endianness.BigEndian);
 
@@ -83,7 +85,34 @@ namespace dat.api {
           new LazyDictionary<uint, ITexture>(tObjOffset => {
             var tObj = tObjByOffset[tObjOffset];
 
-            var finTexture = finMaterialManager.CreateTexture(tObj.Image);
+            IImage image = tObj.Image;
+            if (tObj.WrapT == GxWrapMode.GX_MIRROR) {
+              var width = image.Width;
+              var height = image.Height;
+
+              var flippedImage =
+                  new Rgba32Image(image.PixelFormat, width, height);
+              image.Access(getHandler => {
+                using var flippedImageLock = flippedImage.Lock();
+                var flippedImageScan0 = flippedImageLock.pixelScan0;
+                for (var y = 0; y < height; ++y) {
+                  for (var x = 0; x < width; ++x) {
+                    getHandler(x,
+                               height - 1 - y,
+                               out var r,
+                               out var g,
+                               out var b,
+                               out var a);
+
+                    flippedImageScan0[y * width + x] = new Rgba32(r, g, b, a);
+                  }
+                }
+              });
+
+              image = flippedImage;
+            }
+
+            var finTexture = finMaterialManager.CreateTexture(image);
             finTexture.Name = tObj.Name ?? tObjOffset.ToHex();
 
             finTexture.MagFilter = tObj.MagFilter.ToFinMagFilter();
@@ -174,9 +203,10 @@ namespace dat.api {
                 var mObjMaterial = mObj.Material;
                 fixedFunctionMaterial.Shininess = mObjMaterial.Shininess;
                 // TODO: This results in some issues with sorting
-                /*if (mObj.RenderMode.CheckFlag(RenderMode.NO_ZUPDATE)) {
-                  finMaterial.DepthMode = DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER;
-                }*/
+                if (mObj.RenderMode.CheckFlag(RenderMode.NO_ZUPDATE)) {
+                  fixedFunctionMaterial.DepthMode =
+                      DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER;
+                }
 
                 this.PopulateFixedFunctionMaterial_(mObj,
                                                     tObjsAndFinTextures,
@@ -212,91 +242,105 @@ namespace dat.api {
                 return fixedFunctionMaterial;
               }));
 
+      // Sorts all dObjs so that the opaque ones are rendered first, and then the translucent (XLU) ones
+      var allJObjsAndDObjs =
+          dat.JObjs.SelectMany(jObj => jObj.DObjs.Select(dObj => (jObj, dObj)))
+             .ToArray();
+      var sortedJObjsAndDObjs =
+          allJObjsAndDObjs
+              .Where(
+                  tuple => !(
+                      tuple.dObj.MObj?.RenderMode.CheckFlag(RenderMode.XLU) ??
+                      false))
+              .Concat(
+                  allJObjsAndDObjs.Where(
+                      tuple
+                          => tuple.dObj.MObj?.RenderMode
+                                  .CheckFlag(RenderMode.XLU) ??
+                             false));
+
       finSkin.AllowMaterialRendererMerging = false;
       var finMesh = finSkin.AddMesh();
-      foreach (var jObj in dat.JObjs) {
+      foreach (var (jObj, dObj) in sortedJObjsAndDObjs) {
         var defaultBoneWeights = boneWeightsByJObj[jObj];
+        var mObjOffset = dObj.Header.MObjOffset;
 
-        foreach (var dObj in jObj.DObjs) {
-          var mObjOffset = dObj.Header.MObjOffset;
-
-          // Adds polygons
-          foreach (var pObj in dObj.PObjs) {
-            var pObjFlags = pObj.Header.Flags;
-            var cullingMode = (pObjFlags.CheckFlag(PObjFlags.CULLFRONT),
-                               pObjFlags.CheckFlag(PObjFlags.CULLBACK))
-                switch {
-                    (true, true)  => CullingMode.SHOW_BOTH,
-                    (true, false) => CullingMode.SHOW_FRONT_ONLY,
-                    (false, true) => CullingMode.SHOW_BACK_ONLY,
-                    _             => CullingMode.SHOW_BOTH
-                };
-
-            var finMaterial =
-                finMaterialsByMObjOffset[(mObjOffset, cullingMode)];
-
-            var vertexSpace = pObj.VertexSpace;
-            var finWeights =
-                pObj.Weights
-                    ?.Select(pObjWeights => finSkin.GetOrCreateBoneWeights(
-                                 vertexSpace,
-                                 pObjWeights
-                                     .Select(
-                                         pObjWeight => new BoneWeight(
-                                             finBoneByJObj[pObjWeight.JObj],
-                                             pObjWeight.JObj
-                                                 .InverseBindMatrix,
-                                             pObjWeight.Weight
-                                         ))
-                                     .ToArray()))
-                    .ToArray();
-
-            foreach (var datPrimitive in pObj.Primitives) {
-              var finVertices =
-                  datPrimitive
-                      .Vertices
-                      .Select(datVertex => {
-                        var finVertex = finSkin.AddVertex(datVertex.Position);
-                        finVertex.SetLocalNormal(datVertex.Normal);
-                        // TODO: Add support for binormal/tangents for bump-mapping
-
-                        finVertex.SetColor(datVertex.Color);
-
-                        if (datVertex.Uv0 != null) {
-                          var uv0 = datVertex.Uv0.Value;
-                          finVertex.SetUv(0, uv0.X, uv0.Y);
-                        }
-
-                        if (datVertex.Uv1 != null) {
-                          var uv1 = datVertex.Uv1.Value;
-                          finVertex.SetUv(1, uv1.X, uv1.Y);
-                        }
-
-                        // TODO: Is this right???
-                        if (datVertex.WeightId != null) {
-                          if (finWeights != null) {
-                            finVertex.SetBoneWeights(
-                                finWeights[datVertex.WeightId.Value]);
-                          }
-                        } else {
-                          finVertex.SetBoneWeights(defaultBoneWeights);
-                        }
-
-                        return finVertex;
-                      })
-                      .ToArray();
-
-              var finPrimitive = datPrimitive.Type switch {
-                  GxOpcode.DRAW_TRIANGLES =>
-                      finMesh.AddTriangles(finVertices),
-                  GxOpcode.DRAW_QUADS => finMesh.AddQuads(finVertices),
-                  GxOpcode.DRAW_TRIANGLE_STRIP => finMesh.AddTriangleStrip(
-                      finVertices)
+        // Adds polygons
+        foreach (var pObj in dObj.PObjs) {
+          var pObjFlags = pObj.Header.Flags;
+          var cullingMode = (pObjFlags.CheckFlag(PObjFlags.CULLFRONT),
+                             pObjFlags.CheckFlag(PObjFlags.CULLBACK))
+              switch {
+                  (true, true)  => CullingMode.SHOW_BOTH,
+                  (true, false) => CullingMode.SHOW_FRONT_ONLY,
+                  (false, true) => CullingMode.SHOW_BACK_ONLY,
+                  _             => CullingMode.SHOW_BOTH
               };
 
-              if (finMaterial != null) {
-                finPrimitive.SetMaterial(finMaterial);
-              }
+          var finMaterial =
+              finMaterialsByMObjOffset[(mObjOffset, cullingMode)];
+
+          var vertexSpace = pObj.VertexSpace;
+          var finWeights =
+              pObj.Weights
+                  ?.Select(pObjWeights => finSkin.GetOrCreateBoneWeights(
+                               vertexSpace,
+                               pObjWeights
+                                   .Select(
+                                       pObjWeight => new BoneWeight(
+                                           finBoneByJObj[pObjWeight.JObj],
+                                           pObjWeight.JObj
+                                               .InverseBindMatrix,
+                                           pObjWeight.Weight
+                                       ))
+                                   .ToArray()))
+                  .ToArray();
+
+          foreach (var datPrimitive in pObj.Primitives) {
+            var finVertices =
+                datPrimitive
+                    .Vertices
+                    .Select(datVertex => {
+                      var finVertex = finSkin.AddVertex(datVertex.Position);
+                      finVertex.SetLocalNormal(datVertex.Normal);
+                      // TODO: Add support for binormal/tangents for bump-mapping
+
+                      finVertex.SetColor(datVertex.Color);
+
+                      if (datVertex.Uv0 != null) {
+                        var uv0 = datVertex.Uv0.Value;
+                        finVertex.SetUv(0, uv0.X, uv0.Y);
+                      }
+
+                      if (datVertex.Uv1 != null) {
+                        var uv1 = datVertex.Uv1.Value;
+                        finVertex.SetUv(1, uv1.X, uv1.Y);
+                      }
+
+                      // TODO: Is this right???
+                      if (datVertex.WeightId != null) {
+                        if (finWeights != null) {
+                          finVertex.SetBoneWeights(
+                              finWeights[datVertex.WeightId.Value]);
+                        }
+                      } else {
+                        finVertex.SetBoneWeights(defaultBoneWeights);
+                      }
+
+                      return finVertex;
+                    })
+                    .ToArray();
+
+            var finPrimitive = datPrimitive.Type switch {
+                GxOpcode.DRAW_TRIANGLES =>
+                    finMesh.AddTriangles(finVertices),
+                GxOpcode.DRAW_QUADS => finMesh.AddQuads(finVertices),
+                GxOpcode.DRAW_TRIANGLE_STRIP => finMesh.AddTriangleStrip(
+                    finVertices)
+            };
+
+            if (finMaterial != null) {
+              finPrimitive.SetMaterial(finMaterial);
             }
           }
         }
