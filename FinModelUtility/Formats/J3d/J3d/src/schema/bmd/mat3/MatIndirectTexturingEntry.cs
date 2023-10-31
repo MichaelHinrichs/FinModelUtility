@@ -30,7 +30,7 @@ namespace j3d.schema.bmd.mat3 {
   public partial class IndTexOrder : IBinaryConvertible {
     public sbyte TexCoord { get; set; }
     public sbyte TexMap { get; set; }
-    private readonly ushort padding_ = ushort.MaxValue;
+    private ushort Unknown { get; set; }
   }
 
   [BinarySchema]

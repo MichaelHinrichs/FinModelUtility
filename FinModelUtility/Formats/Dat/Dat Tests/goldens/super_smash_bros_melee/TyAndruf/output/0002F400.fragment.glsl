@@ -17,7 +17,7 @@ struct Light {
 };
 
 uniform Light lights[8];
-uniform vec4 ambientLightColor;
+
 uniform vec3 cameraPosition;
 uniform float shininess;
 in vec3 vertexPosition;
@@ -117,7 +117,7 @@ void main() {
   vec4 mergedLightSpecularColor;
   getMergedLightColors(vertexPosition, fragNormal, shininess, mergedLightDiffuseColor, mergedLightSpecularColor);
   
-  vec3 colorComponent = (vec3(0.9529411792755127,0.8509804010391235,0)*ambientLightColor.rgb + mergedLightDiffuseColor.rgb)*vec3(2) + vec3(1,1,0.5490196347236633)*mergedLightSpecularColor.rgb;
+  vec3 colorComponent = mergedLightDiffuseColor.rgb*vec3(2)*vec3(0.7019608020782471,0.501960813999176,0) + vec3(1,1,0.5490196347236633)*mergedLightSpecularColor.rgb;
 
   float alphaComponent = 1;
 

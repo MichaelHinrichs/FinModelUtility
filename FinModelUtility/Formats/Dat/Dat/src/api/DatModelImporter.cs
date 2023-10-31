@@ -262,72 +262,91 @@ namespace dat.api {
       var renderMode = mObj.RenderMode;
       var material = mObj.Material;
 
-      IColorValue? diffuseColor = colorOps.One;
-      IScalarValue? diffuseAlpha = scalarOps.One;
+      IColorValue? diffuseSurfaceColor = colorOps.One;
+      IScalarValue? diffuseSurfaceAlpha = scalarOps.One;
 
       // Constant color
-      if (renderMode.CheckFlag(RenderMode.CONSTANT)) {
-        var diffuseRgba = material.DiffuseColor;
-        diffuseColor = equations.CreateColorConstant(
-            diffuseRgba.Rf,
-            diffuseRgba.Gf,
-            diffuseRgba.Bf);
-      }
-
-      if (renderMode.CheckFlag(RenderMode.ALPHA_MAT)) {
-        diffuseAlpha = scalarOps.MultiplyWithConstant(
-            diffuseAlpha,
-            material.DiffuseColor.Af * material!.Alpha);
-      }
+      var diffuseRgba = material.DiffuseColor;
+      diffuseSurfaceColor = equations.CreateColorConstant(
+          diffuseRgba.Rf,
+          diffuseRgba.Gf,
+          diffuseRgba.Bf);
+      diffuseSurfaceAlpha = scalarOps.MultiplyWithConstant(
+          diffuseSurfaceAlpha,
+          material.DiffuseColor.Af * material!.Alpha);
 
       // Vertex color
       if (renderMode.CheckFlag(RenderMode.VERTEX)) {
-        diffuseColor = colorOps.Multiply(diffuseColor, vertexColor);
+        diffuseSurfaceColor =
+            colorOps.Multiply(diffuseSurfaceColor, vertexColor);
+        diffuseSurfaceAlpha =
+            scalarOps.Multiply(diffuseSurfaceAlpha, vertexAlpha);
       }
 
-      if (renderMode.CheckFlag(RenderMode.ALPHA_VTX)) {
-        diffuseAlpha = scalarOps.Multiply(diffuseAlpha, vertexAlpha);
-      }
-
-      IColorValue? ambientColor = equations.CreateColorConstant(
+      IColorValue? ambientSurfaceColor = equations.CreateColorConstant(
           material.AmbientColor.Rf,
           material.AmbientColor.Gf,
           material.AmbientColor.Bf);
 
-      IScalarValue? ambientAlpha = equations.CreateScalarConstant(
+      IScalarValue? ambientSurfaceAlpha = equations.CreateScalarConstant(
           material.AmbientColor.Af);
 
-      IColorValue? specularColor = equations.CreateColorConstant(
+      IColorValue? specularSurfaceColor = equations.CreateColorConstant(
           material.SpecularColor.Rf,
           material.SpecularColor.Gf,
           material.SpecularColor.Bf);
 
-      IScalarValue? specularAlpha = equations.CreateScalarConstant(
+      IScalarValue? specularSurfaceAlpha = equations.CreateScalarConstant(
           material.SpecularColor.Af);
 
-      // Texture passes
-      foreach (var type in new[] {
-                   TObjFlags.LIGHTMAP_DIFFUSE,
-                   TObjFlags.LIGHTMAP_AMBIENT,
-                   TObjFlags.LIGHTMAP_SPECULAR
-               }) {
+
+      // Lighting passes
+      var hasConstantRenderMode = renderMode.CheckFlag(RenderMode.CONSTANT);
+      var hasDiffuseRenderMode = renderMode.CheckFlag(RenderMode.DIFFUSE);
+      var hasSpecularRenderMode = renderMode.CheckFlag(RenderMode.SPECULAR);
+
+      IColorValue? ambientLightColor = null;
+      IColorValue diffuseLightColor = colorOps.One;
+      IColorValue? specularLightColor = null;
+
+      var lightingPasses = new LinkedList<TObjFlags>();
+      lightingPasses.AddLast(TObjFlags.LIGHTMAP_DIFFUSE);
+
+      // Shamelessly stolen from:
+      // https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRawViewer/Shader/gx_material.frag#L81
+      if (!(hasConstantRenderMode && !hasDiffuseRenderMode)) {
+        lightingPasses.AddFirst(TObjFlags.LIGHTMAP_AMBIENT);
+        ambientSurfaceColor = equations.CreateOrGetColorInput(
+            FixedFunctionSource.LIGHT_AMBIENT_COLOR);
+
+        if (hasDiffuseRenderMode) {
+          diffuseLightColor = equations.GetMergedLightDiffuseColor();
+        }
+
+        if (hasSpecularRenderMode) {
+          lightingPasses.AddLast(TObjFlags.LIGHTMAP_SPECULAR);
+          specularLightColor = equations.GetMergedLightSpecularColor();
+        }
+      }
+
+      foreach (var lightingPass in lightingPasses) {
         IColorValue? color;
         IScalarValue? alpha;
 
-        switch (type) {
+        switch (lightingPass) {
           case TObjFlags.LIGHTMAP_DIFFUSE: {
-            color = diffuseColor;
-            alpha = diffuseAlpha;
+            color = diffuseSurfaceColor;
+            alpha = diffuseSurfaceAlpha;
             break;
           }
           case TObjFlags.LIGHTMAP_AMBIENT: {
-            color = ambientColor;
-            alpha = ambientAlpha;
+            color = ambientSurfaceColor;
+            alpha = ambientSurfaceAlpha;
             break;
           }
           case TObjFlags.LIGHTMAP_SPECULAR: {
-            color = specularColor;
-            alpha = specularAlpha;
+            color = specularSurfaceColor;
+            alpha = specularSurfaceAlpha;
             break;
           }
           default: throw new NotImplementedException();
@@ -335,7 +354,7 @@ namespace dat.api {
 
         for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
           var (tObj, _) = tObjsAndFinTextures[i];
-          if (!tObj.Flags.CheckFlag(type)) {
+          if (!tObj.Flags.CheckFlag(lightingPass)) {
             continue;
           }
 
@@ -423,31 +442,28 @@ namespace dat.api {
           }
         }
 
-        switch (type) {
+        switch (lightingPass) {
           case TObjFlags.LIGHTMAP_DIFFUSE: {
-            diffuseColor = color;
-            diffuseAlpha = alpha;
+            diffuseSurfaceColor = color;
+            diffuseSurfaceAlpha = alpha;
             break;
           }
           case TObjFlags.LIGHTMAP_AMBIENT: {
-            ambientColor = color;
-            ambientAlpha = alpha;
+            ambientSurfaceColor = color;
+            ambientSurfaceAlpha = alpha;
             break;
           }
           case TObjFlags.LIGHTMAP_SPECULAR: {
-            specularColor = color;
-            specularAlpha = alpha;
+            specularSurfaceColor = color;
+            specularSurfaceAlpha = alpha;
             break;
           }
         }
       }
 
       var ambientAndDiffuseLightingColor = colorOps.Add(
-          colorOps.Multiply(
-              ambientColor,
-              equations.CreateOrGetColorInput(
-                  FixedFunctionSource.LIGHT_AMBIENT_COLOR)),
-          equations.GetMergedLightDiffuseColor());
+          colorOps.Multiply(ambientSurfaceColor, ambientLightColor),
+          diffuseLightColor);
 
       // We double it because all the other kids do. (Other fixed-function games.)
       ambientAndDiffuseLightingColor =
@@ -455,17 +471,16 @@ namespace dat.api {
 
       var ambientAndDiffuseComponent = colorOps.Multiply(
           ambientAndDiffuseLightingColor,
-          diffuseColor);
+          diffuseSurfaceColor);
 
-      var specularComponent = colorOps.Multiply(
-          specularColor,
-          equations.GetMergedLightSpecularColor());
+      var specularComponent =
+          colorOps.Multiply(specularSurfaceColor, specularLightColor);
 
       var outputColor = colorOps.Add(
           ambientAndDiffuseComponent,
           specularComponent);
 
-      var outputAlpha = diffuseAlpha;
+      var outputAlpha = diffuseSurfaceAlpha;
 
       equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
                                   outputColor ?? colorOps.Zero);

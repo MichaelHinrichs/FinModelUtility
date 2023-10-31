@@ -116,7 +116,7 @@ void main() {
   vec4 mergedLightSpecularColor;
   getMergedLightColors(vertexPosition, fragNormal, shininess, mergedLightDiffuseColor, mergedLightSpecularColor);
   
-  vec3 colorComponent = mergedLightDiffuseColor.rgb*vec3(2) + vec3(0.3490196168422699,0.5490196347236633,0.7450980544090271)*mergedLightSpecularColor.rgb;
+  vec3 colorComponent = mergedLightDiffuseColor.rgb*vec3(2)*vec3(0.04313725605607033,0.0313725508749485,0.07058823853731155) + vec3(0.3490196168422699,0.5490196347236633,0.7450980544090271)*mergedLightSpecularColor.rgb;
 
   float alphaComponent = 1;
 
