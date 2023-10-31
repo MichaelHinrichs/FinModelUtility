@@ -8,7 +8,6 @@ using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importers;
-using fin.shaders.glsl;
 using fin.util.enums;
 using fin.util.hex;
 
@@ -156,13 +155,40 @@ namespace dat.api {
 
             var mObjMaterial = mObj.Material;
             finMaterial.Shininess = mObjMaterial.Shininess;
-            if (mObj.RenderMode.CheckFlag(RenderMode.NO_ZUPDATE)) {
+            // TODO: This results in some issues with sorting
+            /*if (mObj.RenderMode.CheckFlag(RenderMode.NO_ZUPDATE)) {
               finMaterial.DepthMode = DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER;
-            }
+            }*/
 
             this.PopulateFixedFunctionMaterial_(mObj,
                                                 tObjsAndFinTextures,
                                                 fixedFunctionMaterial);
+
+            var peDesc = mObj.PeDesc;
+            if (peDesc == null) {
+              fixedFunctionMaterial.SetAlphaCompare(
+                  AlphaOp.Or,
+                  AlphaCompareType.GEqual,
+                  0,
+                  AlphaCompareType.Never,
+                  0);
+            } else {
+              fixedFunctionMaterial.DepthCompareType =
+                  peDesc.DepthFunction.ToFinDepthCompareType();
+
+              new GxFixedFunctionBlending().ApplyBlending(
+                  fixedFunctionMaterial,
+                  peDesc.BlendMode,
+                  peDesc.SrcFactor,
+                  peDesc.DstFactor,
+                  peDesc.BlendOp);
+              fixedFunctionMaterial.SetAlphaCompare(
+                  peDesc.AlphaOp.ToFinAlphaOp(),
+                  peDesc.AlphaComp0.ToFinAlphaCompareType(),
+                  peDesc.AlphaRef0,
+                  peDesc.AlphaComp1.ToFinAlphaCompareType(),
+                  peDesc.AlphaRef1);
+            }
           }
 
           finMaterial.Name = mObj.Name ?? mObjOffset.ToHex();
@@ -363,105 +389,31 @@ namespace dat.api {
             continue;
           }
 
-          var textureColor = equations.CreateOrGetColorInput(
-              FixedFunctionSource.TEXTURE_COLOR_0 + i);
-          var textureAlpha = equations.CreateOrGetScalarInput(
-              FixedFunctionSource.TEXTURE_ALPHA_0 + i);
+          this.PerformTextureLightingPass_(
+              tObj,
+              i,
+              equations,
+              colorOps,
+              scalarOps,
+              ref color,
+              ref alpha);
 
-          switch (tObj.Flags.GetColorMap()) {
-            case ColorMap.NONE:
-            case ColorMap.PASS: {
-              // As you might guess from the name, does nothing.
+          switch (lightingPass) {
+            case TObjFlags.LIGHTMAP_DIFFUSE: {
+              diffuseSurfaceColor = color;
+              diffuseSurfaceAlpha = alpha;
               break;
             }
-            case ColorMap.ALPHA_MASK: {
-              // TODO: Is this right?
-              color = colorOps.MixWithScalar(color, textureColor, textureAlpha);
+            case TObjFlags.LIGHTMAP_AMBIENT: {
+              ambientSurfaceColor = color;
+              ambientSurfaceAlpha = alpha;
               break;
             }
-            case ColorMap.RGB_MASK: {
-              // TODO: What should this do?
+            case TObjFlags.LIGHTMAP_SPECULAR: {
+              specularSurfaceColor = color;
+              specularSurfaceAlpha = alpha;
               break;
             }
-            case ColorMap.BLEND: {
-              color = colorOps.MixWithConstant(color,
-                                               textureColor,
-                                               tObj.Blending);
-              break;
-            }
-            case ColorMap.MODULATE: {
-              color = colorOps.Multiply(color, textureColor);
-              break;
-            }
-            case ColorMap.REPLACE: {
-              color = textureColor;
-              break;
-            }
-            case ColorMap.ADD: {
-              color = colorOps.Add(
-                  color,
-                  colorOps.MultiplyWithScalar(textureColor, textureAlpha));
-              break;
-            }
-            case ColorMap.SUB: {
-              color = colorOps.Subtract(
-                  color,
-                  colorOps.MultiplyWithScalar(textureColor, textureAlpha));
-              break;
-            }
-          }
-
-          switch (tObj.Flags.GetAlphaMap()) {
-            case AlphaMap.NONE:
-            case AlphaMap.PASS: {
-              // As you might guess from the name, does nothing.
-              break;
-            }
-            case AlphaMap.ALPHA_MASK: {
-              // TODO: What should this do?
-              break;
-            }
-            case AlphaMap.BLEND: {
-              alpha = scalarOps.MixWithConstant(
-                  alpha,
-                  textureAlpha,
-                  tObj.Blending);
-              break;
-            }
-            case AlphaMap.MODULATE: {
-              alpha = scalarOps.Multiply(alpha, textureAlpha);
-              break;
-            }
-            case AlphaMap.REPLACE: {
-              alpha = textureAlpha;
-              break;
-            }
-            case AlphaMap.ADD: {
-              alpha = scalarOps.Add(alpha, textureAlpha);
-              break;
-            }
-            case AlphaMap.SUB: {
-              alpha = scalarOps.Subtract(alpha, textureAlpha);
-              break;
-            }
-          }
-        }
-
-        switch (lightingPass) {
-          case TObjFlags.LIGHTMAP_DIFFUSE: {
-            diffuseSurfaceColor = color;
-            diffuseSurfaceAlpha = alpha;
-            break;
-          }
-          case TObjFlags.LIGHTMAP_AMBIENT: {
-            ambientSurfaceColor = color;
-            ambientSurfaceAlpha = alpha;
-            break;
-          }
-          case TObjFlags.LIGHTMAP_SPECULAR: {
-            specularSurfaceColor = color;
-            specularSurfaceAlpha = alpha;
-            break;
           }
         }
       }
@@ -481,23 +433,129 @@ namespace dat.api {
       var specularComponent =
           colorOps.Multiply(specularSurfaceColor, specularLightColor);
 
-      var outputColor = colorOps.Add(
+      // Performs ext lighting pass
+      var extLightingColor = colorOps.Add(
           ambientAndDiffuseComponent,
           specularComponent);
+      var extLightingAlpha = diffuseSurfaceAlpha;
 
+      for (var i = 0; i < tObjsAndFinTextures.Count; ++i) {
+        var (tObj, _) = tObjsAndFinTextures[i];
+        if (!tObj.Flags.CheckFlag(TObjFlags.LIGHTMAP_EXT)) {
+          continue;
+        }
+
+        this.PerformTextureLightingPass_(
+            tObj,
+            i,
+            equations,
+            colorOps,
+            scalarOps,
+            ref extLightingColor,
+            ref extLightingAlpha);
+      }
+
+      // Sets up output colors
+      var outputColor = extLightingColor;
       var outputAlpha = diffuseSurfaceAlpha;
 
       equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
                                   outputColor ?? colorOps.Zero);
       equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
                                    outputAlpha ?? scalarOps.Zero);
+    }
 
-      fixedFunctionMaterial.SetAlphaCompare(
-          AlphaOp.Or,
-          AlphaCompareType.GEqual,
-          GlslConstants.MIN_ALPHA_BEFORE_DISCARD,
-          AlphaCompareType.Never,
-          0);
+    private void PerformTextureLightingPass_(
+        TObj tObj,
+        int textureIndex,
+        IFixedFunctionEquations<FixedFunctionSource> equations,
+        ColorFixedFunctionOps colorOps,
+        ScalarFixedFunctionOps scalarOps,
+        ref IColorValue? color,
+        ref IScalarValue? alpha
+    ) {
+      var textureColor = equations.CreateOrGetColorInput(
+          FixedFunctionSource.TEXTURE_COLOR_0 + textureIndex);
+      var textureAlpha = equations.CreateOrGetScalarInput(
+          FixedFunctionSource.TEXTURE_ALPHA_0 + textureIndex);
+
+      switch (tObj.Flags.GetColorMap()) {
+        case ColorMap.NONE:
+        case ColorMap.PASS: {
+          // As you might guess from the name, does nothing.
+          break;
+        }
+        case ColorMap.ALPHA_MASK: {
+          // TODO: Is this right?
+          color = colorOps.MixWithScalar(color, textureColor, textureAlpha);
+          break;
+        }
+        case ColorMap.RGB_MASK: {
+          // TODO: What should this do?
+          break;
+        }
+        case ColorMap.BLEND: {
+          color = colorOps.MixWithConstant(color,
+                                           textureColor,
+                                           tObj.Blending);
+          break;
+        }
+        case ColorMap.MODULATE: {
+          color = colorOps.Multiply(color, textureColor);
+          break;
+        }
+        case ColorMap.REPLACE: {
+          color = textureColor;
+          break;
+        }
+        case ColorMap.ADD: {
+          color = colorOps.Add(
+              color,
+              colorOps.MultiplyWithScalar(textureColor, textureAlpha));
+          break;
+        }
+        case ColorMap.SUB: {
+          color = colorOps.Subtract(
+              color,
+              colorOps.MultiplyWithScalar(textureColor, textureAlpha));
+          break;
+        }
+      }
+
+      switch (tObj.Flags.GetAlphaMap()) {
+        case AlphaMap.NONE:
+        case AlphaMap.PASS: {
+          // As you might guess from the name, does nothing.
+          break;
+        }
+        case AlphaMap.ALPHA_MASK: {
+          // TODO: What should this do?
+          break;
+        }
+        case AlphaMap.BLEND: {
+          alpha = scalarOps.MixWithConstant(
+              alpha,
+              textureAlpha,
+              tObj.Blending);
+          break;
+        }
+        case AlphaMap.MODULATE: {
+          alpha = scalarOps.Multiply(alpha, textureAlpha);
+          break;
+        }
+        case AlphaMap.REPLACE: {
+          alpha = textureAlpha;
+          break;
+        }
+        case AlphaMap.ADD: {
+          alpha = scalarOps.Add(alpha, textureAlpha);
+          break;
+        }
+        case AlphaMap.SUB: {
+          alpha = scalarOps.Subtract(alpha, textureAlpha);
+          break;
+        }
+      }
     }
   }
 }

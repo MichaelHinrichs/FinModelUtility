@@ -28,8 +28,4 @@ void main() {
   float alphaComponent = texture(texture0.sampler, clamp(transformUv3d(texture0.transform3d, uv0), texture0.clampMin, texture0.clampMax)).a;
 
   fragColor = vec4(colorComponent, alphaComponent);
-
-  if (!(fragColor.a >= 0.95)) {
-    discard;
-  }
 }

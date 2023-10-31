@@ -10,8 +10,4 @@ void main() {
   float alphaComponent = vertexColor0.a;
 
   fragColor = vec4(colorComponent, alphaComponent);
-
-  if (!(fragColor.a >= 0.95)) {
-    discard;
-  }
 }

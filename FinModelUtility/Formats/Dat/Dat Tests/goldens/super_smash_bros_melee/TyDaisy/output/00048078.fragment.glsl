@@ -20,6 +20,9 @@ uniform Light lights[8];
 
 uniform vec3 cameraPosition;
 uniform float shininess;
+uniform sampler2D texture0;
+
+in vec2 normalUv;
 in vec3 vertexPosition;
 in vec3 vertexNormal;
 in vec2 uv0;
@@ -117,13 +120,9 @@ void main() {
   vec4 mergedLightSpecularColor;
   getMergedLightColors(vertexPosition, fragNormal, shininess, mergedLightDiffuseColor, mergedLightSpecularColor);
   
-  vec3 colorComponent = mergedLightDiffuseColor.rgb*vec3(2)*vec3(0.800000011920929) + vec3(0.7019608020782471)*mergedLightSpecularColor.rgb;
+  vec3 colorComponent = (mergedLightDiffuseColor.rgb*vec3(2)*vec3(0.800000011920929) + vec3(0.7019608020782471)*mergedLightSpecularColor.rgb)*texture(texture0, asin(normalUv) / 3.14159 + 0.5).rgb;
 
   float alphaComponent = 1;
 
   fragColor = vec4(colorComponent, alphaComponent);
-
-  if (!(fragColor.a >= 0.95)) {
-    discard;
-  }
 }

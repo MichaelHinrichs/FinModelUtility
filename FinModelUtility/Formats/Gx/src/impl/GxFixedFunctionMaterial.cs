@@ -7,8 +7,6 @@ using fin.language.equations.fixedFunction.impl;
 using fin.model;
 using fin.util.asserts;
 
-using FinBlendFactor = fin.model.BlendFactor;
-using FinLogicOp = fin.model.LogicOp;
 using FinAlphaOp = fin.model.AlphaOp;
 
 namespace gx {
@@ -58,59 +56,19 @@ namespace gx {
                   ? DepthMode.USE_DEPTH_BUFFER
                   : DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER)
               : DepthMode.IGNORE_DEPTH_BUFFER;
-      material.DepthCompareType =
-          ConvertGxDepthCompareTypeToFin_(depthFunction.Func);
+      material.DepthCompareType = depthFunction.Func.ToFinDepthCompareType();
 
-      // Shamelessly copied from:
-      // https://github.com/magcius/noclip.website/blob/c5a6d0137128065068b5842ffa9dff04f03eefdb/src/gx/gx_render.ts#L405-L423
-      switch (populatedMaterial.BlendMode.BlendMode) {
-        case GxBlendMode.NONE: {
-          material.SetBlending(
-              BlendEquation.ADD,
-              BlendFactor.ONE,
-              BlendFactor.ZERO,
-              LogicOp.UNDEFINED);
-          break;
-        }
-        case GxBlendMode.BLEND: {
-          material.SetBlending(
-              BlendEquation.ADD,
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.SrcFactor),
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.DstFactor),
-              LogicOp.UNDEFINED);
-          break;
-        }
-        case GxBlendMode.LOGIC: {
-          // TODO: Might not be correct?
-          material.SetBlending(
-              BlendEquation.NONE,
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.SrcFactor),
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.DstFactor),
-              this.ConvertGxLogicOpToFin_(populatedMaterial.BlendMode.LogicOp));
-          break;
-        }
-        case GxBlendMode.SUBTRACT: {
-          material.SetBlending(
-              BlendEquation.REVERSE_SUBTRACT,
-              BlendFactor.ONE,
-              BlendFactor.ONE,
-              LogicOp.UNDEFINED);
-          break;
-        }
-        default: throw new ArgumentOutOfRangeException();
-      }
-
+      new GxFixedFunctionBlending().ApplyBlending(
+          material,
+          populatedMaterial.BlendMode.BlendMode,
+          populatedMaterial.BlendMode.SrcFactor,
+          populatedMaterial.BlendMode.DstFactor,
+          populatedMaterial.BlendMode.LogicOp);
       material.SetAlphaCompare(
-          this.ConvertGxAlphaOpToFin_(populatedMaterial.AlphaCompare.MergeFunc),
-          this.ConvertGxAlphaCompareTypeToFin_(
-              populatedMaterial.AlphaCompare.Func0),
+          populatedMaterial.AlphaCompare.MergeFunc.ToFinAlphaOp(),
+          populatedMaterial.AlphaCompare.Func0.ToFinAlphaCompareType(),
           populatedMaterial.AlphaCompare.Reference0,
-          this.ConvertGxAlphaCompareTypeToFin_(
-              populatedMaterial.AlphaCompare.Func1),
+          populatedMaterial.AlphaCompare.Func1.ToFinAlphaCompareType(),
           populatedMaterial.AlphaCompare.Reference1);
 
       this.Material = material;
@@ -542,95 +500,5 @@ namespace gx {
     }
 
     public IMaterial Material { get; }
-
-    private FinBlendFactor ConvertGxBlendFactorToFin_(
-        GxBlendFactor gxBlendFactor)
-      => gxBlendFactor switch {
-          GxBlendFactor.ZERO      => FinBlendFactor.ZERO,
-          GxBlendFactor.ONE       => FinBlendFactor.ONE,
-          GxBlendFactor.SRC_COLOR => FinBlendFactor.SRC_COLOR,
-          GxBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor
-              .ONE_MINUS_SRC_COLOR,
-          GxBlendFactor.SRC_ALPHA => FinBlendFactor.SRC_ALPHA,
-          GxBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor
-              .ONE_MINUS_SRC_ALPHA,
-          GxBlendFactor.DST_ALPHA => FinBlendFactor.DST_ALPHA,
-          GxBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor
-              .ONE_MINUS_DST_ALPHA,
-          _ => throw new ArgumentOutOfRangeException(
-              nameof(gxBlendFactor),
-              gxBlendFactor,
-              null)
-      };
-
-    private FinLogicOp ConvertGxLogicOpToFin_(GxLogicOp gxLogicOp)
-      => gxLogicOp switch {
-          GxLogicOp.CLEAR         => FinLogicOp.CLEAR,
-          GxLogicOp.AND           => FinLogicOp.AND,
-          GxLogicOp.AND_REVERSE   => FinLogicOp.AND_REVERSE,
-          GxLogicOp.COPY          => FinLogicOp.COPY,
-          GxLogicOp.AND_INVERTED  => FinLogicOp.AND_INVERTED,
-          GxLogicOp.NOOP          => FinLogicOp.NOOP,
-          GxLogicOp.XOR           => FinLogicOp.XOR,
-          GxLogicOp.OR            => FinLogicOp.OR,
-          GxLogicOp.NOR           => FinLogicOp.NOR,
-          GxLogicOp.EQUIV         => FinLogicOp.EQUIV,
-          GxLogicOp.INVERT        => FinLogicOp.INVERT,
-          GxLogicOp.OR_REVERSE    => FinLogicOp.OR_REVERSE,
-          GxLogicOp.COPY_INVERTED => FinLogicOp.COPY_INVERTED,
-          GxLogicOp.OR_INVERTED   => FinLogicOp.OR_INVERTED,
-          GxLogicOp.NAND          => FinLogicOp.NAND,
-          GxLogicOp.SET           => FinLogicOp.SET,
-          _ => throw new ArgumentOutOfRangeException(
-              nameof(gxLogicOp),
-              gxLogicOp,
-              null)
-      };
-
-    private FinAlphaOp ConvertGxAlphaOpToFin_(GxAlphaOp bmdAlphaOp)
-      => bmdAlphaOp switch {
-          GxAlphaOp.And  => FinAlphaOp.And,
-          GxAlphaOp.Or   => FinAlphaOp.Or,
-          GxAlphaOp.XOR  => FinAlphaOp.XOR,
-          GxAlphaOp.XNOR => FinAlphaOp.XNOR,
-          _ => throw new ArgumentOutOfRangeException(
-              nameof(bmdAlphaOp),
-              bmdAlphaOp,
-              null)
-      };
-
-    private AlphaCompareType ConvertGxAlphaCompareTypeToFin_(
-        GxCompareType gxAlphaCompareType)
-      => gxAlphaCompareType switch {
-          GxCompareType.Never   => AlphaCompareType.Never,
-          GxCompareType.Less    => AlphaCompareType.Less,
-          GxCompareType.Equal   => AlphaCompareType.Equal,
-          GxCompareType.LEqual  => AlphaCompareType.LEqual,
-          GxCompareType.Greater => AlphaCompareType.Greater,
-          GxCompareType.NEqual  => AlphaCompareType.NEqual,
-          GxCompareType.GEqual  => AlphaCompareType.GEqual,
-          GxCompareType.Always  => AlphaCompareType.Always,
-          _ => throw new ArgumentOutOfRangeException(
-              nameof(gxAlphaCompareType),
-              gxAlphaCompareType,
-              null)
-      };
-
-    private DepthCompareType ConvertGxDepthCompareTypeToFin_(
-        GxCompareType gxDepthCompareType)
-      => gxDepthCompareType switch {
-          GxCompareType.Never   => DepthCompareType.Never,
-          GxCompareType.Less    => DepthCompareType.Less,
-          GxCompareType.Equal   => DepthCompareType.Equal,
-          GxCompareType.LEqual  => DepthCompareType.LEqual,
-          GxCompareType.Greater => DepthCompareType.Greater,
-          GxCompareType.NEqual  => DepthCompareType.NEqual,
-          GxCompareType.GEqual  => DepthCompareType.GEqual,
-          GxCompareType.Always  => DepthCompareType.Always,
-          _ => throw new ArgumentOutOfRangeException(
-              nameof(gxDepthCompareType),
-              gxDepthCompareType,
-              null)
-      };
   }
 }

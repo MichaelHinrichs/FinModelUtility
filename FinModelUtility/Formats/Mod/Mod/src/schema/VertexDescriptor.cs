@@ -96,6 +96,10 @@ namespace mod.schema {
         return this.color1 != GxAttributeType.NOT_PRESENT;
       }
 
+      if (enumval >= GxAttribute.POS_MTX_ARRAY) {
+        return false;
+      }
+
       Asserts.Fail($"Unknown enum for exists: {enumval}");
       return false;
     }

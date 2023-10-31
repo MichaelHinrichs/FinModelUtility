@@ -1,5 +1,7 @@
 ﻿using fin.schema.color;
 
+using gx;
+
 using schema.binary;
 using schema.binary.attributes;
 
@@ -44,6 +46,7 @@ namespace dat.schema {
   [BinarySchema]
   public partial class MObj : IBinaryDeserializable {
     public uint StringOffset { get; set; }
+
     [Ignore]
     public string? Name { get; set; }
 
@@ -84,7 +87,15 @@ namespace dat.schema {
 
     public uint Unk3 { get; set; }
 
-    public uint Unk4 { get; set; }
+    public uint PeDescOffset { get; set; }
+
+    [Ignore]
+    private bool hasPeDesc_ => this.PeDescOffset != 0;
+
+    [RIfBoolean(nameof(hasPeDesc_))]
+    [RAtPosition(nameof(PeDescOffset))]
+    public PeDesc? PeDesc { get; set; }
+
 
     // TODO: Add https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Common/HSD_MOBJ.cs#L156
   }
@@ -100,5 +111,46 @@ namespace dat.schema {
     public Rgba32 SpecularColor { get; set; }
     public float Alpha { get; set; }
     public float Shininess { get; set; }
+  }
+
+
+  [Flags]
+  public enum PIXEL_PROCESS_ENABLE : byte {
+    COLOR_UPDATE = (1 << 0),
+    ALPHA_UPDATE = (1 << 1),
+    DST_ALPHA = (1 << 2),
+    BEFORE_TEX = (1 << 3),
+    COMPARE = (1 << 4),
+    ZUPDATE = (1 << 5),
+    DITHER = (1 << 6)
+  }
+
+  [BinarySchema]
+  public partial class PeDesc : IBinaryDeserializable {
+    public PIXEL_PROCESS_ENABLE Flags { get; set; }
+
+    [NumberFormat(SchemaNumberType.UN8)]
+    public float AlphaRef0 { get; set; }
+
+    [NumberFormat(SchemaNumberType.UN8)]
+    public float AlphaRef1 { get; set; }
+
+    [NumberFormat(SchemaNumberType.UN8)]
+    public float DestinationAlpha { get; set; }
+
+    public GxBlendMode BlendMode { get; set; }
+
+    public GxBlendFactor SrcFactor { get; set; }
+    public GxBlendFactor DstFactor { get; set; }
+
+    public GxLogicOp BlendOp { get; set; }
+
+    public GxCompareType DepthFunction { get; set; }
+
+    public GxCompareType AlphaComp0 { get; set; }
+
+    public GxAlphaOp AlphaOp { get; set; }
+
+    public GxCompareType AlphaComp1 { get; set; }
   }
 }
