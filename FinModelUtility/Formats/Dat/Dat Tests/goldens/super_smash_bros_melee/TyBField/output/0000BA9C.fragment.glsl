@@ -9,4 +9,8 @@ void main() {
   float alphaComponent = 1;
 
   fragColor = vec4(colorComponent, alphaComponent);
+
+  if (!(fragColor.a > 0)) {
+    discard;
+  }
 }

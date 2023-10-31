@@ -30,4 +30,8 @@ void main() {
   float alphaComponent = 0.3499999940395355*vertexColor0.a;
 
   fragColor = vec4(colorComponent, alphaComponent);
+
+  if (!(fragColor.a > 0)) {
+    discard;
+  }
 }

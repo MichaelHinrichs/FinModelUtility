@@ -12,4 +12,8 @@ void main() {
   float alphaComponent = texture(texture0, uv0).a;
 
   fragColor = vec4(colorComponent, alphaComponent);
+
+  if (!(fragColor.a > 0)) {
+    discard;
+  }
 }

@@ -1,5 +1,8 @@
-﻿using dat.schema;
+﻿using Assimp.Unmanaged;
 
+using dat.schema;
+
+using fin.data.lazy;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -61,9 +64,153 @@ namespace dat.api {
       }
 
       // Adds mesh and materials
+      var mObjByOffset = new Dictionary<uint, MObj>();
+      var tObjByOffset = new Dictionary<uint, TObj>();
+      foreach (var jObj in dat.JObjs) {
+        foreach (var dObj in jObj.DObjs) {
+          var mObj = dObj.MObj;
+          if (mObj != null) {
+            mObjByOffset[dObj.Header.MObjOffset] = mObj;
+            foreach (var (tObjOffset, tObj) in mObj.TObjsAndOffsets) {
+              tObjByOffset[tObjOffset] = tObj;
+            }
+          }
+        }
+      }
+
       var finMaterialManager = finModel.MaterialManager;
-      var finMaterialsByMObjOffset = new Dictionary<uint, IMaterial>();
-      var finTexturesByTObjOffset = new Dictionary<uint, ITexture>();
+      var finTexturesByTObjOffset =
+          new LazyDictionary<uint, ITexture>(tObjOffset => {
+            var tObj = tObjByOffset[tObjOffset];
+
+            var finTexture = finMaterialManager.CreateTexture(tObj.Image);
+            finTexture.Name = tObj.Name ?? tObjOffset.ToHex();
+
+            finTexture.MagFilter = tObj.MagFilter.ToFinMagFilter();
+
+            finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
+            finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
+
+            finTexture.UvIndex = tObj.TexGenSrc switch {
+                >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7
+                    => tObj.TexGenSrc - GxTexGenSrc.Tex0
+            };
+            finTexture.UvType = tObj.Flags.GetCoord() switch {
+                Coord.UV         => UvType.STANDARD,
+                Coord.REFLECTION => UvType.SPHERICAL,
+                _                => UvType.STANDARD
+            };
+
+            // Why tf does Melee have 3D texture transforms......
+            // https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRawViewer/Converters/ModelExporter.cs#L526
+
+            var tObjTranslation = tObj.Translation;
+            var tObjRotationRadians = tObj.RotationRadians;
+            var tObjScale = tObj.Scale;
+
+            var rawTranslation = new Position(
+                tObjTranslation.X,
+                tObjTranslation.Y,
+                tObjTranslation.Z);
+            var rawQuaternion = QuaternionUtil.CreateZyx(
+                tObjRotationRadians.X,
+                tObjRotationRadians.Y,
+                tObjRotationRadians.Z);
+            var rawScale =
+                new Scale(tObjScale.X, tObjScale.Y, tObjScale.Z);
+
+            // This is an absolute nightmare, but it works.
+            FinMatrix4x4Util.FromTrs(rawTranslation,
+                                     rawQuaternion,
+                                     rawScale)
+                            .InvertInPlace()
+                            .Decompose(out var outTranslation,
+                                       out var outQuaternion,
+                                       out var outScale);
+
+            var outRotationRadians =
+                QuaternionUtil.ToEulerRadians(outQuaternion);
+
+            finTexture.SetOffset3d(
+                outTranslation.X,
+                outTranslation.Y,
+                outTranslation.Z);
+            finTexture.SetRotationRadians3d(
+                outRotationRadians.X,
+                outRotationRadians.Y,
+                outRotationRadians.Z);
+            finTexture.SetScale3d(
+                tObj.RepeatS * outScale.X,
+                tObj.RepeatT * outScale.Y,
+                outScale.Z);
+
+            return finTexture;
+          });
+      var finMaterialsByMObjOffset =
+          new LazyDictionary<(uint, CullingMode), IMaterial?>(
+              (mObjOffsetAndCullingMode => {
+                var (mObjOffset, cullingMode) = mObjOffsetAndCullingMode;
+                if (mObjOffset == 0) {
+                  return null;
+                }
+
+                var mObj = mObjByOffset[mObjOffset];
+                var tObjsAndOffsets = mObj.TObjsAndOffsets.ToArray();
+
+                var tObjsAndFinTextures =
+                    new (TObj, ITexture)[tObjsAndOffsets.Length];
+                if (tObjsAndOffsets.Length > 0) {
+                  for (var i = 0; i < tObjsAndOffsets.Length; i++) {
+                    var (tObjOffset, tObj) = tObjsAndOffsets[i];
+                    tObjsAndFinTextures[i] = (
+                        tObj, finTexturesByTObjOffset[tObjOffset]);
+                  }
+                }
+
+                var fixedFunctionMaterial =
+                    finMaterialManager.AddFixedFunctionMaterial();
+                fixedFunctionMaterial.CullingMode = cullingMode;
+
+                var mObjMaterial = mObj.Material;
+                fixedFunctionMaterial.Shininess = mObjMaterial.Shininess;
+                // TODO: This results in some issues with sorting
+                /*if (mObj.RenderMode.CheckFlag(RenderMode.NO_ZUPDATE)) {
+                  finMaterial.DepthMode = DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER;
+                }*/
+
+                this.PopulateFixedFunctionMaterial_(mObj,
+                                                    tObjsAndFinTextures,
+                                                    fixedFunctionMaterial);
+
+                var peDesc = mObj.PeDesc;
+                if (peDesc == null) {
+                  fixedFunctionMaterial.SetAlphaCompare(
+                      AlphaOp.Or,
+                      AlphaCompareType.Greater,
+                      0,
+                      AlphaCompareType.Never,
+                      0);
+                } else {
+                  fixedFunctionMaterial.DepthCompareType =
+                      peDesc.DepthFunction.ToFinDepthCompareType();
+
+                  new GxFixedFunctionBlending().ApplyBlending(
+                      fixedFunctionMaterial,
+                      peDesc.BlendMode,
+                      peDesc.SrcFactor,
+                      peDesc.DstFactor,
+                      peDesc.BlendOp);
+                  fixedFunctionMaterial.SetAlphaCompare(
+                      peDesc.AlphaOp.ToFinAlphaOp(),
+                      peDesc.AlphaComp0.ToFinAlphaCompareType(),
+                      peDesc.AlphaRef0,
+                      peDesc.AlphaComp1.ToFinAlphaCompareType(),
+                      peDesc.AlphaRef1);
+                }
+
+                fixedFunctionMaterial.Name = mObj.Name ?? mObjOffset.ToHex();
+                return fixedFunctionMaterial;
+              }));
 
       finSkin.AllowMaterialRendererMerging = false;
       var finMesh = finSkin.AddMesh();
@@ -71,139 +218,23 @@ namespace dat.api {
         var defaultBoneWeights = boneWeightsByJObj[jObj];
 
         foreach (var dObj in jObj.DObjs) {
-          // Gets material
-          IMaterial? finMaterial = null;
-          var mObj = dObj.MObj;
           var mObjOffset = dObj.Header.MObjOffset;
-          if (mObj != null && !finMaterialsByMObjOffset.TryGetValue(
-                  mObjOffset,
-                  out finMaterial)) {
-            var tObjsAndOffsets = mObj.TObjsAndOffsets.ToArray();
-
-            var tObjsAndFinTextures =
-                new (TObj, ITexture)[tObjsAndOffsets.Length];
-            if (tObjsAndOffsets.Length > 0) {
-              for (var i = 0; i < tObjsAndOffsets.Length; i++) {
-                var (tObjOffset, tObj) = tObjsAndOffsets[i];
-                if (!finTexturesByTObjOffset.TryGetValue(
-                        tObjOffset,
-                        out var finTexture)) {
-                  finTexture = finMaterialManager.CreateTexture(tObj.Image);
-                  finTexture.Name = tObj.Name ?? tObjOffset.ToHex();
-
-                  finTexture.MagFilter = tObj.MagFilter.ToFinMagFilter();
-
-                  finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
-                  finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
-
-                  finTexture.UvIndex = tObj.TexGenSrc switch {
-                      >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7
-                          => tObj.TexGenSrc - GxTexGenSrc.Tex0
-                  };
-                  finTexture.UvType = tObj.Flags.GetCoord() switch {
-                      Coord.UV         => UvType.STANDARD,
-                      Coord.REFLECTION => UvType.SPHERICAL,
-                      _                => UvType.STANDARD
-                  };
-
-                  // Why tf does Melee have 3D texture transforms......
-                  // https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRawViewer/Converters/ModelExporter.cs#L526
-
-                  var tObjTranslation = tObj.Translation;
-                  var tObjRotationRadians = tObj.RotationRadians;
-                  var tObjScale = tObj.Scale;
-
-                  var rawTranslation = new Position(
-                      tObjTranslation.X,
-                      tObjTranslation.Y,
-                      tObjTranslation.Z);
-                  var rawQuaternion = QuaternionUtil.CreateZyx(
-                      tObjRotationRadians.X,
-                      tObjRotationRadians.Y,
-                      tObjRotationRadians.Z);
-                  var rawScale =
-                      new Scale(tObjScale.X, tObjScale.Y, tObjScale.Z);
-
-                  // This is an absolute nightmare, but it works.
-                  FinMatrix4x4Util.FromTrs(rawTranslation,
-                                           rawQuaternion,
-                                           rawScale)
-                                  .InvertInPlace()
-                                  .Decompose(out var outTranslation,
-                                             out var outQuaternion,
-                                             out var outScale);
-
-                  var outRotationRadians =
-                      QuaternionUtil.ToEulerRadians(outQuaternion);
-
-                  finTexture.SetOffset3d(
-                      outTranslation.X,
-                      outTranslation.Y,
-                      outTranslation.Z);
-                  finTexture.SetRotationRadians3d(
-                      outRotationRadians.X,
-                      outRotationRadians.Y,
-                      outRotationRadians.Z);
-                  finTexture.SetScale3d(
-                      tObj.RepeatS * outScale.X,
-                      tObj.RepeatT * outScale.Y,
-                      outScale.Z);
-
-                  finTexturesByTObjOffset[tObjOffset] = finTexture;
-                }
-
-                tObjsAndFinTextures[i] = (tObj, finTexture);
-              }
-            }
-
-            var fixedFunctionMaterial =
-                finMaterialManager.AddFixedFunctionMaterial();
-            finMaterial = fixedFunctionMaterial;
-
-            var mObjMaterial = mObj.Material;
-            finMaterial.Shininess = mObjMaterial.Shininess;
-            // TODO: This results in some issues with sorting
-            /*if (mObj.RenderMode.CheckFlag(RenderMode.NO_ZUPDATE)) {
-              finMaterial.DepthMode = DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER;
-            }*/
-
-            this.PopulateFixedFunctionMaterial_(mObj,
-                                                tObjsAndFinTextures,
-                                                fixedFunctionMaterial);
-
-            var peDesc = mObj.PeDesc;
-            if (peDesc == null) {
-              fixedFunctionMaterial.SetAlphaCompare(
-                  AlphaOp.Or,
-                  AlphaCompareType.Greater,
-                  0,
-                  AlphaCompareType.Never,
-                  0);
-            } else {
-              fixedFunctionMaterial.DepthCompareType =
-                  peDesc.DepthFunction.ToFinDepthCompareType();
-
-              new GxFixedFunctionBlending().ApplyBlending(
-                  fixedFunctionMaterial,
-                  peDesc.BlendMode,
-                  peDesc.SrcFactor,
-                  peDesc.DstFactor,
-                  peDesc.BlendOp);
-              fixedFunctionMaterial.SetAlphaCompare(
-                  peDesc.AlphaOp.ToFinAlphaOp(),
-                  peDesc.AlphaComp0.ToFinAlphaCompareType(),
-                  peDesc.AlphaRef0,
-                  peDesc.AlphaComp1.ToFinAlphaCompareType(),
-                  peDesc.AlphaRef1);
-            }
-          }
-
-          finMaterial.Name = mObj.Name ?? mObjOffset.ToHex();
-
-          finMaterialsByMObjOffset[mObjOffset] = finMaterial;
 
           // Adds polygons
           foreach (var pObj in dObj.PObjs) {
+            var pObjFlags = pObj.Header.Flags;
+            var cullingMode = (pObjFlags.CheckFlag(PObjFlags.CULLFRONT),
+                               pObjFlags.CheckFlag(PObjFlags.CULLBACK))
+                switch {
+                    (true, true)  => CullingMode.SHOW_BOTH,
+                    (true, false) => CullingMode.SHOW_FRONT_ONLY,
+                    (false, true) => CullingMode.SHOW_BACK_ONLY,
+                    _             => CullingMode.SHOW_BOTH
+                };
+
+            var finMaterial =
+                finMaterialsByMObjOffset[(mObjOffset, cullingMode)];
+
             var vertexSpace = pObj.VertexSpace;
             var finWeights =
                 pObj.Weights
