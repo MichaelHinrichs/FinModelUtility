@@ -1,4 +1,6 @@
-﻿using fin.io.bundles;
+﻿using dat.api;
+
+using fin.io.bundles;
 
 using uni.platforms.gcn;
 
@@ -11,7 +13,19 @@ namespace uni.games.chibi_robo {
         yield break;
       }
 
-      yield break;
+      var qpBinFile = fileHierarchy.Root.AssertGetExistingFile("qp.bin");
+      var qpDir = fileHierarchy.Root.Impl.GetOrCreateSubdir("qpBin");
+      if (qpDir.IsEmpty) {
+        new QpBinArchiveExtractor().Extract(qpBinFile, qpDir);
+      }
+
+      foreach (var datFile in
+               fileHierarchy.Root.FilesWithExtensionRecursive(".dat")) {
+        yield return new DatModelFileBundle {
+            GameName = "chibi_robo",
+            PrimaryDatFile = datFile
+        }.Annotate(datFile);
+      }
     }
   }
 }
