@@ -44,7 +44,7 @@ namespace j3d.GCN {
           }
 
           br.Position = position1 + (long) this.ArrayFormatOffset;
-          br.ReadNewArray(out this.ArrayFormats, length1);
+          this.ArrayFormats = br.ReadNews<ArrayFormat>(length1);
 
           int index1 = 0;
           for (int k = 0; k < 13; ++k) {

@@ -17,8 +17,8 @@ namespace xmod.schema.xmod {
       tr.ReadUpToAndPastTerminator(TextReaderUtils.OPEN_BRACE);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
-      this.Adjuncts = tr.ReadNewArray<Adjunct>(numAdjuncts);
-      this.Primitives = tr.ReadNewArray<Primitive>(numPrimitives);
+      this.Adjuncts = tr.ReadNews<Adjunct>(numAdjuncts);
+      this.Primitives = tr.ReadNews<Primitive>(numPrimitives);
 
       tr.AssertString("mtx");
       this.MatrixTable = tr.ReadInt32s(TextReaderConstants.WHITESPACE_STRINGS,

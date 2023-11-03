@@ -45,8 +45,9 @@ namespace fin.testing.model {
     public static IEnumerable<IFileHierarchyDirectory> GetGoldenDirectories(
         ISystemDirectory rootGoldenDirectory) {
       var hierarchy = new FileHierarchy(rootGoldenDirectory);
-      return hierarchy.Root.GetExistingSubdirs().Where(
-          subdir => subdir.Name != TMP_NAME);
+      return hierarchy.Root.GetExistingSubdirs()
+                      .Where(
+                          subdir => subdir.Name != TMP_NAME);
     }
 
     public static IEnumerable<IFileHierarchyDirectory>
@@ -156,9 +157,9 @@ namespace fin.testing.model {
       }
     }
 
-    private static unsafe void AssertFilesAreIdentical_(
-        IReadOnlyGenericFile lhs,
-        IReadOnlyGenericFile rhs) {
+    private static void AssertFilesAreIdentical_(
+        IReadOnlyTreeFile lhs,
+        IReadOnlyTreeFile rhs) {
       using var lhsStream = lhs.OpenRead();
       using var rhsStream = rhs.OpenRead();
 
@@ -180,7 +181,7 @@ namespace fin.testing.model {
 
         if (lhsLong != rhsLong) {
           Asserts.Fail(
-              $"Files are different around byte #: {i * bytesToRead}");
+              $"Files with name \"{lhs.Name}\" are different around byte #: {i * bytesToRead}");
         }
       }
     }

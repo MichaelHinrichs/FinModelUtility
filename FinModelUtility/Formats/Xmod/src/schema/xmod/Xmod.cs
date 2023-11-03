@@ -47,10 +47,10 @@ namespace xmod.schema.xmod {
           TextReaderUtils.ReadInstances<Vector2>(tr, "t2", numUv2s);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
-      this.Materials = tr.ReadNewArray<Material>(numMaterials);
+      this.Materials = tr.ReadNews<Material>(numMaterials);
 
       var numPackets = Materials.Select(material => material.NumPackets).Sum();
-      this.Packets = tr.ReadNewArray<Packet>(numPackets);
+      this.Packets = tr.ReadNews<Packet>(numPackets);
     }
   }
 }

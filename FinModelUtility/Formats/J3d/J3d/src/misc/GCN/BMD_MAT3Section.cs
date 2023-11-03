@@ -113,12 +113,13 @@ namespace j3d.GCN {
           // TODO: Add support for texgen counts (10)
 
           br.Position = position1 + this.Offsets[11];
-          br.ReadNewArray(out this.TexCoordGens, sectionLengths[11] / 4);
+          this.TexCoordGens = br.ReadNews<TexCoordGen>(sectionLengths[11] / 4);
 
           // TODO: Add support for post tex coord gens (12)
 
           br.Position = position1 + (long) this.Offsets[13];
-          br.ReadNewArray(out this.TextureMatrices, sectionLengths[13] / 100);
+          this.TextureMatrices =
+              br.ReadNews<TextureMatrixInfo>(sectionLengths[13] / 100);
 
           // TODO: Add support for post tex matrices (14)
 
@@ -126,7 +127,7 @@ namespace j3d.GCN {
           this.TextureIndices = br.ReadInt16s(sectionLengths[15] / 2);
 
           br.Position = position1 + (long) this.Offsets[16];
-          br.ReadNewArray(out this.TevOrders, sectionLengths[16] / 4);
+          this.TevOrders = br.ReadNews<TevOrder>(sectionLengths[16] / 4);
 
           br.Position = position1 + (long) this.Offsets[17];
           this.TevColors = new Color[sectionLengths[17] / 8];
@@ -141,24 +142,24 @@ namespace j3d.GCN {
           // TODO: Add support for tev counts (19)
 
           br.Position = position1 + (long) this.Offsets[20];
-          br.ReadNewArray(out this.TevStages, sectionLengths[20] / 20);
+          this.TevStages = br.ReadNews<TevStageProps>(sectionLengths[20] / 20);
 
           br.Position = position1 + (long) this.Offsets[21];
-          br.ReadNewArray(out this.TevSwapModes, sectionLengths[21] / 4);
+          this.TevSwapModes = br.ReadNews<TevSwapMode>(sectionLengths[21] / 4);
 
           br.Position = position1 + (long) this.Offsets[22];
-          br.ReadNewArray(out this.TevSwapModeTables, sectionLengths[22] / 4);
+          this.TevSwapModeTables = br.ReadNews<TevSwapModeTable>(sectionLengths[22] / 4);
 
           // TODO: Add support for fog modes (23)
 
           br.Position = position1 + (long) this.Offsets[24];
-          br.ReadNewArray(out this.AlphaCompares, sectionLengths[24] / 8);
+          this.AlphaCompares = br.ReadNews<AlphaCompare>(sectionLengths[24] / 8);
 
           br.Position = position1 + (long) this.Offsets[25];
-          br.ReadNewArray(out this.BlendFunctions, sectionLengths[25] / 4);
+          this.BlendFunctions = br.ReadNews<BlendFunction>(sectionLengths[25] / 4);
 
           br.Position = position1 + (long) this.Offsets[26];
-          br.ReadNewArray(out this.DepthFunctions, sectionLengths[26] / 4);
+          this.DepthFunctions = br.ReadNews<DepthFunction>(sectionLengths[26] / 4);
 
           br.Position = position1 + (long) this.Header.size;
           OK = true;

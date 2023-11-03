@@ -57,7 +57,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           using var sbr = n64Memory.OpenAtSegmentedAddress(segmentedAddress);
 
           return new VtxOpcodeCommand {
-              Vertices = sbr.ReadNewArray<F3dVertex>((int) numVertices),
+              Vertices = sbr.ReadNews<F3dVertex>((int) numVertices),
               IndexToBeginStoringVertices = (byte) writeOffset,
           };
         }

@@ -10,10 +10,10 @@ namespace pmdc.schema.omd {
       var something = tr.ReadInt32();
 
       var materialCount = tr.ReadInt32();
-      this.Materials = tr.ReadNewArray<OmdMaterial>(materialCount);
+      this.Materials = tr.ReadNews<OmdMaterial>(materialCount);
 
       var meshCount = tr.ReadInt32();
-      this.Meshes = tr.ReadNewArray<OmdMesh>(meshCount);
+      this.Meshes = tr.ReadNews<OmdMesh>(meshCount);
     }
   }
 }

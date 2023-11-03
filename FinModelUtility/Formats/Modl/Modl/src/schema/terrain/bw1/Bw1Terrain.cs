@@ -38,11 +38,9 @@ namespace modl.schema.terrain.bw1 {
       var expectedMatlSectionSize = terrData.MaterialCount * 48;
       Asserts.Equal(expectedMatlSectionSize, matlSection.Size);
       br.Position = matlSection.Offset;
-      br.ReadNewArray<BwHeightmapMaterial>(
-          out var materials, terrData.MaterialCount);
+      this.Materials = br.ReadNews<BwHeightmapMaterial>(terrData.MaterialCount);
 
       this.Heightmap = new HeightmapParser(terrData, tilemapBytes, tilesBytes);
-      this.Materials = materials;
     }
   }
 }

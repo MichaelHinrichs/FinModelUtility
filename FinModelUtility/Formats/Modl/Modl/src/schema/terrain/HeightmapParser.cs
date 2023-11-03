@@ -37,8 +37,9 @@ namespace modl.schema.terrain {
         using var tilemapEr =
             new SchemaBinaryReader(new MemoryStream(tilemapBytes),
                                    Endianness.BigEndian);
-        tilemapEr.ReadNewArray(out tilemapDefinitions,
-                               chunkCountX * chunkCountY);
+        tilemapDefinitions =
+            tilemapEr.ReadNews<SchemaTilemapDefinition>(
+                chunkCountX * chunkCountY);
       }
 
       SchemaTile[] schemaTiles;
@@ -47,7 +48,7 @@ namespace modl.schema.terrain {
             new SchemaBinaryReader(new MemoryStream(tilesBytes),
                                    Endianness.BigEndian);
         var schemaTileCount = tilesBytes.Length / 180;
-        tilesEr.ReadNewArray(out schemaTiles, schemaTileCount);
+        schemaTiles = tilesEr.ReadNews<SchemaTile>(schemaTileCount);
       }
 
       var totalWidth = chunkSize * chunkCountX;

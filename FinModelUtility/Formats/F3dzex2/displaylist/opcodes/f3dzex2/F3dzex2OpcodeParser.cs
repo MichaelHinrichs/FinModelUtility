@@ -51,7 +51,7 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           using var sbr = n64Memory.OpenAtSegmentedAddress(br.ReadUInt32());
           return new VtxOpcodeCommand {
               IndexToBeginStoringVertices = indexToBeginStoringVertices,
-              Vertices = sbr.ReadNewArray<F3dVertex>(numVerticesToLoad),
+              Vertices = sbr.ReadNews<F3dVertex>(numVerticesToLoad),
           };
         }
         case F3dzex2Opcode.G_TRI1: {

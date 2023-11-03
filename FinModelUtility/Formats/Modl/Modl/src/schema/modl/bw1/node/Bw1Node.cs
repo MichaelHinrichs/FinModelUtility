@@ -186,7 +186,7 @@ namespace modl.schema.modl.bw1.node {
 
     private void ReadRnod_(IBinaryReader br) {
       var size = br.ReadInt32();
-      this.RnodMatrices = br.ReadNewArray<Matrix4x4f>(size);
+      this.RnodMatrices = br.ReadNews<Matrix4x4f>(size);
     }
 
 
@@ -209,14 +209,14 @@ namespace modl.schema.modl.bw1.node {
 
     private void ReadPositions_(IBinaryReader br, uint vertexCount)
       => this.Positions.AddRange(
-          br.ReadNewArray<VertexPosition>((int) vertexCount));
+          br.ReadNews<VertexPosition>((int) vertexCount));
 
 
     public List<VertexNormal> Normals { get; } = new();
 
     private void ReadNormals_(IBinaryReader br, uint vertexCount)
       => this.Normals.AddRange(
-          br.ReadNewArray<VertexNormal>((int) vertexCount));
+          br.ReadNews<VertexNormal>((int) vertexCount));
 
     public List<BwMesh> Meshes { get; } = new();
 

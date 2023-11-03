@@ -13,7 +13,7 @@ namespace pmdc.schema.omd {
       var something = tr.ReadInt32();
 
       var vertexCount = tr.ReadInt32();
-      this.Vertices = tr.ReadNewArray<OmdVertex>(vertexCount);
+      this.Vertices = tr.ReadNews<OmdVertex>(vertexCount);
     }
   }
 }

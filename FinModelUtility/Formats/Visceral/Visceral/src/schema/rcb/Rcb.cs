@@ -26,8 +26,7 @@ namespace visceral.schema.rcb {
       var dataOffset3 = br.ReadUInt32();
 
       br.Position = dataOffset;
-      br.ReadNewArray<Skeleton>(out var skeletons, (int) skeletonCount);
-      this.Skeletons = skeletons;
+      this.Skeletons = br.ReadNews<Skeleton>((int) skeletonCount);
     }
 
     public class Skeleton : IBinaryDeserializable {
@@ -63,12 +62,9 @@ namespace visceral.schema.rcb {
             });
 
         // Read bone matrices
-        br.SubreadAt(
+        this.Bones = br.SubreadAt(
             boneStart,
-            ser => {
-              br.ReadNewArray<Bone>(out var bones, (int) boneCount);
-              this.Bones = bones;
-            });
+            sbr => sbr.ReadNews<Bone>((int) boneCount));
       }
     }
 
