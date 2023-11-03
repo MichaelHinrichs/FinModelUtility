@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using fin.util.asserts;
-using fin.util.data;
+using fin.util.lists;
 
 namespace fin.language.equations.fixedFunction {
   // TODO: Optimize this.

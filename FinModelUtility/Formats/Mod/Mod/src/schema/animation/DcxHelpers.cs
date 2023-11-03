@@ -1,10 +1,12 @@
-﻿using fin.data;
+﻿using System.Collections.Generic;
+
+using fin.data;
 using fin.model;
 
 namespace mod.schema.animation {
   public static class DcxHelpers {
     public static IModelAnimation AddAnimation(
-        IBone[] bones,
+        IReadOnlyList<IBone> bones,
         IAnimationManager animationManager,
         IDcx dcx) {
       var isDck = dcx is Dck;

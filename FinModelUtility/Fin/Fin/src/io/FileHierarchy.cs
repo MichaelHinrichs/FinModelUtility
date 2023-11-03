@@ -1,17 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 
 using fin.data.stacks;
 using fin.util.asserts;
-using fin.util.data;
+using fin.util.lists;
 
 using fins.io.sharpDirLister;
-
-using schema.binary;
-using schema.text;
 
 namespace fin.io {
   public class FileHierarchy : IFileHierarchy {

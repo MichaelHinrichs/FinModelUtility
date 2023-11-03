@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 
-using fin.util.data;
+using fin.util.lists;
 
 namespace fin.language.equations.fixedFunction {
   public abstract class BColorValue : IColorValue {
