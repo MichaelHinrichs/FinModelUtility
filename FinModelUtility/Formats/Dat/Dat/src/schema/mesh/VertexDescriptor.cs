@@ -3,7 +3,7 @@
 using schema.binary;
 using schema.binary.attributes;
 
-namespace dat.schema {
+namespace dat.schema.mesh {
   public enum ColorComponentType : uint {
     RGB565,
     RGB888,

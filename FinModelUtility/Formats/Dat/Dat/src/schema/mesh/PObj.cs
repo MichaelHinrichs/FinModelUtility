@@ -15,7 +15,7 @@ using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 using Vector4 = System.Numerics.Vector4;
 
-namespace dat.schema {
+namespace dat.schema.mesh {
   [Flags]
   public enum PObjFlags : ushort {
     BIT_1 = (1 << 0),

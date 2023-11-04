@@ -1,4 +1,5 @@
 ﻿using dat.schema.material;
+using dat.schema.mesh;
 
 using schema.binary;
 using schema.binary.attributes;

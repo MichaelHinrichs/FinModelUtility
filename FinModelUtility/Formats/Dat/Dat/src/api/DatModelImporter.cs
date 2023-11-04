@@ -1,5 +1,6 @@
 ﻿using dat.schema;
 using dat.schema.material;
+using dat.schema.mesh;
 using dat.schema.texture;
 
 using fin.data.lazy;
