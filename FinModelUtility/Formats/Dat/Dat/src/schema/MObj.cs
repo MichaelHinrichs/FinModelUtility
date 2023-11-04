@@ -46,20 +46,26 @@ namespace dat.schema {
   [BinarySchema]
   public partial class MObj : IBinaryDeserializable {
     public uint StringOffset { get; set; }
+    public RenderMode RenderMode { get; set; }
+    public uint FirstTObjOffset { get; set; }
+    public uint MaterialOffset { get; private set; }
+    public uint Unk3 { get; set; }
+    public uint PeDescOffset { get; set; }
+
 
     [Ignore]
     public string? Name { get; set; }
 
-    public RenderMode RenderMode { get; set; }
-
-    public uint FirstTObjOffset { get; set; }
-
-    [Ignore]
-    private bool hasTObj_ => this.FirstTObjOffset != 0;
-
-    [RIfBoolean(nameof(hasTObj_))]
-    [RAtPosition(nameof(FirstTObjOffset))]
+    [RAtPositionOrNull(nameof(FirstTObjOffset))]
     public TObj? FirstTObj { get; set; }
+
+    [RAtPositionOrNull(nameof(MaterialOffset))]
+    public DatMaterial? Material { get; set; }
+
+    [RAtPositionOrNull(nameof(PeDescOffset))]
+    public PeDesc? PeDesc { get; set; }
+
+    // TODO: Add https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Common/HSD_MOBJ.cs#L156
 
     [Ignore]
     public IEnumerable<(uint, TObj)> TObjsAndOffsets {
@@ -75,29 +81,6 @@ namespace dat.schema {
         }
       }
     }
-
-    public uint MaterialOffset { get; private set; }
-
-    [Ignore]
-    private bool hasMaterial_ => this.MaterialOffset != 0;
-
-    [RIfBoolean(nameof(hasMaterial_))]
-    [RAtPosition(nameof(MaterialOffset))]
-    public DatMaterial? Material { get; set; }
-
-    public uint Unk3 { get; set; }
-
-    public uint PeDescOffset { get; set; }
-
-    [Ignore]
-    private bool hasPeDesc_ => this.PeDescOffset != 0;
-
-    [RIfBoolean(nameof(hasPeDesc_))]
-    [RAtPosition(nameof(PeDescOffset))]
-    public PeDesc? PeDesc { get; set; }
-
-
-    // TODO: Add https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Common/HSD_MOBJ.cs#L156
   }
 
   /// <summary>
@@ -139,18 +122,12 @@ namespace dat.schema {
     public float DestinationAlpha { get; set; }
 
     public GxBlendMode BlendMode { get; set; }
-
     public GxBlendFactor SrcFactor { get; set; }
     public GxBlendFactor DstFactor { get; set; }
-
     public GxLogicOp BlendOp { get; set; }
-
     public GxCompareType DepthFunction { get; set; }
-
     public GxCompareType AlphaComp0 { get; set; }
-
     public GxAlphaOp AlphaOp { get; set; }
-
     public GxCompareType AlphaComp1 { get; set; }
   }
 }

@@ -41,9 +41,9 @@ namespace fin.ui.rendering.gl {
       => SetBlendingSeparate(blendEquation,
                              srcFactor,
                              dstFactor,
-                             blendEquation,
-                             srcFactor,
-                             dstFactor,
+                             FinBlendEquation.ADD,
+                             FinBlendFactor.ONE,
+                             FinBlendFactor.ONE,
                              logicOp);
 
     public static bool SetBlendingSeparate(
@@ -87,7 +87,7 @@ namespace fin.ui.rendering.gl {
         GlBlendEquation alphaBlendEquationGl = GlBlendEquation.FuncAdd;
         GlBlendFactorSrc alphaSrcFactorGl = GlBlendFactorSrc.SrcAlpha;
         GlBlendFactorDst alphaDstFactorGl = GlBlendFactorDst.OneMinusSrcAlpha;
-        if (isAlphaNone) {
+        if (!isAlphaNone) {
           alphaBlendEquationGl =
               GlUtil.ConvertFinBlendEquationToGl_(alphaBlendEquation);
           alphaSrcFactorGl = ConvertFinBlendFactorToGlSrc_(alphaSrcFactor);
@@ -123,29 +123,6 @@ namespace fin.ui.rendering.gl {
           _ => throw new ArgumentOutOfRangeException(
               nameof(finBlendEquation),
               finBlendEquation,
-              null)
-      };
-
-    private static GlBlendFactor ConvertFinBlendFactorToGl_(
-        FinBlendFactor finBlendFactor)
-      => finBlendFactor switch {
-          FinBlendFactor.ZERO                => GlBlendFactor.Zero,
-          FinBlendFactor.ONE                 => GlBlendFactor.One,
-          FinBlendFactor.SRC_COLOR           => GlBlendFactor.SrcColor,
-          FinBlendFactor.ONE_MINUS_SRC_COLOR => GlBlendFactor.OneMinusSrcColor,
-          FinBlendFactor.SRC_ALPHA           => GlBlendFactor.SrcAlpha,
-          FinBlendFactor.ONE_MINUS_SRC_ALPHA => GlBlendFactor.OneMinusSrcAlpha,
-          FinBlendFactor.DST_ALPHA           => GlBlendFactor.DstAlpha,
-          FinBlendFactor.ONE_MINUS_DST_ALPHA => GlBlendFactor.OneMinusDstAlpha,
-          FinBlendFactor.CONST_COLOR         => GlBlendFactor.ConstantColor,
-          FinBlendFactor.ONE_MINUS_CONST_COLOR => GlBlendFactor
-              .OneMinusConstantColor,
-          FinBlendFactor.CONST_ALPHA => GlBlendFactor.ConstantColor,
-          FinBlendFactor.ONE_MINUS_CONST_ALPHA => GlBlendFactor
-              .OneMinusConstantAlpha,
-          _ => throw new ArgumentOutOfRangeException(
-              nameof(finBlendFactor),
-              finBlendFactor,
               null)
       };
 

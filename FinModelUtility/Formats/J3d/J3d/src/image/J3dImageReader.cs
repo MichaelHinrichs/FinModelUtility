@@ -42,7 +42,7 @@ namespace j3d.image {
               height,
               4,
               4,
-              new Al16PixelReader()),
+              new La16PixelReader()),
           GxTextureFormat.R5_G6_B5 => TiledImageReader.New(
               width,
               height,

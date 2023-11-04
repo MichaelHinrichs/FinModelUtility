@@ -16,8 +16,8 @@ namespace fin.image.io.pixel {
                               La16* scan0,
                               int offset) {
       var la = br.ReadUInt16();
-      var a = (byte) (la & 0xFF);
-      var l = (byte) (la >> 8);
+      var l = (byte) (la & 0xFF);
+      var a = (byte) (la >> 8);
       scan0[offset] = new La16(l, a);
     }
   }
