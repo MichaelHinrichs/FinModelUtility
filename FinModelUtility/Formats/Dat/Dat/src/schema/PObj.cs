@@ -42,13 +42,7 @@ namespace dat.schema {
   /// <summary>
   ///   Polygon object.
   /// </summary>
-  public partial class PObj : IBinaryDeserializable {
-    private readonly Dat dat_;
-
-    public PObj(Dat dat) {
-      this.dat_ = dat;
-    }
-
+  public partial class PObj : IDatLinkedListNode<PObj>, IBinaryDeserializable {
     [BinarySchema]
     public partial class PObjHeader : IBinaryDeserializable {
       public uint StringOffset { get; set; }
@@ -61,7 +55,7 @@ namespace dat.schema {
     }
 
     public PObjHeader Header { get; } = new();
-    public PObj? NextPObj { get; private set; }
+    public PObj? NextSibling { get; private set; }
 
     public List<VertexDescriptor> VertexDescriptors { get; } = new();
     public List<DatPrimitive> Primitives { get; } = new();
@@ -94,8 +88,8 @@ namespace dat.schema {
       if (this.Header.NextPObjOffset != 0) {
         br.Position = this.Header.NextPObjOffset;
 
-        this.NextPObj = new PObj(this.dat_);
-        this.NextPObj.Read(br);
+        this.NextSibling = new PObj();
+        this.NextSibling.Read(br);
       }
     }
 
@@ -114,12 +108,14 @@ namespace dat.schema {
         if (!this.Header.Flags.CheckFlag(PObjFlags.OBJTYPE_ENVELOPE)) {
           var currentJObjOffset = weightListOffset;
           while (currentJObjOffset != 0) {
-            var jObj = this.dat_.JObjByOffset[currentJObjOffset];
             pObjWeights.Add(new PObjWeight {
-                JObj = jObj,
+                JObjOffset = currentJObjOffset,
                 Weight = 1,
             }.AsList());
-            currentJObjOffset = jObj.Data.FirstChildBoneOffset;
+
+            br.Position = currentJObjOffset;
+            br.Position += 8; // FirstChildBoneOffset
+            currentJObjOffset = br.ReadUInt32();
           }
         } else {
           br.Position = this.Header.WeightListOffset;
@@ -134,7 +130,7 @@ namespace dat.schema {
                   while ((jObjOffset = sbr.ReadUInt32()) != 0) {
                     var weight = sbr.ReadSingle();
                     weights.Add(new PObjWeight {
-                        JObj = this.dat_.JObjByOffset[jObjOffset],
+                        JObjOffset = jObjOffset,
                         Weight = weight,
                     });
                   }
@@ -162,12 +158,12 @@ namespace dat.schema {
 
             // TODO: Is this actually needed???
             if (command == 0x50) {
-              this.dat_.VertexDescriptorValue &= ~((uint) 0x1FFFF);
-              this.dat_.VertexDescriptorValue |= value;
+              //this.dat_.VertexDescriptorValue &= ~((uint) 0x1FFFF);
+              //this.dat_.VertexDescriptorValue |= value;
             } else if (command == 0x60) {
               value <<= 17;
-              this.dat_.VertexDescriptorValue &= 0x1FFFF;
-              this.dat_.VertexDescriptorValue |= value;
+              //this.dat_.VertexDescriptorValue &= 0x1FFFF;
+              // this.dat_.VertexDescriptorValue |= value;
             } else {
               throw new NotImplementedException();
             }
@@ -417,7 +413,7 @@ namespace dat.schema {
   }
 
   public class PObjWeight {
-    public required JObj JObj { get; init; }
+    public required uint JObjOffset { get; init; }
     public required float Weight { get; init; }
   }
 }

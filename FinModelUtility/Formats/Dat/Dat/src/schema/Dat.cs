@@ -31,11 +31,11 @@ namespace dat.schema {
 
     public List<JObj> RootJObjs { get; } = new();
 
-    public IEnumerable<JObj> JObjs => this.RootJObjs.SelectMany(
-        this.EnumerateSelfAndChildrenWithinJObj_);
-
     private Dictionary<uint, JObj> jObjByOffset_ = new();
     public IReadOnlyDictionary<uint, JObj> JObjByOffset => this.jObjByOffset_;
+
+    public IEnumerable<JObj> JObjs => this.RootJObjs.SelectMany(
+        this.EnumerateSelfAndChildrenWithinJObj_);
 
     private IEnumerable<JObj> EnumerateSelfAndChildrenWithinJObj_(JObj jObj)
       => jObj.Yield()
@@ -179,8 +179,7 @@ namespace dat.schema {
       foreach (var jObj in this.JObjs) {
         if (jObj.Data.FirstDObjOffset != 0) {
           br.Position = jObj.Data.FirstDObjOffset;
-          jObj.FirstDObj = new DObj(this);
-          jObj.FirstDObj.Read(br);
+          jObj.FirstDObj = br.ReadNew<DObj>();
         }
       }
 
@@ -199,7 +198,7 @@ namespace dat.schema {
         }
 
         foreach (var dObj in jObj.DObjs) {
-          var dObjStringOffset = dObj.Header.StringOffset;
+          var dObjStringOffset = dObj.StringOffset;
           if (dObjStringOffset != 0) {
             br.Position = dObjStringOffset;
             dObj.Name = br.ReadStringNT();

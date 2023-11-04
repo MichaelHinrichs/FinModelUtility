@@ -74,17 +74,9 @@ namespace dat.schema {
 
     public string? Name { get; set; }
 
-    public DObj FirstDObj { get; set; }
+    public DObj? FirstDObj { get; set; }
 
-    public IEnumerable<DObj> DObjs {
-      get {
-        var current = this.FirstDObj;
-        while (current != null) {
-          yield return current;
-          current = current.NextDObj;
-        }
-      }
-    }
+    public IEnumerable<DObj> DObjs => this.FirstDObj.GetSelfAndSiblings();
 
     public List<JObj> Children { get; } = new();
 

@@ -30,6 +30,7 @@ namespace dat.api {
       var finSkin = finModel.Skin;
 
       // Adds skeleton
+      var jObjByOffset = dat.JObjByOffset;
       var finBoneByJObj = new Dictionary<JObj, IBone>();
       var boneWeightsByJObj = new Dictionary<JObj, IBoneWeights>();
       var boneQueue = new Queue<(IBone finParentBone, JObj datBone)>();
@@ -72,7 +73,7 @@ namespace dat.api {
         foreach (var dObj in jObj.DObjs) {
           var mObj = dObj.MObj;
           if (mObj != null) {
-            mObjByOffset[dObj.Header.MObjOffset] = mObj;
+            mObjByOffset[dObj.MObjOffset] = mObj;
             foreach (var (tObjOffset, tObj) in mObj.TObjsAndOffsets) {
               tObjByOffset[tObjOffset] = tObj;
             }
@@ -263,7 +264,7 @@ namespace dat.api {
       var finMesh = finSkin.AddMesh();
       foreach (var (jObj, dObj) in sortedJObjsAndDObjs) {
         var defaultBoneWeights = boneWeightsByJObj[jObj];
-        var mObjOffset = dObj.Header.MObjOffset;
+        var mObjOffset = dObj.MObjOffset;
 
         // Adds polygons
         foreach (var pObj in dObj.PObjs) {
@@ -283,17 +284,21 @@ namespace dat.api {
           var vertexSpace = pObj.VertexSpace;
           var finWeights =
               pObj.Weights
-                  ?.Select(pObjWeights => finSkin.GetOrCreateBoneWeights(
-                               vertexSpace,
-                               pObjWeights
-                                   .Select(
-                                       pObjWeight => new BoneWeight(
-                                           finBoneByJObj[pObjWeight.JObj],
-                                           pObjWeight.JObj
-                                               .InverseBindMatrix,
-                                           pObjWeight.Weight
-                                       ))
-                                   .ToArray()))
+                  ?.Select(
+                      pObjWeights => finSkin.GetOrCreateBoneWeights(
+                          vertexSpace,
+                          pObjWeights
+                              .Select(
+                                  pObjWeight => {
+                                    var jObj =
+                                        jObjByOffset[pObjWeight.JObjOffset];
+                                    return new BoneWeight(
+                                        finBoneByJObj[jObj],
+                                        jObj.InverseBindMatrix,
+                                        pObjWeight.Weight
+                                    );
+                                  })
+                              .ToArray()))
                   .ToArray();
 
           foreach (var datPrimitive in pObj.Primitives) {
