@@ -1,4 +1,6 @@
-﻿using fin.data.queues;
+﻿using dat.schema.animation;
+
+using fin.data.queues;
 using fin.math.matrix.four;
 using fin.util.asserts;
 using fin.util.enumerables;
@@ -37,6 +39,14 @@ namespace dat.schema {
 
     public IEnumerable<JObj> JObjs => this.RootJObjs.SelectMany(
         DatNodeExtensions.GetSelfAndChildrenAndSiblings);
+
+
+    public List<MatAnimJoint> RootMatAnimJoints { get; } = new();
+
+    public IEnumerable<MatAnimJoint> MatAnimJoints
+      => this.RootMatAnimJoints.SelectMany(
+          DatNodeExtensions.GetSelfAndChildrenAndSiblings);
+
 
     public void Read(IBinaryReader br) {
       var fileHeader = br.ReadNew<FileHeader>();
@@ -87,26 +97,36 @@ namespace dat.schema {
         }
       }
 
-      this.ReadJObs_(br);
+      this.ReadRootNodeObjects_(br);
       this.ReadNames_(br);
     }
 
-    private void ReadJObs_(IBinaryReader br) {
+    private void ReadRootNodeObjects_(IBinaryReader br) {
       br.Position = this.dataBlockOffset_;
       br.PushLocalSpace();
 
       var jObjQueue = new FinTuple2Queue<uint, JObj>();
 
       this.RootJObjs.Clear();
-      foreach (var rootNode in this.rootNodes_.Where(
-                   rootNode => rootNode.Type == RootNodeType.JObj)) {
-        var jObjOffset = rootNode.Data.DataOffset;
-        br.Position = jObjOffset;
+      this.RootMatAnimJoints.Clear();
+      foreach (var rootNode in this.rootNodes_) {
+        switch (rootNode.Type) {
+          case RootNodeType.JObj: {
+            var jObjOffset = rootNode.Data.DataOffset;
+            br.Position = jObjOffset;
 
-        var jObj = br.ReadNew<JObj>();
-        this.RootJObjs.Add(jObj);
+            var jObj = br.ReadNew<JObj>();
+            this.RootJObjs.Add(jObj);
 
-        jObjQueue.Enqueue((jObjOffset, jObj));
+            jObjQueue.Enqueue((jObjOffset, jObj));
+            break;
+          }
+          case RootNodeType.MATANIM_JOINT: {
+            br.Position = rootNode.Data.DataOffset;
+            this.RootMatAnimJoints.Add(br.ReadNew<MatAnimJoint>());
+            break;
+          }
+        }
       }
 
       br.PopLocalSpace();

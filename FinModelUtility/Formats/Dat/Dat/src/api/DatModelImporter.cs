@@ -76,6 +76,13 @@ namespace dat.api {
         }
       }
 
+      // Adds animations
+      foreach (var matAnimJoint in dat.MatAnimJoints) {
+        var matAnim = matAnimJoint.MatAnim;
+
+        ;
+      }
+
       // Adds mesh and materials
       var mObjByOffset = new Dictionary<uint, MObj>();
       var tObjByOffset = new Dictionary<uint, TObj>();
