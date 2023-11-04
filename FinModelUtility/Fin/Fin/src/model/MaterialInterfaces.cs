@@ -376,6 +376,8 @@ namespace fin.model {
 
     TextureMagFilter MagFilter { get; set; }
     TextureMinFilter MinFilter { get; set; }
+    float MinLod { get; set; }
+    float LodBias { get; set; }
 
     IReadOnlyVector2? ClampS { get; set; }
     IReadOnlyVector2? ClampT { get; set; }
@@ -392,7 +394,10 @@ namespace fin.model {
 
     IReadOnlyVector3? RotationRadians { get; }
     ITexture SetRotationRadians2d(float rotationRadians);
-    ITexture SetRotationRadians3d(float xRadians, float yRadians, float zRadians);
+
+    ITexture SetRotationRadians3d(float xRadians,
+                                  float yRadians,
+                                  float zRadians);
 
     // TODO: Support fixed # of repeats
     // TODO: Support animated textures

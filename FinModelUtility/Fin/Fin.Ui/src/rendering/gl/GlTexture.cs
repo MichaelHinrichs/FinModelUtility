@@ -116,6 +116,12 @@ namespace fin.ui.rendering.gl {
                 TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL
                                                  .TextureMagFilter.Linear,
             }));
+        GL.TexParameter(target,
+                        TextureParameterName.TextureLodBias,
+                        texture.LodBias);
+        GL.TexParameter(target,
+                        TextureParameterName.TextureMinLod,
+                        texture.LodBias);
       }
       GL.BindTexture(target, UNDEFINED_ID);
     }

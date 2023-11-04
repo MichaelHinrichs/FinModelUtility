@@ -1,11 +1,9 @@
-﻿using fin.schema.color;
-
-using gx;
+﻿using dat.schema.texture;
 
 using schema.binary;
 using schema.binary.attributes;
 
-namespace dat.schema {
+namespace dat.schema.material {
   [Flags]
   public enum RenderMode : int {
     CONSTANT = (1 << 0),
@@ -65,8 +63,6 @@ namespace dat.schema {
     [RAtPositionOrNull(nameof(PeDescOffset))]
     public PeDesc? PeDesc { get; set; }
 
-    // TODO: Add https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Common/HSD_MOBJ.cs#L156
-
     [Ignore]
     public IEnumerable<(uint, TObj)> TObjsAndOffsets {
       get {
@@ -81,53 +77,5 @@ namespace dat.schema {
         }
       }
     }
-  }
-
-  /// <summary>
-  ///   Shamelessly copied from:
-  ///   https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Common/HSD_MOBJ.cs#L101
-  /// </summary>
-  [BinarySchema]
-  public partial class DatMaterial : IBinaryDeserializable {
-    public Rgba32 AmbientColor { get; set; }
-    public Rgba32 DiffuseColor { get; set; }
-    public Rgba32 SpecularColor { get; set; }
-    public float Alpha { get; set; }
-    public float Shininess { get; set; }
-  }
-
-
-  [Flags]
-  public enum PIXEL_PROCESS_ENABLE : byte {
-    COLOR_UPDATE = (1 << 0),
-    ALPHA_UPDATE = (1 << 1),
-    DST_ALPHA = (1 << 2),
-    BEFORE_TEX = (1 << 3),
-    COMPARE = (1 << 4),
-    ZUPDATE = (1 << 5),
-    DITHER = (1 << 6)
-  }
-
-  [BinarySchema]
-  public partial class PeDesc : IBinaryDeserializable {
-    public PIXEL_PROCESS_ENABLE Flags { get; set; }
-
-    [NumberFormat(SchemaNumberType.UN8)]
-    public float AlphaRef0 { get; set; }
-
-    [NumberFormat(SchemaNumberType.UN8)]
-    public float AlphaRef1 { get; set; }
-
-    [NumberFormat(SchemaNumberType.UN8)]
-    public float DestinationAlpha { get; set; }
-
-    public GxBlendMode BlendMode { get; set; }
-    public GxBlendFactor SrcFactor { get; set; }
-    public GxBlendFactor DstFactor { get; set; }
-    public GxLogicOp BlendOp { get; set; }
-    public GxCompareType DepthFunction { get; set; }
-    public GxCompareType AlphaComp0 { get; set; }
-    public GxAlphaOp AlphaOp { get; set; }
-    public GxCompareType AlphaComp1 { get; set; }
   }
 }

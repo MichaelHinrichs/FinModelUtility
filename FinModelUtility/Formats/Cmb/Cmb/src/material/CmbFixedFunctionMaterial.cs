@@ -129,6 +129,8 @@ namespace cmb.material {
                           CmbTextureMagFilter.Linear =>
                               FinTextureMagFilter.LINEAR,
                       };
+                  finTexture.LodBias = texMapper.lodBias;
+                  finTexture.MinLod = texMapper.minLodBias;
                   finTexture.UvIndex = cmbTexCoord.coordinateIndex;
 
                   finTexture.UvType =

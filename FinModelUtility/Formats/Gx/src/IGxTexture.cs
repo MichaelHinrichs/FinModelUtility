@@ -7,15 +7,6 @@ namespace gx {
     GX_LINEAR,
   }
 
-  public static class GxTextureFilterExtensions {
-    public static TextureMagFilter ToFinMagFilter(
-        this GX_MAG_TEXTURE_FILTER gxMagFilter)
-      => gxMagFilter switch {
-          GX_MAG_TEXTURE_FILTER.GX_NEAR   => TextureMagFilter.NEAR,
-          GX_MAG_TEXTURE_FILTER.GX_LINEAR => TextureMagFilter.LINEAR,
-      };
-  };
-
   public enum GX_MIN_TEXTURE_FILTER : byte {
     GX_NEAR,
     GX_LINEAR,
@@ -26,6 +17,32 @@ namespace gx {
     GX_NEAR2,
     GX_NEAR3,
   }
+
+  public static class GxTextureFilterExtensions {
+    public static TextureMagFilter ToFinMagFilter(
+        this GX_MAG_TEXTURE_FILTER gxMagFilter)
+      => gxMagFilter switch {
+          GX_MAG_TEXTURE_FILTER.GX_NEAR   => TextureMagFilter.NEAR,
+          GX_MAG_TEXTURE_FILTER.GX_LINEAR => TextureMagFilter.LINEAR,
+      };
+
+    public static TextureMinFilter ToFinMinFilter(
+        this GX_MIN_TEXTURE_FILTER gxMinFilter)
+      => gxMinFilter switch {
+          GX_MIN_TEXTURE_FILTER.GX_NEAR   => TextureMinFilter.NEAR,
+          GX_MIN_TEXTURE_FILTER.GX_LINEAR => TextureMinFilter.LINEAR,
+          GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_NEAR => TextureMinFilter
+              .NEAR_MIPMAP_NEAR,
+          GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_NEAR => TextureMinFilter
+              .LINEAR_MIPMAP_NEAR,
+          GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_LIN => TextureMinFilter
+              .NEAR_MIPMAP_LINEAR,
+          GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_LIN => TextureMinFilter
+              .LINEAR_MIPMAP_NEAR,
+          GX_MIN_TEXTURE_FILTER.GX_NEAR2 => TextureMinFilter.NEAR,
+          GX_MIN_TEXTURE_FILTER.GX_NEAR3 => TextureMinFilter.NEAR,
+      };
+  };
 
   public interface IGxTexture {
     string Name { get; }

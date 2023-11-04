@@ -11,41 +11,41 @@ using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace dat.schema {
+namespace dat.schema.texture {
   [Flags]
   public enum TObjFlags {
-    COORD_UV = (0 << 0),
-    COORD_REFLECTION = (1 << 0),
-    COORD_HILIGHT = (2 << 0),
-    COORD_SHADOW = (3 << 0),
-    COORD_TOON = (4 << 0),
-    COORD_GRADATION = (5 << 0),
-    LIGHTMAP_DIFFUSE = (1 << 4),
-    LIGHTMAP_SPECULAR = (1 << 5),
-    LIGHTMAP_AMBIENT = (1 << 6),
-    LIGHTMAP_EXT = (1 << 7),
-    LIGHTMAP_SHADOW = (1 << 8),
+    COORD_UV = 0 << 0,
+    COORD_REFLECTION = 1 << 0,
+    COORD_HILIGHT = 2 << 0,
+    COORD_SHADOW = 3 << 0,
+    COORD_TOON = 4 << 0,
+    COORD_GRADATION = 5 << 0,
+    LIGHTMAP_DIFFUSE = 1 << 4,
+    LIGHTMAP_SPECULAR = 1 << 5,
+    LIGHTMAP_AMBIENT = 1 << 6,
+    LIGHTMAP_EXT = 1 << 7,
+    LIGHTMAP_SHADOW = 1 << 8,
 
     //COLORMAP_NONE = (0 << 16),
-    COLORMAP_ALPHA_MASK = (1 << 16),
-    COLORMAP_RGB_MASK = (2 << 16),
-    COLORMAP_BLEND = (3 << 16),
-    COLORMAP_MODULATE = (4 << 16),
-    COLORMAP_REPLACE = (5 << 16),
-    COLORMAP_PASS = (6 << 16),
-    COLORMAP_ADD = (7 << 16),
-    COLORMAP_SUB = (8 << 16),
+    COLORMAP_ALPHA_MASK = 1 << 16,
+    COLORMAP_RGB_MASK = 2 << 16,
+    COLORMAP_BLEND = 3 << 16,
+    COLORMAP_MODULATE = 4 << 16,
+    COLORMAP_REPLACE = 5 << 16,
+    COLORMAP_PASS = 6 << 16,
+    COLORMAP_ADD = 7 << 16,
+    COLORMAP_SUB = 8 << 16,
 
     //ALPHAMAP_NONE = (0 << 20),
-    ALPHAMAP_ALPHA_MASK = (1 << 20),
-    ALPHAMAP_BLEND = (2 << 20),
-    ALPHAMAP_MODULATE = (3 << 20),
-    ALPHAMAP_REPLACE = (4 << 20),
-    ALPHAMAP_PASS = (5 << 20),
-    ALPHAMAP_ADD = (6 << 20),
-    ALPHAMAP_SUB = (7 << 20),
-    BUMP = (1 << 24),
-    MTX_DIRTY = (1 << 31)
+    ALPHAMAP_ALPHA_MASK = 1 << 20,
+    ALPHAMAP_BLEND = 2 << 20,
+    ALPHAMAP_MODULATE = 3 << 20,
+    ALPHAMAP_REPLACE = 4 << 20,
+    ALPHAMAP_PASS = 5 << 20,
+    ALPHAMAP_ADD = 6 << 20,
+    ALPHAMAP_SUB = 7 << 20,
+    BUMP = 1 << 24,
+    MTX_DIRTY = 1 << 31
   }
 
   public enum Coord {
@@ -85,12 +85,12 @@ namespace dat.schema {
       var mask = 7 << 0;
       var maskedFlags = (TObjFlags) ((int) flags & mask);
       return maskedFlags switch {
-          TObjFlags.COORD_UV         => Coord.UV,
-          TObjFlags.COORD_REFLECTION => Coord.REFLECTION,
-          TObjFlags.COORD_HILIGHT    => Coord.HILIGHT,
-          TObjFlags.COORD_SHADOW     => Coord.SHADOW,
-          TObjFlags.COORD_TOON       => Coord.TOON,
-          TObjFlags.COORD_GRADATION  => Coord.GRADATION,
+        TObjFlags.COORD_UV => Coord.UV,
+        TObjFlags.COORD_REFLECTION => Coord.REFLECTION,
+        TObjFlags.COORD_HILIGHT => Coord.HILIGHT,
+        TObjFlags.COORD_SHADOW => Coord.SHADOW,
+        TObjFlags.COORD_TOON => Coord.TOON,
+        TObjFlags.COORD_GRADATION => Coord.GRADATION,
       };
     }
 
@@ -98,15 +98,15 @@ namespace dat.schema {
       var mask = 15 << 16;
       var maskedFlags = (TObjFlags) ((int) flags & mask);
       return maskedFlags switch {
-          TObjFlags.COLORMAP_ALPHA_MASK => ColorMap.ALPHA_MASK,
-          TObjFlags.COLORMAP_RGB_MASK   => ColorMap.RGB_MASK,
-          TObjFlags.COLORMAP_BLEND      => ColorMap.BLEND,
-          TObjFlags.COLORMAP_MODULATE   => ColorMap.MODULATE,
-          TObjFlags.COLORMAP_REPLACE    => ColorMap.REPLACE,
-          TObjFlags.COLORMAP_PASS       => ColorMap.PASS,
-          TObjFlags.COLORMAP_ADD        => ColorMap.ADD,
-          TObjFlags.COLORMAP_SUB        => ColorMap.SUB,
-          0                             => ColorMap.NONE,
+        TObjFlags.COLORMAP_ALPHA_MASK => ColorMap.ALPHA_MASK,
+        TObjFlags.COLORMAP_RGB_MASK => ColorMap.RGB_MASK,
+        TObjFlags.COLORMAP_BLEND => ColorMap.BLEND,
+        TObjFlags.COLORMAP_MODULATE => ColorMap.MODULATE,
+        TObjFlags.COLORMAP_REPLACE => ColorMap.REPLACE,
+        TObjFlags.COLORMAP_PASS => ColorMap.PASS,
+        TObjFlags.COLORMAP_ADD => ColorMap.ADD,
+        TObjFlags.COLORMAP_SUB => ColorMap.SUB,
+        0 => ColorMap.NONE,
       };
     }
 
@@ -114,14 +114,14 @@ namespace dat.schema {
       var mask = 7 << 20;
       var maskedFlags = (TObjFlags) ((int) flags & mask);
       return maskedFlags switch {
-          TObjFlags.ALPHAMAP_ALPHA_MASK => AlphaMap.ALPHA_MASK,
-          TObjFlags.ALPHAMAP_BLEND      => AlphaMap.BLEND,
-          TObjFlags.ALPHAMAP_MODULATE   => AlphaMap.MODULATE,
-          TObjFlags.ALPHAMAP_REPLACE    => AlphaMap.REPLACE,
-          TObjFlags.ALPHAMAP_PASS       => AlphaMap.PASS,
-          TObjFlags.ALPHAMAP_ADD        => AlphaMap.ADD,
-          TObjFlags.ALPHAMAP_SUB        => AlphaMap.SUB,
-          0                             => AlphaMap.NONE,
+        TObjFlags.ALPHAMAP_ALPHA_MASK => AlphaMap.ALPHA_MASK,
+        TObjFlags.ALPHAMAP_BLEND => AlphaMap.BLEND,
+        TObjFlags.ALPHAMAP_MODULATE => AlphaMap.MODULATE,
+        TObjFlags.ALPHAMAP_REPLACE => AlphaMap.REPLACE,
+        TObjFlags.ALPHAMAP_PASS => AlphaMap.PASS,
+        TObjFlags.ALPHAMAP_ADD => AlphaMap.ADD,
+        TObjFlags.ALPHAMAP_SUB => AlphaMap.SUB,
+        0 => AlphaMap.NONE,
       };
     }
   }
@@ -158,6 +158,7 @@ namespace dat.schema {
     public float Blending { get; private set; }
 
     public GX_MAG_TEXTURE_FILTER MagFilter { get; private set; }
+    public TObjLod? Lod { get; private set; }
 
     public IImage Image { get; private set; }
 
@@ -189,6 +190,7 @@ namespace dat.schema {
 
       var imageOffset = br.ReadUInt32();
       var paletteOffset = br.ReadUInt32();
+      var lodOffset = br.ReadUInt32();
 
       br.Position = imageOffset;
       var imageDataOffset = br.ReadUInt32();
@@ -203,6 +205,11 @@ namespace dat.schema {
       var paletteEntryCount = br.ReadUInt16();
       var unk2 = br.ReadUInt16();
 
+      if (lodOffset != 0) {
+        br.Position = lodOffset;
+        this.Lod = br.ReadNew<TObjLod>();
+      }
+
       // TODO: Add support for indexed textures
       try {
         br.Position = imageDataOffset;
@@ -216,31 +223,31 @@ namespace dat.schema {
           for (var i = 0; i < paletteEntryCount; ++i) {
             switch (paletteFormat) {
               case GxPaletteFormat.PAL_A8_I8: {
-                var alpha = br.ReadByte();
-                var intensity = br.ReadByte();
-                palette[i] =
-                    new Rgba32(intensity, intensity, intensity, alpha);
-                break;
-              }
+                  var alpha = br.ReadByte();
+                  var intensity = br.ReadByte();
+                  palette[i] =
+                      new Rgba32(intensity, intensity, intensity, alpha);
+                  break;
+                }
               case GxPaletteFormat.PAL_R5_G6_B5: {
-                // Curiously, the colors are flipped here.
-                ColorUtil.SplitRgb565(br.ReadUInt16(),
-                                      out var r,
-                                      out var g,
-                                      out var b);
-                palette[i] = new Rgba32(r, g, b);
-                break;
-              }
+                  // Curiously, the colors are flipped here.
+                  ColorUtil.SplitRgb565(br.ReadUInt16(),
+                                        out var r,
+                                        out var g,
+                                        out var b);
+                  palette[i] = new Rgba32(r, g, b);
+                  break;
+                }
               // TODO: There seems to be a bug reading the palette, these colors look weird
               case GxPaletteFormat.PAL_A3_RGB5: {
-                ColorUtil.SplitRgb5A3(br.ReadUInt16(),
-                                      out var r,
-                                      out var g,
-                                      out var b,
-                                      out var a);
-                palette[i] = new Rgba32(r, g, b, a);
-                break;
-              }
+                  ColorUtil.SplitRgb5A3(br.ReadUInt16(),
+                                        out var r,
+                                        out var g,
+                                        out var b,
+                                        out var a);
+                  palette[i] = new Rgba32(r, g, b, a);
+                  break;
+                }
               default:
                 throw new ArgumentOutOfRangeException();
             }

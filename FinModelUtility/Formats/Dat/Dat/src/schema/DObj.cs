@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using dat.schema.material;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace dat.schema {

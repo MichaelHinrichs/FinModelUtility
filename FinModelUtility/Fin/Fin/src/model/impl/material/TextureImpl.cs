@@ -68,6 +68,9 @@ namespace fin.model.impl {
       public TextureMinFilter MinFilter { get; set; } =
         TextureMinFilter.LINEAR_MIPMAP_LINEAR;
 
+      public float MinLod { get; set; } = -1000;
+      public float LodBias { get; set; } = 0;
+
       public IReadOnlyVector2? ClampS { get; set; }
       public IReadOnlyVector2? ClampT { get; set; }
 

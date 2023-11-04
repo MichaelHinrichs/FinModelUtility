@@ -56,22 +56,10 @@ namespace j3d.exporter {
                 texture.Name = bmdTexture.Name;
                 texture.WrapModeU = bmdTexture.WrapModeS.ToFinWrapMode();
                 texture.WrapModeV = bmdTexture.WrapModeT.ToFinWrapMode();
-                texture.MinFilter = bmdTexture.MinTextureFilter switch {
-                    GX_MIN_TEXTURE_FILTER.GX_NEAR   => TextureMinFilter.NEAR,
-                    GX_MIN_TEXTURE_FILTER.GX_LINEAR => TextureMinFilter.LINEAR,
-                    GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_NEAR => TextureMinFilter
-                        .NEAR_MIPMAP_NEAR,
-                    GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_NEAR => TextureMinFilter
-                        .LINEAR_MIPMAP_NEAR,
-                    GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_LIN => TextureMinFilter
-                        .NEAR_MIPMAP_LINEAR,
-                    GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_LIN => TextureMinFilter
-                        .LINEAR_MIPMAP_NEAR,
-                    GX_MIN_TEXTURE_FILTER.GX_NEAR2 => TextureMinFilter.NEAR,
-                    GX_MIN_TEXTURE_FILTER.GX_NEAR3 => TextureMinFilter.NEAR,
-                };
                 texture.MagFilter =
                     bmdTexture.MagTextureFilter.ToFinMagFilter();
+                texture.MinFilter =
+                    bmdTexture.MinTextureFilter.ToFinMinFilter();
                 texture.ColorType = bmdTexture.ColorType;
 
                 var texGenSrc = texCoordGen.TexGenSrc;
@@ -98,7 +86,8 @@ namespace j3d.exporter {
 
                   var texTranslation = texMatrix.Translation;
                   var texScale = texMatrix.Scale;
-                  var texRotationRadians = texMatrix.Rotation / 32768f * MathF.PI;
+                  var texRotationRadians =
+                      texMatrix.Rotation / 32768f * MathF.PI;
 
                   texture.SetOffset2d(texTranslation.X, texTranslation.Y)
                          .SetScale2d(texScale.X, texScale.Y)

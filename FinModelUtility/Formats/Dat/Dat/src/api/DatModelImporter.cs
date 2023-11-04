@@ -1,4 +1,6 @@
 ﻿using dat.schema;
+using dat.schema.material;
+using dat.schema.texture;
 
 using fin.data.lazy;
 using fin.image;
@@ -117,6 +119,14 @@ namespace dat.api {
             finTexture.Name = tObj.Name ?? tObjOffset.ToHex();
 
             finTexture.MagFilter = tObj.MagFilter.ToFinMagFilter();
+
+            var lod = tObj.Lod;
+            if (lod != null) {
+              finTexture.MinFilter = lod.MinFilter.ToFinMinFilter();
+              finTexture.LodBias = lod.Bias;
+            } else {
+              finTexture.MinFilter = TextureMinFilter.LINEAR;
+            }
 
             finTexture.WrapModeU = tObj.WrapS.ToFinWrapMode();
             finTexture.WrapModeV = tObj.WrapT.ToFinWrapMode();
