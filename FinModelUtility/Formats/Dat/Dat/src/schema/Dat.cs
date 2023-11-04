@@ -1,4 +1,5 @@
-﻿using fin.math.matrix.four;
+﻿using fin.data.queues;
+using fin.math.matrix.four;
 using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.hex;
@@ -31,20 +32,13 @@ namespace dat.schema {
 
     public List<JObj> RootJObjs { get; } = new();
 
-    private Dictionary<uint, JObj> jObjByOffset_ = new();
+    private readonly Dictionary<uint, JObj> jObjByOffset_ = new();
     public IReadOnlyDictionary<uint, JObj> JObjByOffset => this.jObjByOffset_;
 
     public IEnumerable<JObj> JObjs => this.RootJObjs.SelectMany(
-        this.EnumerateSelfAndChildrenWithinJObj_);
-
-    private IEnumerable<JObj> EnumerateSelfAndChildrenWithinJObj_(JObj jObj)
-      => jObj.Yield()
-             .Concat(jObj.Children.SelectMany(
-                         this.EnumerateSelfAndChildrenWithinJObj_));
+        DatNodeExtensions.GetSelfAndChildrenAndSiblings);
 
     public void Read(IBinaryReader br) {
-      this.VertexDescriptorValue = (uint) 0;
-
       var fileHeader = br.ReadNew<FileHeader>();
       Asserts.Equal(br.Length, fileHeader.FileSize);
 
@@ -94,96 +88,40 @@ namespace dat.schema {
       }
 
       this.ReadJObs_(br);
-      this.ReadDObjs_(br);
       this.ReadNames_(br);
     }
 
-    private bool AssertNullOrValidPointer_(uint pointer) {
-      if (pointer == 0) {
-        return false;
-      }
-
-      if (!this.validOffsets_.Contains(pointer)) {
-        ;
-      }
-
-      Asserts.True(this.validOffsets_.Contains(pointer));
-      return true;
-    }
-
-    public uint VertexDescriptorValue { get; set; }
-
     private void ReadJObs_(IBinaryReader br) {
-      var jObjQueue =
-          new Queue<(
-              RootNode rootNode,
-              JObj? parentJObj,
-              uint jObjDataOffset
-              )>();
-
-      foreach (var rootNode in this.rootNodes_.Where(
-                   rootNode => rootNode.Type == RootNodeType.JObj)) {
-        jObjQueue.Enqueue((rootNode, null, rootNode.Data.DataOffset));
-      }
-
       br.Position = this.dataBlockOffset_;
       br.PushLocalSpace();
+
+      var jObjQueue = new FinTuple2Queue<uint, JObj>();
 
       this.RootJObjs.Clear();
-      while (jObjQueue.Count > 0) {
-        var (rootNode, parentJObj, jObjDataOffset) = jObjQueue.Dequeue();
+      foreach (var rootNode in this.rootNodes_.Where(
+                   rootNode => rootNode.Type == RootNodeType.JObj)) {
+        var jObjOffset = rootNode.Data.DataOffset;
+        br.Position = jObjOffset;
 
-        var jObj = new JObj();
-        var jObjData = jObj.Data;
+        var jObj = br.ReadNew<JObj>();
+        this.RootJObjs.Add(jObj);
 
-        this.jObjByOffset_[jObjDataOffset] = jObj;
-        jObj.Name = jObjDataOffset.ToHex();
-
-        if (parentJObj == null) {
-          this.RootJObjs.Add(jObj);
-        } else {
-          parentJObj.Children.Add(jObj);
-        }
-
-        br.Position = jObjDataOffset;
-        jObjData.Read(br);
-
-        if (jObjData.InverseBindMatrixOffset != 0) {
-          br.Position = jObjData.InverseBindMatrixOffset;
-
-          var inverseBindMatrixValues = new float[4 * 4];
-          br.ReadSingles(inverseBindMatrixValues.AsSpan(0, 4 * 3));
-          inverseBindMatrixValues[15] = 1;
-          jObj.InverseBindMatrix =
-              new FinMatrix4x4(inverseBindMatrixValues).TransposeInPlace();
-        }
-
-        var firstChildOffset = jObj.Data.FirstChildBoneOffset;
-        if (this.AssertNullOrValidPointer_(firstChildOffset)) {
-          jObjQueue.Enqueue((rootNode, jObj, firstChildOffset));
-        }
-
-        var nextSiblingOffset = jObj.Data.NextSiblingBoneOffset;
-        if (this.AssertNullOrValidPointer_(nextSiblingOffset)) {
-          jObjQueue.Enqueue((rootNode, parentJObj, nextSiblingOffset));
-        }
+        jObjQueue.Enqueue((jObjOffset, jObj));
       }
 
       br.PopLocalSpace();
-    }
 
-    private void ReadDObjs_(IBinaryReader br) {
-      br.Position = this.dataBlockOffset_;
-      br.PushLocalSpace();
+      while (jObjQueue.TryDequeue(out var jObjOffset, out var jObj)) {
+        this.jObjByOffset_[jObjOffset] = jObj;
 
-      foreach (var jObj in this.JObjs) {
-        if (jObj.Data.FirstDObjOffset != 0) {
-          br.Position = jObj.Data.FirstDObjOffset;
-          jObj.FirstDObj = br.ReadNew<DObj>();
+        if (jObj.FirstChild != null) {
+          jObjQueue.Enqueue((jObj.FirstChildBoneOffset, jObj.FirstChild));
+        }
+
+        if (jObj.NextSibling != null) {
+          jObjQueue.Enqueue((jObj.NextSiblingBoneOffset, jObj.NextSibling));
         }
       }
-
-      br.PopLocalSpace();
     }
 
     private void ReadNames_(IBinaryReader br) {
@@ -191,7 +129,7 @@ namespace dat.schema {
       br.PushLocalSpace();
 
       foreach (var jObj in this.JObjs) {
-        var jObjStringOffset = jObj.Data.StringOffset;
+        var jObjStringOffset = jObj.StringOffset;
         if (jObjStringOffset != 0) {
           br.Position = jObjStringOffset;
           jObj.Name = br.ReadStringNT();

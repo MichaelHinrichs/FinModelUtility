@@ -3,6 +3,7 @@ using fin.schema;
 using fin.schema.vector;
 
 using schema.binary;
+using schema.binary.attributes;
 
 namespace dat.schema {
   [Flags]
@@ -51,8 +52,11 @@ namespace dat.schema {
     ROOT_TEXEDGE = 1 << 30,
   }
 
+  /// <summary>
+  ///   Joint object.
+  /// </summary>
   [BinarySchema]
-  public partial class JObjData : IBinaryConvertible {
+  public partial class JObj : IDatTreeNode<JObj>, IBinaryDeserializable {
     public uint StringOffset { get; set; }
     public JObjFlags Flags { get; set; }
     public uint FirstChildBoneOffset { get; set; }
@@ -62,25 +66,30 @@ namespace dat.schema {
     public Vector3f Scale { get; } = new();
     public Vector3f Position { get; } = new();
     public uint InverseBindMatrixOffset { get; set; }
+
     [Unknown]
     public uint UnknownPointer { get; set; }
-  }
 
-  /// <summary>
-  ///   Joint object.
-  /// </summary>
-  public class JObj {
-    public JObjData Data { get; } = new();
 
+    [Ignore]
     public string? Name { get; set; }
 
+    [RAtPositionOrNull(nameof(FirstChildBoneOffset))]
+    public JObj? FirstChild { get; set; }
+
+    [RAtPositionOrNull(nameof(NextSiblingBoneOffset))]
+    public JObj? NextSibling { get; set; }
+
+    [RAtPositionOrNull(nameof(FirstDObjOffset))]
     public DObj? FirstDObj { get; set; }
 
+    [RAtPositionOrNull(nameof(InverseBindMatrixOffset))]
+    [SequenceLengthSource(4 * 3)]
+    public float[]? InverseBindMatrixValues { get; set; }
+
+
+    [Ignore]
     public IEnumerable<DObj> DObjs => this.FirstDObj.GetSelfAndSiblings();
-
-    public List<JObj> Children { get; } = new();
-
-    public IFinMatrix4x4? InverseBindMatrix { get; set; }
 
     public override string? ToString() => this.Name;
   }

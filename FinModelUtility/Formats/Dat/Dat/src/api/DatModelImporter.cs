@@ -35,35 +35,42 @@ namespace dat.api {
       var jObjByOffset = dat.JObjByOffset;
       var finBoneByJObj = new Dictionary<JObj, IBone>();
       var boneWeightsByJObj = new Dictionary<JObj, IBoneWeights>();
+      var inverseBindMatrixByJObj =
+          new Dictionary<JObj, IReadOnlyFinMatrix4x4>();
       var boneQueue = new Queue<(IBone finParentBone, JObj datBone)>();
       foreach (var datRootBone in dat.RootJObjs) {
         boneQueue.Enqueue((finModel.Skeleton.Root, datRootBone));
       }
 
+      Span<float> inverseBindMatrixBuffer = stackalloc float[4 * 4];
       while (boneQueue.Count > 0) {
         var (finParentBone, jObj) = boneQueue.Dequeue();
 
-        var datBoneData = jObj.Data;
-
         var finBone =
-            finParentBone.AddChild(datBoneData.Position.X,
-                                   datBoneData.Position.Y,
-                                   datBoneData.Position.Z)
+            finParentBone.AddChild(jObj.Position.X,
+                                   jObj.Position.Y,
+                                   jObj.Position.Z)
                          .SetLocalRotationRadians(
-                             datBoneData.RotationRadians.X,
-                             datBoneData.RotationRadians.Y,
-                             datBoneData.RotationRadians.Z)
+                             jObj.RotationRadians.X,
+                             jObj.RotationRadians.Y,
+                             jObj.RotationRadians.Z)
                          .SetLocalScale(
-                             datBoneData.Scale.X,
-                             datBoneData.Scale.Y,
-                             datBoneData.Scale.Z);
+                             jObj.Scale.X,
+                             jObj.Scale.Y,
+                             jObj.Scale.Z);
         finBone.Name = jObj.Name;
 
         finBoneByJObj[jObj] = finBone;
         boneWeightsByJObj[jObj] =
             finSkin.GetOrCreateBoneWeights(VertexSpace.BONE, finBone);
 
-        foreach (var datChildBone in jObj.Children) {
+        var inverseBindMatrixValues = jObj.InverseBindMatrixValues;
+        inverseBindMatrixValues.CopyTo(inverseBindMatrixBuffer);
+        inverseBindMatrixBuffer[15] = 1;
+        inverseBindMatrixByJObj[jObj] =
+            new FinMatrix4x4(inverseBindMatrixBuffer).TransposeInPlace();
+
+        foreach (var datChildBone in jObj.GetChildren()) {
           boneQueue.Enqueue((finBone, datChildBone));
         }
       }
@@ -304,7 +311,7 @@ namespace dat.api {
                                         jObjByOffset[pObjWeight.JObjOffset];
                                     return new BoneWeight(
                                         finBoneByJObj[jObj],
-                                        jObj.InverseBindMatrix,
+                                        inverseBindMatrixByJObj[jObj],
                                         pObjWeight.Weight
                                     );
                                   })

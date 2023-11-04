@@ -41,6 +41,20 @@ namespace fin.math.matrix.four {
       }
     }
 
+    public FinMatrix4x4(ReadOnlySpan<float> data) {
+      Asserts.Equal(CELL_COUNT, data.Length);
+      for (var i = 0; i < CELL_COUNT; ++i) {
+        this[i] = data[i];
+      }
+    }
+
+    public FinMatrix4x4(ReadOnlySpan<double> data) {
+      Asserts.Equal(CELL_COUNT, data.Length);
+      for (var i = 0; i < CELL_COUNT; ++i) {
+        this[i] = (float) data[i];
+      }
+    }
+
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
     public FinMatrix4x4(SystemMatrix other) => this.CopyFrom(other);
 

@@ -47,5 +47,9 @@
         }
       }
     }
+
+    public static IEnumerable<TNode> GetChildren<TNode>(this TNode? root)
+        where TNode : IDatTreeNode<TNode>
+      => root?.FirstChild?.GetSelfAndSiblings() ?? Enumerable.Empty<TNode>();
   }
 }

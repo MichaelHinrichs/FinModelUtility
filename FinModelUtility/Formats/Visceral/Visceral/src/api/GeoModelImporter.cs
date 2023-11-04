@@ -197,6 +197,6 @@ namespace visceral.api {
     }
 
     public IFinMatrix4x4 GetMatrixFromBone_(Matrix4x4f matrix)
-      => new FinMatrix4x4(matrix.Values).InvertInPlace();
+      => new FinMatrix4x4(matrix.Values.AsSpan()).InvertInPlace();
   }
 }

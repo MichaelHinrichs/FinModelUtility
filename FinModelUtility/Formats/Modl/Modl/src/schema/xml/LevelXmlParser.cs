@@ -238,7 +238,7 @@ namespace modl.schema.xml {
 
                 isUsefulNode = true;
                 node ??= new LevelObject { Id = objId };
-                node.Matrix = new FinMatrix4x4(floats);
+                node.Matrix = new FinMatrix4x4(floats.AsSpan());
               } else if (objectType is "cNodeHierarchyResource" &&
                          childNameAttribute is "mName") {
                 isUsefulNode = true;

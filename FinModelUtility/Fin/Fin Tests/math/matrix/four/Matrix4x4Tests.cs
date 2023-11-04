@@ -1,4 +1,6 @@
-﻿using fin.math.floats;
+﻿using System;
+
+using fin.math.floats;
 using fin.util.asserts;
 
 using NUnit.Framework;
@@ -17,7 +19,7 @@ namespace fin.math.matrix.four {
         }
       }
 
-      var mat = new FinMatrix4x4(values);
+      var mat = new FinMatrix4x4(values.AsSpan());
 
       for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
         for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
@@ -36,7 +38,7 @@ namespace fin.math.matrix.four {
         }
       }
 
-      var mat = new FinMatrix4x4(values);
+      var mat = new FinMatrix4x4(values.AsSpan());
 
       for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
         for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
@@ -55,7 +57,7 @@ namespace fin.math.matrix.four {
         }
       }
 
-      var first = new FinMatrix4x4(values);
+      var first = new FinMatrix4x4(values.AsSpan());
       var second = new FinMatrix4x4(first);
 
       for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
