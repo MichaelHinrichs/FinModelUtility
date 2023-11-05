@@ -1,6 +1,9 @@
-﻿using dat.schema.animation;
+﻿using System.Linq;
+
+using dat.schema.animation;
 
 using fin.data.queues;
+using fin.io.bundles;
 using fin.util.linq;
 
 using schema.binary;
@@ -23,11 +26,35 @@ namespace dat.schema {
 
     public uint FileSize { get; set; }
 
-    public List<IDatNode> RootNodes { get; } = new();
+    public LinkedList<(IDatNode, string)> RootNodesWithNames { get; } = new();
+
+    public IEnumerable<IDatNode> RootNodes
+      => this.RootNodesWithNames.Select(
+          rootNodeAndName => rootNodeAndName.Item1);
 
     public IEnumerable<TNode> GetRootNodesOfType<TNode>()
         where TNode : IDatNode
       => this.RootNodes.WhereIs<IDatNode, TNode>();
+
+    public IEnumerable<(TNode, string)> GetRootNodesWithNamesOfType<TNode>()
+        where TNode : IDatNode
+      => this.RootNodesWithNames
+             .SelectWhere<(IDatNode, string), (TNode, string)>(IsOfType_);
+
+    private static bool IsOfType_<TNode>(
+        (IDatNode, string) nodeWithName,
+        out (TNode, string) outNodeWithName)
+        where TNode : IDatNode {
+      var (node, name) = nodeWithName;
+      if (node is TNode datNode) {
+        outNodeWithName = (datNode, name);
+        return true;
+      }
+
+      outNodeWithName = default;
+      return false;
+    }
+
 
     public IEnumerable<JObj> RootJObjs => this.GetRootNodesOfType<JObj>();
 
@@ -97,27 +124,32 @@ namespace dat.schema {
 
       var jObjQueue = new FinTuple2Queue<uint, JObj>();
 
-      this.RootNodes.Clear();
+      this.RootNodesWithNames.Clear();
       foreach (var rootNode in this.rootNodes_) {
         var rootNodeOffset = rootNode.Data.DataOffset;
         br.Position = rootNodeOffset;
 
+        IDatNode? node = null;
         switch (rootNode.Type) {
           case RootNodeType.JOBJ: {
             var jObj = br.ReadNew<JObj>();
-            this.RootNodes.Add(jObj);
+            node = jObj;
 
             jObjQueue.Enqueue((rootNodeOffset, jObj));
             break;
           }
           case RootNodeType.MATANIM_JOINT: {
-            this.RootNodes.Add(br.ReadNew<MatAnimJoint>());
+            node = br.ReadNew<MatAnimJoint>();
             break;
           }
           case RootNodeType.FIGATREE: {
-            this.RootNodes.Add(br.ReadNew<FigaTree>());
+            node = br.ReadNew<FigaTree>();
             break;
           }
+        }
+
+        if (node != null) {
+          this.RootNodesWithNames.AddLast((node, rootNode.Name));
         }
       }
 

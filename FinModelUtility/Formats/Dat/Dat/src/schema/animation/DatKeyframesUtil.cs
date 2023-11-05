@@ -5,6 +5,7 @@ namespace dat.schema.animation {
     /// <summary>
     ///   Shamelessly stolen from:
     ///   https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Tools/FOBJ_Decoder.cs#L22
+    ///   https://github.com/Ploaj/HSDLib/blob/93a906444f34951c6eed4d8c6172bba43d4ada98/HSDRaw/Tools/FOBJ_Player.cs#L162
     /// </summary> 
     public static void ReadKeyframes(
         IBinaryReader br,
@@ -41,21 +42,30 @@ namespace dat.schema.animation {
                 break;
               }
 
+              var previousInterpolationType = GxInterpolationType.Constant;
+              float value = 0;
+              float tangent = 0;
+              int time = 0;
+
               for (int i = 0; i < numOfKey; i++) {
-                float value = 0;
-                float? tangent = null;
-                int time = 1;
                 switch (interpolation) {
                   case GxInterpolationType.Constant:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
+                    if (previousInterpolationType != GxInterpolationType.Slp) {
+                      tangent = 0;
+                    }
                     time = ReadPacked_(sbr);
                     break;
                   case GxInterpolationType.Linear:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
+                    if (previousInterpolationType != GxInterpolationType.Slp) {
+                      tangent = 0;
+                    }
                     time = ReadPacked_(sbr);
                     break;
                   case GxInterpolationType.Spl0:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
+                    tangent = 0;
                     time = ReadPacked_(sbr);
                     break;
                   case GxInterpolationType.Spl:
@@ -65,9 +75,11 @@ namespace dat.schema.animation {
                     break;
                   case GxInterpolationType.Slp:
                     tangent = ParseFloat_(sbr, tangentFormat, tangentScale);
+                    time = 0;
                     break;
                   case GxInterpolationType.Key:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
+                    time = 0;
                     break;
                   default:
                     throw new Exception("Unknown Interpolation Type " +
@@ -78,6 +90,8 @@ namespace dat.schema.animation {
                   keyframes.AddLast((frame, value, tangent));
                 }
                 frame += time;
+
+                previousInterpolationType = interpolation;
               }
             }
           });

@@ -17,6 +17,7 @@ using fin.model.impl;
 using fin.model.io.importers;
 using fin.util.enums;
 using fin.util.hex;
+using fin.util.strings;
 
 using gx;
 
@@ -94,9 +95,11 @@ namespace dat.api {
 
         var i = 0;
         foreach (var animationDatSubfile in animationDat.Subfiles) {
-          foreach (var figaTree in animationDatSubfile
-                       .GetRootNodesOfType<FigaTree>()) {
+          foreach (var (figaTree, figaTreeName) in animationDatSubfile
+                       .GetRootNodesWithNamesOfType<FigaTree>()) {
             var finAnimation = lazyFinAnimations[i++];
+            finAnimation.Name = figaTreeName.SubstringAfter("Share_ACTION_")
+                                            .SubstringUpTo("_figatree");
             finAnimation.FrameCount = (int) figaTree.FrameCount;
 
             foreach (var (jObj, trackNode) in primaryDatSubfile.JObjs.Zip(

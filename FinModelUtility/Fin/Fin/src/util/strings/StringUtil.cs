@@ -53,5 +53,10 @@ namespace fin.util.strings {
       var indexTo = str.IndexOf(substr);
       return indexTo >= 0 ? str[..indexTo] : str;
     }
+
+    public static string SubstringAfter(this string str, string substr) {
+      var indexTo = str.IndexOf(substr);
+      return indexTo >= 0 ? str[(indexTo + substr.Length)..] : str;
+    }
   }
 }
