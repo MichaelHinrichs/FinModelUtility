@@ -29,6 +29,8 @@ namespace dat.api {
     public unsafe IModel ImportModel(DatModelFileBundle modelFileBundle) {
       var primaryDat =
           modelFileBundle.PrimaryDatFile.ReadNew<Dat>(Endianness.BigEndian);
+      var primaryDatSubfile = primaryDat.Subfiles.First();
+
       var animationDat =
           modelFileBundle.AnimationDatFile?.ReadNew<Dat>(Endianness.BigEndian);
 
@@ -36,13 +38,13 @@ namespace dat.api {
       var finSkin = finModel.Skin;
 
       // Adds skeleton
-      var jObjByOffset = primaryDat.JObjByOffset;
+      var jObjByOffset = primaryDatSubfile.JObjByOffset;
       var finBoneByJObj = new Dictionary<JObj, IBone>();
       var boneWeightsByJObj = new Dictionary<JObj, IBoneWeights>();
       var inverseBindMatrixByJObj =
           new Dictionary<JObj, IReadOnlyFinMatrix4x4>();
       var boneQueue = new Queue<(IBone finParentBone, JObj datBone)>();
-      foreach (var datRootBone in primaryDat.RootJObjs) {
+      foreach (var datRootBone in primaryDatSubfile.RootJObjs) {
         boneQueue.Enqueue((finModel.Skeleton.Root, datRootBone));
       }
 
@@ -85,22 +87,26 @@ namespace dat.api {
           var finAnimation = finModel.AnimationManager.AddAnimation();
           finAnimation.Name = $"Animation {i}";
 
-          finAnimation.FrameRate = 30;
+          finAnimation.FrameRate = 60;
 
           return finAnimation;
         });
 
         var i = 0;
-        foreach (var figaTree in animationDat.GetRootNodesOfType<FigaTree>()) {
-          var finAnimation = lazyFinAnimations[i++];
-          finAnimation.FrameCount =
-              Math.Max(finAnimation.FrameCount, (int) figaTree.FrameCount);
+        foreach (var animationDatSubfile in animationDat.Subfiles) {
+          foreach (var figaTree in animationDatSubfile
+                       .GetRootNodesOfType<FigaTree>()) {
+            var finAnimation = lazyFinAnimations[i++];
+            finAnimation.FrameCount = (int) figaTree.FrameCount;
 
-          foreach (var (jObj, trackNode) in primaryDat.JObjs.Zip(
-                       figaTree.TrackNodes)) {
-            var finBone = finBoneByJObj[jObj];
-            var boneTracks = finAnimation.AddBoneTracks(finBone);
-            DatBoneTracksHelper.AddDatKeyframesToBoneTracks(trackNode, boneTracks);
+            foreach (var (jObj, trackNode) in primaryDatSubfile.JObjs.Zip(
+                         figaTree.TrackNodes)) {
+              var finBone = finBoneByJObj[jObj];
+              var boneTracks = finAnimation.AddBoneTracks(finBone);
+              DatBoneTracksHelper.AddDatKeyframesToBoneTracks(
+                  trackNode,
+                  boneTracks);
+            }
           }
         }
 
@@ -127,7 +133,7 @@ namespace dat.api {
       // Adds mesh and materials
       var mObjByOffset = new Dictionary<uint, MObj>();
       var tObjByOffset = new Dictionary<uint, TObj>();
-      foreach (var jObj in primaryDat.JObjs) {
+      foreach (var jObj in primaryDatSubfile.JObjs) {
         foreach (var dObj in jObj.DObjs) {
           var mObj = dObj.MObj;
           if (mObj != null) {
@@ -311,7 +317,7 @@ namespace dat.api {
 
       // Sorts all dObjs so that the opaque ones are rendered first, and then the translucent (XLU) ones
       var allJObjsAndDObjs =
-          primaryDat
+          primaryDatSubfile
               .JObjs.SelectMany(jObj => jObj.DObjs.Select(dObj => (jObj, dObj)))
               .ToArray();
       var sortedJObjsAndDObjs =

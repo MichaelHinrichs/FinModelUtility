@@ -19,6 +19,8 @@ namespace dat.schema.animation {
         return;
       }
 
+      br.PushMemberEndianness(Endianness.LittleEndian);
+
       var valueScale = (uint) Math.Pow(2, datKeyframes.ValueFlag & 0x1F);
       var tangentScale = (uint) Math.Pow(2, datKeyframes.TangentFlag & 0x1F);
 
@@ -30,7 +32,7 @@ namespace dat.schema.animation {
           datKeyframes.DataOffset,
           (int) datKeyframes.DataLength,
           sbr => {
-            var frame = datKeyframes.StartFrame;
+            var frame = -datKeyframes.StartFrame;
             while (!sbr.Eof) {
               var type = ReadPacked_(sbr);
               var interpolation = (GxInterpolationType) (type & 0x0F);
@@ -72,11 +74,15 @@ namespace dat.schema.animation {
                                         interpolation.ToString("X"));
                 }
 
-                keyframes.AddLast((frame, value, tangent));
+                if (frame >= 0) {
+                  keyframes.AddLast((frame, value, tangent));
+                }
                 frame += time;
               }
             }
           });
+
+      br.PopEndianness();
     }
 
     /// <summary>
