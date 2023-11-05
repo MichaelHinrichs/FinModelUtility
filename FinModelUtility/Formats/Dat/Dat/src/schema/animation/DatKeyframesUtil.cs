@@ -34,7 +34,14 @@ namespace dat.schema.animation {
           datKeyframes.DataOffset,
           (int) datKeyframes.DataLength,
           sbr => {
-            var frame = -datKeyframes.StartFrame;
+            GxInterpolationType? previousInterpolationType = null;
+            float previousValue = 0;
+            float? previousTangent = null;
+
+            float value = 0;
+            float? tangent = null;
+
+            var currentFrame = -datKeyframes.StartFrame;
             while (!sbr.Eof) {
               var type = ReadPacked_(sbr);
               var interpolation = (GxInterpolationType) (type & 0x0F);
@@ -42,13 +49,6 @@ namespace dat.schema.animation {
               if (interpolation == 0) {
                 break;
               }
-
-              GxInterpolationType? previousInterpolationType = null;
-              float previousValue = 0;
-              float? previousTangent = null;
-
-              float value = 0;
-              float? tangent = null;
 
               int frameLength = 0;
 
@@ -82,12 +82,12 @@ namespace dat.schema.animation {
                     break;
                   case GxInterpolationType.Slp:
                     tangent = ParseFloat_(sbr, tangentFormat, tangentScale);
-                    frame += frameLength;
+                    currentFrame += frameLength;
                     frameLength = 0;
                     break;
                   case GxInterpolationType.Key:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
-                    frame += frameLength;
+                    currentFrame += frameLength;
                     frameLength = 0;
                     break;
                   default:
@@ -95,30 +95,45 @@ namespace dat.schema.animation {
                                         interpolation.ToString("X"));
                 }
 
-
                 float incomingValue = value;
                 float outgoingValue = value;
                 float? incomingTangent = tangent;
                 float? outgoingTangent = tangent;
 
                 // For frames that come after constant/key frames, the incoming value comes from the constant/key frame
-                if (previousInterpolationType == GxInterpolationType.Constant ||
-                    previousInterpolationType == GxInterpolationType.Key) {
+                if (previousInterpolationType is GxInterpolationType.Constant
+                                                 or GxInterpolationType.Key) {
                   incomingValue = previousValue;
                   incomingTangent = previousTangent;
                 }
 
-                if (frame >= 0) {
-                  keyframes.AddLast((frame, incomingValue, outgoingValue,
+                if (currentFrame >= 0) {
+                  keyframes.AddLast((currentFrame, incomingValue, outgoingValue,
                                      incomingTangent, outgoingTangent));
                 }
 
-                frame += frameLength;
+                currentFrame += frameLength;
 
                 previousInterpolationType = interpolation;
                 previousValue = value;
                 previousTangent = tangent;
               }
+            }
+
+            if (keyframes.Count > 0) {
+              var firstKeyframeNode = keyframes.First;
+              var (frame, incomingValue, outgoingValue, incomingTangent,
+                  outgoingTangent) = firstKeyframeNode.Value;
+
+              if (previousInterpolationType is GxInterpolationType.Constant
+                                               or GxInterpolationType.Key) {
+                incomingValue = previousValue;
+                incomingTangent = previousTangent;
+              }
+
+              firstKeyframeNode.Value = (
+                  frame, incomingValue, outgoingValue, incomingTangent,
+                  outgoingTangent);
             }
           });
 
