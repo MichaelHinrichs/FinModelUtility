@@ -22,12 +22,13 @@ namespace dat.schema.animation {
     public AOBJ_Flags Flags { get; set; }
     public float EndFrame { get; set; }
     public uint FObjOffset { get; set; }
+    public uint JObjOffset { get; set; }
 
 
     [RAtPositionOrNull(nameof(FObjOffset))]
-    public FObj? FObj { get; set; }
+    public FObj? FirstFObj { get; set; }
 
     [Ignore]
-    public IEnumerable<FObj> FObjs => this.FObj.GetSelfAndSiblings();
+    public IEnumerable<FObj> FObjs => this.FirstFObj.GetSelfAndSiblings();
   }
 }

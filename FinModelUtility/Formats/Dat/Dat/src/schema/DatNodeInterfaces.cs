@@ -1,11 +1,12 @@
 ﻿namespace dat.schema {
-  public interface IDatLinkedListNode<out TSelf>
+  public interface IDatNode;
+
+  public interface IDatLinkedListNode<out TSelf> : IDatNode
       where TSelf : IDatLinkedListNode<TSelf> {
     TSelf? NextSibling { get; }
   }
 
-  public interface IDatTreeNode<out TSelf>
-      : IDatLinkedListNode<TSelf>
+  public interface IDatTreeNode<out TSelf> : IDatLinkedListNode<TSelf>
       where TSelf : IDatTreeNode<TSelf> {
     TSelf? FirstChild { get; }
   }

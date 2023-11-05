@@ -1,21 +1,15 @@
 ﻿using dat.schema.animation;
 
 using fin.data.queues;
-using fin.math.matrix.four;
 using fin.util.asserts;
-using fin.util.enumerables;
-using fin.util.hex;
+using fin.util.linq;
 
 using schema.binary;
 using schema.binary.attributes;
 
 namespace dat.schema {
-  // AObj: animation
   // CObj: camera
-  // DObj: ?
-  // FObj: keyframe descriptor
   // IObj: image
-  // JObj: joint (bone)
   // SObj: Scene object
 
   /// <summary>
@@ -32,7 +26,13 @@ namespace dat.schema {
     private uint referenceNodeOffset_;
     private uint stringTableOffset_;
 
-    public List<JObj> RootJObjs { get; } = new();
+    public List<IDatNode> RootNodes { get; } = new();
+
+    public IEnumerable<TNode> GetRootNodesOfType<TNode>()
+        where TNode : IDatNode
+      => this.RootNodes.WhereIs<IDatNode, TNode>();
+
+    public IEnumerable<JObj> RootJObjs => this.GetRootNodesOfType<JObj>();
 
     private readonly Dictionary<uint, JObj> jObjByOffset_ = new();
     public IReadOnlyDictionary<uint, JObj> JObjByOffset => this.jObjByOffset_;
@@ -41,16 +41,8 @@ namespace dat.schema {
         DatNodeExtensions.GetSelfAndChildrenAndSiblings);
 
 
-    public List<MatAnimJoint> RootMatAnimJoints { get; } = new();
-
-    public IEnumerable<MatAnimJoint> MatAnimJoints
-      => this.RootMatAnimJoints.SelectMany(
-          DatNodeExtensions.GetSelfAndChildrenAndSiblings);
-
-
     public void Read(IBinaryReader br) {
       var fileHeader = br.ReadNew<FileHeader>();
-      Asserts.Equal(br.Length, fileHeader.FileSize);
 
       this.dataBlockOffset_ = 0x20;
       this.relocationTableOffset_ =
@@ -92,7 +84,7 @@ namespace dat.schema {
 
       // Reads root bone structures
       foreach (var rootNode in this.rootNodes_) {
-        if (rootNode.Type == RootNodeType.Undefined) {
+        if (rootNode.Type == RootNodeType.UNDEFINED) {
           ;
         }
       }
@@ -107,23 +99,25 @@ namespace dat.schema {
 
       var jObjQueue = new FinTuple2Queue<uint, JObj>();
 
-      this.RootJObjs.Clear();
-      this.RootMatAnimJoints.Clear();
+      this.RootNodes.Clear();
       foreach (var rootNode in this.rootNodes_) {
+        var rootNodeOffset = rootNode.Data.DataOffset;
+        br.Position = rootNodeOffset;
+
         switch (rootNode.Type) {
-          case RootNodeType.JObj: {
-            var jObjOffset = rootNode.Data.DataOffset;
-            br.Position = jObjOffset;
-
+          case RootNodeType.JOBJ: {
             var jObj = br.ReadNew<JObj>();
-            this.RootJObjs.Add(jObj);
+            this.RootNodes.Add(jObj);
 
-            jObjQueue.Enqueue((jObjOffset, jObj));
+            jObjQueue.Enqueue((rootNodeOffset, jObj));
             break;
           }
           case RootNodeType.MATANIM_JOINT: {
-            br.Position = rootNode.Data.DataOffset;
-            this.RootMatAnimJoints.Add(br.ReadNew<MatAnimJoint>());
+            this.RootNodes.Add(br.ReadNew<MatAnimJoint>());
+            break;
+          }
+          case RootNodeType.FIGATREE: {
+            this.RootNodes.Add(br.ReadNew<FigaTree>());
             break;
           }
         }
@@ -226,10 +220,10 @@ namespace dat.schema {
   }
 
   public enum RootNodeType {
-    Undefined,
-    JObj,
-
+    UNDEFINED,
+    JOBJ,
     MATANIM_JOINT,
+    FIGATREE,
     IMAGE,
     SCENE_DATA,
     SCENE_MODELSET,
@@ -255,11 +249,15 @@ namespace dat.schema {
       // TODO: Use flags for this instead
       if (name.EndsWith("_joint") && !name.Contains("matanim") &&
           !name.Contains("anim_joint")) {
-        return RootNodeType.JObj;
+        return RootNodeType.JOBJ;
       }
 
       if (name.EndsWith("_matanim_joint")) {
         return RootNodeType.MATANIM_JOINT;
+      }
+
+      if (name.EndsWith("_figatree")) {
+        return RootNodeType.FIGATREE;
       }
 
       if (name.EndsWith("_image")) {
@@ -282,7 +280,7 @@ namespace dat.schema {
         return RootNodeType.TLUT_DESC;
       }
 
-      return RootNodeType.Undefined;
+      return RootNodeType.UNDEFINED;
     }
   }
 }

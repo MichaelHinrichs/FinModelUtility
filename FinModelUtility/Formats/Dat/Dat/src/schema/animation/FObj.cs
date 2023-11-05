@@ -2,6 +2,14 @@
 using schema.binary.attributes;
 
 namespace dat.schema.animation {
+  public enum GXAnimDataFormat {
+    Float = 0x00,
+    Short = 0x20,
+    UShort = 0x40,
+    SByte = 0x60,
+    Byte = 0x80
+  }
+
   public enum JointTrackType : byte {
     HSD_A_J_ROTX = 1, HSD_A_J_ROTY, HSD_A_J_ROTZ, HSD_A_J_PATH,
     HSD_A_J_TRAX, HSD_A_J_TRAY, HSD_A_J_TRAZ,
@@ -14,6 +22,16 @@ namespace dat.schema.animation {
     HSD_A_J_SETFLOAT8, HSD_A_J_SETFLOAT9
   }
 
+  public enum GxInterpolationType {
+    None = 0,
+    Constant = 1,
+    Linear = 2,
+    Spl0 = 3,
+    Spl = 4,
+    Slp = 5,
+    Key = 6,
+  }
+
   /// <summary>
   ///   Keyframe descriptor object.
   /// 
@@ -22,17 +40,32 @@ namespace dat.schema.animation {
   ///   https://github.com/Ploaj/HSDLib/blob/b7554d5c753cca2d50090cdd7366afe64dd8f175/HSDRaw/Common/Animation/HSD_FOBJ.cs#L65
   /// </summary>
   [BinarySchema]
-  public partial class FObj : IDatLinkedListNode<FObj>, IBinaryDeserializable {
+  public partial class FObj : IDatLinkedListNode<FObj>,
+                              IDatKeyframes,
+                              IBinaryDeserializable {
     public uint NextSiblingOffset { get; set; }
-    public int DataLength { get; set; }
+    public uint DataLength { get; set; }
     public int StartFrame { get; set; }
 
     public JointTrackType JointTrackType { get; set; }
     public byte ValueFlag { get; set; }
     public byte TangentFlag { get; set; }
+    public byte Unk { get; set; }
+    public uint DataOffset { get; set; }
 
 
     [RAtPositionOrNull(nameof(NextSiblingOffset))]
     public FObj? NextSibling { get; set; }
+
+    [Ignore]
+    public LinkedList<(int frame, float value, float? tangent)> Keyframes {
+      get;
+    } = new();
+
+
+    [ReadLogic]
+    private void ReadKeyframes_(IBinaryReader br) {
+      DatKeyframesUtil.ReadKeyframes(br, this, this.Keyframes);
+    }
   }
 }

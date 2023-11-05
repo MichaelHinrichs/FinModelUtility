@@ -11,7 +11,7 @@ namespace dat.schema.animation {
                                       IBinaryDeserializable {
     public uint FirstChildOffset { get; set; }
     public uint NextSiblingOffset { get; set; }
-    public uint MatAnimOffset { get; set; }
+    public uint FirstMatAnimOffset { get; set; }
 
 
     [RAtPositionOrNull(nameof(FirstChildOffset))]
@@ -20,7 +20,11 @@ namespace dat.schema.animation {
     [RAtPositionOrNull(nameof(NextSiblingOffset))]
     public MatAnimJoint? NextSibling { get; set; }
 
-    [RAtPositionOrNull(nameof(MatAnimOffset))]
-    public MatAnim? MatAnim { get; set; }
+    [RAtPositionOrNull(nameof(FirstMatAnimOffset))]
+    public MatAnim? FirstMatAnim { get; set; }
+
+
+    [Ignore]
+    public IEnumerable<MatAnim> MatAnims => this.FirstMatAnim.GetSelfAndSiblings();
   }
 }
