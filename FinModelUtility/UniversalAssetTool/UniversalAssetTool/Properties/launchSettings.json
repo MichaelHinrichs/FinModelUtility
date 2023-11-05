@@ -72,6 +72,10 @@
       "commandName": "Project",
       "commandLineArgs": "super_mario_sunshine"
     },
+    "Super Smash Bros. Melee": {
+      "commandName": "Project",
+      "commandLineArgs": "super_smash_bros_melee"
+    },
     "Wind Waker": {
       "commandName": "Project",
       "commandLineArgs": "wind_waker"
