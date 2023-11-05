@@ -41,12 +41,14 @@ namespace fin.model.impl {
       public void Set(
           int frame,
           int axis,
-          float radians,
+          float incomingRadians,
+          float outgoingRadians,
           float? optionalIncomingTangent,
           float? optionalOutgoingTangent)
         => this.axisTracks_[axis]
                .SetKeyframe(frame,
-                    radians,
+                    incomingRadians,
+                    outgoingRadians,
                     optionalIncomingTangent,
                     optionalOutgoingTangent);
 

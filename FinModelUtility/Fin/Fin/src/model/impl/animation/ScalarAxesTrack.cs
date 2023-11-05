@@ -50,12 +50,14 @@ namespace fin.model.impl {
       public void Set(
           int frame,
           int axis,
-          TAxis value,
+          TAxis incomingValue,
+          TAxis outgoingValue,
           float? optionalIncomingTangent,
           float? optionalOutgoingTangent)
         => this.axisTracks[axis]
                .SetKeyframe(frame,
-                    value,
+                    incomingValue,
+                    outgoingValue,
                     optionalIncomingTangent,
                     optionalOutgoingTangent);
 

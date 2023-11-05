@@ -25,18 +25,22 @@ namespace fin.model.impl {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void SetKeyframe(
           int frame,
-          TValue t,
+          TValue incomingValue,
+          TValue outgoingValue,
           float? optionalIncomingTangent,
           float? optionalOutgoingTangent)
-        => this.impl.SetKeyframe(frame,
-                                 new ValueAndTangents<TValue>(t,
-                                   optionalIncomingTangent,
-                                   optionalOutgoingTangent));
+        => this.impl.SetKeyframe(
+            frame,
+            new ValueAndTangents<TValue>(
+                incomingValue,
+                outgoingValue,
+                optionalIncomingTangent,
+                optionalOutgoingTangent));
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void SetAllKeyframes(IEnumerable<TValue> values)
         => this.impl.SetAllKeyframes(
-            values.Select(t => new ValueAndTangents<TValue>(t, null, null)));
+            values.Select(t => new ValueAndTangents<TValue>(t)));
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame)
@@ -58,9 +62,8 @@ namespace fin.model.impl {
           return false;
         }
 
-        var fromValue = fromKeyframe.Value.Value;
-
         var fromTime = fromKeyframe.Frame;
+        var fromValue = fromKeyframe.Value.OutgoingValue;
         var fromOutgoingTangent = fromKeyframe.Value.OutgoingTangent;
         fromData = (fromTime, fromValue, fromOutgoingTangent);
 
@@ -76,7 +79,7 @@ namespace fin.model.impl {
                 ? this.impl.GetKeyframeAtIndex(fromKeyframeIndex + 1)
                 : this.impl.GetKeyframeAtIndex(0);
         var toTime = toKeyframe.Frame;
-        var toValue = toKeyframe.Value.Value;
+        var toValue = toKeyframe.Value.IncomingValue;
         var toIncomingTangent = toKeyframe.Value.IncomingTangent;
 
         if (wrapsAround) {
@@ -123,7 +126,8 @@ namespace fin.model.impl {
 
         foreach (var keyframe in other.Keyframes) {
           this.SetKeyframe(keyframe.Frame,
-                           keyframe.Value.Value,
+                           keyframe.Value.IncomingValue,
+                           keyframe.Value.OutgoingValue,
                            keyframe.Value.IncomingTangent,
                            keyframe.Value.OutgoingTangent);
         }
@@ -143,7 +147,7 @@ namespace fin.model.impl {
           return false;
         }
 
-        var fromValue = fromKeyframe.Value.Value;
+        var fromValue = fromKeyframe.Value.OutgoingValue;
 
         // TODO: Make this an option?
         if (isLastKeyframe && !useLoopingInterpolation) {
@@ -160,7 +164,7 @@ namespace fin.model.impl {
         var toKeyframe = !wrapsAround
             ? this.impl.GetKeyframeAtIndex(fromKeyframeIndex + 1)
             : this.impl.GetKeyframeAtIndex(0);
-        var toValue = toKeyframe.Value.Value;
+        var toValue = toKeyframe.Value.IncomingValue;
         var toTime = toKeyframe.Frame;
 
         if (wrapsAround) {

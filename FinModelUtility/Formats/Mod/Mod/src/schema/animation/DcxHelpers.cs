@@ -14,7 +14,7 @@ namespace mod.schema.animation {
 
       var animation = animationManager.AddAnimation();
       animation.Name = dcx.Name;
-      animation.FrameCount = (int)dcxAnimationData.FrameCount;
+      animation.FrameCount = (int) dcxAnimationData.FrameCount;
       animation.FrameRate = 30;
 
       foreach (var jointData in dcxAnimationData.JointDataList) {
@@ -69,15 +69,16 @@ namespace mod.schema.animation {
 
         var sparse = isDck && frameCount != 1;
         frames[i] = !sparse
-                        ? DcxHelpers.ReadDenseFrames(
-                            values,
-                            frameOffset,
-                            frameCount)
-                        : DcxHelpers.ReadSparseFrames(
-                            values,
-                            frameOffset,
-                            frameCount);
+            ? DcxHelpers.ReadDenseFrames(
+                values,
+                frameOffset,
+                frameCount)
+            : DcxHelpers.ReadSparseFrames(
+                values,
+                frameOffset,
+                frameCount);
       }
+
       return frames;
     }
 
@@ -89,11 +90,11 @@ namespace mod.schema.animation {
       var keyframes = new Keyframe<ValueAndTangents<float>>[count];
       for (var i = 0; i < count; ++i) {
         keyframes[i] =
-            new Keyframe<ValueAndTangents<float>>(i,
-              new ValueAndTangents<float>(
-              values[offset + i],
-              null, null));
+            new Keyframe<ValueAndTangents<float>>(
+                i,
+                new ValueAndTangents<float>(values[offset + i]));
       }
+
       return keyframes;
     }
 
@@ -104,7 +105,7 @@ namespace mod.schema.animation {
     ) {
       var keyframes = new Keyframe<ValueAndTangents<float>>[count];
       for (var i = 0; i < count; ++i) {
-        var index = (int)values[offset + 3 * i];
+        var index = (int) values[offset + 3 * i];
         var value = values[offset + 3 * i + 1];
 
         // TODO: This is a guess, is this actually right?
@@ -112,8 +113,11 @@ namespace mod.schema.animation {
         var tangent = values[offset + 3 * i + 2] / 30f;
 
         keyframes[i] =
-          new Keyframe<ValueAndTangents<float>>(index, new ValueAndTangents<float>(value, tangent, tangent));
+            new Keyframe<ValueAndTangents<float>>(
+                index,
+                new ValueAndTangents<float>(value, tangent));
       }
+
       return keyframes;
     }
 
@@ -125,7 +129,8 @@ namespace mod.schema.animation {
         foreach (var keyframe in positionKeyframes[i]) {
           positionTrack.Set(keyframe.Frame,
                             i,
-                            keyframe.Value.Value,
+                            keyframe.Value.IncomingValue,
+                            keyframe.Value.OutgoingValue,
                             keyframe.Value.IncomingTangent,
                             keyframe.Value.OutgoingTangent);
         }
@@ -139,7 +144,8 @@ namespace mod.schema.animation {
         foreach (var keyframe in rotationKeyframes[i]) {
           rotationTrack.Set(keyframe.Frame,
                             i,
-                            keyframe.Value.Value,
+                            keyframe.Value.IncomingValue,
+                            keyframe.Value.OutgoingValue,
                             keyframe.Value.IncomingTangent,
                             keyframe.Value.OutgoingTangent);
         }
@@ -153,7 +159,8 @@ namespace mod.schema.animation {
         foreach (var keyframe in scaleKeyframes[i]) {
           scaleTrack.Set(keyframe.Frame,
                          i,
-                         keyframe.Value.Value,
+                         keyframe.Value.IncomingValue,
+                         keyframe.Value.OutgoingValue,
                          keyframe.Value.IncomingTangent,
                          keyframe.Value.OutgoingTangent);
         }

@@ -6,14 +6,30 @@ using fin.math.interpolation;
 
 namespace fin.model {
   public readonly struct ValueAndTangents<T> {
-    public T Value { get; }
+    public T IncomingValue { get; }
+    public T OutgoingValue { get; }
     public float? IncomingTangent { get; }
     public float? OutgoingTangent { get; }
 
+    public ValueAndTangents(T value) : this(value, null) { }
+
+    public ValueAndTangents(T value, float? tangent)
+        : this(value, tangent, tangent) { }
+
     public ValueAndTangents(T value,
                             float? incomingTangent,
+                            float? outgoingTangent)
+        : this(value,
+               value,
+               incomingTangent,
+               outgoingTangent) { }
+
+    public ValueAndTangents(T incomingValue,
+                            T outgoingValue,
+                            float? incomingTangent,
                             float? outgoingTangent) {
-      this.Value = value;
+      this.IncomingValue = incomingValue;
+      this.OutgoingValue = outgoingValue;
       this.IncomingTangent = incomingTangent;
       this.OutgoingTangent = outgoingTangent;
     }
@@ -47,6 +63,18 @@ namespace fin.model {
     void SetKeyframe(
         int frame,
         TValue value,
+        float? incomingTangent,
+        float? outgoingTangent)
+      => this.SetKeyframe(frame,
+                          value,
+                          value,
+                          incomingTangent,
+                          outgoingTangent);
+
+    void SetKeyframe(
+        int frame,
+        TValue incomingValue,
+        TValue outgoingValue,
         float? incomingTangent,
         float? outgoingTangent);
 
@@ -93,6 +121,20 @@ namespace fin.model {
         int frame,
         int axis,
         TAxis value,
+        float? optionalIncomingTangent,
+        float? optionalOutgoingTangent)
+      => this.Set(frame,
+                  axis,
+                  value,
+                  value,
+                  optionalIncomingTangent,
+                  optionalOutgoingTangent);
+
+    void Set(
+        int frame,
+        int axis,
+        TAxis incomingValue,
+        TAxis outgoingValue,
         float? optionalIncomingTangent,
         float? optionalOutgoingTangent);
 
