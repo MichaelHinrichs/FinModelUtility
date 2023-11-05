@@ -9,6 +9,6 @@
     byte ValueFlag { get; }
     byte TangentFlag { get; }
 
-    LinkedList<(int frame, float value, float? tangent)> Keyframes { get; }
+    LinkedList<(int frame, float incomingValue, float outgoingValue, float? incomingTangent, float? outgoingTangent)> Keyframes { get; }
   }
 }

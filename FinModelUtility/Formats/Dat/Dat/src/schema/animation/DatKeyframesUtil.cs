@@ -10,7 +10,8 @@ namespace dat.schema.animation {
     public static void ReadKeyframes(
         IBinaryReader br,
         IDatKeyframes datKeyframes,
-        LinkedList<(int frame, float value, float? tangent)> keyframes) {
+        LinkedList<(int frame, float incomingValue, float outgoingValue, float?
+            incomingTangent, float? outgoingTangent)> keyframes) {
       if (datKeyframes.JointTrackType
           is (< JointTrackType.HSD_A_J_ROTX or > JointTrackType.HSD_A_J_ROTZ)
              and (< JointTrackType.HSD_A_J_TRAX
@@ -42,56 +43,81 @@ namespace dat.schema.animation {
                 break;
               }
 
-              var previousInterpolationType = GxInterpolationType.Constant;
+              GxInterpolationType? previousInterpolationType = null;
+              float previousValue = 0;
+              float? previousTangent = null;
+
               float value = 0;
-              float tangent = 0;
-              int time = 0;
+              float? tangent = null;
+
+              int frameLength = 0;
 
               for (int i = 0; i < numOfKey; i++) {
                 switch (interpolation) {
                   case GxInterpolationType.Constant:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
                     if (previousInterpolationType != GxInterpolationType.Slp) {
-                      tangent = 0;
+                      tangent = null;
                     }
-                    time = ReadPacked_(sbr);
+
+                    frameLength = ReadPacked_(sbr);
                     break;
                   case GxInterpolationType.Linear:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
                     if (previousInterpolationType != GxInterpolationType.Slp) {
-                      tangent = 0;
+                      tangent = null;
                     }
-                    time = ReadPacked_(sbr);
+
+                    frameLength = ReadPacked_(sbr);
                     break;
                   case GxInterpolationType.Spl0:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
                     tangent = 0;
-                    time = ReadPacked_(sbr);
+                    frameLength = ReadPacked_(sbr);
                     break;
                   case GxInterpolationType.Spl:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
                     tangent = ParseFloat_(sbr, tangentFormat, tangentScale);
-                    time = ReadPacked_(sbr);
+                    frameLength = ReadPacked_(sbr);
                     break;
                   case GxInterpolationType.Slp:
                     tangent = ParseFloat_(sbr, tangentFormat, tangentScale);
-                    time = 0;
+                    frame += frameLength;
+                    frameLength = 0;
                     break;
                   case GxInterpolationType.Key:
                     value = ParseFloat_(sbr, valueFormat, valueScale);
-                    time = 0;
+                    frame += frameLength;
+                    frameLength = 0;
                     break;
                   default:
                     throw new Exception("Unknown Interpolation Type " +
                                         interpolation.ToString("X"));
                 }
 
-                if (frame >= 0) {
-                  keyframes.AddLast((frame, value, tangent));
+
+                float incomingValue = value;
+                float outgoingValue = value;
+                float? incomingTangent = tangent;
+                float? outgoingTangent = tangent;
+
+                // For frames that come after constant/key frames, the incoming value comes from the constant/key frame
+                if (previousInterpolationType == GxInterpolationType.Constant ||
+                    previousInterpolationType == GxInterpolationType.Key) {
+                  incomingValue = previousValue;
+                  incomingTangent = previousTangent;
                 }
-                frame += time;
+
+                if (frame >= 0) {
+                  keyframes.AddLast((frame, incomingValue, outgoingValue,
+                                     incomingTangent, outgoingTangent));
+                }
+
+                frame += frameLength;
 
                 previousInterpolationType = interpolation;
+                previousValue = value;
+                previousTangent = tangent;
               }
             }
           });

@@ -34,9 +34,9 @@ namespace dat.schema.animation {
     public byte TexTrackType => this.TrackType;
 
     [Ignore]
-    public LinkedList<(int frame, float value, float? tangent)> Keyframes {
-      get;
-    } = new();
+    public LinkedList<(int frame, float incomingValue, float outgoingValue,
+        float? incomingTangent, float? outgoingTangent)> Keyframes { get; } =
+      new();
 
 
     [ReadLogic]

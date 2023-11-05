@@ -19,12 +19,14 @@ namespace dat.api {
           case JointTrackType.HSD_A_J_TRAZ: {
             var axis = jointTrackType - JointTrackType.HSD_A_J_TRAX;
             foreach (var keyframe in datKeyframes.Keyframes) {
-              var (frame, value, tangent) = keyframe;
+              var (frame, incomingValue, outgoingValue, incomingTangent,
+                  outgoingTangent) = keyframe;
               positionTrack.Set(frame,
                                 axis,
-                                value,
-                                tangent,
-                                tangent);
+                                incomingValue,
+                                outgoingValue,
+                                incomingTangent,
+                                outgoingTangent);
             }
 
             break;
@@ -34,12 +36,14 @@ namespace dat.api {
           case JointTrackType.HSD_A_J_ROTZ: {
             var axis = jointTrackType - JointTrackType.HSD_A_J_ROTX;
             foreach (var keyframe in datKeyframes.Keyframes) {
-              var (frame, value, tangent) = keyframe;
+              var (frame, incomingValue, outgoingValue, incomingTangent,
+                  outgoingTangent) = keyframe;
               rotationTrack.Set(frame,
                                 axis,
-                                value,
-                                tangent,
-                                tangent);
+                                incomingValue,
+                                outgoingValue,
+                                incomingTangent,
+                                outgoingTangent);
             }
 
             break;
@@ -49,12 +53,14 @@ namespace dat.api {
           case JointTrackType.HSD_A_J_SCAZ: {
             var axis = jointTrackType - JointTrackType.HSD_A_J_SCAX;
             foreach (var keyframe in datKeyframes.Keyframes) {
-              var (frame, value, tangent) = keyframe;
+              var (frame, incomingValue, outgoingValue, incomingTangent,
+                  outgoingTangent) = keyframe;
               scaleTrack.Set(frame,
                              axis,
-                             value,
-                             tangent,
-                             tangent);
+                             incomingValue,
+                             outgoingValue,
+                             incomingTangent,
+                             outgoingTangent);
             }
 
             break;

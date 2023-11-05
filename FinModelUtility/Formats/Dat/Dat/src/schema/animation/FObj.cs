@@ -58,7 +58,7 @@ namespace dat.schema.animation {
     public FObj? NextSibling { get; set; }
 
     [Ignore]
-    public LinkedList<(int frame, float value, float? tangent)> Keyframes {
+    public LinkedList<(int frame, float incomingValue, float outgoingValue, float? incomingTangent, float? outgoingTangent)> Keyframes {
       get;
     } = new();
 
