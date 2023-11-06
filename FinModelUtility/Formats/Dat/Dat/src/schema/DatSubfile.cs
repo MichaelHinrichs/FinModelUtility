@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 
 using dat.schema.animation;
+using dat.schema.melee;
 
 using fin.data.queues;
 using fin.io.bundles;
@@ -146,6 +147,10 @@ namespace dat.schema {
             node = br.ReadNew<FigaTree>();
             break;
           }
+          case RootNodeType.FIGHTER_DATA: {
+            node = br.ReadNew<MeleeFighterData>();
+            break;
+          }
         }
 
         if (node != null) {
@@ -259,6 +264,7 @@ namespace dat.schema {
     SCENE_MODELSET,
     TLUT,
     TLUT_DESC,
+    FIGHTER_DATA
   }
 
   public class RootNode {
@@ -288,6 +294,10 @@ namespace dat.schema {
 
       if (name.EndsWith("_figatree")) {
         return RootNodeType.FIGATREE;
+      }
+
+      if (name.StartsWith("ftData")) {
+        return RootNodeType.FIGHTER_DATA;
       }
 
       if (name.EndsWith("_image")) {

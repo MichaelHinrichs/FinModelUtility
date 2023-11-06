@@ -1,6 +1,7 @@
 ﻿using dat.schema;
 using dat.schema.animation;
 using dat.schema.material;
+using dat.schema.melee;
 using dat.schema.mesh;
 using dat.schema.texture;
 
@@ -35,8 +36,12 @@ namespace dat.api {
 
       var animationDat =
           modelFileBundle.AnimationDatFile?.ReadNew<Dat>(Endianness.BigEndian);
-      var fighterDat =
-          modelFileBundle.FighterDatFile?.ReadNew<Dat>(Endianness.BigEndian);
+      var fighterDatSubfile =
+          modelFileBundle
+              .FighterDatFile?
+              .ReadNew<Dat>(Endianness.BigEndian)
+              .Subfiles
+              .Single();
 
       var finModel = new ModelImpl();
       var finSkin = finModel.Skin;
@@ -146,6 +151,28 @@ namespace dat.api {
             mObjByOffset[dObj.MObjOffset] = mObj;
             foreach (var (tObjOffset, tObj) in mObj.TObjsAndOffsets) {
               tObjByOffset[tObjOffset] = tObj;
+            }
+          }
+        }
+      }
+
+      List<HashSet<byte>>? lowPolyDObjs = null;
+      if (fighterDatSubfile != null) {
+        var fighterData =
+            fighterDatSubfile.GetRootNodesOfType<MeleeFighterData>()
+                             .Single();
+
+        var lowPoly = fighterData.ModelLookupTables
+                                 .CostumeVisibilityLookupTable
+                                 ?.LowPoly;
+        if (lowPoly != null) {
+          lowPolyDObjs = new List<HashSet<byte>>();
+          foreach (var lookupEntry in lowPoly.LookupEntries) {
+            var set = new HashSet<byte>();
+            lowPolyDObjs.Add(set);
+
+            foreach (var byteEntry in lookupEntry.ByteEntries) {
+              set.Add(byteEntry);
             }
           }
         }
@@ -322,10 +349,22 @@ namespace dat.api {
               }));
 
       // Sorts all dObjs so that the opaque ones are rendered first, and then the translucent (XLU) ones
-      var allJObjsAndDObjs =
-          primaryDatSubfile
-              .JObjs.SelectMany(jObj => jObj.DObjs.Select(dObj => (jObj, dObj)))
-              .ToArray();
+      LinkedList<(JObj jObj, byte jObjIndex, DObj dObj, byte dObjIndex)>
+          allJObjsAndDObjs = new();
+      {
+        byte jObjIndex = 0;
+        foreach (var rootJObj in primaryDatSubfile.RootJObjs) {
+          byte dObjIndex = 0;
+          foreach (var jObj in rootJObj.GetSelfAndChildrenAndSiblings()) {
+            foreach (var dObj in jObj.DObjs) {
+              allJObjsAndDObjs.AddLast((jObj, jObjIndex, dObj, dObjIndex++));
+            }
+          }
+
+          jObjIndex++;
+        }
+      }
+
       var sortedJObjsAndDObjs =
           allJObjsAndDObjs
               .Where(
@@ -341,7 +380,14 @@ namespace dat.api {
 
       finSkin.AllowMaterialRendererMerging = false;
       var finMesh = finSkin.AddMesh();
-      foreach (var (jObj, dObj) in sortedJObjsAndDObjs) {
+      foreach (var (jObj, jObjIndex, dObj, dObjIndex) in sortedJObjsAndDObjs) {
+        if (lowPolyDObjs != null && jObjIndex < lowPolyDObjs.Count) {
+          var lowPolyDObjsSet = lowPolyDObjs[jObjIndex];
+          if (lowPolyDObjsSet.Contains(dObjIndex)) {
+            continue;
+          }
+        }
+
         var defaultBoneWeights = boneWeightsByJObj[jObj];
         var mObjOffset = dObj.MObjOffset;
 

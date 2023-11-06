@@ -15,7 +15,7 @@ namespace dat.schema {
           this.Subfiles.AddLast(subfile);
           br.Position = offset + subfile.FileSize;
           br.Align(0x20);
-        } catch {
+        } catch(Exception e) {
           br.PopLocalSpace();
           br.Position = offset;
           break;
