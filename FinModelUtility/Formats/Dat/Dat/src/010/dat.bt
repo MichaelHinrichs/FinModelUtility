@@ -1,0 +1,204 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+BigEndian();
+
+SetBackColor(cDkRed);
+
+uint fileSize;
+uint dataBlockSize;
+uint relocationTableCount;
+uint rootNodeCount;
+uint referenceNodeCount;
+
+local uint dataBlockOffset = 0x20;
+local uint relocationTableOffset = dataBlockOffset + dataBlockSize;
+local uint rootNodeOffset = relocationTableOffset + 4 * relocationTableCount;
+local uint referenceNodeOffset = rootNodeOffset + 8 * rootNodeCount;
+local uint stringTableOffset = referenceNodeOffset + 8 * referenceNodeCount;
+
+
+
+typedef struct {
+  uint dataOffset;
+  uint stringOffset;
+  
+  {
+    local uint tmpRootNodeNameOffset = FTell();
+    FSeek(stringTableOffset + stringOffset);
+    
+    string name;
+    
+    FSeek(tmpRootNodeNameOffset);
+  }
+  
+  if (Strstr(name, "_Share_joint") != -1) {
+    local uint tmpRootNodeJObjOffset = FTell();
+    FSeek(dataBlockOffset + dataOffset);
+
+    struct JObj jObj;
+
+    FSeek(tmpRootNodeJObjOffset);
+  }
+} RootNode;
+
+FSeek(rootNodeOffset);
+RootNode rootNodes[rootNodeCount] <optimize=false>;
+
+
+
+typedef struct {
+  uint validOffset;
+  
+  {
+    local uint tmpRelTableNodeOffset = FTell();
+    FSeek(validOffset);
+    
+    byte firstWord <bgcolor=cLtGray>;
+    
+    FSeek(tmpRelTableNodeOffset);
+  }    
+} RelocationTableNode;
+
+FSeek(relocationTableOffset);
+RelocationTableNode relocationTableNodes[relocationTableCount] <optimize=false>;
+
+
+
+typedef struct {
+  float values[4*3];  
+} Matrix4x3 <bgcolor=cYellow>;
+
+typedef struct {
+  uint stringOffset;
+  uint jObjFlags;
+  uint firstChildJObjOffset;
+  uint nextSiblingJObjOffset;
+  uint firstDObjOffset;
+  float rotationRadians[3];
+  float scale[3];
+  float position[3];
+  uint inverseBindMatrixOffset; 
+  uint unknown;
+
+  if (firstChildJObjOffset != 0) {
+    local uint tmpJObjFirstChildOffset = FTell();
+    FSeek(dataBlockOffset + firstChildJObjOffset);
+
+    struct JObj firstChild;
+
+    FSeek(tmpJObjFirstChildOffset);
+  }
+  
+  if (nextSiblingJObjOffset != 0) {
+    local uint tmpJObjNextSiblingOffset = FTell();
+    FSeek(dataBlockOffset + nextSiblingJObjOffset);
+
+    struct JObj nextSibling;
+
+    FSeek(tmpJObjNextSiblingOffset);
+  }
+  
+  if (firstDObjOffset != 0) {
+    local uint tmpJObjFirstDObjOffset = FTell();
+    FSeek(dataBlockOffset + firstDObjOffset);
+
+    struct DObj firstDObj;
+
+    FSeek(tmpJObjFirstDObjOffset);
+  }
+  
+  if (inverseBindMatrixOffset != 0) {
+    local uint tmpJObjIbmOffset = FTell();
+    FSeek(dataBlockOffset + inverseBindMatrixOffset);
+
+    Matrix4x3 inverseBindMatrix;
+
+    FSeek(tmpJObjIbmOffset);
+  }
+} JObj <bgcolor=cDkGreen>;
+
+typedef struct {
+  uint stringOffset;
+  uint nextSiblingDObjOffset;
+  uint mObjOffset;
+  uint firstPObjOffset;
+  
+  if (nextSiblingDObjOffset != 0) {
+    local uint tmpDObjNextSiblingOffset = FTell();
+    FSeek(dataBlockOffset + nextSiblingDObjOffset);
+
+    struct DObj nextSibling;
+
+    FSeek(tmpDObjNextSiblingOffset);
+  }
+  
+  if (mObjOffset != 0) {
+    local uint tmpDObjMObjOffset = FTell();
+    FSeek(dataBlockOffset + mObjOffset);
+
+    struct MObj mObj;
+
+    FSeek(tmpDObjMObjOffset);
+  }
+} DObj <bgcolor=cDkBlue>;
+
+typedef struct {
+  uint stringOffset;
+  uint renderMode;
+  uint firstTObjOffset;
+  uint materialOffset;
+  uint unknown;
+  uint peDescOffset;
+  
+  if (materialOffset != 0) {
+    local uint tmpMObjMaterialOffset = FTell();
+    FSeek(dataBlockOffset + materialOffset);
+
+    struct DatMaterial material;
+
+    FSeek(tmpMObjMaterialOffset);
+  }
+  
+  if (peDescOffset != 0) {
+    local uint tmpMObjPeDescOffset = FTell();
+    FSeek(dataBlockOffset + peDescOffset);
+
+    struct PeDesc peDesc;
+
+    FSeek(tmpMObjPeDescOffset);
+  }
+} MObj <bgcolor=cLtGreen>;
+
+typedef struct {
+  byte ambientRgba[4];
+  byte diffuseRgba[4];
+  byte specularRgba[4];
+  float alpha;
+  float shininess;
+} DatMaterial <bgcolor=cLtYellow>;
+
+typedef struct {
+  byte flags;
+  byte alphaRef0;
+  byte alphaRef1;
+  byte destinationAlpha;
+  byte blendMode;
+  byte srcFactor;
+  byte dstFactor;
+  byte logicOp;
+  byte depthFunction;
+  byte alphaCompare0;
+  byte alphaOp;
+  byte alphaCompare1;
+} PeDesc <bgcolor=cLtRed>;
