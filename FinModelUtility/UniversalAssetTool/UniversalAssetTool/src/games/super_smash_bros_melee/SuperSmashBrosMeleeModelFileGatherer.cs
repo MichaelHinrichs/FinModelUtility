@@ -27,23 +27,24 @@ namespace uni.games.super_smash_bros_melee {
 
       var stageFiles = new LinkedList<IFileHierarchyFile>();
       var trophyFiles = new LinkedList<IFileHierarchyFile>();
-      var plFilesByName = new Dictionary<string, IFileHierarchyFile>();
+      var plFilesByNameWithoutExtension =
+          new Dictionary<string, IFileHierarchyFile>();
 
       foreach (var datFile in fileHierarchy.Root.FilesWithExtension(".dat")) {
-        var datFileName = datFile.NameWithoutExtension;
+        var datNameWithoutExtension = datFile.NameWithoutExtension;
 
-        if (datFileName.StartsWith(STAGE_PREFIX)) {
+        if (datNameWithoutExtension.StartsWith(STAGE_PREFIX)) {
           stageFiles.AddLast(datFile);
           continue;
         }
 
-        if (datFileName.StartsWith(TROPHY_PREFIX)) {
+        if (datNameWithoutExtension.StartsWith(TROPHY_PREFIX)) {
           trophyFiles.AddLast(datFile);
           continue;
         }
 
-        if (datFileName.StartsWith(CHARACTER_PREFIX)) {
-          plFilesByName.Add(datFileName, datFile);
+        if (datNameWithoutExtension.StartsWith(CHARACTER_PREFIX)) {
+          plFilesByNameWithoutExtension.Add(datNameWithoutExtension, datFile);
         }
       }
 
@@ -55,9 +56,18 @@ namespace uni.games.super_smash_bros_melee {
       }
 
       // TODO: How to optimize this??
-      foreach (var plNameWithoutExtension in plFilesByName.Keys) {
+      foreach (var (plNameWithoutExtension, plFile) in
+               plFilesByNameWithoutExtension) {
+        if (!plFilesByNameWithoutExtension.TryGetValue(
+                $"{plNameWithoutExtension}{ANIMATION_SUFFIX}",
+                out var animationFile)) {
+          continue;
+        }
+
+        var fighterFile = plFile;
+
         var plFilesStartingWithName =
-            plFilesByName
+            plFilesByNameWithoutExtension
                 .Values
                 .Where(otherPlFile => {
                   var otherPlNameWithoutExtension =
@@ -69,12 +79,6 @@ namespace uni.games.super_smash_bros_melee {
                 })
                 .ToDictionary(file => file.NameWithoutExtension);
 
-        if (!plFilesStartingWithName.TryGetValue(
-                $"{plNameWithoutExtension}{ANIMATION_SUFFIX}",
-                out var animationPlFile)) {
-          continue;
-        }
-
         foreach (var modelFile in
                  plFilesStartingWithName
                      .Where(pair => !pair.Key.EndsWith(ANIMATION_SUFFIX))
@@ -82,7 +86,8 @@ namespace uni.games.super_smash_bros_melee {
           yield return new DatModelFileBundle {
               GameName = "super_smash_bros_melee",
               PrimaryDatFile = modelFile,
-              AnimationDatFile = animationPlFile,
+              AnimationDatFile = animationFile,
+              FighterDatFile = fighterFile,
           }.Annotate(modelFile);
         }
       }

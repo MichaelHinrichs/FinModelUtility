@@ -26,14 +26,17 @@ using schema.binary;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace dat.api {
+  // TODO: Split out this importer based on the game
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {
     public unsafe IModel ImportModel(DatModelFileBundle modelFileBundle) {
       var primaryDat =
           modelFileBundle.PrimaryDatFile.ReadNew<Dat>(Endianness.BigEndian);
-      var primaryDatSubfile = primaryDat.Subfiles.First();
+      var primaryDatSubfile = primaryDat.Subfiles.Single();
 
       var animationDat =
           modelFileBundle.AnimationDatFile?.ReadNew<Dat>(Endianness.BigEndian);
+      var fighterDat =
+          modelFileBundle.FighterDatFile?.ReadNew<Dat>(Endianness.BigEndian);
 
       var finModel = new ModelImpl();
       var finSkin = finModel.Skin;
@@ -341,6 +344,8 @@ namespace dat.api {
       foreach (var (jObj, dObj) in sortedJObjsAndDObjs) {
         var defaultBoneWeights = boneWeightsByJObj[jObj];
         var mObjOffset = dObj.MObjOffset;
+
+        // TODO: Use fighter file to choose only high-poly meshes
 
         // Adds polygons
         foreach (var pObj in dObj.PObjs) {
