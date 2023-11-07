@@ -294,16 +294,16 @@ out vec4 vertexColor{i};");
 
       string transformedUv;
       if (!(finTexture?.IsTransform3d ?? false)) {
-        transformedUv = $"({textureName}.transform2d * {rawUvName}).xy";
+        transformedUv = $"({textureName}.transform2d * {uvConverter(rawUvName)}).xy";
       } else {
         transformedUv =
-            $"transformUv3d({textureName}.transform3d, {rawUvName})";
+            $"transformUv3d({textureName}.transform3d, {uvConverter(rawUvName)})";
       }
 
       return
           $"texture({textureName}.sampler, " +
           "clamp(" +
-          $"{uvConverter(transformedUv)}, " +
+          $"{transformedUv}, " +
           $"{textureName}.clampMin, " +
           $"{textureName}.clampMax" +
           ")" + // clamp
