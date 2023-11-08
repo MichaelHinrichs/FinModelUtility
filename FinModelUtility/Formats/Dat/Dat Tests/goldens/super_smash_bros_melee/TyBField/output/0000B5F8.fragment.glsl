@@ -24,7 +24,7 @@ in vec2 uv0;
 out vec4 fragColor;
 
 void main() {
-  vec3 colorComponent = texture(texture0.sampler, clamp(asin(transformUv3d(texture0.transform3d, normalUv)) / 3.14159 + 0.5, texture0.clampMin, texture0.clampMax)).rgb;
+  vec3 colorComponent = texture(texture0.sampler, clamp(transformUv3d(texture0.transform3d, asin(normalUv) / 3.14159 + 0.5), texture0.clampMin, texture0.clampMax)).rgb;
 
   float alphaComponent = 1;
 
