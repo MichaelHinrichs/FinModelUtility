@@ -1,4 +1,4 @@
-﻿namespace Nitro {
+﻿namespace nitro {
   public class Class1 {
 
   }

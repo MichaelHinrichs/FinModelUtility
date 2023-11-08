@@ -4,6 +4,10 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>mdl</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="schema" Version="0.3.10" />
+  </ItemGroup>
 </Project>
