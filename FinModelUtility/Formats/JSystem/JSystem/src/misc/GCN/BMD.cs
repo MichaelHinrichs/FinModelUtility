@@ -2,11 +2,11 @@
 using System.IO;
 
 using jsystem._3D_Formats;
-using jsystem.schema.bmd;
-using jsystem.schema.bmd.drw1;
-using jsystem.schema.bmd.inf1;
-using jsystem.schema.bmd.jnt1;
-using jsystem.schema.bmd.tex1;
+using jsystem.schema.j3dgraph.bmd;
+using jsystem.schema.j3dgraph.bmd.drw1;
+using jsystem.schema.j3dgraph.bmd.inf1;
+using jsystem.schema.j3dgraph.bmd.jnt1;
+using jsystem.schema.j3dgraph.bmd.tex1;
 
 using schema.binary;
 

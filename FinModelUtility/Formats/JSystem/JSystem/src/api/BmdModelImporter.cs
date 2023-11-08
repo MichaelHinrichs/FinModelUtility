@@ -19,11 +19,11 @@ using gx;
 using jsystem._3D_Formats;
 using jsystem.exporter;
 using jsystem.GCN;
-using jsystem.schema.bcx;
-using jsystem.schema.bmd.inf1;
-using jsystem.schema.bmd.jnt1;
-using jsystem.schema.bmd.mat3;
-using jsystem.schema.bti;
+using jsystem.schema.j3dgraph.bcx;
+using jsystem.schema.j3dgraph.bmd.inf1;
+using jsystem.schema.j3dgraph.bmd.jnt1;
+using jsystem.schema.j3dgraph.bmd.mat3;
+using jsystem.schema.jutility.bti;
 
 using schema.binary;
 

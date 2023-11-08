@@ -9,7 +9,7 @@ using fin.util.image;
 using gx;
 
 using jsystem.GCN;
-using jsystem.schema.bti;
+using jsystem.schema.jutility.bti;
 
 namespace jsystem.exporter {
   public class BmdMaterialManager {

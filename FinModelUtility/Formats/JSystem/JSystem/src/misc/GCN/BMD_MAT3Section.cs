@@ -6,8 +6,8 @@ using System.Linq;
 using gx;
 
 using jsystem.G3D_Binary_File_Format;
-using jsystem.schema.bmd;
-using jsystem.schema.bmd.mat3;
+using jsystem.schema.j3dgraph.bmd;
+using jsystem.schema.j3dgraph.bmd.mat3;
 
 using schema.binary;
 

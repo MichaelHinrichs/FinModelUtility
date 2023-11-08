@@ -6,7 +6,7 @@ using fin.schema;
 
 using gx;
 
-using jsystem.schema.bmd.mat3;
+using jsystem.schema.j3dgraph.bmd.mat3;
 
 namespace jsystem.GCN {
   public class BmdPopulatedMaterial : IPopulatedMaterial {

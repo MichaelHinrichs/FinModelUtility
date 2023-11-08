@@ -7,7 +7,7 @@ using fin.schema;
 using gx;
 
 using jsystem.G3D_Binary_File_Format;
-using jsystem.schema.bmd.shp1;
+using jsystem.schema.j3dgraph.bmd.shp1;
 
 using schema.binary;
 

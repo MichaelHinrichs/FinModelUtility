@@ -8,7 +8,7 @@ using fin.util.color;
 using gx;
 
 using jsystem.G3D_Binary_File_Format;
-using jsystem.schema.bmd.vtx1;
+using jsystem.schema.j3dgraph.bmd.vtx1;
 
 using schema.binary;
 
