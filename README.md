@@ -70,7 +70,7 @@ If you'd like to vote on new games or features that should be supported, please 
 
 *Not all of the models for each game are currently supported, and not every feature of each model will be accurately recreated in the output GLTF/FBX files. To flag any broken/missing models that you'd like to see fixed, please feel free to file feedback via the Issues tab above.*
 
-- J3D (.bmd/.bdl) (GCN)
+- J3dGraph (.bmd/.bdl) (GCN)
   - Mario Kart: Double Dash (`mario_kart_double_dash.[ciso/gcm/iso/nkit.iso]`)
   - Pikmin 2 (`pikmin_2.[ciso/gcm/iso/nkit.iso]`)
   - Super Mario Sunshine (`super_mario_sunshine.[ciso/gcm/iso/nkit.iso]`)
