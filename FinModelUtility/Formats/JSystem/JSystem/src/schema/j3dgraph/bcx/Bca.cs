@@ -13,7 +13,7 @@ using jsystem.G3D_Binary_File_Format;
 using schema.binary;
 using schema.binary.attributes;
 
-namespace jsystem.schema.bcx {
+namespace jsystem.schema.j3dgraph.bcx {
   /// <summary>
   ///   BCA files define joint animations where each frame is defined.
   /// </summary>

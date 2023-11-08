@@ -1,7 +1,7 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-namespace jsystem.schema.bmd {
+namespace jsystem.schema.j3dgraph.bmd {
   [BinarySchema]
   public partial class BmdHeader : IBinaryConvertible {
     private readonly string magic_ = "J3D2bmd3";

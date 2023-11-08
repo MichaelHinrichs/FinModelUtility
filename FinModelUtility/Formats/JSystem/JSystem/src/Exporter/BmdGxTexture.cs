@@ -20,7 +20,7 @@ namespace jsystem.exporter {
   public class BmdGxTexture : IGxTexture {
     public unsafe BmdGxTexture(
         string name,
-        TextureEntry header,
+        Bti header,
         IList<(string, Bti)>? pathsAndBtis = null) {
       this.Name = name;
       this.DefaultHeader = header;
@@ -218,9 +218,9 @@ namespace jsystem.exporter {
     public override string ToString() => this.Name;
 
     public IImage Image { get; }
-    public TextureEntry Header => OverrideHeader ?? DefaultHeader;
-    private TextureEntry DefaultHeader { get; }
-    private TextureEntry? OverrideHeader { get; }
+    public Bti Header => OverrideHeader ?? DefaultHeader;
+    private Bti DefaultHeader { get; }
+    private Bti? OverrideHeader { get; }
 
     public GxWrapMode WrapModeS => this.Header.WrapS;
     public GxWrapMode WrapModeT => this.Header.WrapT;
