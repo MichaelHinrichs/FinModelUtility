@@ -1,5 +1,7 @@
 ﻿using fin.schema.data;
 
+using jsystem.schema.jutility.bti;
+
 using schema.binary;
 using schema.binary.attributes;
 
@@ -29,7 +31,7 @@ namespace jsystem.schema.j3dgraph.bmd.tex1 {
 
     [RSequenceLengthSource(nameof(textureCount_))]
     [RAtPosition(nameof(textureHeaderOffset_))]
-    public TextureEntry[] TextureHeaders;
+    public Bti[] TextureHeaders;
 
     [RAtPosition(nameof(stringTableOffset_))]
     public readonly StringTable StringTable = new();

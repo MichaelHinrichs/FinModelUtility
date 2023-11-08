@@ -11,7 +11,6 @@ using fin.util.image;
 
 using gx;
 
-using jsystem.schema.j3dgraph.bmd.tex1;
 using jsystem.schema.jutility.bti;
 
 using SixLabors.ImageSharp.PixelFormats;
