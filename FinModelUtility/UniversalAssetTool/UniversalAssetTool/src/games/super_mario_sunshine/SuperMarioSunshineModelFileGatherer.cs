@@ -2,7 +2,7 @@
 using fin.io.bundles;
 using fin.util.asserts;
 
-using j3d.api;
+using jsystem.api;
 
 using uni.platforms.gcn;
 

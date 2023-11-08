@@ -4,7 +4,7 @@ using fin.scene;
 
 using games.pikmin2.route;
 
-using j3d.api;
+using jsystem.api;
 
 namespace games.pikmin2.api {
   public class Pikmin2SceneImporter : ISceneImporter<Pikmin2SceneFileBundle> {
