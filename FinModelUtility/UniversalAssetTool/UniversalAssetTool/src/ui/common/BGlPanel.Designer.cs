@@ -1,4 +1,6 @@
-﻿namespace uni.ui.common {
+﻿using OpenTK.Graphics;
+
+namespace uni.ui.common {
   abstract partial class BGlPanel {
     /// <summary> 
     /// Required designer variable.
@@ -23,7 +25,7 @@
     /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent() {
-      this.impl_ = new OpenTK.GLControl();
+      this.impl_ = new OpenTK.GLControl(new GraphicsMode(new ColorFormat(8, 8, 8, 8), 32));
       this.SuspendLayout();
       // 
       // impl_
