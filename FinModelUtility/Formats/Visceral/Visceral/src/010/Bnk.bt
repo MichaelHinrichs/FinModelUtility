@@ -102,6 +102,9 @@ typedef struct {
 
     if (type == ANIMATED) {
       uint pointerToAnimationData;
+      
+      FSeek(pointerToAnimationData);
+      uint animationData <bgcolor=cRed>;
     }
 
     FSeek(tmp);
