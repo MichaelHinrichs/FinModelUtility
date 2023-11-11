@@ -4,13 +4,8 @@ using fin.data.queues;
 using fin.io;
 using fin.math.floats;
 using fin.model;
-using fin.util.enumerables;
 
 using schema.binary;
-
-using static visceral.api.BnkReader;
-
-using visceral.schema.bnk;
 
 namespace visceral.api {
   public class BnkReader {
@@ -25,6 +20,7 @@ namespace visceral.api {
       KEYFRAME_AND_3_BYTES = 0x1,
       KEYFRAME_AND_6_BYTES = 0x2,
       KEYFRAME_AND_9_BYTES = 0x3,
+      FLOATS = 0x4,
       BYTE_GRADIENT = 0x6,
       SHORT_GRADIENT = 0x7,
       SINGLETON_0 = 0xC,
@@ -56,7 +52,7 @@ namespace visceral.api {
         } else {
           try {
             this.ReadIntoAnimation_(bnkBr, rcbFile, bones, finAnimation);
-          } catch {
+          } catch (Exception e) {
             model.AnimationManager.RemoveAnimation(finAnimation);
           }
         }
@@ -185,10 +181,14 @@ namespace visceral.api {
 
                   var frame = 0;
                   for (var k = 0; k < keyframeCount; ++k) {
-                    var lengthAndKeyframeType = bnkBr.ReadByte();
+                    var lengthAndKeyframeType = bnkBr.ReadUInt16();
+                    commands?.Add(lengthAndKeyframeType);
+
                     var keyframeLength = lengthAndKeyframeType >> 4;
                     var keyframeType =
                         (KeyframeType) (lengthAndKeyframeType & 0xF);
+
+                    bnkBr.Position -= 1;
 
                     var startingKeyframe = frame;
                     foreach (var keyframeValue in
@@ -237,9 +237,18 @@ namespace visceral.api {
           yield return br.ReadSingle();
           break;
         }
+        case KeyframeType.FLOATS: {
+          br.Position += 1;
+
+          for (var i = 0; i < keyframeLength; ++i) {
+            yield return br.ReadSingle();
+          }
+
+          break;
+        }
         case KeyframeType.BYTE_GRADIENT:
         case KeyframeType.SHORT_GRADIENT: {
-          var rowCount = br.ReadByte();
+          br.Position += 1;
 
           // TOOD: Is this actually right???
           var fromFraction = br.ReadUn8();
@@ -256,11 +265,10 @@ namespace visceral.api {
           var value = br.ReadSingle();
 
           // TODO: Is this right????
-          var frameCount = (rowCount << 4) | keyframeLength;
           var fractions =
               keyframeType == KeyframeType.BYTE_GRADIENT
-                  ? br.ReadUn8s(frameCount)
-                  : br.ReadUn16s(frameCount);
+                  ? br.ReadUn8s(keyframeLength)
+                  : br.ReadUn16s(keyframeLength);
 
           foreach (var fraction in fractions) {
             var keyframeAmount = fromFraction * (1 - fraction) +
