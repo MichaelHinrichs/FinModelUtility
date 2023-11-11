@@ -4,8 +4,13 @@ using fin.data.queues;
 using fin.io;
 using fin.math.floats;
 using fin.model;
+using fin.util.enumerables;
 
 using schema.binary;
+
+using static visceral.api.BnkReader;
+
+using visceral.schema.bnk;
 
 namespace visceral.api {
   public class BnkReader {
@@ -135,7 +140,9 @@ namespace visceral.api {
               var positions = boneTracks.UseSeparatePositionAxesTrack();
 
               for (var a = 0; a < 7; ++a) {
-                Action<int, float> setKeyframe = (frame, value) => {
+                void SetKeyframe(int frame, float value) {
+                  totalFrames = Math.Max(totalFrames, frame);
+
                   switch (a) {
                     case 0:
                     case 1:
@@ -152,7 +159,7 @@ namespace visceral.api {
                     }
                     default: throw new Exception();
                   }
-                };
+                }
 
                 var command = bnkBr.ReadUInt16();
                 commands?.Add(command);
@@ -161,78 +168,17 @@ namespace visceral.api {
                 var lower = command & 0xF;
 
                 if (upper == standaloneCommandPrefix) {
-                  var axisType = (KeyframeType) lower;
+                  var keyframeType = (KeyframeType) lower;
 
-                  switch (axisType) {
-                    case KeyframeType.SINGLETON_0: {
-                      var value = 0;
-                      setKeyframe(0, value);
-                      break;
-                    }
-                    case KeyframeType.SINGLETON_1: {
-                      var value = 1;
-                      setKeyframe(0, value);
-                      break;
-                    }
-                    case KeyframeType.ONLY_KEYFRAME: {
-                      bnkBr.Position -= 1;
-                      var value = bnkBr.ReadSingle();
-                      setKeyframe(0, value);
-                      break;
-                    }
-                    case KeyframeType.KEYFRAME_AND_3_BYTES: {
-                      bnkBr.Position += 2;
-                      var value = bnkBr.ReadSingle();
-                      setKeyframe(0, value);
-                      break;
-                    }
-                    case KeyframeType.KEYFRAME_AND_6_BYTES: {
-                      bnkBr.Position += 5;
-                      var value = bnkBr.ReadSingle();
-                      setKeyframe(0, value);
-                      break;
-                    }
-                    case KeyframeType.KEYFRAME_AND_9_BYTES: {
-                      bnkBr.Position += 8;
-                      var value = bnkBr.ReadSingle();
-                      setKeyframe(0, value);
-                      break;
-                    }
-                    case KeyframeType.BYTE_GRADIENT:
-                    case KeyframeType.SHORT_GRADIENT: {
-                      // TODO: What are these values?
-                      var fromFraction = bnkBr.ReadUn8();
-                      var toFraction = bnkBr.ReadUn8();
+                  bnkBr.Position -= 1;
 
-                      if (fromFraction.IsRoughly(0) &&
-                          toFraction.IsRoughly(0)) {
-                        fromFraction = 0;
-                        toFraction = 1;
-                      } else if (fromFraction.IsRoughly(toFraction)) {
-                        ;
-                      }
-
-                      var frameCount = (int) standaloneCommandPrefix;
-                      var fractions = axisType == KeyframeType.BYTE_GRADIENT
-                          ? bnkBr.ReadUn8s(frameCount)
-                          : bnkBr.ReadUn16s(frameCount);
-
-                      var value = bnkBr.ReadSingle();
-                      for (var f = 0; f < frameCount; ++f) {
-                        var fraction = fractions[f];
-                        var keyframeAmount = fromFraction * (1 - fraction) +
-                                             toFraction * fraction;
-                        var keyframe = keyframeAmount * value;
-
-                        setKeyframe(f, keyframe);
-                      }
-
-                      totalFrames = Math.Max(totalFrames, frameCount);
-
-                      break;
-                    }
-                    default:
-                      throw new NotImplementedException();
+                  var frame = 0;
+                  foreach (var keyframeValue in
+                           this.ReadKeyframeValuesOfType_(
+                               bnkBr,
+                               keyframeType,
+                               (int) standaloneCommandPrefix)) {
+                    SetKeyframe(frame++, keyframeValue);
                   }
                 } else if (lower == 5) {
                   var keyframeCount = upper;
@@ -240,108 +186,20 @@ namespace visceral.api {
                   var frame = 0;
                   for (var k = 0; k < keyframeCount; ++k) {
                     var lengthAndKeyframeType = bnkBr.ReadByte();
-                    var length = lengthAndKeyframeType >> 4;
+                    var keyframeLength = lengthAndKeyframeType >> 4;
                     var keyframeType =
                         (KeyframeType) (lengthAndKeyframeType & 0xF);
 
-                    switch (keyframeType) {
-                      case KeyframeType.SINGLETON_0: {
-                        var value = 0;
-                        setKeyframe(frame, value);
-                        frame += length;
-                        break;
-                      }
-                      case KeyframeType.SINGLETON_1: {
-                        var value = 1;
-                        setKeyframe(frame, value);
-                        frame += length;
-                        break;
-                      }
-                      case KeyframeType.ONLY_KEYFRAME: {
-                        var value = bnkBr.ReadSingle();
-
-                        setKeyframe(frame, value);
-                        frame += length;
-
-                        break;
-                      }
-                      case KeyframeType.KEYFRAME_AND_3_BYTES: {
-                        // Security camera:
-                        // 21   00 44 7C                     BB 44 7C 3B
-                        // TODO: Add support for this. Is this easing?
-                        bnkBr.Position += 3;
-                        var value = bnkBr.ReadSingle();
-
-                        setKeyframe(frame, value);
-                        frame += length;
-
-                        break;
-                      }
-                      case KeyframeType.KEYFRAME_AND_6_BYTES: {
-                        // Security camera:
-                        // 22   03 8F E0 B7 CB BA            3B CB F6 3D 
-                        // TODO: Add support for this. Is this easing?
-                        bnkBr.Position += 6;
-                        var value = bnkBr.ReadSingle();
-
-                        setKeyframe(frame, value);
-                        frame += length;
-
-                        break;
-                      }
-                      case KeyframeType.KEYFRAME_AND_9_BYTES: {
-                        // TODO: Handle easing?
-                        // Security camera:
-                        // 23   03 39 63 B4 6C 92 37 92 AC   3B 50 1D BE 
-                        bnkBr.Position += 9;
-                        var value = bnkBr.ReadSingle();
-
-                        setKeyframe(frame, value);
-                        frame += length;
-
-                        break;
-                      }
-                      case KeyframeType.BYTE_GRADIENT:
-                      case KeyframeType.SHORT_GRADIENT: {
-                        var rowCount = bnkBr.ReadByte();
-
-                        // TOOD: Is this actually right???
-                        var fromFraction = bnkBr.ReadUn8();
-                        var toFraction = bnkBr.ReadUn8();
-
-                        if (fromFraction.IsRoughly(0) &&
-                            toFraction.IsRoughly(0)) {
-                          fromFraction = 0;
-                          toFraction = 1;
-                        } else if (fromFraction.IsRoughly(toFraction)) {
-                          ;
-                        }
-
-                        var value = bnkBr.ReadSingle();
-
-                        // TODO: Is this right????
-                        var frameCount = (rowCount << 4) | length;
-                        var fractions =
-                            keyframeType == KeyframeType.BYTE_GRADIENT
-                                ? bnkBr.ReadUn8s(frameCount)
-                                : bnkBr.ReadUn16s(frameCount);
-
-                        foreach (var fraction in fractions) {
-                          var keyframeAmount = fromFraction * (1 - fraction) +
-                                               toFraction * fraction;
-                          var keyframe = keyframeAmount * value;
-
-                          setKeyframe(frame++, keyframe);
-                        }
-
-                        frame += fractions.Length;
-
-                        break;
-                      }
-                      default: throw new NotImplementedException();
+                    var startingKeyframe = frame;
+                    foreach (var keyframeValue in
+                             this.ReadKeyframeValuesOfType_(
+                                 bnkBr,
+                                 keyframeType,
+                                 keyframeLength)) {
+                      SetKeyframe(frame++, keyframeValue);
                     }
 
-                    totalFrames = Math.Max(totalFrames, frame);
+                    frame = startingKeyframe + keyframeLength;
                   }
                 } else {
                   throw new NotImplementedException();
@@ -353,6 +211,68 @@ namespace visceral.api {
       }
 
       finAnimation.FrameCount = totalFrames;
+    }
+
+    private IEnumerable<float> ReadKeyframeValuesOfType_(
+        IBinaryReader br,
+        KeyframeType keyframeType,
+        int keyframeLength) {
+      switch (keyframeType) {
+        case KeyframeType.SINGLETON_0: {
+          br.Position += 1;
+          yield return 0;
+          break;
+        }
+        case KeyframeType.SINGLETON_1: {
+          br.Position += 1;
+          yield return 1;
+          break;
+        }
+        case KeyframeType.ONLY_KEYFRAME:
+        case KeyframeType.KEYFRAME_AND_3_BYTES:
+        case KeyframeType.KEYFRAME_AND_6_BYTES:
+        case KeyframeType.KEYFRAME_AND_9_BYTES: {
+          // TODO: What are these???
+          br.Position += 3 * (int) keyframeType;
+          yield return br.ReadSingle();
+          break;
+        }
+        case KeyframeType.BYTE_GRADIENT:
+        case KeyframeType.SHORT_GRADIENT: {
+          var rowCount = br.ReadByte();
+
+          // TOOD: Is this actually right???
+          var fromFraction = br.ReadUn8();
+          var toFraction = br.ReadUn8();
+
+          if (fromFraction.IsRoughly(0) &&
+              toFraction.IsRoughly(0)) {
+            fromFraction = 0;
+            toFraction = 1;
+          } else if (fromFraction.IsRoughly(toFraction)) {
+            ;
+          }
+
+          var value = br.ReadSingle();
+
+          // TODO: Is this right????
+          var frameCount = (rowCount << 4) | keyframeLength;
+          var fractions =
+              keyframeType == KeyframeType.BYTE_GRADIENT
+                  ? br.ReadUn8s(frameCount)
+                  : br.ReadUn16s(frameCount);
+
+          foreach (var fraction in fractions) {
+            var keyframeAmount = fromFraction * (1 - fraction) +
+                                 toFraction * fraction;
+            var keyframe = keyframeAmount * value;
+            yield return keyframe;
+          }
+
+          break;
+        }
+        default: throw new NotImplementedException();
+      }
     }
   }
 }
