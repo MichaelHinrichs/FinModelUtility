@@ -78,4 +78,7 @@ namespace fin.schema.vector {
 
   [BinarySchema]
   public sealed partial class Vector3s : BVector3<short>, IBinaryConvertible { }
+
+  [BinarySchema]
+  public sealed partial class Vector3d : BVector3<double>, IBinaryConvertible { }
 }

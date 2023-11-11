@@ -7,4 +7,12 @@
     <RootNamespace>nitro</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="schema" Version="0.3.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Fin\Fin\Fin.csproj" />
+  </ItemGroup>
+
 </Project>
