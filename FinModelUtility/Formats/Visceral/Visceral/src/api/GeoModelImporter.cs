@@ -1,12 +1,10 @@
-﻿using fin.data;
-using fin.data.dictionaries;
+﻿using fin.data.dictionaries;
 using fin.data.queues;
 using fin.io;
 using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importers;
 using fin.schema.matrix;
 
@@ -15,6 +13,8 @@ using visceral.schema.rcb;
 
 namespace visceral.api {
   public class GeoModelImporter : IModelImporter<GeoModelFileBundle> {
+    public const bool STRICT_DAT = false;
+
     public IModel ImportModel(GeoModelFileBundle modelFileBundle) {
       var finModel = new ModelImpl();
 
@@ -161,7 +161,9 @@ namespace visceral.api {
                                   .Where(boneWeight => boneWeight.weight > 0)
                                   .Select(boneWeight
                                               => new BoneWeight(
-                                                  finBones[geo.Bones[boneWeight.Item1].Id],
+                                                  finBones[
+                                                      geo.Bones[
+                                                          boneWeight.Item1].Id],
                                                   null,
                                                   boneWeight.Item2))
                                   .ToArray();

@@ -7,6 +7,7 @@ namespace fin.model {
   public interface IAnimationManager {
     IReadOnlyList<IModelAnimation> Animations { get; }
     IModelAnimation AddAnimation();
+    void RemoveAnimation(IModelAnimation animation);
 
     IReadOnlyList<IMorphTarget> MorphTargets { get; }
     IMorphTarget AddMorphTarget();

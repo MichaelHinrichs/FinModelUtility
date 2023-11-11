@@ -36,6 +36,9 @@ namespace fin.model.impl {
         return animation;
       }
 
+      public void RemoveAnimation(IModelAnimation animation) 
+        => this.animations_.Remove(animation);
+
       private class ModelAnimationImpl : IModelAnimation {
         private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_;
         private readonly Dictionary<IMesh, IMeshTracks> meshTracks_ = new();
