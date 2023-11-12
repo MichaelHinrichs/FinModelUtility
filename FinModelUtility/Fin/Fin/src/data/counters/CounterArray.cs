@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace fin.data.lists {
+using fin.data.lists;
+
+namespace fin.data.counters {
   public class CounterArray : IFinList<int> {
     private readonly List<int> impl_ = new();
 

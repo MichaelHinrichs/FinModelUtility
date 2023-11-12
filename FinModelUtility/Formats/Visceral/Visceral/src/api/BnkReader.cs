@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 
+using fin.data.counters;
+using fin.data.dictionaries;
 using fin.data.queues;
 using fin.io;
 using fin.math.floats;
@@ -13,6 +15,16 @@ namespace visceral.api {
       ROOT = 0x2,
       PARENT = 0x5,
       ANIMATED = 0x16,
+    }
+
+    public enum AxisType : byte {
+      ROT_X,
+      ROT_Y,
+      ROT_Z,
+      UNKNOWN,
+      POS_X,
+      POS_Y,
+      POS_Z,
     }
 
     public enum KeyframeType : byte {
@@ -72,6 +84,10 @@ namespace visceral.api {
       var totalFrames = 1;
 
       var commands = new List<ushort>();
+      var countsOfAxesWithKeyframeType =
+          new CounterSet<(AxisType, KeyframeType)>();
+      var valuesByAxesWithKeyframeType =
+          new SortedSetDictionary<(AxisType, KeyframeType), float>();
 
       {
         var rootOffset = bnkBr.ReadUInt32();
@@ -132,25 +148,29 @@ namespace visceral.api {
               }
 
               var boneTracks = finAnimation.AddBoneTracks(bones[b]);
-              var rotations = boneTracks.UseQuaternionAxesRotationTrack();
+              var rotations = boneTracks.UseEulerRadiansRotationTrack();
               var positions = boneTracks.UseSeparatePositionAxesTrack();
 
               for (var a = 0; a < 7; ++a) {
+                var axisType = (AxisType) a;
+
                 void SetKeyframe(int frame, float value) {
                   totalFrames = Math.Max(totalFrames, frame);
 
-                  switch (a) {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3: {
-                      rotations.Set(frame, a, value);
+                  switch (axisType) {
+                    case AxisType.ROT_X:
+                    case AxisType.ROT_Y:
+                    case AxisType.ROT_Z: {
+                      rotations.Set(frame, axisType - AxisType.ROT_X, value);
                       break;
                     }
-                    case 4:
-                    case 5:
-                    case 6: {
-                      positions.Set(frame, a - 4, value);
+                    case AxisType.POS_X:
+                    case AxisType.POS_Y:
+                    case AxisType.POS_Z: {
+                      positions.Set(frame, axisType - AxisType.POS_X, value);
+                      break;
+                    }
+                    case AxisType.UNKNOWN: {
                       break;
                     }
                     default: throw new Exception();
@@ -166,6 +186,9 @@ namespace visceral.api {
                 if (upper == standaloneCommandPrefix) {
                   var keyframeType = (KeyframeType) lower;
 
+                  countsOfAxesWithKeyframeType.Increment(
+                      (axisType, keyframeType));
+
                   bnkBr.Position -= 1;
 
                   var frame = 0;
@@ -175,6 +198,9 @@ namespace visceral.api {
                                keyframeType,
                                (int) standaloneCommandPrefix)) {
                     SetKeyframe(frame++, keyframeValue);
+                    valuesByAxesWithKeyframeType.Add(
+                        (axisType, keyframeType),
+                        keyframeValue);
                   }
                 } else if (lower == 5) {
                   var keyframeCount = upper;
@@ -188,6 +214,9 @@ namespace visceral.api {
                     var keyframeType =
                         (KeyframeType) (lengthAndKeyframeType & 0xF);
 
+                    countsOfAxesWithKeyframeType.Increment(
+                        (axisType, keyframeType));
+
                     bnkBr.Position -= 1;
 
                     var startingKeyframe = frame;
@@ -197,6 +226,9 @@ namespace visceral.api {
                                  keyframeType,
                                  keyframeLength)) {
                       SetKeyframe(frame++, keyframeValue);
+                      valuesByAxesWithKeyframeType.Add(
+                          (axisType, keyframeType),
+                          keyframeValue);
                     }
 
                     frame = startingKeyframe + keyframeLength;
