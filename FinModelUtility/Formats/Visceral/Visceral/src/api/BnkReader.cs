@@ -4,7 +4,6 @@ using fin.data.counters;
 using fin.data.dictionaries;
 using fin.data.queues;
 using fin.io;
-using fin.math.floats;
 using fin.model;
 
 using schema.binary;
@@ -21,7 +20,7 @@ namespace visceral.api {
       ROT_X,
       ROT_Y,
       ROT_Z,
-      UNKNOWN,
+      ROT_W,
       POS_X,
       POS_Y,
       POS_Z,
@@ -148,7 +147,7 @@ namespace visceral.api {
               }
 
               var boneTracks = finAnimation.AddBoneTracks(bones[b]);
-              var rotations = boneTracks.UseEulerRadiansRotationTrack();
+              var rotations = boneTracks.UseQuaternionAxesRotationTrack();
               var positions = boneTracks.UseSeparatePositionAxesTrack();
 
               for (var a = 0; a < 7; ++a) {
@@ -160,7 +159,8 @@ namespace visceral.api {
                   switch (axisType) {
                     case AxisType.ROT_X:
                     case AxisType.ROT_Y:
-                    case AxisType.ROT_Z: {
+                    case AxisType.ROT_Z:
+                    case AxisType.ROT_W: {
                       rotations.Set(frame, axisType - AxisType.ROT_X, value);
                       break;
                     }
@@ -168,9 +168,6 @@ namespace visceral.api {
                     case AxisType.POS_Y:
                     case AxisType.POS_Z: {
                       positions.Set(frame, axisType - AxisType.POS_X, value);
-                      break;
-                    }
-                    case AxisType.UNKNOWN: {
                       break;
                     }
                     default: throw new Exception();
@@ -265,7 +262,7 @@ namespace visceral.api {
         case KeyframeType.KEYFRAME_AND_6_BYTES:
         case KeyframeType.KEYFRAME_AND_9_BYTES: {
           // TODO: What are these???
-          br.Position += 3 * (int) keyframeType;
+          var values = br.ReadBytes(3 * (int) keyframeType);
           yield return br.ReadSingle();
           break;
         }
@@ -282,30 +279,35 @@ namespace visceral.api {
         case KeyframeType.SHORT_GRADIENT: {
           br.Position += 1;
 
-          // TOOD: Is this actually right???
-          var fromFraction = br.ReadUn8();
-          var toFraction = br.ReadUn8();
+          var unk0 = br.ReadByte();
+          var unk1 = br.ReadByte();
 
-          if (fromFraction.IsRoughly(0) &&
-              toFraction.IsRoughly(0)) {
-            fromFraction = 0;
-            toFraction = 1;
-          } else if (fromFraction.IsRoughly(toFraction)) {
+          br.Position -= 2;
+
+          // TODO: What is this meant to be?
+          var unk = br.ReadUInt16();
+
+          var scale = br.ReadSingle();
+
+          // TODO: Is this right????
+          var values =
+              (keyframeType == KeyframeType.BYTE_GRADIENT
+                  ? br.ReadBytes(keyframeLength)
+                      .Select(u => (ushort) u)
+                  : br.ReadUInt16s(keyframeLength)
+                      .Select(u => u))
+              .ToArray();
+
+          var keyframes =
+              values
+                  .Select(value => value * scale)
+                  .ToArray();
+
+          if (unk0 == unk1 && unk0 != 0) {
             ;
           }
 
-          var value = br.ReadSingle();
-
-          // TODO: Is this right????
-          var fractions =
-              keyframeType == KeyframeType.BYTE_GRADIENT
-                  ? br.ReadUn8s(keyframeLength)
-                  : br.ReadUn16s(keyframeLength);
-
-          foreach (var fraction in fractions) {
-            var keyframeAmount = fromFraction * (1 - fraction) +
-                                 toFraction * fraction;
-            var keyframe = keyframeAmount * value;
+          foreach (var keyframe in keyframes) {
             yield return keyframe;
           }
 
