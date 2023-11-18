@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.dictionaries {
+  /// <summary>
+  ///   An implementation for a dictionary of sets. Each value added for a key
+  ///   will be stored in that key's corresponding set.
+  /// </summary>
   public class SetDictionary<TKey, TValue>
       : IFinCollection<(TKey Key, ISet<TValue> Value)> {
     private readonly NullFriendlyDictionary<TKey, ISet<TValue>> impl_ = new();

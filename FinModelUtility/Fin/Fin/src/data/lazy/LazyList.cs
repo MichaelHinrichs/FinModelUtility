@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.lazy {
+  /// <summary>
+  ///   List implementation that lazily populates its entries when accessed.
+  /// </summary>
   public class LazyList<T> : ILazyArray<T> {
     private readonly List<T> impl_ = new();
     private readonly List<bool> populated_ = new();

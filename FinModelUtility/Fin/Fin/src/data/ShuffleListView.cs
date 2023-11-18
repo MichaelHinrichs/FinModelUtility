@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 
 namespace fin.data {
+  /// <summary>
+  ///   View into a list that returns values in a random order.
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
   public class ShuffledListView<T> {
     private readonly IReadOnlyList<T> impl_;
 

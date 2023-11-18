@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.lazy {
+  /// <summary>
+  ///   Array implementation that lazily populates its entries when accessed.
+  /// </summary>
   public class LazyArray<T> : ILazyArray<T> {
     private readonly T[] impl_;
     private readonly bool[] populated_;
@@ -25,11 +28,13 @@ namespace fin.data.lazy {
     }
 
     public int Count => this.impl_.Length;
+
     public void Clear() {
       for (var i = 0; i < this.Count; ++i) {
         this.populated_[i] = false;
       }
     }
+
     public bool ContainsKey(int key) => this.populated_[key];
 
 

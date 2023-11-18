@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 using fin.util.linq;
 
 namespace fin.data {
+  /// <summary>
+  ///   A list that stores values in one type but enumerates them as another.
+  /// </summary>
   public class CastListView<TFrom, TTo> : IReadOnlyList<TTo>
       where TFrom : TTo {
     private readonly IReadOnlyList<TFrom> impl_;

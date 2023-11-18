@@ -3,6 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace fin.data.lazy {
+  /// <summary>
+  ///   Dictionary implementation that lazily populates its entries when
+  ///   accessed.
+  /// </summary>
   public class LazyDictionary<TKey, TValue> : ILazyDictionary<TKey, TValue> {
     private readonly ConcurrentDictionary<TKey, TValue> impl_ = new();
     private readonly Func<TKey, TValue> handler_;

@@ -2,7 +2,6 @@
 using fin.schema;
 using fin.schema.matrix;
 using fin.schema.vector;
-using fin.util.binary;
 
 using schema.binary;
 
@@ -61,7 +60,7 @@ namespace visceral.schema.geo {
         var someId = br.ReadUInt32();
 
         var matrix = br.SubreadAt(boneOffset + 16 * (someId - 1),
-                                ser => ser.ReadNew<Matrix4x4f>());
+                                  ser => ser.ReadNew<Matrix4x4f>());
 
         bones.Add(new Bone { Name = boneName, Matrix = matrix, Id = someId, });
       }
@@ -106,7 +105,7 @@ namespace visceral.schema.geo {
           var tangent = this.Read32BitTangent_(br);
 
           var boneIds = br.ReadBytes(4)
-                          .Select(id => br.SubreadReturn(
+                          .Select(id => br.SubreadAt(
                                       boneIdMappingOffset + 2 * id,
                                       ser => ser.ReadByte()))
                           .ToArray();

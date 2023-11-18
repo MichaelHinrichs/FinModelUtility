@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.dictionaries {
+  /// <summary>
+  ///   An implementation for a dictionary of sorted sets. Each value added for
+  ///   a key will be stored in that key's corresponding sorted set. Sets will
+  ///   remember the order that elements were added in, and enumerate in that
+  ///   order.
+  /// </summary>
   public class SortedSetDictionary<TKey, TValue>
       : IFinCollection<(TKey Key, SortedSet<TValue> Value)> {
     private readonly NullFriendlyDictionary<TKey, SortedSet<TValue>> impl_ =

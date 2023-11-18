@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.dictionaries {
+  /// <summary>
+  ///   An implementation for a dictionary of lists. Each value added for a key
+  ///   will be stored in that key's corresponding list.
+  /// </summary>
   public class ListDictionary<TKey, TValue>
       : IFinCollection<(TKey Key, IList<TValue> Value)> {
     private readonly NullFriendlyDictionary<TKey, IList<TValue>> impl_ = new();

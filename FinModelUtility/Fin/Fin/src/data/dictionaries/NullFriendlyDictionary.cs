@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 using fin.util.asserts;
 
 namespace fin.data.dictionaries {
+  /// <summary>
+  ///   A dictionary that accepts null keys.
+  /// </summary>
   public class NullFriendlyDictionary<TKey, TValue>
       : IFinDictionary<TKey, TValue> {
     private readonly Dictionary<TKey, TValue> impl_ = new();
