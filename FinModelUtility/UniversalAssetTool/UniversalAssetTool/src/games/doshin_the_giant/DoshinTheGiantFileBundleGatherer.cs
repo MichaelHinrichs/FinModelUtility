@@ -3,7 +3,7 @@
 using uni.platforms.gcn;
 
 namespace uni.games.doshin_the_giant {
-  public class DoshinTheGiantAnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+  public class DoshinTheGiantFileBundleGatherer : IAnnotatedFileBundleGatherer {
     public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "doshin_the_giant",

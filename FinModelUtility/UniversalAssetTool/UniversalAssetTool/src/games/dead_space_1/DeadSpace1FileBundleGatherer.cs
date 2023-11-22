@@ -6,7 +6,7 @@ using uni.platforms.desktop;
 using visceral.api;
 
 namespace uni.games.dead_space_1 {
-  public class DeadSpace1AnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+  public class DeadSpace1FileBundleGatherer : IAnnotatedFileBundleGatherer {
     public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("Dead Space", out var deadSpaceDir)) {
         yield break;

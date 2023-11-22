@@ -9,7 +9,7 @@ using uni.util.bundles;
 namespace uni.games.luigis_mansion_3d {
   using IAnnotatedCmbBundle = IAnnotatedFileBundle<CmbModelFileBundle>;
 
-  public class LuigisMansion3dModelAnnotatedFileGatherer
+  public class LuigisMansion3dFileBundleGatherer
       : IAnnotatedFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_ =
         new ModelSeparator(directory => directory.LocalPath)
@@ -33,7 +33,7 @@ namespace uni.games.luigis_mansion_3d {
       return fileHierarchy.SelectMany(this.ExtractModel_);
     }
 
-    public IEnumerable<IAnnotatedCmbBundle> ExtractModel_(
+    private IEnumerable<IAnnotatedCmbBundle> ExtractModel_(
         IFileHierarchyDirectory subdir) {
       var cmbFiles = subdir.FilesWithExtension(".cmb").ToArray();
       if (cmbFiles.Length == 0) {

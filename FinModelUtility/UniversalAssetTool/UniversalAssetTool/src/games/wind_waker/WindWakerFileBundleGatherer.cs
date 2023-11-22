@@ -14,9 +14,9 @@ using uni.platforms.gcn.tools;
 
 
 namespace uni.games.wind_waker {
-  public class WindWakerAnnotatedFileGatherer : IAnnotatedFileBundleGatherer<BmdModelFileBundle> {
+  public class WindWakerFileBundleGatherer : IAnnotatedFileBundleGatherer<BmdModelFileBundle> {
     private readonly ILogger logger_ =
-        Logging.Create<WindWakerAnnotatedFileGatherer>();
+        Logging.Create<WindWakerFileBundleGatherer>();
 
     public IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(

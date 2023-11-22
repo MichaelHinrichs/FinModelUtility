@@ -3,7 +3,7 @@
 namespace uni.games.glover {
   internal class GloverMassExporter : IMassExporter {
     public void ExportAll()
-      => ExporterUtil.ExportAllForCli(new GloverModelAnnotatedFileGatherer(),
+      => ExporterUtil.ExportAllForCli(new GloverFileBundleGatherer(),
                                   new GloModelImporter());
   }
 }

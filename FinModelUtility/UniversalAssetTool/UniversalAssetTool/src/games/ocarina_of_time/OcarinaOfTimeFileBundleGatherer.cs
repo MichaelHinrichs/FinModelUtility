@@ -1,6 +1,4 @@
-﻿using f3dzex2.io;
-
-using fin.io;
+﻿using fin.io;
 using fin.io.bundles;
 
 using uni.platforms;
@@ -9,7 +7,7 @@ using UoT.api;
 using UoT.memory;
 
 namespace uni.games.ocarina_of_time {
-  public class OcarinaOfTimeAnnotatedFileBundleGatherer
+  public class OcarinaOfTimeFileBundleGatherer
       : IAnnotatedFileBundleGatherer<OotModelFileBundle> {
     public IEnumerable<IAnnotatedFileBundle<OotModelFileBundle>>
         GatherFileBundles() {

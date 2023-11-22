@@ -7,7 +7,7 @@ using glo.api;
 using uni.platforms.desktop;
 
 namespace uni.games.glover {
-  public class GloverModelAnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+  public class GloverFileBundleGatherer : IAnnotatedFileBundleGatherer {
     public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("Glover",
                                           out var gloverSteamDirectory)) {

@@ -11,7 +11,7 @@ using uni.util.io;
 namespace uni.games.ocarina_of_time_3d {
   using IAnnotatedCmbBundle = IAnnotatedFileBundle<CmbModelFileBundle>;
 
-  public class OcarinaOfTime3dAnnotatedFileGatherer
+  public class OcarinaOfTime3dFileBundleGatherer
       : IAnnotatedFileBundleGatherer<CmbModelFileBundle> {
     // TODO: Add support for Link
     // TODO: Add support for faceb

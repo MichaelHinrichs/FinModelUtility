@@ -2,7 +2,6 @@
 using fin.io.bundles;
 
 using level5.api;
-using level5.schema;
 
 using uni.platforms.threeDs;
 using uni.platforms.threeDs.tools;
@@ -11,7 +10,7 @@ using uni.util.io;
 namespace uni.games.professor_layton_vs_phoenix_wright {
   using IAnnotatedXcBundle = IAnnotatedFileBundle<XcModelFileBundle>;
 
-  public class ProfessorLaytonVsPhoenixWrightModelAnnotatedFileGatherer
+  public class ProfessorLaytonVsPhoenixWrightFileBundleGatherer
       : IAnnotatedFileBundleGatherer<XcModelFileBundle> {
     public IEnumerable<IAnnotatedXcBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(

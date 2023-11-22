@@ -1,11 +1,9 @@
-﻿using cmb.api;
-
-using fin.io.bundles;
+﻿using fin.io.bundles;
 
 using uni.platforms.threeDs;
 
 namespace uni.games.great_ace_attorney {
-  public class GreatAceAttorneyModelAnnotatedFileGatherer
+  public class GreatAceAttorneyFileBundleGatherer
       : IAnnotatedFileBundleGatherer {
     public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(

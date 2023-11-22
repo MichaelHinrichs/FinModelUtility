@@ -10,7 +10,7 @@ using uni.util.io;
 namespace uni.games.pikmin_1 {
   using IAnnotatedModBundle = IAnnotatedFileBundle<ModModelFileBundle>;
 
-  public class Pikmin1ModelAnnotatedFileGatherer
+  public class Pikmin1FileBundleGatherer
       : IAnnotatedFileBundleGatherer<ModModelFileBundle> {
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.LocalPath)

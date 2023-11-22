@@ -4,7 +4,7 @@ namespace uni.games.halo_wars {
   internal class HaloWarsMassExporter : IMassExporter {
     public void ExportAll()
       => ExporterUtil.ExportAllForCli(
-        new HaloWarsModelAnnotatedFileGatherer(),
+        new HaloWarsFileBundleGatherer(),
         new HaloWarsModelImporter());
 
       /*new HaloWarsTools.Program().Run(

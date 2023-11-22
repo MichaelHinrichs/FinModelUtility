@@ -1,8 +1,14 @@
-﻿using uni.platforms.gcn;
+﻿using fin.io.bundles;
+using fin.model.io;
+
+using uni.platforms.gcn;
 
 namespace uni.games.luigis_mansion {
-  public class LuigisMansionMassExporter : IMassExporter {
-    public void ExportAll() {
+  using IAnnotatedMdlBundle = IAnnotatedFileBundle<IModelFileBundle>;
+
+  public class LuigisMansionFileBundleGatherer
+      : IAnnotatedFileBundleGatherer<IModelFileBundle> {
+    public IEnumerable<IAnnotatedMdlBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "luigis_mansion",
               GcnFileHierarchyExtractor.Options
@@ -13,8 +19,6 @@ namespace uni.games.luigis_mansion {
               out var fileHierarchy)) {
         return;
       }
-
-      // TODO: Use Mdl2Fbx
     }
   }
 }

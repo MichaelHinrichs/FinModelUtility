@@ -1,6 +1,5 @@
 ﻿using fin.io;
 using fin.io.bundles;
-using fin.model.io;
 
 using uni.platforms;
 using uni.util.io;
@@ -8,7 +7,7 @@ using uni.util.io;
 using xmod.api;
 
 namespace uni.games.midnight_club_2 {
-  public class MidnightClub2AnnotatedFileGatherer
+  public class MidnightClub2FileBundleGatherer
       : IAnnotatedFileBundleGatherer {
     public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingSubdir(

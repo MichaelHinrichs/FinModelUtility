@@ -7,7 +7,7 @@ using jsystem.api;
 using uni.platforms.gcn;
 
 namespace uni.games.super_mario_sunshine {
-  public class SuperMarioSunshineModelAnnotatedFileGatherer
+  public class SuperMarioSunshineFileBundleGatherer
       : IAnnotatedFileBundleGatherer<BmdModelFileBundle> {
     public IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
         GatherFileBundles() {

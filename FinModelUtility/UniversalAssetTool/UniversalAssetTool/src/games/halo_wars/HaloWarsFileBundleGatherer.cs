@@ -12,7 +12,7 @@ namespace uni.games.halo_wars {
   using IAnnotatedHaloWarsBundle =
       IAnnotatedFileBundle<IHaloWarsModelFileBundle>;
 
-  public class HaloWarsModelAnnotatedFileGatherer
+  public class HaloWarsFileBundleGatherer
       : IAnnotatedFileBundleGatherer<IHaloWarsModelFileBundle> {
     public IEnumerable<IAnnotatedHaloWarsBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("HaloWarsDE",

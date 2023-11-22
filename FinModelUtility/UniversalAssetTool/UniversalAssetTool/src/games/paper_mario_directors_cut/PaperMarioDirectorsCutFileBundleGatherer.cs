@@ -6,7 +6,7 @@ using pmdc.api;
 using uni.platforms;
 
 namespace uni.games.paper_mario_directors_cut {
-  public class PaperMarioDirectorsCutFileGatherer
+  public class PaperMarioDirectorsCutFileBundleGatherer
       : IAnnotatedFileBundleGatherer<OmdModelFileBundle> {
     public IEnumerable<IAnnotatedFileBundle<OmdModelFileBundle>>
         GatherFileBundles() {

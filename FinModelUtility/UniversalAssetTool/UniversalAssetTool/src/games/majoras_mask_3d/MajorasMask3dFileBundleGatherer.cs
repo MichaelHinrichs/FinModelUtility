@@ -10,7 +10,7 @@ using uni.util.io;
 namespace uni.games.majoras_mask_3d {
   using IAnnotatedCmbBundle = IAnnotatedFileBundle<CmbModelFileBundle>;
 
-  public class MajorasMask3dAnnotatedFileGatherer
+  public class MajorasMask3dFileBundleGatherer
       : IAnnotatedFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)

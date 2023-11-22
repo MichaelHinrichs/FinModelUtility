@@ -7,7 +7,7 @@ using uni.platforms.gcn;
 using uni.util.io;
 
 namespace uni.games.battalion_wars_1 {
-  public class BattalionWars1AnnotatedFileGatherer
+  public class BattalionWars1FileBundleGatherer
       : IAnnotatedFileBundleGatherer<IBattalionWarsFileBundle> {
     public IEnumerable<IAnnotatedFileBundle<IBattalionWarsFileBundle>>
         GatherFileBundles() {

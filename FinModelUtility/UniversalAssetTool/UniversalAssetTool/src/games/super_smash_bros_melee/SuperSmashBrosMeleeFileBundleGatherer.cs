@@ -8,7 +8,7 @@ using uni.platforms.gcn;
 namespace uni.games.super_smash_bros_melee {
   using IAnnotatedDatBundle = IAnnotatedFileBundle<DatModelFileBundle>;
 
-  public class SuperSmashBrosMeleeModelAnnotatedFileGatherer
+  public class SuperSmashBrosMeleeFileBundleGatherer
       : IAnnotatedFileBundleGatherer<DatModelFileBundle> {
     public string Name => "super_smash_bros_melee";
 

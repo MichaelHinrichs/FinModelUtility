@@ -12,6 +12,7 @@ using uni.games.doshin_the_giant;
 using uni.games.glover;
 using uni.games.great_ace_attorney;
 using uni.games.halo_wars;
+using uni.games.luigis_mansion;
 using uni.games.luigis_mansion_3d;
 using uni.games.majoras_mask_3d;
 using uni.games.mario_kart_double_dash;
@@ -38,32 +39,33 @@ namespace uni.games {
               : new AnnotatedFileBundleGathererAccumulator();
 
       var gatherers = new IAnnotatedFileBundleGatherer[] {
-          new AnimalCrossingFileGatherer(),
-          new BattalionWars1AnnotatedFileGatherer(),
-          new BattalionWars2AnnotatedFileGatherer(),
-          new ChibiRoboAnnotatedFileGatherer(),
-          new DeadSpace1AnnotatedFileGatherer(),
-          new DeadSpace2AnnotatedFileGatherer(),
-          new DeadSpace3AnnotatedFileGatherer(),
-          new DoshinTheGiantAnnotatedFileGatherer(),
-          new GloverModelAnnotatedFileGatherer(),
-          new GreatAceAttorneyModelAnnotatedFileGatherer(),
-          new HaloWarsModelAnnotatedFileGatherer(),
-          new LuigisMansion3dModelAnnotatedFileGatherer(),
-          new MajorasMask3dAnnotatedFileGatherer(),
-          new MarioKartDoubleDashAnnotatedFileGatherer(),
-          new MidnightClub2AnnotatedFileGatherer(),
-          new NintendogsLabradorAndFriendsAnnotatedFileBundleGatherer(),
-          new OcarinaOfTimeAnnotatedFileBundleGatherer(),
-          new OcarinaOfTime3dAnnotatedFileGatherer(),
-          new PaperMarioDirectorsCutFileGatherer(),
-          new Pikmin1ModelAnnotatedFileGatherer(),
-          new Pikmin2AnnotatedFileGatherer(),
-          new ProfessorLaytonVsPhoenixWrightModelAnnotatedFileGatherer(),
+          new AnimalCrossingFileBundleGatherer(),
+          new BattalionWars1FileBundleGatherer(),
+          new BattalionWars2FileBundleGatherer(),
+          new ChibiRoboFileBundleGatherer(),
+          new DeadSpace1FileBundleGatherer(),
+          new DeadSpace2FileBundleGatherer(),
+          new DeadSpace3FileBundleGatherer(),
+          new DoshinTheGiantFileBundleGatherer(),
+          new GloverFileBundleGatherer(),
+          new GreatAceAttorneyFileBundleGatherer(),
+          new HaloWarsFileBundleGatherer(),
+          new LuigisMansionFileBundleGatherer(),
+          new LuigisMansion3dFileBundleGatherer(),
+          new MajorasMask3dFileBundleGatherer(),
+          new MarioKartDoubleDashFileBundleGatherer(),
+          new MidnightClub2FileBundleGatherer(),
+          new NintendogsLabradorAndFriendsFileBundleGatherer(),
+          new OcarinaOfTimeFileBundleGatherer(),
+          new OcarinaOfTime3dFileBundleGatherer(),
+          new PaperMarioDirectorsCutFileBundleGatherer(),
+          new Pikmin1FileBundleGatherer(),
+          new Pikmin2FileBundleGatherer(),
+          new ProfessorLaytonVsPhoenixWrightFileBundleGatherer(),
           new SuperMario64AnnotatedFileGatherer(),
-          new SuperMarioSunshineModelAnnotatedFileGatherer(),
-          new SuperSmashBrosMeleeModelAnnotatedFileGatherer(),
-          new WindWakerAnnotatedFileGatherer(),
+          new SuperMarioSunshineFileBundleGatherer(),
+          new SuperSmashBrosMeleeFileBundleGatherer(),
+          new WindWakerFileBundleGatherer(),
       };
       foreach (var gatherer in gatherers) {
         accumulator.Add(gatherer);

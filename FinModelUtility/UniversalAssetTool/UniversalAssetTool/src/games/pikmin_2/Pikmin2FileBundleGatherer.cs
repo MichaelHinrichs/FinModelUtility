@@ -10,7 +10,7 @@ using jsystem.api;
 using uni.platforms.gcn;
 
 namespace uni.games.pikmin_2 {
-  public class Pikmin2AnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+  public class Pikmin2FileBundleGatherer : IAnnotatedFileBundleGatherer {
     public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "pikmin_2",
