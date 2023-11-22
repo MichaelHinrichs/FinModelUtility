@@ -26,7 +26,7 @@ using visceral.api;
 
 using xmod.api;
 
-namespace uni.ui.winforms {
+namespace uni.api {
   public class GlobalModelImporter : IModelImporter<IModelFileBundle> {
     public IModel ImportModel(IModelFileBundle modelFileBundle)
       => modelFileBundle switch {

@@ -1,4 +1,6 @@
-﻿using fin.data.stacks;
+﻿using System.IO;
+
+using fin.data.stacks;
 using fin.io;
 using fin.io.archive;
 using fin.schema;

@@ -1,4 +1,4 @@
-﻿namespace uni.ui.winforms {
+﻿namespace uni.ui {
   public static class DebugFlags {
     public const float GLOBAL_SCALE = .001f;
     public const float NEAR_PLANE = .01f;

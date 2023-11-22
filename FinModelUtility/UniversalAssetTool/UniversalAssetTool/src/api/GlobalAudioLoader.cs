@@ -5,7 +5,7 @@ using fin.audio.io;
 using fin.audio.io.importers;
 using fin.audio.io.importers.ogg;
 
-namespace uni.ui.winforms {
+namespace uni.api {
   public class GlobalAudioReader : IAudioImporter<IAudioFileBundle> {
     public IAudioBuffer<short> ImportAudio(IAudioManager<short> audioManager,
                                            IAudioFileBundle audioFileBundle)

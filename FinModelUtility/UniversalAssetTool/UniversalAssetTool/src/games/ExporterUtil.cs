@@ -1,4 +1,6 @@
-﻿using Assimp;
+﻿using System.IO;
+
+using Assimp;
 
 using fin.model.io.exporters.assimp;
 using fin.io;

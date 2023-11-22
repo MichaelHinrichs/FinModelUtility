@@ -7,7 +7,7 @@ using modl.api;
 
 using sm64.api;
 
-namespace uni.ui.winforms {
+namespace uni.api {
   public class GlobalSceneImporter : ISceneImporter<ISceneFileBundle> {
     public IScene ImportScene(ISceneFileBundle sceneFileBundle,
                               out ILighting? lighting)

@@ -1,4 +1,6 @@
-﻿using fin.util.asserts;
+﻿using System.IO;
+
+using fin.util.asserts;
 
 using schema.binary;
 

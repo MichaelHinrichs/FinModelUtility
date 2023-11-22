@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using System.IO;
+
+using schema.binary;
 
 namespace uni.platforms.threeDs.tools.gar.schema {
   public class Gar5Subfile : IGarSubfile {

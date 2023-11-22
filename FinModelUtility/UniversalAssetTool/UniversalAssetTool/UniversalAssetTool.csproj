@@ -7,6 +7,7 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
@@ -123,6 +124,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\ui\wpf\" />
+    <Folder Include="src\ui\wpf\common\" />
+    <Folder Include="src\ui\wpf\panels\" />
   </ItemGroup>
 </Project>

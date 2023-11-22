@@ -7,6 +7,7 @@ using fin.util.time;
 
 using OpenTK.Graphics.OpenGL;
 
+using uni.api;
 using uni.ui.winforms.gl;
 
 namespace uni.ui.winforms.common.audio {

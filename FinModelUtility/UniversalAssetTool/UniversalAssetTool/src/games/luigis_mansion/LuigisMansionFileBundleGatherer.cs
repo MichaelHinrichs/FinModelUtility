@@ -17,7 +17,7 @@ namespace uni.games.luigis_mansion {
                                            // For some reason, some MDL files are compressed as RARC.
                                            ".mdl"),
               out var fileHierarchy)) {
-        return;
+        yield break;
       }
     }
   }

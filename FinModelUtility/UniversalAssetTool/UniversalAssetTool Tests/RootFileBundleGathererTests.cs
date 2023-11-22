@@ -6,7 +6,7 @@ using fin.io;
 using uni.games;
 
 namespace uni {
-  public class RootFileGathererTests {
+  public class RootFileBundleGathererTests {
     [TearDown]
     public void Setup() {
       FinFileSystem.FileSystem = new FileSystem();
@@ -58,7 +58,7 @@ namespace uni {
         FinFileSystem.FileSystem = mockFileSystem;
       }
 
-      var root = new RootFileGatherer().GatherAllFiles();
+      var root = new RootFileBundleGatherer().GatherAllFiles();
       Assert.AreEqual(0, root.Subdirs.Count);
       Assert.AreEqual(0, root.FileBundles.Count);
     }
