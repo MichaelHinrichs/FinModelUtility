@@ -8,7 +8,7 @@ using fin.model.io.exporters.assimp.indirect;
 
 using OpenTK.Graphics;
 
-using uni.ui;
+using uni.ui.winforms;
 
 namespace uni.cli {
   public class Cli {
