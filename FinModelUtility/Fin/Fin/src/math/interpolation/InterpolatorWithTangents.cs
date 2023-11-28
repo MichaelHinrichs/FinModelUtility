@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-using OpenTK;
+using OpenTK.Mathematics;
 
 namespace fin.math.interpolation {
   public static class InterpolatorWithTangents {

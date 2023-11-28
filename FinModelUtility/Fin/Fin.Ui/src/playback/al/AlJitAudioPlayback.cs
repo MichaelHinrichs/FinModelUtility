@@ -8,7 +8,7 @@ namespace fin.ui.playback.al {
                                        IJitAudioPlayback<short> {
       private readonly List<SingleBuffer> allBuffers_ = new();
       private readonly Queue<SingleBuffer> readyForDataBuffers_ = new();
-      private readonly Dictionary<uint, SingleBuffer> buffersById_ = new();
+      private readonly Dictionary<int, SingleBuffer> buffersById_ = new();
 
       public IJitAudioDataSource<short> TypedSource { get; }
 
@@ -58,7 +58,7 @@ namespace fin.ui.playback.al {
 
           foreach (var unqueuedBuffer in unqueuedBuffers) {
             this.readyForDataBuffers_.Enqueue(
-                this.buffersById_[(uint) unqueuedBuffer]);
+                this.buffersById_[unqueuedBuffer]);
           }
         }
       }
@@ -71,7 +71,7 @@ namespace fin.ui.playback.al {
       }
 
       private class SingleBuffer : IDisposable {
-        public uint AlBufferId { get; }
+        public int AlBufferId { get; }
 
         private bool isDisposed_;
 
@@ -99,9 +99,7 @@ namespace fin.ui.playback.al {
 
         private void ReleaseUnmanagedResources_() {
           this.isDisposed_ = true;
-
-          var alBufferId = this.AlBufferId;
-          AL.DeleteBuffer(ref alBufferId);
+          AL.DeleteBuffer(this.AlBufferId);
         }
 
         private void AssertNotDisposed_() {
@@ -112,7 +110,7 @@ namespace fin.ui.playback.al {
 
         public void PopulateAndQueueUpInSource(
             short[] shortBufferData,
-            uint sourceId) {
+            int sourceId) {
           this.AssertNotDisposed_();
 
           ALFormat bufferFormat = default;
@@ -135,10 +133,9 @@ namespace fin.ui.playback.al {
                            0,
                            byteCount);
 
-          AL.BufferData((int) this.AlBufferId,
+          AL.BufferData(this.AlBufferId,
                         bufferFormat,
                         byteBufferData,
-                        byteCount,
                         this.frequency_);
           AssertNoError_();
 

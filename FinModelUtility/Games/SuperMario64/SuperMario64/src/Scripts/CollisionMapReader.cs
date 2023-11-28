@@ -1,4 +1,4 @@
-﻿using OpenTK;
+﻿using OpenTK.Mathematics;
 
 namespace sm64.Scripts {
   public static class CollisionMapReader {

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\wpf\**" />
+    <EmbeddedResource Remove="src\wpf\**" />
+    <None Remove="src\wpf\**" />
+    <Page Remove="src\wpf\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Fin\Fin.Ui\Fin.Ui.csproj" />
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\UniversalAssetTool\UniversalAssetTool.csproj" />
+  </ItemGroup>
+
+</Project>

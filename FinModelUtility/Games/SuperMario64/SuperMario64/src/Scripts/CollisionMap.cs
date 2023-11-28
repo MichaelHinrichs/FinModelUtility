@@ -1,5 +1,5 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 namespace sm64.Scripts {
   public class CollisionTriangleList {

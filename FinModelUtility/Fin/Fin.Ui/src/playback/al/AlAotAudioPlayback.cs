@@ -6,7 +6,7 @@ namespace fin.ui.playback.al {
   public partial class AlAudioManager {
     private class AlAotAudioPlayback : BAlAudioPlayback,
                                        IAotAudioPlayback<short> {
-      private uint alBufferId_;
+      private int alBufferId_;
 
       public IAotAudioDataSource<short> TypedSource { get; }
 
@@ -54,17 +54,16 @@ namespace fin.ui.playback.al {
                          0,
                          byteCount);
 
-        AL.BufferData((int) this.alBufferId_,
+        AL.BufferData(this.alBufferId_,
                       bufferFormat,
                       byteBufferData,
-                      byteCount,
                       source.Frequency);
 
-        AL.BindBufferToSource(this.AlSourceId, this.alBufferId_);
+        AL.Source(this.AlSourceId, ALSourcei.Buffer, this.alBufferId_);
       }
 
       protected override void DisposeInternal() {
-        AL.DeleteBuffer(ref this.alBufferId_);
+        AL.DeleteBuffer(this.alBufferId_);
       }
 
       public void Pause() {

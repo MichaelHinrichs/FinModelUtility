@@ -6,10 +6,8 @@ using fin.model.io;
 using fin.model.io.exporters;
 using fin.model.io.exporters.assimp.indirect;
 
-using OpenTK.Graphics;
-
 using uni.ui;
-using uni.ui.winforms;
+using uni.ui.wpf;
 
 namespace uni.cli {
   public class Cli {
@@ -50,9 +48,7 @@ namespace uni.cli {
                         => extractorOptions.CreateMassExporter().ExportAll())
                 .WithParsed((UiOptions _) => {
                   DesignModeUtil.InDesignMode = false;
-                  GraphicsContext.ShareContexts = true;
-                  ApplicationConfiguration.Initialize();
-                  Application.Run(new UniversalAssetToolForm());
+                  new UniversalAssetToolForm().ShowDialog();
                 })
                 .WithParsed((ListPluginOptions _) => {
                   foreach (var plugin in plugins) {

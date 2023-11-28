@@ -1,10 +1,7 @@
 ﻿using fin.audio;
 
-using OpenTK.Audio;
-
 namespace fin.ui.playback.al {
   public partial class AlAudioManager : IAudioManager<short> {
-    private readonly AudioContext context_ = new();
     public bool IsDisposed { get; private set; }
     public IAudioPlayer<short> AudioPlayer { get; }
 
@@ -22,7 +19,6 @@ namespace fin.ui.playback.al {
     private void ReleaseUnmanagedResources_() {
       this.IsDisposed = true;
       this.AudioPlayer.Dispose();
-      this.context_.Dispose();
     }
   }
 }

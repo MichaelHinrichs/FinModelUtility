@@ -64,8 +64,8 @@ namespace fin.ui.rendering.gl.material {
       GL.Uniform1(this.SamplerLocation, this.TextureIndex);
 
       if (this.HasFancyData) {
-        OpenTK.Vector2 clampMin = new(-10000);
-        OpenTK.Vector2 clampMax = new(10000);
+        OpenTK.Mathematics.Vector2 clampMin = new(-10000);
+        OpenTK.Mathematics.Vector2 clampMax = new(10000);
 
         if (this.FinTexture?.WrapModeU == WrapMode.MIRROR_CLAMP) {
           clampMin.X = -1;

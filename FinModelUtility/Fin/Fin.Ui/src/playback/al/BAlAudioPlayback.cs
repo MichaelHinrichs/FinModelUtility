@@ -6,7 +6,7 @@ namespace fin.ui.playback.al {
   public partial class AlAudioManager {
     private abstract class BAlAudioPlayback : IAudioPlayback<short> {
       private readonly IAudioPlayer<short> player_;
-      protected uint AlSourceId { get; }
+      protected int AlSourceId { get; }
 
       public bool IsDisposed { get; private set; }
       public IAudioDataSource<short> Source { get; }
@@ -31,8 +31,7 @@ namespace fin.ui.playback.al {
 
       private void ReleaseUnmanagedResources_() {
         this.IsDisposed = true;
-        var alSourceId = this.AlSourceId;
-        AL.DeleteSource(ref alSourceId);
+        AL.DeleteSource(this.AlSourceId);
 
         this.DisposeInternal();
       }
@@ -45,16 +44,24 @@ namespace fin.ui.playback.al {
         }
       }
 
-      public PlaybackState State
-        => this.IsDisposed
-            ? PlaybackState.DISPOSED
-            : AL.GetSourceState(this.AlSourceId) switch {
-                ALSourceState.Initial => PlaybackState.STOPPED,
-                ALSourceState.Playing => PlaybackState.PLAYING,
-                ALSourceState.Paused  => PlaybackState.PAUSED,
-                ALSourceState.Stopped => PlaybackState.STOPPED,
-                _                     => throw new ArgumentOutOfRangeException()
-            };
+      public PlaybackState State {
+        get {
+          if (this.IsDisposed) {
+            return PlaybackState.DISPOSED;
+          }
+
+          AL.GetSource(this.AlSourceId,
+                       ALGetSourcei.SourceState,
+                       out int state);
+          return (ALSourceState) state switch {
+              ALSourceState.Initial => PlaybackState.STOPPED,
+              ALSourceState.Playing => PlaybackState.PLAYING,
+              ALSourceState.Paused  => PlaybackState.PAUSED,
+              ALSourceState.Stopped => PlaybackState.STOPPED,
+              _                     => throw new ArgumentOutOfRangeException()
+          };
+        }
+      }
 
       public void Play() {
         this.AssertNotDisposed();

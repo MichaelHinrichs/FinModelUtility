@@ -2,12 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>uni</RootNamespace>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
@@ -30,10 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="src\ui\winforms\gl\ModelRenderer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove=".editorconfig" />
     <None Remove="img\file.png" />
     <None Remove="img\folder_closed.png" />
@@ -52,6 +46,7 @@
     <PackageReference Include="NullFX.CRC" Version="1.1.5" />
     <PackageReference Include="OpenTK" Version="3.3.3" />
     <PackageReference Include="OpenTK.GLControl" Version="3.3.3" />
+    <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.3" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
     <PackageReference Include="schema" Version="0.3.10" />
@@ -97,23 +92,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="src\ui\winforms\common\audio\AudioPlayerPanel.cs" />
-    <Compile Update="src\ui\winforms\common\BGlPanel.cs" />
-    <Compile Update="src\ui\winforms\common\fileTreeView\FileTreeView.cs" />
-    <Compile Update="src\ui\winforms\common\audio\AudioPlayerGlPanel.cs" />
-    <Compile Update="src\ui\winforms\common\TransparentTrackBar.cs" />
-    <Compile Update="src\ui\winforms\common\WaterMarkTextBox.cs" />
-    <Compile Update="src\ui\winforms\common\FileBundleTreeView.cs" />
-    <Compile Update="src\ui\winforms\right_panel\animations\AnimationPlaybackPanel.cs" />
-    <Compile Update="src\ui\winforms\right_panel\info\InfoTab.cs" />
-    <Compile Update="src\ui\winforms\right_panel\materials\MaterialViewerGlPanel.cs" />
-    <Compile Update="src\ui\winforms\right_panel\materials\MaterialViewerPanel.cs" />
-    <Compile Update="src\ui\winforms\right_panel\materials\MaterialsTab.cs" />
-    <Compile Update="src\ui\winforms\right_panel\materials\TextureSection.cs" />
-    <Compile Update="src\ui\winforms\right_panel\registers\RegistersTab.cs" />
-    <Compile Update="src\ui\winforms\right_panel\skeleton\SkeletonTreeView.cs" />
-    <Compile Update="src\ui\winforms\right_panel\skeleton\SkeletonTab.cs" />
-    <Compile Update="src\ui\winforms\right_panel\textures\TextureInfoSection.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -121,10 +99,5 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\ui\wpf\common\" />
-    <Folder Include="src\ui\wpf\panels\" />
   </ItemGroup>
 </Project>

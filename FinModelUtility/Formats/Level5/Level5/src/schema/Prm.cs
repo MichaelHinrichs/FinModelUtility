@@ -2,7 +2,7 @@
 
 using level5.decompression;
 
-using OpenTK;
+using OpenTK.Mathematics;
 
 using schema.binary;
 
