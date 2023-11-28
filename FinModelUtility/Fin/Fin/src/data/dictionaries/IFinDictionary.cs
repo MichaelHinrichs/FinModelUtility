@@ -12,9 +12,8 @@ namespace fin.data.dictionaries {
   }
 
   public interface IFinDictionary<TKey, TValue>
-      : IReadOnlyFinDictionary<TKey, TValue>, 
+      : IReadOnlyFinDictionary<TKey, TValue>,
         IFinCollection<(TKey Key, TValue Value)> {
     new TValue this[TKey key] { get; set; }
-    void Add(TKey key, TValue value);
   }
 }

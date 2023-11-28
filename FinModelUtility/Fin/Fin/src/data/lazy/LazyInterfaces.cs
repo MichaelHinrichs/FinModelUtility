@@ -1,15 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using fin.data.dictionaries;
 
 namespace fin.data.lazy {
-  public interface ILazyDictionary<TKey, TValue> {
-    int Count { get; }
-    void Clear();
-    bool ContainsKey(TKey key);
-    TValue this[TKey key] { get; set; }
+  public interface ILazyDictionary<TKey, TValue>
+      : IFinDictionary<TKey, TValue>;
 
-    IEnumerable<TKey> Keys { get; }
-    IEnumerable<TValue> Values { get; }
-  }
-
-  public interface ILazyArray<T> : ILazyDictionary<int, T> { }
+  public interface ILazyArray<T> : ILazyDictionary<int, T>;
 }

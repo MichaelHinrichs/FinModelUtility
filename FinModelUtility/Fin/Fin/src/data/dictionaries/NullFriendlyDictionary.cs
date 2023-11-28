@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,7 +12,7 @@ namespace fin.data.dictionaries {
   /// </summary>
   public class NullFriendlyDictionary<TKey, TValue>
       : IFinDictionary<TKey, TValue> {
-    private readonly Dictionary<TKey, TValue> impl_ = new();
+    private readonly ConcurrentDictionary<TKey, TValue> impl_ = new();
 
     private bool hasNull_;
     private TValue nullValue_;

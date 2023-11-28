@@ -32,7 +32,7 @@ namespace fin.data.dictionaries {
 
     public SortedSet<TValue> this[TKey key] => this.impl_[key];
 
-    public bool TryGetSet(TKey key, out SortedSet<TValue>? set)
+    public bool TryGetSet(TKey key, out SortedSet<TValue> set)
       => this.impl_.TryGetValue(key, out set);
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
