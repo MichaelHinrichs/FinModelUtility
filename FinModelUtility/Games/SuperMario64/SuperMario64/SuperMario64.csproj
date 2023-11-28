@@ -33,8 +33,6 @@
   
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="OpenTK" Version="3.3.3" />
-    <PackageReference Include="OpenTK.GLControl" Version="3.3.3" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\BehaviorNames.json">

@@ -1,6 +1,6 @@
-﻿using f3dzex2.image;
+﻿using System.Numerics;
 
-using OpenTK.Mathematics;
+using f3dzex2.image;
 
 using sm64.LevelInfo;
 using sm64.memory;

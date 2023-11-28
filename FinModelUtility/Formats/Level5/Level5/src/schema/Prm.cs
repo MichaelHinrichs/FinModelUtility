@@ -1,8 +1,9 @@
-﻿using fin.schema;
+﻿using System.Numerics;
+
+using fin.math;
+using fin.schema;
 
 using level5.decompression;
-
-using OpenTK.Mathematics;
 
 using schema.binary;
 
@@ -201,15 +202,15 @@ namespace level5.schema {
             br.Position = (uint)(i * stride + aOffset[j]);
             switch (j) {
               case 0: //Position
-                vert.Pos = ReadAttribute(br, aType[j], aCount[j]).Xyz;
+                vert.Pos = ReadAttribute(br, aType[j], aCount[j]).Xyz();
                 break;
               case 1: //Tangent
                 break;
               case 2: //Normal
-                vert.Nrm = ReadAttribute(br, aType[j], aCount[j]).Xyz;
+                vert.Nrm = ReadAttribute(br, aType[j], aCount[j]).Xyz();
                 break;
               case 4: //Uv0
-                vert.Uv0 = ReadAttribute(br, aType[j], aCount[j]).Xy;
+                vert.Uv0 = ReadAttribute(br, aType[j], aCount[j]).Xy();
                 break;
               case 7: //Bone Weight
                 vert.Weights = ReadAttribute(br, aType[j], aCount[j]);
@@ -220,7 +221,7 @@ namespace level5.schema {
                   vert.Bones = new uint[] { this.nodeTable_[(int)vn.X], this.nodeTable_[(int)vn.Y], this.nodeTable_[(int)vn.Z], this.nodeTable_[(int)vn.W] };
                 break;
               case 9: // Color
-                vert.Clr = ReadAttribute(br, aType[j], aCount[j]).Yzwx;
+                vert.Clr = ReadAttribute(br, aType[j], aCount[j]).Yzwx();
                 break;
             }
           }

@@ -1,24 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <RootNamespace>uni</RootNamespace>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <SelfContained>true</SelfContained>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-    <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
-    <!--<PublishTrimmed>true</PublishTrimmed>-->
-    <Product>universal_asset_tool</Product>
-    <AssemblyName>universal_asset_tool</AssemblyName>
-    <StartupObject>uni.cli.Cli</StartupObject>
-    <UserSecretsId>7016d56f-b424-467d-8b3a-40e5d0483f29</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,12 +16,6 @@
 
   <ItemGroup>
     <None Remove=".editorconfig" />
-    <None Remove="img\file.png" />
-    <None Remove="img\folder_closed.png" />
-    <None Remove="img\folder_open.png" />
-    <None Remove="img\model.png" />
-    <None Remove="img\music.png" />
-    <None Remove="img\scene.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +27,6 @@
     <PackageReference Include="NullFX.CRC" Version="1.1.5" />
     <PackageReference Include="OpenTK" Version="3.3.3" />
     <PackageReference Include="OpenTK.GLControl" Version="3.3.3" />
-    <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.3" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
     <PackageReference Include="schema" Version="0.3.10" />
@@ -76,28 +56,5 @@
 
     <ProjectReference Include="..\..\SceneGate\Ekona\src\Ekona\Ekona.csproj" />
     <ProjectReference Include="..\..\Utility of Time CSharp\Utility of Time CSharp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="img\folder_closed.png" />
-    <EmbeddedResource Include="img\folder_open.png" />
-    <EmbeddedResource Include="img\model.png" />
-    <EmbeddedResource Include="img\music.png" />
-    <EmbeddedResource Include="img\scene.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>

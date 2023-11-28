@@ -1,5 +1,8 @@
-﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using System.Numerics;
+
+using fin.math;
+
+using OpenTK.Graphics.OpenGL;
 
 namespace sm64.Scripts {
   public class CollisionTriangleList {
@@ -94,6 +97,7 @@ namespace sm64.Scripts {
         t = -t;
         A = -A;
       }
+
       return s > 0 && t > 0 && (s + t) <= A;
     }
 
@@ -114,14 +118,18 @@ namespace sm64.Scripts {
           if (index1 >= numVertices || index2 >= numVertices ||
               index3 >= numVertices)
             continue;
-          temp.a = new Vector3(vertices[index1]);
-          temp.b = new Vector3(vertices[index2]);
-          temp.c = new Vector3(vertices[index3]);
-          if (PointInTriangle(pos.Xz, temp.a.Xz, temp.b.Xz, temp.c.Xz)) {
+          temp.a = vertices[index1];
+          temp.b = vertices[index2];
+          temp.c = vertices[index3];
+          if (PointInTriangle(pos.Xz(),
+                              temp.a.Xz(),
+                              temp.b.Xz(),
+                              temp.c.Xz())) {
             found.Add(barryCentric(temp.a, temp.b, temp.c, pos));
           }
         }
       }
+
       if (found.Count == 0)
         return (short) pos.Y;
 
@@ -135,6 +143,7 @@ namespace sm64.Scripts {
           closest_index = i;
         }
       }
+
       return (short) found[closest_index];
     }
 
@@ -145,7 +154,7 @@ namespace sm64.Scripts {
       GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
       GL.BufferData(
           BufferTarget.ArrayBuffer,
-          (IntPtr) (Vector3.SizeInBytes * verts.Length),
+          (IntPtr) (3 * sizeof(float) * verts.Length),
           verts,
           BufferUsageHint.StaticDraw
       );

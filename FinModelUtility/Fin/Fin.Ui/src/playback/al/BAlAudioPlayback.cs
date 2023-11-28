@@ -17,7 +17,7 @@ namespace fin.ui.playback.al {
         this.Source = source;
 
         AL.GenSource(out var alSourceId);
-        this.AlSourceId = alSourceId;
+        this.AlSourceId = (int) alSourceId;
       }
 
       ~BAlAudioPlayback() => this.ReleaseUnmanagedResources_();
@@ -53,7 +53,8 @@ namespace fin.ui.playback.al {
           AL.GetSource(this.AlSourceId,
                        ALGetSourcei.SourceState,
                        out int state);
-          return (ALSourceState) state switch {
+          var typedState = (ALSourceState) state;
+          return typedState switch {
               ALSourceState.Initial => PlaybackState.STOPPED,
               ALSourceState.Playing => PlaybackState.PLAYING,
               ALSourceState.Paused  => PlaybackState.PAUSED,

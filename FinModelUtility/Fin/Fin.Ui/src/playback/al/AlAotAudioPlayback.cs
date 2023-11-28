@@ -15,7 +15,8 @@ namespace fin.ui.playback.al {
           : base(player, source) {
         this.TypedSource = source;
 
-        AL.GenBuffer(out this.alBufferId_);
+        AL.GenBuffer(out var newBuffer);
+        this.alBufferId_ = (int) newBuffer;
 
         ALFormat bufferFormat = default;
         short[] shortBufferData = default!;
@@ -57,6 +58,7 @@ namespace fin.ui.playback.al {
         AL.BufferData(this.alBufferId_,
                       bufferFormat,
                       byteBufferData,
+                      byteBufferData.Length,
                       source.Frequency);
 
         AL.Source(this.AlSourceId, ALSourcei.Buffer, this.alBufferId_);

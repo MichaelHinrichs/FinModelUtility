@@ -85,7 +85,7 @@ namespace fin.ui.playback.al {
           this.frequency_ = frequency;
 
           AL.GenBuffer(out var alBufferId);
-          this.AlBufferId = alBufferId;
+          this.AlBufferId = (int) alBufferId;
         }
 
         ~SingleBuffer() => this.ReleaseUnmanagedResources_();
@@ -136,6 +136,7 @@ namespace fin.ui.playback.al {
           AL.BufferData(this.AlBufferId,
                         bufferFormat,
                         byteBufferData,
+                        byteBufferData.Length,
                         this.frequency_);
           AssertNoError_();
 

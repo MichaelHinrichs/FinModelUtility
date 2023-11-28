@@ -12,7 +12,7 @@ del /q "!universalAssetToolBasePath!*"
 
 echo Building new universal asset tool...
 cd ../../
-cd "FinModelUtility\UniversalAssetTool\UniversalAssetTool\"
+cd "FinModelUtility\UniversalAssetTool\UniversalAssetTool.Ui\"
 
 dotnet publish -c Release
 

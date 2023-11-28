@@ -1,7 +1,7 @@
 ﻿using hw.api;
 
 namespace uni.games.halo_wars {
-  internal class HaloWarsMassExporter : IMassExporter {
+  public class HaloWarsMassExporter : IMassExporter {
     public void ExportAll()
       => ExporterUtil.ExportAllForCli(
         new HaloWarsFileBundleGatherer(),
