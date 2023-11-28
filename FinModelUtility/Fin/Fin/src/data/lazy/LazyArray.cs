@@ -49,10 +49,9 @@ namespace fin.data.lazy {
       return false;
     }
 
-
     public T this[int key] {
       get {
-        if (this.populated_[key]) {
+        if (this.ContainsKey(key)) {
           return this.impl_[key];
         }
 

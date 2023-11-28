@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,8 +27,18 @@ namespace fin.data.lazy {
       this.populated_.Clear();
     }
 
-    public bool ContainsKey(int key) => this.populated_[key];
+    public bool ContainsKey(int key)
+      => this.populated_.Count > key && this.populated_[key];
 
+    public bool TryGetValue(int key, out T value) {
+      if (this.ContainsKey(key)) {
+        value = this.impl_[key];
+        return true;
+      }
+
+      value = default;
+      return false;
+    }
 
     public T this[int key] {
       get {
@@ -59,5 +70,15 @@ namespace fin.data.lazy {
 
     public IEnumerable<T> Values
       => this.impl_.Where((value, i) => ContainsKey(i));
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+    public IEnumerator<(int Key, T Value)> GetEnumerator() {
+      for (var i = 0; i < this.populated_.Count; ++i) {
+        if (this.populated_[i]) {
+          yield return (i, this.impl_[i]);
+        }
+      }
+    }
   }
 }
