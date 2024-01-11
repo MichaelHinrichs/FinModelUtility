@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>mod</RootNamespace>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>

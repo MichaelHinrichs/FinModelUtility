@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>Library to translation projects. It provides features for implementing file formats, converters and a virtual file system.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

@@ -6,7 +6,7 @@
     <AssemblyName>SceneGate.Lemon</AssemblyName>
     <RootNamespace>SceneGate.Lemon</RootNamespace>
     <Description>Library for Nintendo 3DS file formats.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
