@@ -91,7 +91,7 @@ namespace fin.data {
       dict[index1] = "string1";
 
       var values = dict.ToArray();
-      Asserts.Equal(
+      Asserts.SequenceEqual(
           new[] { "string1", "string3", "string5", },
           values);
     }

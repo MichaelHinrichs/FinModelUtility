@@ -114,9 +114,9 @@ namespace fin.data.lazy {
       Assert.AreEqual("rab", lazyReverseMap["bar"]);
       Assert.AreEqual("oog", lazyReverseMap["goo"]);
 
-      Asserts.Equal<IEnumerable<string>>(lazyReverseMap.Keys.Order(),
+      Asserts.SequenceEqual<IEnumerable<string>>(lazyReverseMap.Keys.Order(),
                                          new[] { "bar", "foo", "goo" });
-      Asserts.Equal<IEnumerable<string>>(lazyReverseMap.Values.Order(),
+      Asserts.SequenceEqual<IEnumerable<string>>(lazyReverseMap.Values.Order(),
                                          new[] { "oof", "oog", "rab", });
     }
   }

@@ -250,7 +250,7 @@ namespace HaloWarsTools {
 
             var fromBone = this.VisSubModelRef?.FromBone;
             if (fromBone != null) {
-              Asserts.Equal(fromBone, skeletonHeader.Bones[0].Name);
+              Asserts.SequenceEqual(fromBone, skeletonHeader.Bones[0].Name);
             }
 
             var rootBone = finModel.Skeleton.Root;

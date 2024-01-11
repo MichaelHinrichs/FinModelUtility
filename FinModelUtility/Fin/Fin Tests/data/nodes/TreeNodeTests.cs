@@ -30,7 +30,7 @@ namespace fin.data.nodes {
         finQueue.Enqueue(node.ChildNodes);
       }
 
-      Asserts.Equal<IEnumerable<string>>(
+      Asserts.SequenceEqual<IEnumerable<string>>(
           actualValues,
           new[] { "root", "foo", "bar", "123", "abc" });
     }
@@ -55,7 +55,7 @@ namespace fin.data.nodes {
         }
       }
 
-      Asserts.Equal<IEnumerable<string>>(
+      Asserts.SequenceEqual<IEnumerable<string>>(
           actualValues,
           new[] { "123", "foo", "root" });
     }
@@ -73,17 +73,17 @@ namespace fin.data.nodes {
 
       nodeChild.Parent = nodeFoo;
       Assert.AreEqual(nodeFoo, nodeChild.Parent);
-      Asserts.Equal(nodeFoo.ChildNodes, new[] { nodeChild });
+      Asserts.SequenceEqual(nodeFoo.ChildNodes, new[] { nodeChild });
       Assert.AreEqual(0, nodeBar.ChildNodes.Count());
 
       nodeBar.AddChild(nodeChild);
       Assert.AreEqual(nodeBar, nodeChild.Parent);
-      Asserts.Equal(nodeBar.ChildNodes, new[] { nodeChild });
+      Asserts.SequenceEqual(nodeBar.ChildNodes, new[] { nodeChild });
       Assert.AreEqual(0, nodeFoo.ChildNodes.Count());
 
       nodeChild.Parent = nodeFoo;
       Assert.AreEqual(nodeFoo, nodeChild.Parent);
-      Asserts.Equal(nodeFoo.ChildNodes, new[] { nodeChild });
+      Asserts.SequenceEqual(nodeFoo.ChildNodes, new[] { nodeChild });
       Assert.AreEqual(0, nodeBar.ChildNodes.Count());
     }
   }

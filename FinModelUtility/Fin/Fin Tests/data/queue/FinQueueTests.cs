@@ -96,7 +96,7 @@ namespace fin.data.queues {
       var queue = new FinQueue<string>(expectedValues);
 
       var actualValues = queue.ToArray();
-      Asserts.Equal(expectedValues, actualValues);
+      Asserts.SequenceEqual(expectedValues, actualValues);
     }
 
     [Test]

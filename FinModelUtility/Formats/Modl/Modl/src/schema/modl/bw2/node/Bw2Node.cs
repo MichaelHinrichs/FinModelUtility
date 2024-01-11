@@ -102,7 +102,7 @@ namespace modl.schema.modl.bw2.node {
         SectionHeaderUtil.ReadNameAndSize(br, out sectionName, out sectionSize);
       }
 
-      Asserts.Equal("MATL", sectionName);
+      Asserts.SequenceEqual("MATL", sectionName);
 
       var materialSize = 0xA4;
       Asserts.Equal(0, sectionSize % materialSize);

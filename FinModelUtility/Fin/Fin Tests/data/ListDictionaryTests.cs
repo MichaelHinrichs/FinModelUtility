@@ -60,13 +60,13 @@ namespace fin.data {
       Assert.AreEqual(9, impl.Count);
 
       Assert.AreEqual(true, impl.TryGetList("foo", out var fooList));
-      Asserts.Equal(new[] { "a", "b", "c" }, fooList!);
+      Asserts.SequenceEqual(new[] { "a", "b", "c" }, fooList!);
 
       Assert.AreEqual(true, impl.TryGetList("bar", out var barList));
-      Asserts.Equal(new[] { "1", "2", "3" }, barList!);
+      Asserts.SequenceEqual(new[] { "1", "2", "3" }, barList!);
 
       Assert.AreEqual(true, impl.TryGetList(null, out var nullList));
-      Asserts.Equal(new[] { "x", "y", "z" }, nullList!);
+      Asserts.SequenceEqual(new[] { "x", "y", "z" }, nullList!);
     }
 
     [Test]
@@ -95,9 +95,11 @@ namespace fin.data {
       Assert.AreEqual(true, impl.TryGetList("bar", out var barList));
       Assert.AreEqual(true, impl.TryGetList(null, out var nullList));
 
-      Asserts.Equal(new[] {
-                        ("foo", fooList!), ("bar", barList!), (null, nullList!),
-                    },
+      Asserts.SequenceEqual([
+        ("bar", barList!),
+        ("foo", fooList!),
+        (null, nullList!),
+      ],
                     actualValues);
     }
 
@@ -128,10 +130,10 @@ namespace fin.data {
       Assert.AreEqual(true, impl.TryGetList(null, out var nullList));
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual(("foo", fooList!), enumerator.Current);
+      Assert.AreEqual(("bar", barList!), enumerator.Current);
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual(("bar", barList!), enumerator.Current);
+      Assert.AreEqual(("foo", fooList!), enumerator.Current);
 
       Assert.AreEqual(true, enumerator.MoveNext());
       Assert.AreEqual(((string?) null, nullList!), enumerator.Current);

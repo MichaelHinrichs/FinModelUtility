@@ -18,7 +18,7 @@ namespace fin.data {
       Assert.AreEqual(2, impl.Count);
       Assert.True(impl.TryGetSet("foo", out var outSet));
       Assert.AreEqual(outSet!, impl["foo"]);
-      Asserts.Equal<IEnumerable<string>>(outSet!.Order(), new[] { "bar", "goo"});
+      Asserts.SequenceEqual<IEnumerable<string>>(outSet!.Order(), new[] { "bar", "goo"});
     }
 
     [Test]

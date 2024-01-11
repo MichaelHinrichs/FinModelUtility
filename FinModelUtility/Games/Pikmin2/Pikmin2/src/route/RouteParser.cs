@@ -31,7 +31,7 @@ namespace games.pikmin2.route {
                       .ToArray();
 
       for (var i = 0; i < nodeCount; ++i) {
-        Asserts.Equal("{", lines[lineIndex++]);
+        Asserts.SequenceEqual("{", lines[lineIndex++]);
         var nodeIndex = int.Parse(lines[lineIndex++]);
         var node = nodes[nodeIndex];
 
@@ -55,7 +55,7 @@ namespace games.pikmin2.route {
             Radius = floats[3],
         };
 
-        Asserts.Equal("}", lines[lineIndex++]);
+        Asserts.SequenceEqual("}", lines[lineIndex++]);
       }
 
       return nodes;

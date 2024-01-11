@@ -86,7 +86,7 @@ namespace modl.schema.modl.bw1.node {
                                           out sectionSize);
       }
 
-      Asserts.Equal("MATL", sectionName);
+      Asserts.SequenceEqual("MATL", sectionName);
 
       var materialSize = 0x48;
       Asserts.Equal(0, sectionSize % materialSize);

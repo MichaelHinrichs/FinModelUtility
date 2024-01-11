@@ -36,8 +36,8 @@ namespace fin.data.lazy {
       Assert.AreEqual("foo1", lazyReverseMap[1]);
       Assert.AreEqual("foo5", lazyReverseMap[5]);
 
-      Asserts.Equal(lazyReverseMap.Keys, new[] { 1, 3, 5 });
-      Asserts.Equal(lazyReverseMap.Values, new[] { "foo1", "foo3", "foo5" });
+      Asserts.SequenceEqual(lazyReverseMap.Keys, new[] { 1, 3, 5 });
+      Asserts.SequenceEqual(lazyReverseMap.Values, new[] { "foo1", "foo3", "foo5" });
     }
   }
 }

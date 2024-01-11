@@ -63,7 +63,7 @@ namespace fin.util.asserts {
       return false;
     }
 
-    public static void Equal<TEnumerable>(
+    public static void SequenceEqual<TEnumerable>(
         TEnumerable enumerableA,
         TEnumerable enumerableB) where TEnumerable : IEnumerable {
       var enumeratorA = enumerableA.GetEnumerator();

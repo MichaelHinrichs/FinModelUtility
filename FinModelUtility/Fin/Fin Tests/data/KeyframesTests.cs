@@ -218,7 +218,7 @@ namespace fin.data {
 
     private void AssertKeyframes_(Keyframes<string> actual,
                                   params Keyframe<string>[] expected) {
-      Asserts.Equal(expected, actual.Definitions);
+      Asserts.SequenceEqual(expected, actual.Definitions);
     }
   }
 }

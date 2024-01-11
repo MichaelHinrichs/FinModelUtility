@@ -17,7 +17,7 @@ namespace fin.util.strings {
           "bar1", "bar2", "bar5", "bar10", "foo1", "foo3", "foo13",
       };
 
-      Asserts.Equal<IEnumerable<string>>(
+      Asserts.SequenceEqual<IEnumerable<string>>(
           expectedOutputStrings,
           inputStrings.OrderBy(value => value,
                                new StringNumberSuffixComparer()));
