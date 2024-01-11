@@ -10,7 +10,7 @@
           equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR, equations.CreateColor(sc));
 
       this.AssertEquals_(equations,
-                         @"# version 130
+                         @"#version 130
 
 out vec4 fragColor;
 

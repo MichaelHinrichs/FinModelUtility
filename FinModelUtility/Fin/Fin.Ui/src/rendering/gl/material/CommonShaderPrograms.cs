@@ -7,7 +7,7 @@
         if (CommonShaderPrograms.texturelessShaderProgram_ == null) {
           CommonShaderPrograms.texturelessShaderProgram_ =
               GlShaderProgram.FromShaders(@"
-# version 120
+#version 120
 
 varying vec4 vertexColor;
 
@@ -16,7 +16,7 @@ void main() {
     vertexColor = gl_Color;
 }",
                                           @"
-# version 130 
+#version 130 
 
 out vec4 fragColor;
 

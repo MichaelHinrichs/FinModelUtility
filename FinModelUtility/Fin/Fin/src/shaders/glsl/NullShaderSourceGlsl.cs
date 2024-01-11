@@ -8,7 +8,7 @@ namespace fin.shaders.glsl {
 
     public string FragmentShaderSource
       => """
-         # version 400
+         #version 400
 
          out vec4 fragColor;
 

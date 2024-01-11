@@ -22,7 +22,7 @@ namespace fin.shaders.glsl {
 
       vertexSrc.Append($"""
 
-                        # version 330
+                        #version 330
 
                         uniform mat4 {GlslConstants.UNIFORM_MODEL_MATRIX_NAME};
                         uniform mat4 {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME};

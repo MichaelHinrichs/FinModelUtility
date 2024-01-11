@@ -15,7 +15,7 @@ namespace fin.shaders.glsl {
       var hasNormals = model.Skin.HasNormalsForMaterial(material);
 
       var fragmentSrc = new StringBuilder();
-      fragmentSrc.Append("# version 400");
+      fragmentSrc.Append("#version 400");
 
       if (hasNormals) {
         fragmentSrc.Append(

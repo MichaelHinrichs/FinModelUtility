@@ -26,7 +26,7 @@ namespace fin.language.equations.fixedFunction {
       var registers = material.Registers;
       var textures = material.TextureSources;
 
-      os.WriteLine("# version 400");
+      os.WriteLine("#version 400");
       os.WriteLine();
 
       var hasIndividualLights =

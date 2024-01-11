@@ -1,5 +1,5 @@
 
-# version 330
+#version 330
 
 uniform mat4 modelMatrix;
 uniform mat4 modelViewMatrix;

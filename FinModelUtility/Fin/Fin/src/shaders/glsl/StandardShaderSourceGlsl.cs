@@ -17,7 +17,7 @@ namespace fin.shaders.glsl {
                        model.Skin.HasNormalsForMaterial(material);
 
       var fragmentShaderSrc = new StringBuilder();
-      fragmentShaderSrc.Append("# version 400");
+      fragmentShaderSrc.Append("#version 400");
 
       var diffuseTexture = material.DiffuseTexture;
       var normalTexture = material.NormalTexture;

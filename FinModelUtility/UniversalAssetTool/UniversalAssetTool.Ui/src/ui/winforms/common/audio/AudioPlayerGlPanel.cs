@@ -91,7 +91,7 @@ namespace uni.ui.winforms.common.audio {
     protected override void InitGl() {
       this.texturelessShaderProgram_ =
           GlShaderProgram.FromShaders(@"
-# version 120
+#version 120
 
 varying vec4 vertexColor;
 
@@ -99,7 +99,7 @@ void main() {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
     vertexColor = gl_Color;
 }", @"
-# version 130 
+#version 130 
 
 out vec4 fragColor;
 
