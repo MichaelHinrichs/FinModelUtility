@@ -82,8 +82,8 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
      return;
   }
 
-  vec3 surfaceToLightNormal;
-  float attenuation;
+  vec3 surfaceToLightNormal = vec3(0);
+  float attenuation = 0;
   getSurfaceToLightNormalAndAttenuation(light, position, normal, surfaceToLightNormal, attenuation);
 
   float diffuseLightAmount = 1;
@@ -101,8 +101,8 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
 
 void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
   for (int i = 0; i < 8; ++i) {
-    vec4 currentDiffuseColor;
-    vec4 currentSpecularColor;
+    vec4 currentDiffuseColor = vec4(0);
+    vec4 currentSpecularColor = vec4(0);
   
     getIndividualLightColors(lights[i], position, normal, shininess, currentDiffuseColor, currentSpecularColor);
 
@@ -112,8 +112,8 @@ void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 
 }
 
 vec4 applyMergedLightingColors(vec3 position, vec3 normal, float shininess, vec4 diffuseSurfaceColor, vec4 specularSurfaceColor) {
-  vec4 mergedDiffuseLightColor;
-  vec4 mergedSpecularLightColor;
+  vec4 mergedDiffuseLightColor = vec4(0);
+  vec4 mergedSpecularLightColor = vec4(0);
   getMergedLightColors(position, normal, shininess, mergedDiffuseLightColor, mergedSpecularLightColor);
 
   // We double it because all the other kids do. (Other fixed-function games.)

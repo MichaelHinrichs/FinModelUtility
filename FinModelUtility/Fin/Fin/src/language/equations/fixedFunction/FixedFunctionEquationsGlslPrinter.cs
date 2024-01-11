@@ -188,8 +188,8 @@ namespace fin.language.equations.fixedFunction {
                  vec4 individualLightSpecularColors[{{MaterialConstants.MAX_LIGHTS}}];
                  
                  for (int i = 0; i < {{MaterialConstants.MAX_LIGHTS}}; ++i) {
-                   vec4 diffuseLightColor;
-                   vec4 specularLightColor;
+                   vec4 diffuseLightColor = vec4(0);
+                   vec4 specularLightColor = vec4(0);
                    
                    getIndividualLightColors(lights[i], vertexPosition, fragNormal, {{GlslConstants.UNIFORM_SHININESS_NAME}}, diffuseLightColor, specularLightColor);
                    
@@ -202,8 +202,8 @@ namespace fin.language.equations.fixedFunction {
         if (dependsOnMergedLights) {
           os.WriteLine(
               $"""
-                vec4 mergedLightDiffuseColor;
-                vec4 mergedLightSpecularColor;
+                vec4 mergedLightDiffuseColor = vec4(0);
+                vec4 mergedLightSpecularColor = vec4(0);
                 getMergedLightColors(vertexPosition, fragNormal, {GlslConstants.UNIFORM_SHININESS_NAME}, mergedLightDiffuseColor, mergedLightSpecularColor);
                 
               """);

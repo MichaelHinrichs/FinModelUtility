@@ -85,8 +85,8 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
      return;
   }
 
-  vec3 surfaceToLightNormal;
-  float attenuation;
+  vec3 surfaceToLightNormal = vec3(0);
+  float attenuation = 0;
   getSurfaceToLightNormalAndAttenuation(light, position, normal, surfaceToLightNormal, attenuation);
 
   float diffuseLightAmount = 1;
@@ -105,8 +105,8 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
 
 void getMergedLightColors(vec3 position, vec3 normal, float shininess, out vec4 diffuseColor, out vec4 specularColor) {
   for (int i = 0; i < 8; ++i) {
-    vec4 currentDiffuseColor;
-    vec4 currentSpecularColor;
+    vec4 currentDiffuseColor = vec4(0);
+    vec4 currentSpecularColor = vec4(0);
   
     getIndividualLightColors(lights[i], position, normal, shininess, currentDiffuseColor, currentSpecularColor);
 
@@ -119,8 +119,8 @@ void main() {
   // Have to renormalize because the vertex normals can become distorted when interpolated.
   vec3 fragNormal = normalize(vertexNormal);
 
-  vec4 mergedLightDiffuseColor;
-  vec4 mergedLightSpecularColor;
+  vec4 mergedLightDiffuseColor = vec4(0);
+  vec4 mergedLightSpecularColor = vec4(0);
   getMergedLightColors(vertexPosition, fragNormal, shininess, mergedLightDiffuseColor, mergedLightSpecularColor);
   
   vec3 colorComponent = color_3dsColor2*(ambientLightColor.rgb*vec3(0.800000011920929) + mergedLightDiffuseColor.rgb + mergedLightSpecularColor.rgb*vec3(0.6000000238418579)) + (ambientLightColor.rgb*vec3(0.800000011920929) + mergedLightDiffuseColor.rgb + mergedLightSpecularColor.rgb*vec3(0.6000000238418579))*texture(texture0, uv0).rgb;

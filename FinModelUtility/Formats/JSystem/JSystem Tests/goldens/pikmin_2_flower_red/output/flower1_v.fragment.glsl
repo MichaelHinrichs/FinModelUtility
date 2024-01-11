@@ -82,8 +82,8 @@ void getIndividualLightColors(Light light, vec3 position, vec3 normal, float shi
      return;
   }
 
-  vec3 surfaceToLightNormal;
-  float attenuation;
+  vec3 surfaceToLightNormal = vec3(0);
+  float attenuation = 0;
   getSurfaceToLightNormalAndAttenuation(light, position, normal, surfaceToLightNormal, attenuation);
 
   float diffuseLightAmount = 1;
@@ -107,8 +107,8 @@ void main() {
   vec4 individualLightSpecularColors[8];
   
   for (int i = 0; i < 8; ++i) {
-    vec4 diffuseLightColor;
-    vec4 specularLightColor;
+    vec4 diffuseLightColor = vec4(0);
+    vec4 specularLightColor = vec4(0);
     
     getIndividualLightColors(lights[i], vertexPosition, fragNormal, shininess, diffuseLightColor, specularLightColor);
     
