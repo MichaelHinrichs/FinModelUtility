@@ -29,7 +29,7 @@ namespace cmb.schema.cmb.sklm {
     public float[] meshCenter { get; } = new float[3];
     public float[] positionOffset { get; } = new float[3];
 
-    [Ignore]
+    [Skip]
     private bool hasMinAndMax_ => CmbHeader.Version.SupportsMinAndMaxInSepd();
 
     // Min coordinate of the shape
@@ -45,7 +45,7 @@ namespace cmb.schema.cmb.sklm {
     public readonly VertexAttribute position = new();
     public readonly VertexAttribute normal = new();
 
-    [Ignore]
+    [Skip]
     private bool hasTangents_ => CmbHeader.Version.SupportsInSepd();
 
     [RIfBoolean(nameof(hasTangents_))]

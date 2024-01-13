@@ -15,10 +15,10 @@ namespace dat.schema.animation {
     public int TrackDataOffset { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public LinkedList<byte> TrackCounts { get; } = new();
 
-    [Ignore]
+    [Skip]
     public LinkedList<LinkedList<FigaTreeTrack>> TrackNodes { get; } = new();
 
 

@@ -63,7 +63,7 @@ namespace cmb.schema.ctxb {
 
     private readonly uint padding_ = 0;
 
-    [Ignore]
+    [Skip]
     private bool includeExtraPadding_ 
       => CmbHeader.Version >= Version.LUIGIS_MANSION_3D;
 

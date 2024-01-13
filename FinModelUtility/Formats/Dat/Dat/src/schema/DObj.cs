@@ -16,7 +16,7 @@ namespace dat.schema {
     public uint FirstPObjOffset { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public string? Name { get; set; }
 
     [RAtPositionOrNull(nameof(NextDObjOffset))]
@@ -29,7 +29,7 @@ namespace dat.schema {
     public PObj? FirstPObj { get; private set; }
 
 
-    [Ignore]
+    [Skip]
     public IEnumerable<PObj> PObjs => this.FirstPObj.GetSelfAndSiblings();
   }
 }

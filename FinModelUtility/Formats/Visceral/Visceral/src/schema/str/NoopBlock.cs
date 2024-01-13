@@ -9,7 +9,7 @@ namespace visceral.schema.str {
       this.Type = type;
     }
 
-    [Ignore]
+    [Skip]
     public BlockType Type { get; }
   }
 }

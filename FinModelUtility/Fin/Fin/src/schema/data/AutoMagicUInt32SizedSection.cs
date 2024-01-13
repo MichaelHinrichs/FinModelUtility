@@ -15,19 +15,19 @@ namespace fin.schema.data {
       this.impl_ = new(config, data);
     }
 
-    [Ignore]
+    [Skip]
     public int TweakReadSize {
       get => this.impl_.TweakReadSize;
       set => this.impl_.TweakReadSize = value;
     }
 
-    [Ignore]
+    [Skip]
     public TMagic Magic => this.impl_.Magic;
 
-    [Ignore]
+    [Skip]
     public uint Size => this.impl_.Size;
 
-    [Ignore]
+    [Skip]
     public TData Data => this.impl_.Data;
   }
 }

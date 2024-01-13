@@ -15,7 +15,7 @@ namespace cmb.schema.cmb.vatr {
     public readonly AttributeSlice position = new();
     public readonly AttributeSlice normal = new();
 
-    [Ignore]
+    [Skip]
     private bool hasTangent_ 
       => CmbHeader.Version > Version.OCARINA_OF_TIME_3D;
 

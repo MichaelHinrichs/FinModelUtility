@@ -24,7 +24,7 @@ namespace dat.schema.mesh {
     [IntegerFormat(SchemaIntegerType.UINT32)]
     public GxComponentCount ComponentCountType { get; set; }
 
-    [Ignore]
+    [Skip]
     public int ComponentCount => this.Attribute switch {
         GxAttribute.POS => this.ComponentCountType switch {
             GxComponentCount.POS_XY  => 2,
@@ -46,11 +46,11 @@ namespace dat.schema.mesh {
     [IntegerFormat(SchemaIntegerType.UINT32)]
     public uint RawComponentType { get; set; }
 
-    [Ignore]
+    [Skip]
     public GxComponentType AxesComponentType
       => (GxComponentType) this.RawComponentType;
 
-    [Ignore]
+    [Skip]
     public ColorComponentType ColorComponentType
       => (ColorComponentType) this.RawComponentType;
 

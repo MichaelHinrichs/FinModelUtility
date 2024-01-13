@@ -13,19 +13,19 @@ namespace mod.schema.animation {
   public partial class DcxWrapper : IBinaryConvertible {
     public AnimationFormat AnimationFormat { get; set; }
 
-    [Ignore]
+    [Skip]
     private bool IsDca => this.AnimationFormat == AnimationFormat.DCA;
 
     [RIfBoolean(nameof(IsDca))]
     public Dca? Dca { get; set; }
 
-    [Ignore]
+    [Skip]
     private bool IsDck => this.AnimationFormat == AnimationFormat.DCK;
 
     [RIfBoolean(nameof(IsDck))]
     public Dck? Dck { get; set; }
 
-    [Ignore]
+    [Skip]
     public IDcx Dcx
       => IsDca ? Dca! :
          IsDck ? Dck! :

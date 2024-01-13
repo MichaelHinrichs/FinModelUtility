@@ -161,18 +161,19 @@ namespace fin.model {
     float W { get; }
   }
 
+
   public interface IVector4 : IReadOnlyVector4 {
     float IReadOnlyVector4.X => this.X;
-    float X { get; set; }
+    new float X { get; set; }
 
     float IReadOnlyVector4.Y => this.Y;
-    float Y { get; set; }
+    new float Y { get; set; }
     
     float IReadOnlyVector4.Z => this.Z;
-    float Z { get; set; }
+    new float Z { get; set; }
     
     float IReadOnlyVector4.W => this.W;
-    float W { get; set; }
+    new float W { get; set; }
   }
 
 

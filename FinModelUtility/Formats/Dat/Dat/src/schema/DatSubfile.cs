@@ -230,20 +230,20 @@ namespace dat.schema {
     public uint Padding2 { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public uint DataBlockOffset => 0x20;
 
-    [Ignore]
+    [Skip]
     public uint RelocationTableOffset => DataBlockOffset + DataBlockSize;
 
-    [Ignore]
+    [Skip]
     public uint RootNodeOffset =>
         RelocationTableOffset + 4 * RelocationTableCount;
 
-    [Ignore]
+    [Skip]
     public uint ReferenceNodeOffset => RootNodeOffset + 8 * RootNodeCount;
 
-    [Ignore]
+    [Skip]
     public uint StringTableOffset =>
         ReferenceNodeOffset + 8 * ReferenceNodeCount;
   }

@@ -29,23 +29,23 @@ namespace xmod.schema.xmod {
       var numMatrices =
           TextReaderUtils.ReadKeyValueNumber<int>(tr, "matrices");
       var numReskins = TextReaderUtils.ReadKeyValueNumber<int>(tr, "reskins");
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Positions = TextReaderUtils.ReadInstances<Vector3>(tr, "v", numVertices);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Normals = TextReaderUtils.ReadInstances<Vector3>(tr, "n", numNormals);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Colors = TextReaderUtils.ReadInstances<Vector4>(tr, "c", numColors);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Uv1s =
           TextReaderUtils.ReadInstances<Vector2>(tr, "t1", numUv1s);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       var uv2s =
           TextReaderUtils.ReadInstances<Vector2>(tr, "t2", numUv2s);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Materials = tr.ReadNews<Material>(numMaterials);
 

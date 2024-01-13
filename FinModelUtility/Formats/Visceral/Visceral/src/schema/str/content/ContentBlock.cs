@@ -15,7 +15,7 @@ namespace visceral.schema.str.content {
                 ContentType.CompressedData => new RefPackCompressedData(),
             });
 
-    [Ignore]
+    [Skip]
     public BlockType Type => BlockType.Content;
 
     public override string ToString() => this.Impl.ToString();

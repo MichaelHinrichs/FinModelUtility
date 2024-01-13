@@ -20,10 +20,10 @@ namespace mod.schema {
       RGBA32 = 7,
     }
 
-    [Ignore]
+    [Skip]
     public int index;
 
-    [Ignore]
+    [Skip]
     public string Name => "texture" + this.index + "_" + this.format;
 
     public ushort width = 0;

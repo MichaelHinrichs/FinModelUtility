@@ -9,7 +9,7 @@ namespace cmb.schema.cmb.mats {
     [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public Material[] Materials { get; set; }
 
-    [Ignore]
+    [Skip]
     private uint TotalCombinerCount_
       => (uint) this.Materials
                     .SelectMany(material => material.texEnvStagesIndices)

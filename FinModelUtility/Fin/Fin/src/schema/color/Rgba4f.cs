@@ -11,16 +11,16 @@ namespace fin.schema.color {
     public float Bf { get; set; }
     public float Af { get; set; }
 
-    [Ignore]
+    [Skip]
     public byte Rb => (byte) (this.Rf * 255);
 
-    [Ignore]
+    [Skip]
     public byte Gb => (byte) (this.Gf * 255);
 
-    [Ignore]
+    [Skip]
     public byte Bb => (byte) (this.Bf * 255);
 
-    [Ignore]
+    [Skip]
     public byte Ab => (byte) (this.Af * 255);
   }
 }

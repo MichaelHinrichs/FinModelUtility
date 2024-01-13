@@ -12,7 +12,7 @@ namespace jsystem.schema.j3dgraph.bmd.inf1 {
     private readonly AutoStringMagicUInt32SizedSection<Inf1Data> impl_ =
         new("INF1") { TweakReadSize = -8 };
 
-    [Ignore]
+    [Skip]
     public Inf1Data Data => this.impl_.Data;
   }
 

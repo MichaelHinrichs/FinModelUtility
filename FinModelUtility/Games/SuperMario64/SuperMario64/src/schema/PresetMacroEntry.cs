@@ -7,7 +7,7 @@ namespace sm64.schema {
   [Endianness(SchemaConstants.SM64_ENDIANNESS)]
   [BinarySchema]
   public partial class PresetMacroEntry : IBinaryConvertible {
-    [Ignore]
+    [Skip]
     public ushort PresetId { get; set; }
 
     public uint Behavior { get; set; }

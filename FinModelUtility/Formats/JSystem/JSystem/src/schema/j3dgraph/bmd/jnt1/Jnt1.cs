@@ -11,7 +11,7 @@ namespace jsystem.schema.j3dgraph.bmd.jnt1 {
     private readonly AutoStringMagicUInt32SizedSection<Jnt1Data> impl_ =
         new("JNT1") { TweakReadSize = -8 };
 
-    [Ignore]
+    [Skip]
     public Jnt1Data Data => this.impl_.Data;
   }
 

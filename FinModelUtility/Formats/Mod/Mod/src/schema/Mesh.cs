@@ -15,7 +15,7 @@ namespace mod.schema {
 
   [BinarySchema]
   public partial class DisplayListFlags : IBinaryConvertible {
-    [Ignore]
+    [Skip]
     public DisplayListFlagsByteView byteView = new();
 
     public uint intView {

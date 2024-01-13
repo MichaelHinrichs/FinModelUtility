@@ -80,7 +80,7 @@ namespace jsystem.schema.jutility.bti {
     [RSequenceLengthSource(nameof(CompressedBufferSize_))]
     public byte[] Data;
 
-    [Ignore]
+    [Skip]
     public Rgba32[] palette;
 
     [ReadLogic]
@@ -180,7 +180,7 @@ namespace jsystem.schema.jutility.bti {
       throw new NotImplementedException();
     }
 
-    [Ignore]
+    [Skip]
     private int CompressedBufferSize_ {
       get {
         int num1 = (int) this.Width + (8 - (int) this.Width % 8) % 8;

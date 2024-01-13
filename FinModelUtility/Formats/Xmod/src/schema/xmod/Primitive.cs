@@ -13,7 +13,7 @@ namespace xmod.schema.xmod {
     public IReadOnlyList<int> VertexIndices { get; set; }
 
     public void Read(ITextReader tr) {
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Type = tr.ReadString(3) switch {
         "stp" => PrimitiveType.TRIANGLE_STRIP,
@@ -23,7 +23,7 @@ namespace xmod.schema.xmod {
 
       this.VertexIndices = tr.ReadInt32s(TextReaderConstants.WHITESPACE_STRINGS,
                                          TextReaderConstants.NEWLINE_STRINGS);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
     }
   }
 }

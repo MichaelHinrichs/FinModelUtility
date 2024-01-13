@@ -15,7 +15,7 @@ namespace xmod.schema.xmod {
       var numMatrices = tr.ReadInt32();
 
       tr.ReadUpToAndPastTerminator(TextReaderUtils.OPEN_BRACE);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Adjuncts = tr.ReadNews<Adjunct>(numAdjuncts);
       this.Primitives = tr.ReadNews<Primitive>(numPrimitives);
@@ -25,7 +25,7 @@ namespace xmod.schema.xmod {
                                        TextReaderConstants.NEWLINE_STRINGS);
 
       tr.ReadUpToAndPastTerminator(TextReaderUtils.CLOSING_BRACE);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
     }
   }
 }

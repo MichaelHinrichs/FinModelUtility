@@ -11,7 +11,7 @@ namespace jsystem.schema.j3dgraph.bmd.drw1 {
     private readonly AutoStringMagicUInt32SizedSection<Drw1Data> impl_ =
         new("DRW1") { TweakReadSize = -8 };
 
-    [Ignore]
+    [Skip]
     public Drw1Data Data => this.impl_.Data;
   }
 

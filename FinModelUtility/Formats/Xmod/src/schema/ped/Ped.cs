@@ -9,17 +9,17 @@ namespace xmod.schema.ped {
 
     public void Read(ITextReader tr) {
       SkelName = TextReaderUtils.ReadKeyValue(tr, "skel").Trim();
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       tr.AssertString("lod 0 {");
       XmodName = tr.ReadUpToAndPastTerminator(TextReaderUtils.CLOSING_BRACE)
                    .Trim();
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.AnimMap = new Dictionary<string, string>();
       tr.AssertString("anim {");
       while (true) {
-        tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+        tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
         if (tr.Matches(out _, "}")) {
           break;
         }

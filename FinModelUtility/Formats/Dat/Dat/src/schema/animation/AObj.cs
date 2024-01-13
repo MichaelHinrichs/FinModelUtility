@@ -28,7 +28,7 @@ namespace dat.schema.animation {
     [RAtPositionOrNull(nameof(FObjOffset))]
     public FObj? FirstFObj { get; set; }
 
-    [Ignore]
+    [Skip]
     public IEnumerable<FObj> FObjs => this.FirstFObj.GetSelfAndSiblings();
   }
 }

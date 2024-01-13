@@ -12,7 +12,7 @@ namespace cmb.schema.cmb.skl {
     // versions > OoT3D anyway)
     private ushort flags;
 
-    [Ignore]
+    [Skip]
     public ushort id => (ushort) (this.flags & 0xFFF); // Get boneID
 
     // M-1:
@@ -21,7 +21,7 @@ namespace cmb.schema.cmb.skl {
     // Though I probably missed a few compressed files. It's most likely
     // these flags below:
     // IsSegmentScaleCompensate, IsCompressible, IsNeededRendering, HasSkinningMatrix
-    [Ignore]
+    [Skip]
     public bool hasSkinningMatrix => this.flags.GetBit(4);
 
     public short parentId;
@@ -30,7 +30,7 @@ namespace cmb.schema.cmb.skl {
     public Vector3f rotation { get; } = new();
     public Vector3f translation { get; } = new();
 
-    [Ignore]
+    [Skip]
     private bool HasUnk => CmbHeader.Version > Version.OCARINA_OF_TIME_3D;
 
     [Unknown]

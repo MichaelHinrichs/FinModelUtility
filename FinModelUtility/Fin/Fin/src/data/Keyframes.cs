@@ -4,21 +4,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace fin.data {
-  public readonly struct Keyframe<T> : IComparable<Keyframe<T>> {
-    public int Frame { get; }
-    public T Value { get; }
-
-    public Keyframe(int frame, T value) {
-      this.Frame = frame;
-      this.Value = value;
-    }
-
+  public readonly record struct Keyframe<T>(int Frame, T Value) : IComparable<Keyframe<T>> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(Keyframe<T> other)
       => this.Frame - other.Frame;
-
-    public override string ToString()
-      => $"{{ Frame: {this.Frame}, Value: {this.Value} }}";
   }
 
   public interface IReadOnlyKeyframes<T> {

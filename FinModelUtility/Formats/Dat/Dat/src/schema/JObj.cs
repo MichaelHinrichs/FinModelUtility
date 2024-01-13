@@ -71,7 +71,7 @@ namespace dat.schema {
     public uint UnknownPointer { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public string? Name { get; set; }
 
     [RAtPositionOrNull(nameof(FirstChildBoneOffset))]
@@ -88,7 +88,7 @@ namespace dat.schema {
     public float[]? InverseBindMatrixValues { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public IEnumerable<DObj> DObjs => this.FirstDObj.GetSelfAndSiblings();
 
     public override string? ToString() => this.Name;

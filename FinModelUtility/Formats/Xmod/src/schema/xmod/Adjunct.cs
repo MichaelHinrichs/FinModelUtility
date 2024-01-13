@@ -13,7 +13,7 @@ namespace xmod.schema.xmod {
     public int MatrixIndex { get; set; }
 
     public void Read(ITextReader tr) {
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       tr.AssertString("adj");
 
       var indices = tr.ReadInt32s(TextReaderConstants.WHITESPACE_STRINGS, TextReaderConstants.NEWLINE_STRINGS);
@@ -29,7 +29,7 @@ namespace xmod.schema.xmod {
 
       MatrixIndex = indices[5];
 
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
     }
   }
 }

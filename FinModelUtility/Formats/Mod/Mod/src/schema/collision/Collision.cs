@@ -88,7 +88,7 @@ namespace mod.schema.collision {
     [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public readonly List<CollGroup> groups = new();
 
-    [Ignore]
+    [Skip]
     private uint gridSize_ => this.gridX * this.gridY;
 
     [Unknown]

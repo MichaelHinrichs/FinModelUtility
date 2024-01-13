@@ -7,7 +7,7 @@ namespace fin.schema.data {
       : IMagicSection<T> where T : IBinaryConvertible {
     private string MagicAsserter_ => this.Magic;
 
-    [Ignore]
+    [Skip]
     public string Magic { get; set; }
 
     private readonly PassThruJankSizedSection<T> impl_;
@@ -17,16 +17,16 @@ namespace fin.schema.data {
       this.impl_ = new PassThruJankSizedSection<T>(data);
     }
 
-    [Ignore]
+    [Skip]
     public int TweakReadSize {
       get => this.impl_.TweakReadSize;
       set => this.impl_.TweakReadSize = value;
     }
 
-    [Ignore]
+    [Skip]
     public uint Size => this.impl_.Size;
 
-    [Ignore]
+    [Skip]
     public T Data {
       get => this.impl_.Data;
       set => this.impl_.Data = value;

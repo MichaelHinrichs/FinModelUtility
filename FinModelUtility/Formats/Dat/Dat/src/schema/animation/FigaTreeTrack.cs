@@ -24,16 +24,16 @@ namespace dat.schema.animation {
     public uint DataOffset { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public JointTrackType JointTrackType => (JointTrackType) this.TrackType;
 
-    [Ignore]
+    [Skip]
     public byte MatTrackType => this.TrackType;
 
-    [Ignore]
+    [Skip]
     public byte TexTrackType => this.TrackType;
 
-    [Ignore]
+    [Skip]
     public LinkedList<(int frame, float incomingValue, float outgoingValue,
         float? incomingTangent, float? outgoingTangent)> Keyframes { get; } =
       new();

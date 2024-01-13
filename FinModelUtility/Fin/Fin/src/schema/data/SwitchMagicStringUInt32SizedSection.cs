@@ -13,10 +13,10 @@ namespace fin.schema.data {
   [BinarySchema]
   public partial class SwitchMagicStringUInt32SizedSection<T> : IMagicSection<T>
       where T : IBinaryConvertible {
-    [Ignore]
+    [Skip]
     private readonly int magicLength_;
 
-    [Ignore]
+    [Skip]
     private readonly Func<string, T> createTypeHandler_;
 
     private readonly PassThruStringMagicUInt32SizedSection<T> impl_ =
@@ -29,16 +29,16 @@ namespace fin.schema.data {
       this.createTypeHandler_ = createTypeHandler;
     }
 
-    [Ignore]
+    [Skip]
     public int TweakReadSize {
       get => this.impl_.TweakReadSize;
       set => this.impl_.TweakReadSize = value;
     }
 
-    [Ignore]
+    [Skip]
     public string Magic => this.impl_.Magic;
 
-    [Ignore]
+    [Skip]
     public T Data => this.impl_.Data;
 
     public void Read(IBinaryReader br) {

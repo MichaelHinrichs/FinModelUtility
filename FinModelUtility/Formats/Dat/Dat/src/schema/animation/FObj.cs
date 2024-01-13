@@ -57,7 +57,7 @@ namespace dat.schema.animation {
     [RAtPositionOrNull(nameof(NextSiblingOffset))]
     public FObj? NextSibling { get; set; }
 
-    [Ignore]
+    [Skip]
     public LinkedList<(int frame, float incomingValue, float outgoingValue, float? incomingTangent, float? outgoingTangent)> Keyframes {
       get;
     } = new();

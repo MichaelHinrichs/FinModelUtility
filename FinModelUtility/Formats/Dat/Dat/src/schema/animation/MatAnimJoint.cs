@@ -24,7 +24,7 @@ namespace dat.schema.animation {
     public MatAnim? FirstMatAnim { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public IEnumerable<MatAnim> MatAnims => this.FirstMatAnim.GetSelfAndSiblings();
   }
 }

@@ -11,10 +11,10 @@ namespace xmod.schema {
     public static string[] QUOTE = { "\"" };
 
     public static string ReadKeyValue(ITextReader tr, string prefix) {
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       tr.AssertString(prefix);
       tr.AssertChar(':');
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       return tr.ReadLine();
     }
 
@@ -26,12 +26,12 @@ namespace xmod.schema {
 
     public static T ReadKeyValueInstance<T>(ITextReader tr, string prefix)
         where T : ITextDeserializable, new() {
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       tr.AssertString(prefix);
       tr.AssertChar(':');
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       var instance = tr.ReadNew<T>();
-      tr.IgnoreOnceIfPresent(TextReaderConstants.NEWLINE_STRINGS);
+      tr.SkipOnceIfPresent(TextReaderConstants.NEWLINE_STRINGS);
       return instance;
     }
 
@@ -54,11 +54,11 @@ namespace xmod.schema {
         where T : ITextDeserializable, new() {
       var values = new T[count];
       for (var i = 0; i < count; ++i) {
-        tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+        tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
         tr.AssertString(prefix);
-        tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+        tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
         values[i] = tr.ReadNew<T>();
-        tr.IgnoreOnceIfPresent(TextReaderConstants.NEWLINE_STRINGS);
+        tr.SkipOnceIfPresent(TextReaderConstants.NEWLINE_STRINGS);
       }
 
       return values;

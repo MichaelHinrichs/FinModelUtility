@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 
 using fin.data.stacks;
 using fin.util.asserts;
-using fin.util.enumerables;
 
 namespace fin.io {
   public readonly struct FinDirectory : ISystemDirectory {

@@ -37,7 +37,7 @@ namespace mod.schema.animation {
     [RSequenceLengthSource(nameof(jointCount_))]
     public DckJointData[] JointDataList { get; set; }
 
-    [Ignore]
+    [Skip]
     IDcxJointData[] IDcxAnimationData.JointDataList {
       get => this.JointDataList;
       set => this.JointDataList = value as DckJointData[];

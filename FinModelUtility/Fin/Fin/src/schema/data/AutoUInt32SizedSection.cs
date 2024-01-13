@@ -13,13 +13,13 @@ namespace fin.schema.data {
       where T : IBinaryConvertible, new() {
     private readonly PassThruUInt32SizedSection<T> impl_;
 
-    [Ignore]
+    [Skip]
     public int TweakReadSize {
       get => this.impl_.TweakReadSize;
       set => this.impl_.TweakReadSize = value;
     }
 
-    [Ignore]
+    [Skip]
     public T Data => this.impl_.Data;
 
     public AutoUInt32SizedSection() {

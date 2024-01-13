@@ -27,7 +27,7 @@ namespace xmod.schema.xmod {
       //TextReaderUtils.ReadKeyValueNumber<int>(tr, "attributes");
 
       tr.ReadUpToAndPastTerminator(TextReaderUtils.CLOSING_BRACE);
-      tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      tr.SkipManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
     }
   }
 }

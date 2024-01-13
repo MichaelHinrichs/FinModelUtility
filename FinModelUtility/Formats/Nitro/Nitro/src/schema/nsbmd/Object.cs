@@ -52,15 +52,15 @@ namespace nitro.schema.nsbmd {
     public Vector3f? Scale { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public Matrix3x3f? Rotation { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public bool HasTranslation
       => !this.Flags.CheckFlag(ObjectFlags.NO_TRANSLATION);
 
-    [Ignore]
+    [Skip]
     public bool HasScale
       => !this.Flags.CheckFlag(ObjectFlags.NO_SCALE);
   }

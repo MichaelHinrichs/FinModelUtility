@@ -51,7 +51,7 @@ namespace dat.schema.material {
     public uint PeDescOffset { get; set; }
 
 
-    [Ignore]
+    [Skip]
     public string? Name { get; set; }
 
     [RAtPositionOrNull(nameof(FirstTObjOffset))]
@@ -63,7 +63,7 @@ namespace dat.schema.material {
     [RAtPositionOrNull(nameof(PeDescOffset))]
     public PeDesc? PeDesc { get; set; }
 
-    [Ignore]
+    [Skip]
     public IEnumerable<(uint, TObj)> TObjsAndOffsets {
       get {
         var tObjOffset = this.FirstTObjOffset;

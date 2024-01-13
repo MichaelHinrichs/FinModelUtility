@@ -29,7 +29,7 @@ namespace fin.schema.sequences {
 
     public (T1, T2) GetDefault() => (new(), new());
 
-    [Ignore]
+    [Skip]
     public int Count => this.list1_.Count;
 
     public void Clear() {
@@ -54,7 +54,7 @@ namespace fin.schema.sequences {
                      .ToList());
     }
 
-    [Ignore]
+    [Skip]
     public (T1 First, T2 Second) this[int index] {
       get => (this.list1_[index], this.list2_[index]);
       set => (this.list1_[index], this.list2_[index]) = value;

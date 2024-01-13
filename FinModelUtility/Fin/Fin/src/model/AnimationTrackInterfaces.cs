@@ -5,12 +5,11 @@ using fin.data;
 using fin.math.interpolation;
 
 namespace fin.model {
-  public readonly struct ValueAndTangents<T> {
-    public T IncomingValue { get; }
-    public T OutgoingValue { get; }
-    public float? IncomingTangent { get; }
-    public float? OutgoingTangent { get; }
-
+  public readonly record struct ValueAndTangents<T>(
+      T IncomingValue,
+      T OutgoingValue,
+      float? IncomingTangent,
+      float? OutgoingTangent) {
     public ValueAndTangents(T value) : this(value, null) { }
 
     public ValueAndTangents(T value, float? tangent)
@@ -23,16 +22,6 @@ namespace fin.model {
                value,
                incomingTangent,
                outgoingTangent) { }
-
-    public ValueAndTangents(T incomingValue,
-                            T outgoingValue,
-                            float? incomingTangent,
-                            float? outgoingTangent) {
-      this.IncomingValue = incomingValue;
-      this.OutgoingValue = outgoingValue;
-      this.IncomingTangent = incomingTangent;
-      this.OutgoingTangent = outgoingTangent;
-    }
   }
 
 
