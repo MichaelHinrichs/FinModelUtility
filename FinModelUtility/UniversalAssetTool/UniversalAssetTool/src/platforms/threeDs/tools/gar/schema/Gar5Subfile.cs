@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using schema.binary;
+﻿using schema.binary;
 
 namespace uni.platforms.threeDs.tools.gar.schema {
   public class Gar5Subfile : IGarSubfile {
@@ -33,10 +31,9 @@ namespace uni.platforms.threeDs.tools.gar.schema {
 
       if (Path.GetExtension(this.FileName) == string.Empty) {
         this.FileName += $".{fileType.TypeName}";
-
-        if (this.FullPath != null) {
-          this.FullPath += $".{fileType.TypeName}";
-        }
+      }
+      if (this.FullPath != null && Path.GetExtension(this.FullPath) == string.Empty) {
+        this.FullPath += $".{fileType.TypeName}";
       }
 
       this.Position = (int) fileOffset;

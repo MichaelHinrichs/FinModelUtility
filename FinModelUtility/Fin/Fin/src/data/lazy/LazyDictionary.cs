@@ -9,17 +9,19 @@ namespace fin.data.lazy {
   ///   Dictionary implementation that lazily populates its entries when
   ///   accessed.
   /// </summary>
-  public class LazyDictionary<TKey, TValue> : ILazyDictionary<TKey, TValue> {
-    private readonly NullFriendlyDictionary<TKey, TValue> impl_ = new();
+  public class LazyDictionary<TKey, TValue>
+      : ILazyDictionary<TKey, TValue> {
+    private readonly IFinDictionary<TKey, TValue> impl_;
     private readonly Func<TKey, TValue> handler_;
 
-    public LazyDictionary(Func<TKey, TValue> handler) {
+    public LazyDictionary(Func<TKey, TValue> handler, IFinDictionary<TKey, TValue>? impl = null) {
       this.handler_ = handler;
+      this.impl_ = impl ?? new NullFriendlyDictionary<TKey, TValue>();
     }
 
-    public LazyDictionary(
-        Func<LazyDictionary<TKey, TValue>, TKey, TValue> handler) {
-      this.handler_ = (TKey key) => handler(this, key);
+    public LazyDictionary(Func<LazyDictionary<TKey, TValue>, TKey, TValue> handler, IFinDictionary<TKey, TValue>? impl = null) {
+      this.handler_ = key => handler(this, key);
+      this.impl_ = impl ?? new NullFriendlyDictionary<TKey, TValue>();
     }
 
     public int Count => this.impl_.Count;

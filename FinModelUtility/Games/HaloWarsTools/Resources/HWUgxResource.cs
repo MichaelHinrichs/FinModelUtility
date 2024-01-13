@@ -88,7 +88,7 @@ namespace HaloWarsTools {
         bdt.Serialize(es);
       }
 
-      var lazyTextureDictionary = new LazyDictionary<string, ITexture>(name
+      var lazyTextureDictionary = new LazyCaseInvariantStringDictionary<ITexture>(name
           => LoadTexture(materialManager, name));
       var materials = new List<IMaterial>();
 

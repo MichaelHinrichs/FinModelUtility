@@ -108,7 +108,7 @@ namespace modl.api {
 
         var levelDir = modlFile.AssertGetParent();
         var baseLevelDir = levelDir.AssertGetParent();
-        var textureDictionary = new LazyDictionary<string, Task<ITexture>>(
+        var textureDictionary = new LazyCaseInvariantStringDictionary<Task<ITexture>>(
             async textureNameWithoutExtension => {
               var textureName = $"{textureNameWithoutExtension}.texr";
               IReadOnlyTreeFile textureFile;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
@@ -286,11 +287,10 @@ namespace fin.io {
 
       public IEnumerable<IFileHierarchyFile> GetFilesWithNameRecursive(
           string name) {
-        name = name.ToLower();
         var stack = new FinStack<IFileHierarchyDirectory>(this);
         while (stack.TryPop(out var next)) {
           var match = next.GetExistingFiles()
-                          .FirstOrDefault(file => file.Name.ToLower() == name);
+                          .FirstOrDefault(file => file.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
           if (match != null) {
             yield return match;
           }

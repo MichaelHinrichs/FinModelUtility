@@ -103,7 +103,7 @@ namespace level5.api {
         }
       }
 
-      var lazyTextures = new LazyDictionary<string, ITexture>(textureName => {
+      var lazyTextures = new LazyCaseInvariantStringDictionary<ITexture>(textureName => {
         var textureIndex = modelResourceFile.TextureNames.IndexOf(textureName);
         var xiFile = modelXc.FilesByExtension[".xi"][textureIndex];
 
@@ -117,7 +117,7 @@ namespace level5.api {
         return texture;
       });
 
-      var lazyMaterials = new LazyDictionary<string, IMaterial>(
+      var lazyMaterials = new LazyCaseInvariantStringDictionary<IMaterial>(
           materialName => {
             var binMaterial =
                 modelResourceFile.Materials.Single(

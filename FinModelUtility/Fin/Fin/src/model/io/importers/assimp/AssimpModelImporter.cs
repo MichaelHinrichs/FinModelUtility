@@ -31,7 +31,7 @@ namespace fin.model.io.importers.assimp {
       var assScene = ctx.ImportFile(mainFile.FullPath);
 
       // Adds materials
-      var lazyFinSatelliteImages = new LazyDictionary<string, IImage>(
+      var lazyFinSatelliteImages = new LazyCaseInvariantStringDictionary<IImage>(
           path => mainFile.AssertGetParent()
                           .TryToGetExistingFile(path, out var imageFile)
               ? FinImage.FromFile(imageFile)

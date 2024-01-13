@@ -60,7 +60,7 @@ namespace UoT.memory {
             nameOffset = -1;
             break;
           }
-          case "03-02-21 00:16:31": {
+          case "03-02-21 00:16:31" or "03-02-21 00:49:18": {
             nameOffset = 0xBE80;
             break;
           }

@@ -9,13 +9,14 @@ using uni.platforms.threeDs.tools.gar;
 namespace uni.platforms.threeDs {
   public class ThreeDsFileHierarchyExtractor {
     public bool TryToExtractFromGame(string gameName,
-                                     out IFileHierarchy fileHierarchy) {
+                                     out IFileHierarchy fileHierarchy,
+                                     IArchiveExtractor.ArchiveFileProcessor? archiveFileNameProcessor = null) {
       if (!TryToFindRom_(gameName, out var romFile)) {
         fileHierarchy = default;
         return false;
       }
 
-      fileHierarchy = this.ExtractFromRom_(romFile);
+      fileHierarchy = this.ExtractFromRom_(romFile, archiveFileNameProcessor);
       return true;
     }
 
@@ -28,20 +29,23 @@ namespace uni.platforms.threeDs {
                                ".3ds",
                                ".cia");
 
-    private IFileHierarchy ExtractFromRom_(IReadOnlySystemFile romFile) {
+    private IFileHierarchy ExtractFromRom_(IReadOnlySystemFile romFile,
+                                           IArchiveExtractor.ArchiveFileProcessor? archiveFileNameProcessor = null) {
       IFileHierarchy fileHierarchy;
       switch (romFile.FileType) {
         case ".cia": {
-          new Ctrtool.CiaExtractor().Run(romFile, out fileHierarchy);
-          break;
-        }
+            new Ctrtool.CiaExtractor().Run(romFile, out fileHierarchy);
+            break;
+          }
         case ".3ds":
         case ".cci": {
-          new Ctrtool.CciExtractor().Run(romFile, out fileHierarchy);
-          break;
-        }
+            new Ctrtool.CciExtractor().Run(romFile, out fileHierarchy);
+            break;
+          }
         default: throw new NotSupportedException();
       }
+
+      var rootDir = fileHierarchy.Root.Impl;
 
       var archiveExtractor = new SubArchiveExtractor();
 
@@ -52,7 +56,9 @@ namespace uni.platforms.threeDs {
           didChange |=
               archiveExtractor.TryToExtractIntoNewDirectory<ZarReader>(
                   zarFile,
-                  new FinDirectory(zarFile.FullNameWithoutExtension)) ==
+                  rootDir,
+                  new FinDirectory(zarFile.FullNameWithoutExtension),
+                  archiveFileNameProcessor) ==
               ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
 
@@ -60,7 +66,9 @@ namespace uni.platforms.threeDs {
           didChange |=
               archiveExtractor.TryToExtractIntoNewDirectory<GarReader>(
                   garFile,
-                  new FinDirectory(garFile.FullNameWithoutExtension)) ==
+                  rootDir,
+                  new FinDirectory(garFile.FullNameWithoutExtension),
+                  archiveFileNameProcessor) ==
               ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
 
@@ -69,8 +77,10 @@ namespace uni.platforms.threeDs {
           didChange |=
               archiveExtractor.TryToExtractIntoNewDirectory<GarReader>(
                   garFile,
+                  rootDir,
                   new FinDirectory(
-                      garFile.FullPath.SubstringUpTo(".gar"))) ==
+                      garFile.FullPath.SubstringUpTo(".gar")),
+                  archiveFileNameProcessor) ==
               ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
 

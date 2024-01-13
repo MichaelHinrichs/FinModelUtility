@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.io {
@@ -13,18 +14,13 @@ namespace fin.io {
     public static IEnumerable<TFile> WithFileType<TFile>(
         this IEnumerable<TFile> files,
         string fileType) where TFile : IReadOnlyTreeFile {
-      fileType = fileType.ToLower();
-      return files.Where(file => file.FileType.ToLower() == fileType);
+      return files.Where(file => file.FileType.Equals(fileType, StringComparison.OrdinalIgnoreCase));
     }
 
     public static IEnumerable<TFile> WithFileTypes<TFile>(
         this IEnumerable<TFile> files,
         params string[] fileTypes) where TFile : IReadOnlyTreeFile {
-      for (var i = 0; i < fileTypes.Length; ++i) {
-        fileTypes[i] = fileTypes[i].ToLower();
-      }
-
-      return files.Where(file => fileTypes.Contains(file.FileType.ToLower()));
+      return files.Where(file => fileTypes.Any(fileType => fileType.Equals(file.FileType, StringComparison.OrdinalIgnoreCase)));
     }
   }
 }

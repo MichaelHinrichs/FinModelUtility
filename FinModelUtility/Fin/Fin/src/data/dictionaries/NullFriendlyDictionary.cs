@@ -10,8 +10,7 @@ namespace fin.data.dictionaries {
   /// <summary>
   ///   A dictionary that accepts null keys.
   /// </summary>
-  public class NullFriendlyDictionary<TKey, TValue>
-      : IFinDictionary<TKey, TValue> {
+  public class NullFriendlyDictionary<TKey, TValue> : IFinDictionary<TKey, TValue> {
     private readonly ConcurrentDictionary<TKey, TValue> impl_ = new();
 
     private bool hasNull_;

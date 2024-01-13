@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 
 using fin.color;
+using fin.data.dictionaries;
 using fin.data.lazy;
 using fin.data.queues;
 using fin.image;
@@ -28,11 +29,11 @@ namespace glo.api {
 
       var glo = gloFile.ReadNew<Glo>();
 
-      var textureFilesByName = new Dictionary<string, IReadOnlyTreeFile>();
+      var textureFilesByName = new CaseInvariantStringDictionary<IReadOnlyTreeFile>();
       foreach (var textureDirectory in textureDirectories) {
         foreach (var textureFile in textureDirectory.GetExistingFiles()) {
           if (FinImage.IsSupportedFileType(textureFile)) {
-            textureFilesByName[textureFile.NameWithoutExtension.ToLower()] =
+            textureFilesByName[textureFile.NameWithoutExtension] =
                 textureFile;
           }
         }
@@ -51,10 +52,10 @@ namespace glo.api {
 
       var finRootBone = finModel.Skeleton.Root;
 
-      var finTextureMap = new LazyDictionary<string, ITexture?>(
+      var finTextureMap = new LazyCaseInvariantStringDictionary<ITexture?>(
           textureFilename => {
             if (!textureFilesByName.TryGetValue(
-                    Path.GetFileNameWithoutExtension(textureFilename).ToLower(),
+                    Path.GetFileNameWithoutExtension(textureFilename),
                     out var textureFile)) {
               return null;
             }
@@ -78,7 +79,7 @@ namespace glo.api {
             return finTexture;
           });
       var withCullingMap =
-          new LazyDictionary<string, IMaterial>(textureFilename => {
+          new LazyCaseInvariantStringDictionary<IMaterial>(textureFilename => {
             var finTexture = finTextureMap[textureFilename];
             if (finTexture == null) {
               return finModel.MaterialManager.AddStandardMaterial();
@@ -86,7 +87,7 @@ namespace glo.api {
 
             return finModel.MaterialManager.AddTextureMaterial(finTexture);
           });
-      var withoutCullingMap = new LazyDictionary<string, IMaterial>(
+      var withoutCullingMap = new LazyCaseInvariantStringDictionary<IMaterial>(
           textureFilename => {
             var finTexture = finTextureMap[textureFilename];
             IMaterial finMaterial = finTexture == null
@@ -99,7 +100,7 @@ namespace glo.api {
             return finMaterial;
           });
 
-      var firstMeshMap = new Dictionary<string, GloMesh>();
+      var firstMeshMap = new CaseInvariantStringDictionary<GloMesh>();
 
       // TODO: Consider separating these out as separate models
       foreach (var gloObject in glo.Objects) {

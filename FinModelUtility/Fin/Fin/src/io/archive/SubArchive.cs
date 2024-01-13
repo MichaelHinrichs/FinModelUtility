@@ -49,41 +49,58 @@ namespace fin.io.archive {
   }
 
   public class SubArchiveExtractor : IArchiveExtractor<SubArchiveContentFile> {
+    public ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(IReadOnlyTreeFile archive,
+      ISystemDirectory targetDirectory) where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new()
+      => this.TryToExtractIntoNewDirectory<TArchiveReader>(archive, null, targetDirectory);
+
+    public ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(Stream archive, ISystemDirectory targetDirectory) where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new()
+      => this.TryToExtractIntoNewDirectory<TArchiveReader>(null, archive, null, targetDirectory);
+
     public ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
-        IReadOnlyGenericFile archive,
-        ISystemDirectory systemDirectory)
+        IReadOnlyTreeFile archive,
+        ISystemDirectory rootDirectory,
+        ISystemDirectory targetDirectory,
+        IArchiveExtractor.ArchiveFileProcessor? archiveFileNameProcessor = null)
         where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
-      if (systemDirectory is { Exists: true, IsEmpty: false }) {
+      if (targetDirectory is { Exists: true, IsEmpty: false }) {
         return ArchiveExtractionResult.ALREADY_EXISTS;
       }
 
-      systemDirectory.Create();
-
       using var fs = archive.OpenRead();
-      return this.TryToExtractIntoExistingDirectory_<TArchiveReader>(
+      return this.TryToExtractIntoNewDirectory<TArchiveReader>(
+          archive.NameWithoutExtension,
           fs,
-          systemDirectory);
+          rootDirectory,
+          targetDirectory,
+          archiveFileNameProcessor);
     }
 
     public ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
+        string archiveName,
         Stream archive,
-        ISystemDirectory systemDirectory)
+        ISystemDirectory rootDirectory,
+        ISystemDirectory targetDirectory,
+        IArchiveExtractor.ArchiveFileProcessor? archiveFileNameProcessor = null)
         where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
-      if (systemDirectory.Exists) {
+      if (targetDirectory is { Exists: true, IsEmpty: false }) {
         return ArchiveExtractionResult.ALREADY_EXISTS;
       }
 
-      systemDirectory.Create();
-
       return this.TryToExtractIntoExistingDirectory_<TArchiveReader>(
+          archiveName,
           archive,
-          systemDirectory);
+          rootDirectory,
+          targetDirectory,
+          archiveFileNameProcessor);
     }
 
     private ArchiveExtractionResult TryToExtractIntoExistingDirectory_<
         TArchiveReader>(
+        string archiveName,
         Stream archive,
-        ISystemDirectory systemDirectory)
+        ISystemDirectory rootDirectory,
+        ISystemDirectory targetDirectory,
+        IArchiveExtractor.ArchiveFileProcessor? archiveFileNameProcessor = null)
         where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
       var archiveReader = new TArchiveReader();
       if (!archiveReader.IsValidArchive(archive)) {
@@ -96,8 +113,15 @@ namespace fin.io.archive {
 
       var createdDirectories = new HashSet<string>();
       foreach (var archiveContentFile in archiveContentFiles) {
-        var dstFile = new FinFile(Path.Join(systemDirectory.FullPath,
-                                            archiveContentFile.RelativeName));
+        var relativeToRoot = false;
+
+        var relativeName = archiveContentFile.RelativeName;
+        if (archiveFileNameProcessor != null) {
+          archiveFileNameProcessor(archiveName, ref relativeName, out relativeToRoot);
+        }
+
+        var dstDir = relativeToRoot ? rootDirectory : targetDirectory;
+        var dstFile = new FinFile(Path.Join(dstDir.FullPath, relativeName));
 
         var dstDirectory = dstFile.GetParentFullPath()!;
         if (createdDirectories.Add(dstDirectory)) {

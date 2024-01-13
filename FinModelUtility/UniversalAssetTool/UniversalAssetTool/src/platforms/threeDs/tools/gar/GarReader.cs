@@ -36,14 +36,14 @@ namespace uni.platforms.threeDs.tools.gar {
         foreach (var file in fileType.Files) {
           var fileName = file.FullPath ?? file.FileName;
 
-          if (!fileName.EndsWith($".{fileType.TypeName}")) {
+          if (!fileName.EndsWith($".{fileType.TypeName}", StringComparison.OrdinalIgnoreCase)) {
             fileName = $"{fileName}.{fileType.TypeName}";
           }
 
           yield return new SubArchiveContentFile {
-              RelativeName = fileName,
-              Position = file.Position,
-              Length = file.Length,
+            RelativeName = fileName,
+            Position = file.Position,
+            Length = file.Length,
           };
         }
       }

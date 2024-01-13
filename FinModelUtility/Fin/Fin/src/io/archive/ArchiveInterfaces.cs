@@ -35,16 +35,35 @@ namespace fin.io.archive {
     NEWLY_EXTRACTED,
   }
 
+  public interface IArchiveExtractor {
+    delegate void ArchiveFileProcessor(string archiveFileName, ref string relativeFileName, out bool relativeToRoot);
+  }
+
   public interface IArchiveExtractor<TArchiveContentFile>
       where TArchiveContentFile : IArchiveContentFile {
     ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
-        IReadOnlyGenericFile archive,
-        ISystemDirectory newDirectory)
+        IReadOnlyTreeFile archive,
+        ISystemDirectory targetDirectory)
         where TArchiveReader : IArchiveReader<TArchiveContentFile>, new();
 
     ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
         Stream archive,
-        ISystemDirectory newDirectory)
+        ISystemDirectory targetDirectory)
+        where TArchiveReader : IArchiveReader<TArchiveContentFile>, new();
+
+    ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
+        IReadOnlyTreeFile archive,
+        ISystemDirectory rootDirectory,
+        ISystemDirectory targetDirectory,
+        IArchiveExtractor.ArchiveFileProcessor? archiveFileNameProcessor = null)
+        where TArchiveReader : IArchiveReader<TArchiveContentFile>, new();
+
+    ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
+        string archiveName,
+        Stream archive,
+        ISystemDirectory rootDirectory,
+        ISystemDirectory targetDirectory,
+        IArchiveExtractor.ArchiveFileProcessor? archiveFileNameProcessor = null)
         where TArchiveReader : IArchiveReader<TArchiveContentFile>, new();
   }
 }

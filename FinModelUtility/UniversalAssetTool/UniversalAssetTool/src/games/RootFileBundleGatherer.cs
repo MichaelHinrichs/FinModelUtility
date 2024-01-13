@@ -9,6 +9,7 @@ using uni.games.dead_space_1;
 using uni.games.dead_space_2;
 using uni.games.dead_space_3;
 using uni.games.doshin_the_giant;
+using uni.games.ever_oasis;
 using uni.games.glover;
 using uni.games.great_ace_attorney;
 using uni.games.halo_wars;
@@ -47,6 +48,7 @@ namespace uni.games {
           new DeadSpace2FileBundleGatherer(),
           new DeadSpace3FileBundleGatherer(),
           new DoshinTheGiantFileBundleGatherer(),
+          new EverOasisFileBundleGatherer(),
           new GloverFileBundleGatherer(),
           new GreatAceAttorneyFileBundleGatherer(),
           new HaloWarsFileBundleGatherer(),

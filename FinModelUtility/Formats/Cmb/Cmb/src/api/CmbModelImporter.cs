@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 using cmb.material;
@@ -19,7 +20,6 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importers;
 using fin.util.asserts;
 
@@ -60,18 +60,18 @@ namespace cmb.api {
 
       var filesAndCtxbs =
           ctxbFiles?.Select(ctxbFile => {
-                     var ctxb = ctxbFile.ReadNew<Ctxb>();
-                     return (ctxbFile, ctxb);
-                   })
+            var ctxb = ctxbFile.ReadNew<Ctxb>();
+            return (ctxbFile, ctxb);
+          })
                    .ToList() ??
           new List<(IReadOnlyTreeFile shpaFile, Ctxb ctxb)>();
 
       var filesAndShpas =
           shpaFiles?.Select(shpaFile => {
-                     var shpa =
-                         shpaFile.ReadNew<Shpa>(Endianness.LittleEndian);
-                     return (shpaFile, shpa);
-                   })
+            var shpa =
+                shpaFile.ReadNew<Shpa>(Endianness.LittleEndian);
+            return (shpaFile, shpa);
+          })
                    .ToList() ??
           new List<(IReadOnlyTreeFile shpaFile, Shpa shpa)>();
 
@@ -186,9 +186,9 @@ namespace cmb.api {
               var ctxb =
                   filesAndCtxbs
                       .Select(fileAndCtxb => fileAndCtxb.Item2)
-                      .Single(ctxb => ctxb.Chunk.Entry.Name == cmbTexture.name);
-              image = ctrTexture.DecodeImage(cmbTexture)
-                                .ReadImage(ctxb.Chunk.Entry.Data);
+                      .FirstOrDefault(ctxb => ctxb.Chunk.Entry.Name == cmbTexture.name);
+              image = ctxb != null ? ctrTexture.DecodeImage(cmbTexture)
+                                    .ReadImage(ctxb.Chunk.Entry.Data) : FinImage.Create1x1FromColor(Color.Magenta);
             }
 
             return image;
@@ -253,20 +253,25 @@ namespace cmb.api {
         foreach (var pset in shape.primitiveSets) {
           foreach (var i in pset.primitive.indices) {
             if (hasBi && pset.skinningMode != SkinningMode.Single) {
-              r.Position = cmb.startOffset +
-                           cmb.header.vatrOffset +
-                           cmb.vatr.bIndices.StartOffset +
-                           shape.bIndices.Start +
-                           i *
-                           DataTypeUtil.GetSize(shape.bIndices.DataType) *
-                           shape.boneDimensions;
+              float[] readBIndices;
+              if (shape.bIndices.Mode == VertexAttributeMode.Constant) {
+                readBIndices = shape.bIndices.Constants;
+              } else {
+                r.Position = cmb.startOffset +
+                             cmb.header.vatrOffset +
+                             cmb.vatr.bIndices.StartOffset +
+                             shape.bIndices.Start +
+                             i *
+                             DataTypeUtil.GetSize(shape.bIndices.DataType) *
+                             shape.boneDimensions;
+                readBIndices =
+                    DataTypeUtil.Read(r, shape.boneDimensions, shape.bIndices.DataType)
+                                .Select(value => value * shape.bIndices.Scale)
+                                .ToArray();
+              }
               for (var bi = 0; bi < shape.boneDimensions; ++bi) {
-                var boneTableIndex = shape.bIndices.Scale *
-                                     DataTypeUtil.Read(
-                                         r,
-                                         shape.bIndices.DataType);
                 bIndices[i * boneCount + bi] =
-                    pset.boneTable[(int) boneTableIndex];
+                    pset.boneTable[(int) readBIndices[bi]];
               }
             } else {
               bIndices[i] = shape.primitiveSets[0].boneTable[0];
@@ -322,7 +327,7 @@ namespace cmb.api {
 
           if (hasClr) {
             float[] colorValues;
-            if (shape.normal.Mode == VertexAttributeMode.Constant) {
+            if (shape.color.Mode == VertexAttributeMode.Constant) {
               colorValues = shape.color.Constants;
             } else {
               r.Position = cmb.startOffset +
@@ -343,30 +348,40 @@ namespace cmb.api {
           }
 
           if (hasUv0) {
-            r.Position = cmb.startOffset +
-                         cmb.header.vatrOffset +
-                         cmb.vatr.uv0.StartOffset +
-                         shape.uv0.Start +
-                         2 * DataTypeUtil.GetSize(shape.uv0.DataType) * i;
-            var uv0Values =
-                DataTypeUtil.Read(r, 2, shape.uv0.DataType)
-                            .Select(value => value * shape.uv0.Scale)
-                            .ToArray();
+            float[] uv0Values;
+            if (shape.uv0.Mode == VertexAttributeMode.Constant) {
+              uv0Values = shape.color.Constants;
+            } else {
+              r.Position = cmb.startOffset +
+                           cmb.header.vatrOffset +
+                           cmb.vatr.uv0.StartOffset +
+                           shape.uv0.Start +
+                           2 * DataTypeUtil.GetSize(shape.uv0.DataType) * i;
+              uv0Values =
+                  DataTypeUtil.Read(r, 2, shape.uv0.DataType)
+                              .Select(value => value * shape.uv0.Scale)
+                              .ToArray();
+            }
 
             finVertex.SetUv(0, uv0Values[0], 1 - uv0Values[1]);
           }
 
           if (hasUv1) {
-            r.Position = cmb.startOffset +
-                         cmb.header.vatrOffset +
-                         cmb.vatr.uv1.StartOffset +
-                         shape.uv1.Start +
-                         2 * DataTypeUtil.GetSize(shape.uv1.DataType) * i;
-            var uv1Values =
-                DataTypeUtil.Read(r, 2, shape.uv1.DataType)
-                            .Select(value => value * shape.uv1.Scale)
-                            .ToArray();
+            float[] uv1Values;
+            if (shape.uv1.Mode == VertexAttributeMode.Constant) {
+              uv1Values = shape.color.Constants;
+            } else {
+              r.Position = cmb.startOffset +
+                           cmb.header.vatrOffset +
+                           cmb.vatr.uv1.StartOffset +
+                           shape.uv1.Start +
+                           2 * DataTypeUtil.GetSize(shape.uv1.DataType) * i;
+              uv1Values =
+                  DataTypeUtil.Read(r, 2, shape.uv1.DataType)
+                              .Select(value => value * shape.uv1.Scale)
+                              .ToArray();
 
+            }
             finVertex.SetUv(1, uv1Values[0], 1 - uv1Values[1]);
           }
 
@@ -389,14 +404,6 @@ namespace cmb.api {
               : VertexSpace.WORLD;
 
           if (hasBw) {
-            r.Position = cmb.startOffset +
-                         cmb.header.vatrOffset +
-                         cmb.vatr.bWeights.StartOffset +
-                         shape.bWeights.Start +
-                         i *
-                         DataTypeUtil.GetSize(shape.bWeights.DataType) *
-                         boneCount;
-
             var totalWeight = 0f;
             var boneWeights = new List<BoneWeight>();
 
@@ -406,6 +413,14 @@ namespace cmb.api {
                                   .Select(value => value / 100)
                                   .ToArray();
             } else {
+              r.Position = cmb.startOffset +
+                           cmb.header.vatrOffset +
+                           cmb.vatr.bWeights.StartOffset +
+                           shape.bWeights.Start +
+                           i *
+                           DataTypeUtil.GetSize(shape.bWeights.DataType) *
+                           boneCount;
+
               // TODO: Looks like this is rounded to the nearest 2 in the original??
               weightValues =
                   DataTypeUtil.Read(r, boneCount, shape.bWeights.DataType)
@@ -478,12 +493,12 @@ namespace cmb.api {
 
     public WrapMode CmbToFinWrapMode(TextureWrapMode cmbMode)
       => cmbMode switch {
-          // TODO: Darn, we can't support border colors
-          TextureWrapMode.ClampToBorder => WrapMode.CLAMP,
-          TextureWrapMode.Repeat => WrapMode.REPEAT,
-          TextureWrapMode.ClampToEdge => WrapMode.CLAMP,
-          TextureWrapMode.Mirror => WrapMode.MIRROR_REPEAT,
-          _ => throw new ArgumentOutOfRangeException()
+        // TODO: Darn, we can't support border colors
+        TextureWrapMode.ClampToBorder => WrapMode.CLAMP,
+        TextureWrapMode.Repeat => WrapMode.REPEAT,
+        TextureWrapMode.ClampToEdge => WrapMode.CLAMP,
+        TextureWrapMode.Mirror => WrapMode.MIRROR_REPEAT,
+        _ => throw new ArgumentOutOfRangeException()
       };
 
     public readonly struct CsabReader : IAction {
