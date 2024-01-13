@@ -151,7 +151,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperMario64", "Games\Super
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperMario64 Tests", "Games\SuperMario64\SuperMario64 Tests\SuperMario64 Tests.csproj", "{1C942FA4-F392-49C5-B329-6AF432FCCC59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalAssetTool.Ui", "UniversalAssetTool\UniversalAssetTool.Ui\UniversalAssetTool.Ui.csproj", "{E1BD983C-3981-44FC-97B3-05C7ED0975FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalAssetTool.Ui", "UniversalAssetTool\UniversalAssetTool.Ui\UniversalAssetTool.Ui.csproj", "{E1BD983C-3981-44FC-97B3-05C7ED0975FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fin.Roslyn", "Fin\Fin.Roslyn\Fin.Roslyn.csproj", "{067A50E6-2201-415E-8231-2406DE7A6349}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -691,6 +693,18 @@ Global
 		{E1BD983C-3981-44FC-97B3-05C7ED0975FD}.Release|x64.Build.0 = Release|Any CPU
 		{E1BD983C-3981-44FC-97B3-05C7ED0975FD}.Release|x86.ActiveCfg = Release|Any CPU
 		{E1BD983C-3981-44FC-97B3-05C7ED0975FD}.Release|x86.Build.0 = Release|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Debug|x64.Build.0 = Debug|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Debug|x86.Build.0 = Debug|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Release|Any CPU.Build.0 = Release|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Release|x64.ActiveCfg = Release|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Release|x64.Build.0 = Release|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Release|x86.ActiveCfg = Release|Any CPU
+		{067A50E6-2201-415E-8231-2406DE7A6349}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -753,6 +767,7 @@ Global
 		{39CA04AC-C886-4B46-9540-99451931E8D1} = {F00A8105-3678-4D79-841E-7F75D3DD7635}
 		{1C942FA4-F392-49C5-B329-6AF432FCCC59} = {F00A8105-3678-4D79-841E-7F75D3DD7635}
 		{E1BD983C-3981-44FC-97B3-05C7ED0975FD} = {2490FB17-BB03-4B06-95A2-56BD49921D53}
+		{067A50E6-2201-415E-8231-2406DE7A6349} = {98E57180-48B9-4648-AE42-7C7C67120471}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4CFECBD7-FE88-4CC9-8E1B-6F7805F4F45A}
