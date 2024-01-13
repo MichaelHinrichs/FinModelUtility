@@ -33,6 +33,7 @@ using fin.ui.rendering.gl.model;
 
 using uni.api;
 using uni.ui.winforms.common.fileTreeView;
+using uni.util.bundles;
 
 namespace uni.ui.winforms;
 
@@ -360,8 +361,11 @@ public partial class UniversalAssetToolForm : Form {
     }
 
     var (fileBundle, _, _) = fileBundleAndScene.Value;
-    var modelFileBundle =
-        Asserts.AsA<IAnnotatedFileBundle<IModelFileBundle>>(fileBundle);
+    if (fileBundle is not I3dFileBundle threeDFileBundle) {
+      return;
+    }
+
+    // TODO: Merge models in a scene instead!
     var model = this.sceneViewerPanel_.FirstSceneModel!.Model;
 
     var allSupportedExportFormats = AssimpUtil.SupportedExportFormats
@@ -387,7 +391,7 @@ public partial class UniversalAssetToolForm : Form {
     var result = saveFileDialog.ShowDialog();
     if (result == DialogResult.OK) {
       var outputFile = new FinFile(saveFileDialog.FileName);
-      ExporterUtil.Export(modelFileBundle,
+      ExporterUtil.Export(threeDFileBundle,
                           () => model,
                           outputFile.AssertGetParent(),
                           new[] { outputFile.FileType },

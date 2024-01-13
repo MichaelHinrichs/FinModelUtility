@@ -93,8 +93,8 @@ namespace uni.games {
                   MessageBoxIcon.Warning,
                   MessageBoxDefaultButton.Button1);
           return result switch {
-              DialogResult.Yes => ExporterPromptChoice.OVERWRITE_EXISTING,
-              DialogResult.No  => ExporterPromptChoice.CANCEL,
+            DialogResult.Yes => ExporterPromptChoice.OVERWRITE_EXISTING,
+            DialogResult.No => ExporterPromptChoice.CANCEL,
           };
         } else {
           var result =
@@ -105,9 +105,9 @@ namespace uni.games {
                   MessageBoxIcon.Warning,
                   MessageBoxDefaultButton.Button1);
           return result switch {
-              DialogResult.Yes    => ExporterPromptChoice.OVERWRITE_EXISTING,
-              DialogResult.No     => ExporterPromptChoice.SKIP_EXISTING,
-              DialogResult.Cancel => ExporterPromptChoice.CANCEL,
+            DialogResult.Yes => ExporterPromptChoice.OVERWRITE_EXISTING,
+            DialogResult.No => ExporterPromptChoice.SKIP_EXISTING,
+            DialogResult.Cancel => ExporterPromptChoice.CANCEL,
           };
         }
       }
@@ -133,8 +133,8 @@ namespace uni.games {
                   MessageBoxIcon.Warning,
                   MessageBoxDefaultButton.Button1);
           return result switch {
-              DialogResult.Yes => ExporterPromptChoice.OVERWRITE_EXISTING,
-              DialogResult.No  => ExporterPromptChoice.CANCEL,
+            DialogResult.Yes => ExporterPromptChoice.OVERWRITE_EXISTING,
+            DialogResult.No => ExporterPromptChoice.CANCEL,
           };
         } else {
           var existingCount = existingOutputFiles.Count();
@@ -146,9 +146,9 @@ namespace uni.games {
                   MessageBoxIcon.Warning,
                   MessageBoxDefaultButton.Button1);
           return result switch {
-              DialogResult.Yes    => ExporterPromptChoice.OVERWRITE_EXISTING,
-              DialogResult.No     => ExporterPromptChoice.SKIP_EXISTING,
-              DialogResult.Cancel => ExporterPromptChoice.CANCEL,
+            DialogResult.Yes => ExporterPromptChoice.OVERWRITE_EXISTING,
+            DialogResult.No => ExporterPromptChoice.SKIP_EXISTING,
+            DialogResult.Cancel => ExporterPromptChoice.CANCEL,
           };
         }
       }
@@ -248,35 +248,35 @@ namespace uni.games {
                           overwriteExistingFile);
     }
 
-    public static void Export<T>(IAnnotatedFileBundle<T> modelFileBundle,
+    public static void Export<T>(IAnnotatedFileBundle<T> threeDFileBundle,
                                  Func<IModel> loaderHandler,
                                  IReadOnlyList<string> extensions,
                                  bool overwriteExistingFile)
-        where T : IModelFileBundle {
-      var mainFile = Asserts.CastNonnull(modelFileBundle.FileBundle.MainFile);
+        where T : I3dFileBundle {
+      var mainFile = Asserts.CastNonnull(threeDFileBundle.FileBundle.MainFile);
 
       var parentOutputDirectory =
           ExtractorUtil
-              .GetOutputDirectoryForFileBundle(modelFileBundle);
+              .GetOutputDirectoryForFileBundle(threeDFileBundle);
       var outputDirectory = new FinDirectory(
           Path.Join(parentOutputDirectory.FullPath,
                     mainFile.NameWithoutExtension));
 
-      Export<T>(modelFileBundle,
+      Export(threeDFileBundle.TypedFileBundle,
                 loaderHandler,
                 outputDirectory,
                 extensions,
                 overwriteExistingFile);
     }
 
-    public static void Export<T>(IAnnotatedFileBundle<T> modelFileBundle,
+    public static void Export<T>(T threeDFileBundle,
                                  Func<IModel> loaderHandler,
                                  ISystemDirectory outputDirectory,
                                  IReadOnlyList<string> extensions,
                                  bool overwriteExistingFile,
                                  string? overrideName = null)
-        where T : IModelFileBundle
-      => Export(modelFileBundle,
+        where T : I3dFileBundle
+      => Export(threeDFileBundle,
                 loaderHandler,
                 outputDirectory,
                 extensions.Select(AssimpUtil.GetExportFormatFromExtension)
@@ -284,26 +284,25 @@ namespace uni.games {
                 overwriteExistingFile,
                 overrideName);
 
-
     public static void Export<T>(
-        IAnnotatedFileBundle<T> annotatedModelFileBundle,
+        T threeDFileBundle,
         Func<IModel> loaderHandler,
         ISystemDirectory outputDirectory,
         IReadOnlyList<ExportFormatDescription> formats,
         bool overwriteExistingFile,
         string? overrideName = null)
-        where T : IModelFileBundle {
-      var modelFileBundle = annotatedModelFileBundle.TypedFileBundle;
-      var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
+        where T : I3dFileBundle {
+      var mainFile = Asserts.CastNonnull(threeDFileBundle.MainFile);
       var name = overrideName ?? mainFile.NameWithoutExtension;
 
-      if (modelFileBundle.UseLowLevelExporter) {
+      if (threeDFileBundle.UseLowLevelExporter) {
         formats = new[] { AssimpUtil.GetExportFormatFromExtension(".gltf") };
       }
 
-      if (!overwriteExistingFile && CheckIfModelFileBundleAlreadyExported(
-              annotatedModelFileBundle,
-              formats.Select(format => $".{format.FileExtension}"))) {
+      var targetFiles = formats.Select(format => new FinFile(
+                                           Path.Join(outputDirectory.FullPath,
+                                                     $"{name}.{format.FileExtension}")));
+      if (!overwriteExistingFile && targetFiles.All(targetFile => targetFile.Exists)) {
         MessageUtil.LogAlreadyProcessed(ExporterUtil.logger_, mainFile);
         return;
       }
@@ -315,22 +314,19 @@ namespace uni.games {
         var model = loaderHandler();
 
         new AssimpIndirectModelExporter {
-            LowLevel = modelFileBundle.UseLowLevelExporter,
-            ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
+          LowLevel = threeDFileBundle.UseLowLevelExporter,
+          ForceGarbageCollection = threeDFileBundle.ForceGarbageCollection,
         }.ExportFormats(new ModelExporterParams {
-                            OutputFile = new FinFile(
-                                Path.Join(outputDirectory.FullPath,
-                                          name + ".foo")),
-                            Model = model,
-                            Scale = new ScaleSource(
-                                    Config.Instance.ExporterSettings
-                                          .ExportedModelScaleSource)
-                                .GetScale(model,
-                                          annotatedModelFileBundle
-                                              .TypedFileBundle)
-                        },
-                        formats,
-                        Config.Instance.ExporterSettings.ExportAllTextures);
+          OutputFile = new FinFile(
+                                      Path.Join(outputDirectory.FullPath,
+                                                name + ".foo")),
+          Model = model,
+          Scale = new ScaleSource(Config.Instance.ExporterSettings.ExportedModelScaleSource)
+                                      .GetScale(model,
+                                                threeDFileBundle)
+        },
+                              formats,
+                              Config.Instance.ExporterSettings.ExportAllTextures);
 
         if (Config.Instance.ThirdPartySettings
                   .ExportBoneScaleAnimationsSeparately) {

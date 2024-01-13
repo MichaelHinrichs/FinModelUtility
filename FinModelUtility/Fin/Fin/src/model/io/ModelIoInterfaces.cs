@@ -5,7 +5,7 @@ using fin.io;
 using fin.io.bundles;
 
 namespace fin.model.io {
-  public interface IModelFileBundle : IFileBundle {
+  public interface I3dFileBundle : IFileBundle {
     /// <summary>
     ///   Whether to use a low-level exporter when exporting. This supports
     ///   less features at the moment, but is required for exporting huge
@@ -15,6 +15,8 @@ namespace fin.model.io {
 
     bool ForceGarbageCollection => false;
   }
+
+  public interface IModelFileBundle : I3dFileBundle { }
 
   public interface IModelPlugin {
     string DisplayName { get; }

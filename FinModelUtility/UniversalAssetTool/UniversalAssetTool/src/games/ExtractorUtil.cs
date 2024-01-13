@@ -59,9 +59,9 @@ namespace uni.games {
 
     public static ISystemDirectory GetOutputDirectoryForFileBundle(
         IAnnotatedFileBundle annotatedFileBundle)
-      => DirectoryConstants
-         .OUT_DIRECTORY
-         .GetOrCreateSubdir(annotatedFileBundle.GameAndLocalPath);
+      => new FinFile(Path.Join(
+                 DirectoryConstants.OUT_DIRECTORY.FullPath,
+                 annotatedFileBundle.GameAndLocalPath)).AssertGetParent();
   }
 
   static file class ExtractorUtilExtensions {

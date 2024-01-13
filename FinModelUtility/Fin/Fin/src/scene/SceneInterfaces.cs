@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using fin.animation;
-using fin.io.bundles;
 using fin.math;
 using fin.model;
+using fin.model.io;
 
 namespace fin.scene {
-  public interface ISceneFileBundle : IFileBundle { }
+  public interface ISceneFileBundle : I3dFileBundle { }
 
   public interface ISceneImporter<in TSceneFileBundle>
       where TSceneFileBundle : ISceneFileBundle {
