@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using fin.animation;
+using fin.data;
 using fin.math;
 using fin.model;
 using fin.model.impl;

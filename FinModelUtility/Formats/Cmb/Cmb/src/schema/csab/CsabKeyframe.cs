@@ -1,9 +1,9 @@
 ﻿namespace cmb.schema.csab {
-  public struct CsabKeyframe {
-    public uint Time { get; set; }
-    public float Value { get; set; }
+  public readonly record struct CsabKeyframe {
+    public uint Time { get; init; }
+    public float Value { get; init; }
 
-    public float? IncomingTangent { get; set; }
-    public float? OutgoingTangent { get; set; }
+    public float? IncomingTangent { get; init; }
+    public float? OutgoingTangent { get; init; }
   }
 }

@@ -58,23 +58,17 @@ namespace cmb.schema.csab {
 
       // Jasper: This appears to be an inverse of the bone index in each array,
       // probably for fast binding?
-      var boneToAnimationTable = new short[boneCount];
-      //var boneTableIdx = basePosition + animationOffset + 0x20;
-      //br.Position = boneTableIdx;
-      for (var i = 0; i < boneCount; ++i) {
-        boneToAnimationTable[i] = br.ReadInt16();
-      }
+      var boneToAnimationTable = br.ReadInt16s(boneCount);
 
       // TODO(jstpierre): This doesn't seem like a Grezzo thing to do.
-      var anodTableIdx = this.Align_(br.Position, 0x04);
-      br.Position = anodTableIdx;
+      br.Align(0x04);
 
       var animationNodes = new AnimationNode[anodCount];
       for (var i = 0; i < anodCount; ++i) {
         var anod = new AnimationNode(this);
 
         var offset = br.ReadUInt32();
-        br.SubreadAt(basePosition + animationOffset + offset, sr => anod.Read(sr));
+        br.SubreadAt(basePosition + animationOffset + offset, anod.Read);
 
         animationNodes[i] = anod;
       }
@@ -86,11 +80,6 @@ namespace cmb.schema.csab {
           this.BoneIndexToAnimationNode[b] = anod;
         }
       }
-    }
-
-    private long Align_(long n, int multiple) {
-      var mask = multiple - 1;
-      return (n + mask) & ~mask;
     }
   }
 }

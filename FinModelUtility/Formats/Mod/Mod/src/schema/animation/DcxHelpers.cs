@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using fin.data;
+using fin.animation;
 using fin.model;
 
 namespace mod.schema.animation {

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-using fin.data;
+using fin.animation;
 using fin.math.floats;
 using fin.math.interpolation;
 using fin.math.rotations;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-using fin.data;
+using fin.animation;
 using fin.math.interpolation;
 
 namespace fin.model {

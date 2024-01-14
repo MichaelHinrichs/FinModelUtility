@@ -1,8 +1,9 @@
-﻿using fin.util.asserts;
+﻿using fin.data;
+using fin.util.asserts;
 
 using NUnit.Framework;
 
-namespace fin.data {
+namespace fin.animation {
   public class KeyframesTests {
     [Test]
     public void TestAddToEnd() {

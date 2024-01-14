@@ -34,15 +34,15 @@ namespace fin.model.impl {
           bool useLoopingInterpolation = false) {
         var localPosition = this.bone_.LocalPosition;
 
-        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x)) {
+        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x, useLoopingInterpolation)) {
           x = localPosition.X;
         }
 
-        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y)) {
+        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y, useLoopingInterpolation)) {
           y = localPosition.Y;
         }
 
-        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z)) {
+        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z, useLoopingInterpolation)) {
           z = localPosition.Z;
         }
 

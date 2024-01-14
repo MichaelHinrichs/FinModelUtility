@@ -36,7 +36,7 @@ namespace fin.model.impl {
         return animation;
       }
 
-      public void RemoveAnimation(IModelAnimation animation) 
+      public void RemoveAnimation(IModelAnimation animation)
         => this.animations_.Remove(animation);
 
       private class ModelAnimationImpl : IModelAnimation {
@@ -51,8 +51,8 @@ namespace fin.model.impl {
         public string Name { get; set; }
 
         public int FrameCount { get; set; }
-
         public float FrameRate { get; set; }
+        public AnimationInterpolationMagFilter AnimationInterpolationMagFilter { get; set; }
 
         public IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks
           => this.boneTracks_;

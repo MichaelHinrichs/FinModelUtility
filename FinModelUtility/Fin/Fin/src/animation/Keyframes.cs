@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace fin.data {
+namespace fin.animation {
   public readonly record struct Keyframe<T>(int Frame, T Value) : IComparable<Keyframe<T>> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(Keyframe<T> other)
