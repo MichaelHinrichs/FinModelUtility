@@ -113,7 +113,7 @@ namespace cmb.api {
         var finAnimation = finModel.AnimationManager.AddAnimation();
         finAnimation.Name = csabFile.NameWithoutExtension;
 
-        finAnimation.FrameCount = (int) csab.Duration;
+        finAnimation.FrameCount = 1 + (int) csab.Duration;
         finAnimation.FrameRate = fps;
 
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {

@@ -99,10 +99,6 @@ namespace fin.model.impl {
         Span<bool> areAxesStatic = stackalloc bool[3];
         AreAxesStatic_(fromsAndTos, areAxesStatic);
 
-        if (this.bone_.Name == "base") {
-          ;
-        }
-
         if (!CanInterpolateWithQuaternions_(
                 fromsAndTos,
                 areAxesStatic)) {

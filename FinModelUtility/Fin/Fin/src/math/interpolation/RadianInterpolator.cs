@@ -8,8 +8,7 @@ namespace fin.math.interpolation {
     public float Interpolate(float fromValue, float toValue, float progress) {
       toValue = fromValue +
                 RadiansUtil.CalculateRadiansTowards(fromValue, toValue);
-      
-      return (1 - progress) * fromValue + progress * toValue;
+      return float.Lerp(fromValue, toValue, progress);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

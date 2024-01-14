@@ -5,13 +5,8 @@ using fin.model;
 namespace fin.math.interpolation {
   public readonly struct PositionInterpolator : IInterpolator<Position> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Position Interpolate(
-        Position p1,
-        Position p2,
-        float progress)
-      => new(p1.X * (1 - progress) + p2.X * progress,
-             p1.Y * (1 - progress) + p2.Y * progress,
-             p1.Z * (1 - progress) + p2.Z * progress);
+    public Position Interpolate(Position lhs, Position rhs, float progress)
+      => Position.Lerp(lhs, rhs, progress);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Position Interpolate(float fromTime,

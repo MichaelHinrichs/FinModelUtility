@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Numerics;
 
+using fin.math.interpolation;
+
 namespace fin.model {
-  public readonly struct Position {
-    public Position() : this(0, 0, 0) { }
+  public readonly struct Position : ILerpable<Position> {
+    public Position() : this(0, 0, 0) {
+    }
 
     public Position(float x, float y, float z) {
       X = x;
@@ -29,9 +32,14 @@ namespace fin.model {
 
       return false;
     }
+
+    public static Position Lerp(Position lhs, Position rhs, float progress)
+      => new(float.Lerp(lhs.X, rhs.X, progress),
+             float.Lerp(lhs.Y, rhs.Y, progress),
+             float.Lerp(lhs.Z, rhs.Z, progress));
   }
 
-  public readonly struct Scale {
+  public readonly struct Scale : ILerpable<Scale> {
     public Scale() : this(0, 0, 0) { }
 
     public Scale(float scale) : this(scale, scale, scale) { }
@@ -59,6 +67,11 @@ namespace fin.model {
 
       return false;
     }
+
+    public static Scale Lerp(Scale lhs, Scale rhs, float progress)
+      => new(float.Lerp(lhs.X, rhs.X, progress),
+             float.Lerp(lhs.Y, rhs.Y, progress),
+             float.Lerp(lhs.Z, rhs.Z, progress));
   }
 
   public readonly struct Normal {

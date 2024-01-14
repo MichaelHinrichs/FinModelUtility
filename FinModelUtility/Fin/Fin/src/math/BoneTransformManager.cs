@@ -104,27 +104,17 @@ namespace fin.math {
     }
 
     private readonly MagFilterInterpolationTrack<Position> positionMagFilterInterpolationTrack_ =
-        new(
-            null,
-            (lhs, rhs, progress) => new Position(float.Lerp(lhs.X, rhs.X, progress),
-                                                 float.Lerp(lhs.Y, rhs.Y, progress),
-                                                 float.Lerp(lhs.Z, rhs.Z, progress))) {
+        new(null, Position.Lerp) {
             AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
         };
 
     private readonly MagFilterInterpolationTrack<Quaternion> rotationMagFilterInterpolationTrack_ =
-        new(
-            null,
-            Quaternion.Lerp) {
+        new(null, Quaternion.Slerp) {
             AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
         };
 
     private readonly MagFilterInterpolationTrack<Scale> scaleMagFilterInterpolationTrack_ =
-        new(
-            null,
-            (lhs, rhs, progress) => new Scale(float.Lerp(lhs.X, rhs.X, progress),
-                                              float.Lerp(lhs.Y, rhs.Y, progress),
-                                              float.Lerp(lhs.Z, rhs.Z, progress))) {
+        new(null, Scale.Lerp) {
             AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
         };
 
