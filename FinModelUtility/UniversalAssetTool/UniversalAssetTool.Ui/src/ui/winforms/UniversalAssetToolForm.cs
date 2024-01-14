@@ -13,15 +13,13 @@ using fin.model.io.exporters.assimp;
 using fin.io;
 using fin.io.bundles;
 using fin.language.equations.fixedFunction;
+using fin.math.floats;
 using fin.model;
 using fin.model.io;
 using fin.scene;
 using fin.schema.vector;
-using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.time;
-
-using MathNet.Numerics;
 
 using uni.cli;
 using uni.config;
@@ -61,9 +59,9 @@ public partial class UniversalAssetToolForm : Form {
 
           var modelFileBundle = currentProgress.Item2;
           if (modelFileBundle == null) {
-            if (fractionalProgress.AlmostEqual(0, .00001)) {
+            if (fractionalProgress.IsRoughly0()) {
               this.cancellableProgressBar_.Text = "Nothing to report";
-            } else if (fractionalProgress.AlmostEqual(1, .00001)) {
+            } else if (fractionalProgress.IsRoughly1()) {
               this.cancellableProgressBar_.Text = "Done!";
             }
           } else {

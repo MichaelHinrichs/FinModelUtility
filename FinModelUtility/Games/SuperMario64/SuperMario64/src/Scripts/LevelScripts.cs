@@ -816,7 +816,6 @@ namespace sm64.Scripts {
           off += col_len;
         }
       }
-      cmap.buildCollisionMap();
       off += 2;
       bool end = false;
       while (!end) {

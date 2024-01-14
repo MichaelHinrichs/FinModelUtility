@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using fin.io.bundles;
+using fin.math.floats;
 using fin.model;
 using fin.model.io;
 using fin.util.progress;
-
-using MathNet.Numerics;
 
 using uni.api;
 using uni.config;
@@ -68,7 +67,7 @@ namespace uni.ui.winforms.top {
     public bool IsStarted => this.CancellationToken != null;
 
     public bool IsInProgress
-      => this.IsStarted && !this.Progress.Current.Item1.AlmostEqual(1, .000001);
+      => this.IsStarted && !this.Progress.Current.Item1.IsRoughly1();
 
     public IFileTreeParentNode? DirectoryNode {
       set {

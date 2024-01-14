@@ -24,9 +24,6 @@
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
     <PackageReference Include="Crayon" Version="2.0.69" />
     <PackageReference Include="FastBitmapLib" Version="2.1.0" />
-    <PackageReference Include="FastMath" Version="1.0.3" />
-    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.7.0">
       <PrivateAssets>all</PrivateAssets>
@@ -38,7 +35,6 @@
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NVorbis" Version="0.10.5" />
     <PackageReference Include="OpenAL.Soft" Version="1.19.1" />
-    <PackageReference Include="OpenTK" Version="3.3.3" />
     <PackageReference Include="Pfim" Version="0.11.2" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0027" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
