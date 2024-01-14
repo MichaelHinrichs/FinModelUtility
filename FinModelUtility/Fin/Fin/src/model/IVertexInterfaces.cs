@@ -3,6 +3,7 @@ using System.Numerics;
 
 using fin.color;
 using fin.data.indexable;
+using fin.math.xyz;
 
 namespace fin.model {
   public interface IReadOnlyVertex : IIndexable {
@@ -15,7 +16,7 @@ namespace fin.model {
 
     void SetLocalPosition(Position localPosition);
     void SetLocalPosition(Vector3 localPosition);
-    void SetLocalPosition(IReadOnlyVector3 localPosition);
+    void SetLocalPosition(IReadOnlyXyz localPosition);
     void SetLocalPosition(float x, float y, float z);
   }
 
@@ -27,7 +28,7 @@ namespace fin.model {
   public interface INormalVertex : IReadOnlyNormalVertex, IVertex {
     void SetLocalNormal(Normal? localNormal);
     void SetLocalNormal(Vector3? localNormal);
-    void SetLocalNormal(IReadOnlyVector3? localNormal);
+    void SetLocalNormal(IReadOnlyXyz? localNormal);
     void SetLocalNormal(float x, float y, float z);
   }
 

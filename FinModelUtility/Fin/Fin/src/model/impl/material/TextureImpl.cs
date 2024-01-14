@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
 using fin.color;
 using fin.image;
 using fin.io;
+using fin.math.xyz;
 using fin.schema.vector;
 using fin.util.hash;
 using fin.util.image;
@@ -78,7 +78,7 @@ namespace fin.model.impl {
       public bool IsTransform3d { get; private set; }
 
 
-      public IReadOnlyVector3? Offset { get; private set; }
+      public IReadOnlyXyz? Offset { get; private set; }
 
       public ITexture SetOffset2d(float x, float y) {
         this.Offset = new Vector3f { X = x, Y = y };
@@ -92,7 +92,7 @@ namespace fin.model.impl {
       }
 
 
-      public IReadOnlyVector3? Scale { get; private set; }
+      public IReadOnlyXyz? Scale { get; private set; }
 
       public ITexture SetScale2d(float x, float y) {
         this.Scale = new Vector3f { X = x, Y = y };
@@ -106,7 +106,7 @@ namespace fin.model.impl {
       }
 
 
-      public IReadOnlyVector3? RotationRadians { get; private set; }
+      public IReadOnlyXyz? RotationRadians { get; private set; }
 
       public ITexture SetRotationRadians2d(float rotationRadians) {
         this.RotationRadians = new Vector3f { Z = rotationRadians };

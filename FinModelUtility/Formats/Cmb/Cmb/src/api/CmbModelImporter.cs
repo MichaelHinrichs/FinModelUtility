@@ -491,16 +491,6 @@ namespace cmb.api {
       return finModel;
     }
 
-    public WrapMode CmbToFinWrapMode(TextureWrapMode cmbMode)
-      => cmbMode switch {
-        // TODO: Darn, we can't support border colors
-        TextureWrapMode.ClampToBorder => WrapMode.CLAMP,
-        TextureWrapMode.Repeat => WrapMode.REPEAT,
-        TextureWrapMode.ClampToEdge => WrapMode.CLAMP,
-        TextureWrapMode.Mirror => WrapMode.MIRROR_REPEAT,
-        _ => throw new ArgumentOutOfRangeException()
-      };
-
     public readonly struct CsabReader : IAction {
       private readonly IReadOnlyList<IReadOnlyTreeFile> src_;
       private readonly (IReadOnlyTreeFile, Csab)[] dst_;

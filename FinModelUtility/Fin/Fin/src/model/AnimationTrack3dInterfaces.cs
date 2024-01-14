@@ -2,6 +2,7 @@
 
 using fin.animation;
 using fin.math.interpolation;
+using fin.math.xyz;
 
 namespace fin.model {
   public interface IAxes3fTrack<TInterpolated>
@@ -13,7 +14,7 @@ namespace fin.model {
     }
 
     void Set<TVector3>(int frame, TVector3 values) where TVector3 :
-        IReadOnlyVector3 {
+        IReadOnlyXyz {
       Set(frame, 0, values.X);
       Set(frame, 1, values.Y);
       Set(frame, 2, values.Z);

@@ -2,8 +2,8 @@
 using System.Numerics;
 using System.Text;
 
-using fin.math.floats;
 using fin.model;
+using fin.math.xyz;
 
 namespace fin.shaders.glsl {
   public static class GlslUtil {
@@ -322,27 +322,21 @@ out vec4 vertexColor{i};");
 
       if (finTexture.Offset != null) {
         var offset = finTexture.Offset;
-        if (!(offset.X.IsRoughly(0) &&
-              offset.Y.IsRoughly(0) &&
-              offset.Z.IsRoughly(0))) {
+        if (!offset.IsRoughly0()) {
           return true;
         }
       }
 
       if (finTexture.RotationRadians != null) {
         var radians = finTexture.RotationRadians;
-        if (!(radians.X.IsRoughly(0) &&
-              radians.Y.IsRoughly(0) &&
-              radians.Z.IsRoughly(0))) {
+        if (!radians.IsRoughly0()) {
           return true;
         }
       }
 
       if (finTexture.Scale != null) {
         var scale = finTexture.Scale;
-        if (!(scale.X.IsRoughly(1) &&
-              scale.Y.IsRoughly(1) &&
-              scale.Z.IsRoughly(1))) {
+        if (!scale.IsRoughly1()) {
           return true;
         }
       }

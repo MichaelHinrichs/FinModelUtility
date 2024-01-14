@@ -1,11 +1,11 @@
-﻿using fin.model;
+﻿using fin.math.xyz;
 using fin.util.asserts;
 
 using schema.text;
 using schema.text.reader;
 
 namespace xmod.schema.xmod {
-  public class Vector3 : ITextDeserializable, IVector3 {
+  public class Vector3 : ITextDeserializable, IXyz {
     public Vector3() { }
 
     public Vector3(float x, float y, float z) {

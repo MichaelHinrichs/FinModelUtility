@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using fin.color;
+using fin.math.xyz;
 
 namespace fin.model {
   // Read only
@@ -36,14 +37,14 @@ namespace fin.model {
 
     LightSourceType SourceType { get; }
 
-    IReadOnlyVector3? Position { get; }
-    IReadOnlyVector3? Normal { get; }
+    IReadOnlyXyz? Position { get; }
+    IReadOnlyXyz? Normal { get; }
 
     float Strength { get; }
     IColor Color { get; }
 
-    IReadOnlyVector3? CosineAttenuation { get; }
-    IReadOnlyVector3? DistanceAttenuation { get; }
+    IReadOnlyXyz? CosineAttenuation { get; }
+    IReadOnlyXyz? DistanceAttenuation { get; }
 
     AttenuationFunction AttenuationFunction { get; }
     DiffuseFunction DiffuseFunction { get; }
@@ -68,15 +69,15 @@ namespace fin.model {
     bool IReadOnlyLight.Enabled => this.Enabled;
     new bool Enabled { get; set; }
 
-    ILight SetPosition(IReadOnlyVector3 position);
-    ILight SetNormal(IReadOnlyVector3 normal);
+    ILight SetPosition(IReadOnlyXyz position);
+    ILight SetNormal(IReadOnlyXyz normal);
 
     float IReadOnlyLight.Strength => this.Strength;
     new float Strength { get; set; }
     ILight SetColor(IColor color);
 
-    ILight SetCosineAttenuation(IReadOnlyVector3 cosineAttenuation);
-    ILight SetDistanceAttenuation(IReadOnlyVector3 distanceAttenuation);
+    ILight SetCosineAttenuation(IReadOnlyXyz cosineAttenuation);
+    ILight SetDistanceAttenuation(IReadOnlyXyz distanceAttenuation);
 
     ILight SetAttenuationFunction(AttenuationFunction attenuationFunction);
     ILight SetDiffuseFunction(DiffuseFunction diffuseFunction);

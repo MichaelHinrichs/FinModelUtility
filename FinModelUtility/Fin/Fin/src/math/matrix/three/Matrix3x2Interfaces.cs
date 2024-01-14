@@ -1,7 +1,5 @@
 ﻿using System.Numerics;
 
-using fin.model;
-
 namespace fin.math.matrix.three {
   public interface IFinMatrix3x2
       : IFinMatrix<IFinMatrix3x2, IReadOnlyFinMatrix3x2, Matrix3x2>,

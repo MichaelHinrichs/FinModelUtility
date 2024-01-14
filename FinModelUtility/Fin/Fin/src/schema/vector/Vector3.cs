@@ -1,6 +1,6 @@
 ﻿using System;
 
-using fin.model;
+using fin.math.xyz;
 using fin.util.hash;
 
 using schema.binary;
@@ -47,7 +47,7 @@ namespace fin.schema.vector {
 
   [BinarySchema]
   public sealed partial class Vector3f : BVector3<float>,
-                                         IVector3,
+                                         IXyz,
                                          IBinaryConvertible {
     public static bool operator ==(Vector3f? lhs, Vector3f? rhs)
       => lhs?.Equals(rhs) ?? (rhs == null);

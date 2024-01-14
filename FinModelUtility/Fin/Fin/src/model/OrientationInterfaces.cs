@@ -149,24 +149,6 @@ namespace fin.model {
   }
 
 
-  public interface IReadOnlyVector3 {
-    float X { get; }
-    float Y { get; }
-    float Z { get; }
-  }
-
-  public interface IVector3 : IReadOnlyVector3 {
-    float IReadOnlyVector3.X => this.X;
-    new float X { get; set; }
-
-    float IReadOnlyVector3.Y => this.Y;
-    new float Y { get; set; }
-    
-    float IReadOnlyVector3.Z => this.Z;
-    new float Z { get; set; }
-  }
-
-
   public interface IReadOnlyVector4 {
     float X { get; }
     float Y { get; }

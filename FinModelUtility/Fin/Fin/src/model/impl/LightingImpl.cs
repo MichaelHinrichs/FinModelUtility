@@ -2,6 +2,7 @@
 using System.Drawing;
 
 using fin.color;
+using fin.math.xyz;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
@@ -48,17 +49,17 @@ namespace fin.model.impl {
         }
       }
 
-      public IReadOnlyVector3? Position { get; private set; }
+      public IReadOnlyXyz? Position { get; private set; }
 
-      public ILight SetPosition(IReadOnlyVector3 position) {
+      public ILight SetPosition(IReadOnlyXyz position) {
         this.Position = position;
         this.UpdateSourceType_();
         return this;
       }
 
-      public IReadOnlyVector3? Normal { get; private set; }
+      public IReadOnlyXyz? Normal { get; private set; }
 
-      public ILight SetNormal(IReadOnlyVector3 normal) {
+      public ILight SetNormal(IReadOnlyXyz normal) {
         this.Normal = normal;
         this.UpdateSourceType_();
         return this;
@@ -75,17 +76,17 @@ namespace fin.model.impl {
       }
 
 
-      public IReadOnlyVector3? CosineAttenuation { get; private set; }
+      public IReadOnlyXyz? CosineAttenuation { get; private set; }
 
-      public ILight SetCosineAttenuation(IReadOnlyVector3 cosineAttenuation) {
+      public ILight SetCosineAttenuation(IReadOnlyXyz cosineAttenuation) {
         this.CosineAttenuation = cosineAttenuation;
         return this;
       }
 
-      public IReadOnlyVector3? DistanceAttenuation { get; private set; }
+      public IReadOnlyXyz? DistanceAttenuation { get; private set; }
 
       public ILight SetDistanceAttenuation(
-          IReadOnlyVector3 distanceAttenuation) {
+          IReadOnlyXyz distanceAttenuation) {
         this.DistanceAttenuation = distanceAttenuation;
         return this;
       }

@@ -8,6 +8,7 @@ using System.Numerics;
 using fin.data;
 using fin.data.indexable;
 using fin.math.matrix.four;
+using fin.math.xyz;
 using fin.util.enumerables;
 
 namespace fin.model.impl {
@@ -59,7 +60,7 @@ namespace fin.model.impl {
       public TVertex AddVertex(Vector3 position)
         => this.AddVertex(new Position(position.X, position.Y, position.Z));
 
-      public TVertex AddVertex(IReadOnlyVector3 position)
+      public TVertex AddVertex(IReadOnlyXyz position)
         => this.AddVertex(new Position(position.X, position.Y, position.Z));
 
       public TVertex AddVertex(float x, float y, float z)

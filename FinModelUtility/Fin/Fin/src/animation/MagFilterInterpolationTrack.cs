@@ -19,7 +19,7 @@ namespace fin.animation {
     public bool TryGetInterpolatedFrame(float frame, out T interpolatedValue, AnimationInterpolationConfig? config = null) {
       var intFrame = (int) frame;
       var frac = frame - intFrame;
-      if (frac.IsRoughly(0) || this.AnimationInterpolationMagFilter == AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_NEAREST) {
+      if (frac.IsRoughly0() || this.AnimationInterpolationMagFilter == AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_NEAREST) {
         return this.Impl.TryGetInterpolatedFrame(intFrame, out interpolatedValue, config);
       }
 

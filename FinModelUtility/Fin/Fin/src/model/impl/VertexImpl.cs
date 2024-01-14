@@ -2,6 +2,7 @@
 using System.Numerics;
 
 using fin.color;
+using fin.math.xyz;
 
 namespace fin.model.impl {
   public class OneColor2UvVertexImpl : IVertex,
@@ -44,7 +45,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IReadOnlyVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyXyz localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -135,7 +136,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IReadOnlyVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyXyz localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -158,7 +159,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IReadOnlyVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyXyz? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,
@@ -232,7 +233,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IReadOnlyVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyXyz localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -255,7 +256,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IReadOnlyVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyXyz? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,
@@ -358,7 +359,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IReadOnlyVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyXyz localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -381,7 +382,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IReadOnlyVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyXyz? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,
@@ -509,7 +510,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IReadOnlyVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyXyz localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -532,7 +533,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IReadOnlyVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyXyz? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,

@@ -5,6 +5,7 @@ using fin.color;
 using fin.image;
 using fin.io;
 using fin.language.equations.fixedFunction;
+using fin.math.xyz;
 using fin.util.image;
 
 namespace fin.model {
@@ -384,15 +385,15 @@ namespace fin.model {
 
     bool IsTransform3d { get; }
 
-    IReadOnlyVector3? Offset { get; }
+    IReadOnlyXyz? Offset { get; }
     ITexture SetOffset2d(float x, float y);
     ITexture SetOffset3d(float x, float y, float z);
 
-    IReadOnlyVector3? Scale { get; }
+    IReadOnlyXyz? Scale { get; }
     ITexture SetScale2d(float x, float y);
     ITexture SetScale3d(float x, float y, float z);
 
-    IReadOnlyVector3? RotationRadians { get; }
+    IReadOnlyXyz? RotationRadians { get; }
     ITexture SetRotationRadians2d(float rotationRadians);
 
     ITexture SetRotationRadians3d(float xRadians,

@@ -4,6 +4,7 @@ using System.Numerics;
 
 using fin.data.indexable;
 using fin.math.matrix.four;
+using fin.math.xyz;
 
 namespace fin.model {
   public interface ISkin {
@@ -33,7 +34,7 @@ namespace fin.model {
 
     TVertex AddVertex(Position position);
     TVertex AddVertex(Vector3 position);
-    TVertex AddVertex(IReadOnlyVector3 position);
+    TVertex AddVertex(IReadOnlyXyz position);
     TVertex AddVertex(float x, float y, float z);
   }
 
