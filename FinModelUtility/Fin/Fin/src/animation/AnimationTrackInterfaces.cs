@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-using fin.animation;
 using fin.math.interpolation;
+using fin.model;
+using fin.util.asserts;
 
-namespace fin.model {
+namespace fin.animation {
   public readonly record struct ValueAndTangents<T>(
       T IncomingValue,
       T OutgoingValue,
@@ -26,15 +27,27 @@ namespace fin.model {
 
 
   public interface ITrack : IAnimationData {
-    bool IsDefined { get; }
+    bool HasAtLeastOneKeyframe { get; }
+  }
+
+  public readonly record struct AnimationInterpolationConfig {
+    public bool UseLoopingInterpolation { get; init; }
   }
 
   public interface IReadOnlyInterpolatedTrack<TInterpolated> : ITrack {
     bool TryGetInterpolatedFrame(
         float frame,
         out TInterpolated interpolatedValue,
-        bool useLoopingInterpolation = false
+        AnimationInterpolationConfig? config = null
     );
+
+    TInterpolated GetInterpolatedFrame(
+        float frame,
+        AnimationInterpolationConfig? config = null
+    ) {
+      Asserts.True(this.TryGetInterpolatedFrame(frame, out var interpolatedValue, config));
+      return interpolatedValue;
+    }
   }
 
 
@@ -73,7 +86,7 @@ namespace fin.model {
         float frame,
         out (float frame, TValue value, float? tangent)? fromData,
         out (float frame, TValue value, float? tangent)? toData,
-        bool useLoopingInterpolation = false
+        AnimationInterpolationConfig? config = null
     );
 
     Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame);
@@ -99,7 +112,8 @@ namespace fin.model {
   }
 
   // TODO: Rethink this, this is getting way too complicated.
-  public interface IAxesTrack<TAxis, TInterpolated> : ITrack {
+  public interface IAxesTrack<in TAxis, TInterpolated> 
+      : IReadOnlyInterpolatedTrack<TInterpolated> {
     void Set(int frame, int axis, TAxis value)
       => this.Set(frame, axis, value, null);
 
@@ -126,10 +140,5 @@ namespace fin.model {
         TAxis outgoingValue,
         float? optionalIncomingTangent,
         float? optionalOutgoingTangent);
-
-    TInterpolated GetInterpolatedFrame(
-        float frame,
-        bool useLoopingInterpolation = false
-    );
   }
 }

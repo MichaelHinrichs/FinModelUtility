@@ -81,7 +81,7 @@ namespace fin.ui.rendering.gl.scene {
             skeleton.Root,
             model.Skin.BoneWeights,
             (animation, frame),
-            animationPlaybackManager.ShouldLoop);
+            animationPlaybackManager.Config);
 
         var hiddenMeshes = this.modelRenderer_.HiddenMeshes;
 

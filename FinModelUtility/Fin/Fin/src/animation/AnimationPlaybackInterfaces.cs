@@ -17,7 +17,7 @@ namespace fin.animation {
 
     // TODO: Is it better to make this a method?
     bool IsPlaying { get; set; }
-    bool ShouldLoop { get; set; }
+    AnimationInterpolationConfig? Config { get; set; }
 
     void Tick();
     event Action OnUpdate;

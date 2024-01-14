@@ -4,7 +4,7 @@ namespace fin.math.interpolation {
   public readonly struct FloatInterpolator : IInterpolator<float> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float Interpolate(float fromValue, float toValue, float progress) 
-      => (1 - progress) * fromValue + progress * toValue;
+      => float.Lerp(fromValue, toValue, progress);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float Interpolate(float fromTime,

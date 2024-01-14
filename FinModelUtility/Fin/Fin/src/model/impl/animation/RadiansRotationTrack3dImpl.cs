@@ -35,7 +35,7 @@ namespace fin.model.impl {
       }
 
       public IAnimation Animation { get; }
-      public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
+      public bool HasAtLeastOneKeyframe => this.axisTracks_.Any(axis => axis.HasAtLeastOneKeyframe);
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
@@ -58,18 +58,10 @@ namespace fin.model.impl {
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
-      public bool TryGetInterpolatedFrame(float frame,
-                                          out Quaternion interpolatedValue,
-                                          bool useLoopingInterpolation =
-                                              false) {
-        interpolatedValue =
-            GetInterpolatedFrame(frame, useLoopingInterpolation);
-        return true;
-      }
-
-      public Quaternion GetInterpolatedFrame(
+      public bool TryGetInterpolatedFrame(
           float frame,
-          bool useLoopingInterpolation = false) {
+          out Quaternion interpolatedValue,
+          AnimationInterpolationConfig? config = null) {
         var xTrack = this.axisTracks_[0];
         var yTrack = this.axisTracks_[1];
         var zTrack = this.axisTracks_[2];
@@ -83,27 +75,27 @@ namespace fin.model.impl {
             frame,
             out var fromXFrame,
             out var toXFrame,
-            useLoopingInterpolation);
+            config);
         yTrack.TryGetInterpolationData(
             frame,
             out var fromYFrame,
             out var toYFrame,
-            useLoopingInterpolation);
+            config);
         zTrack.TryGetInterpolationData(
             frame,
             out var fromZFrame,
             out var toZFrame,
-            useLoopingInterpolation);
+            config);
 
         Span<(float frame, float value, float? tangent)?> fromsAndTos =
-            stackalloc (float frame, float value, float? tangent)?[6];
-        fromsAndTos[0] = fromXFrame;
-        fromsAndTos[1] = fromYFrame;
-        fromsAndTos[2] = fromZFrame;
-        fromsAndTos[3] = toXFrame;
-        fromsAndTos[4] = toYFrame;
-        fromsAndTos[5] = toZFrame;
-
+            [
+              fromXFrame,
+              fromYFrame,
+              fromZFrame,
+              toXFrame,
+              toYFrame,
+              toZFrame,
+            ];
         Span<bool> areAxesStatic = stackalloc bool[3];
         AreAxesStatic_(fromsAndTos, areAxesStatic);
 
@@ -116,23 +108,24 @@ namespace fin.model.impl {
                 areAxesStatic)) {
           if (!xTrack.TryGetInterpolatedFrame(frame,
                                               out var xRadians,
-                                              useLoopingInterpolation)) {
+                                              config)) {
             xRadians = defaultX;
           }
 
           if (!yTrack.TryGetInterpolatedFrame(frame,
                                               out var yRadians,
-                                              useLoopingInterpolation)) {
+                                              config)) {
             yRadians = defaultY;
           }
 
           if (!zTrack.TryGetInterpolatedFrame(frame,
                                               out var zRadians,
-                                              useLoopingInterpolation)) {
+                                              config)) {
             zRadians = defaultZ;
           }
 
-          return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
+          interpolatedValue = ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
+          return true;
         }
 
         if (GetFromAndToFrameIndex_(fromsAndTos,
@@ -159,13 +152,15 @@ namespace fin.model.impl {
           }
 
           var interp = Quaternion.Slerp(q1, q2, frameDelta);
-          return Quaternion.Normalize(interp);
+          interpolatedValue = Quaternion.Normalize(interp);
+          return true;
         }
 
-        return Quaternion.Normalize(ConvertRadiansToQuaternionImpl(
-                                        fromXFrame?.value ?? defaultX,
-                                        fromYFrame?.value ?? defaultY,
-                                        fromZFrame?.value ?? defaultZ));
+        interpolatedValue = Quaternion.Normalize(ConvertRadiansToQuaternionImpl(
+                                                   fromXFrame?.value ?? defaultX,
+                                                   fromYFrame?.value ?? defaultY,
+                                                   fromZFrame?.value ?? defaultZ));
+        return true;
       }
 
       private static void AreAxesStatic_(

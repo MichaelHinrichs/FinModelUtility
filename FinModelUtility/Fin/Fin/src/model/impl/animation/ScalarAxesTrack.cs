@@ -44,7 +44,7 @@ namespace fin.model.impl {
       }
 
       public IAnimation Animation { get; }
-      public bool IsDefined => this.axisTracks.Any(axis => axis.IsDefined);
+      public bool HasAtLeastOneKeyframe => this.axisTracks.Any(axis => axis.HasAtLeastOneKeyframe);
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
@@ -67,9 +67,10 @@ namespace fin.model.impl {
           int axis)
         => this.axisTracks[axis].GetKeyframe(keyframe);
 
-      public abstract TInterpolated GetInterpolatedFrame(
+      public abstract bool TryGetInterpolatedFrame(
           float frame,
-          bool useLoopingInterpolation = false
+          out TInterpolated interpolatedValue,
+          AnimationInterpolationConfig? config = null
       );
     }
   }

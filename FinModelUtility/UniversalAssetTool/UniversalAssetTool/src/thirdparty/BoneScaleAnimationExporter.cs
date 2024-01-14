@@ -1,4 +1,5 @@
-﻿using fin.io;
+﻿using fin.animation;
+using fin.io;
 using fin.model;
 
 namespace uni.thirdparty {
@@ -15,6 +16,10 @@ namespace uni.thirdparty {
       fw.WriteLine(
           "ScalerKeysTable = { // Animation name => Bone names => frame scale keys. The keys are in frame order so 1,2,3,4 etc");
 
+      var config = new AnimationInterpolationConfig {
+          UseLoopingInterpolation = true,
+      };
+
       foreach (var animation in animations) {
         var definedBones = new Dictionary<IBone, IBoneTracks>();
         foreach (var bone in model.Skeleton) {
@@ -23,12 +28,12 @@ namespace uni.thirdparty {
           }
 
           var scales = boneTracks.Scales;
-          if (scales is not { IsDefined: true }) {
+          if (scales is not { HasAtLeastOneKeyframe: true }) {
             continue;
           }
 
           for (var f = 0; f < animation.FrameCount; ++f) {
-            var scale = scales.GetInterpolatedFrame(f, true);
+            var scale = scales.GetInterpolatedFrame(f, config);
 
             if (!IsScaleOne(scale)) {
               definedBones[bone] = boneTracks;
@@ -49,7 +54,7 @@ namespace uni.thirdparty {
           fw.WriteLine($"    [\"{bone.Name}\"] = {{");
 
           for (var f = 0; f < animation.FrameCount; ++f) {
-            var scale = scales.GetInterpolatedFrame(f, true);
+            var scale = scales.GetInterpolatedFrame(f, config);
 
             if (IsScaleOne(scale)) {
               fw.WriteLine("      defScale,");

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.animation;
 using fin.data.indexable;
+using fin.math.interpolation;
 using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
@@ -21,7 +23,7 @@ namespace fin.math {
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
         (IModelAnimation, float)? animationAndFrame,
-        bool useLoopingInterpolation = false
+        AnimationInterpolationConfig? config = null
     );
 
     public IReadOnlyFinMatrix4x4 GetLocalMatrix(IBone bone);
@@ -101,11 +103,36 @@ namespace fin.math {
       }
     }
 
+    private readonly MagFilterInterpolationTrack<Position> positionMagFilterInterpolationTrack_ =
+        new(
+            null,
+            (lhs, rhs, progress) => new Position(float.Lerp(lhs.X, rhs.X, progress),
+                                                 float.Lerp(lhs.Y, rhs.Y, progress),
+                                                 float.Lerp(lhs.Z, rhs.Z, progress))) {
+            AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
+        };
+
+    private readonly MagFilterInterpolationTrack<Quaternion> rotationMagFilterInterpolationTrack_ =
+        new(
+            null,
+            Quaternion.Lerp) {
+            AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
+        };
+
+    private readonly MagFilterInterpolationTrack<Scale> scaleMagFilterInterpolationTrack_ =
+        new(
+            null,
+            (lhs, rhs, progress) => new Scale(float.Lerp(lhs.X, rhs.X, progress),
+                                              float.Lerp(lhs.Y, rhs.Y, progress),
+                                              float.Lerp(lhs.Z, rhs.Z, progress))) {
+            AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
+        };
+
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
         (IModelAnimation, float)? animationAndFrame,
-        bool useLoopingInterpolation = false
+        AnimationInterpolationConfig? config = null
     ) {
       var isFirstPass = animationAndFrame == null;
 
@@ -143,30 +170,35 @@ namespace fin.math {
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
         if (boneTracks != null) {
           // Only gets the values from the animation if the frame is at least partially defined.
-          if (boneTracks?.Positions?.IsDefined ?? false) {
-            if (boneTracks.Positions.TryGetInterpolatedFrame(
+          if (boneTracks.Positions?.HasAtLeastOneKeyframe ?? false) {
+            this.positionMagFilterInterpolationTrack_.Impl = boneTracks.Positions;
+            if (this.positionMagFilterInterpolationTrack_.TryGetInterpolatedFrame(
                     (float) frame,
                     out var outAnimationLocalPosition,
-                    useLoopingInterpolation)) {
+                    config)) {
               animationLocalPosition = outAnimationLocalPosition;
             }
           }
 
-          if (boneTracks?.Rotations?.IsDefined ?? false) {
-            if (boneTracks.Rotations.TryGetInterpolatedFrame(
+          if (boneTracks.Rotations?.HasAtLeastOneKeyframe ?? false) {
+            this.rotationMagFilterInterpolationTrack_.Impl = boneTracks.Rotations;
+            if (this.rotationMagFilterInterpolationTrack_.TryGetInterpolatedFrame(
                     (float) frame,
                     out var outAnimationLocalRotation,
-                    useLoopingInterpolation)) {
+                    config)) {
               animationLocalRotation = outAnimationLocalRotation;
             }
           }
 
-          animationLocalScale =
-              boneTracks?.Scales?.IsDefined ?? false
-                  ? boneTracks?.Scales.GetInterpolatedFrame(
-                      (float) frame,
-                      useLoopingInterpolation)
-                  : null;
+          if (boneTracks.Scales?.HasAtLeastOneKeyframe ?? false) {
+            this.scaleMagFilterInterpolationTrack_.Impl = boneTracks.Scales;
+            if (this.scaleMagFilterInterpolationTrack_.TryGetInterpolatedFrame(
+                    (float) frame,
+                    out var outAnimationLocalScale,
+                    config)) {
+              animationLocalScale = outAnimationLocalScale;
+            }
+          }
         }
 
         // Uses the animation pose instead of the root pose when available.
@@ -310,14 +342,14 @@ namespace fin.math {
       }
 
       return boneWeights.VertexSpace switch {
-          // If vertex space mode is world, we have to first "undo" the root pose via an inverted matrix. 
-          VertexSpace.WORLD => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
-          // If preproject mode is bone, then we need to transform the vertex by one or more bones.
-          VertexSpace.BONE => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
-          // If preproject mode is root, then the vertex needs to be transformed relative to
-          // some root bone.
-          VertexSpace.WORLD_RELATIVE_TO_ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
-          _                   => throw new ArgumentOutOfRangeException()
+        // If vertex space mode is world, we have to first "undo" the root pose via an inverted matrix. 
+        VertexSpace.WORLD => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
+        // If preproject mode is bone, then we need to transform the vertex by one or more bones.
+        VertexSpace.BONE => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
+        // If preproject mode is root, then the vertex needs to be transformed relative to
+        // some root bone.
+        VertexSpace.WORLD_RELATIVE_TO_ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
+        _ => throw new ArgumentOutOfRangeException()
       };
     }
 

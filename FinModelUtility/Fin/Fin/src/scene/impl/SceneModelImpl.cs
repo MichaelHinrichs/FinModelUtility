@@ -34,7 +34,7 @@ namespace fin.scene {
             null);
         this.BoneTransformManager.InitModelVertices(this.Model, true);
 
-        this.AnimationPlaybackManager = new FrameAdvancer { ShouldLoop = true };
+        this.AnimationPlaybackManager = new FrameAdvancer { Config = new AnimationInterpolationConfig { UseLoopingInterpolation = true } };
         this.Animation =
             this.Model.AnimationManager.Animations.FirstOrDefault();
         this.AnimationPlaybackManager.IsPlaying = true;

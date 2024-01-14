@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+using fin.animation;
 using fin.math.interpolation;
 
 namespace fin.model.impl {
@@ -18,24 +19,26 @@ namespace fin.model.impl {
       }
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public override Scale GetInterpolatedFrame(
+      public override bool TryGetInterpolatedFrame(
           float frame,
-          bool useLoopingInterpolation = false) {
+          out Scale interpolatedValue,
+          AnimationInterpolationConfig? config = null) {
         var localScale = this.bone_.LocalScale;
 
-        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x)) {
+        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x, config)) {
           x = localScale?.X ?? 1;
         }
 
-        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y)) {
+        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y, config)) {
           y = localScale?.Y ?? 1;
         }
 
-        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z)) {
+        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z, config)) {
           z = localScale?.Z ?? 1;
         }
 
-        return new(x, y, z);
+        interpolatedValue = new(x, y, z);
+        return true;
       }
     }
   }

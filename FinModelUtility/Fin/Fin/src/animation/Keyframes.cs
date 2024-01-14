@@ -10,26 +10,6 @@ namespace fin.animation {
       => this.Frame - other.Frame;
   }
 
-  public interface IReadOnlyKeyframes<T> {
-    bool IsDefined { get; }
-
-    IReadOnlyList<Keyframe<T>> Definitions { get; }
-
-    Keyframe<T> GetKeyframeAtIndex(int index);
-    Keyframe<T>? GetKeyframeAtFrame(int frame);
-
-    bool FindIndexOfKeyframe(
-        int frame,
-        out int keyframeIndex,
-        out Keyframe<T> keyframe,
-        out bool isLastKeyframe);
-  }
-
-  public interface IKeyframes<T> : IReadOnlyKeyframes<T> {
-    void SetKeyframe(int frame, T value);
-    void SetAllKeyframes(IEnumerable<T> value);
-  }
-
   public class Keyframes<T> : IKeyframes<T> {
     private List<Keyframe<T>> impl_;
 
@@ -39,7 +19,7 @@ namespace fin.animation {
 
     public IReadOnlyList<Keyframe<T>> Definitions => this.impl_;
 
-    public bool IsDefined { get; set; }
+    public bool HasAtLeastOneKeyframe { get; set; }
 
     public void SetKeyframe(int frame, T value)
       => SetKeyframe(frame, value, out _);
@@ -47,7 +27,7 @@ namespace fin.animation {
     public void SetKeyframe(int frame,
                             T value,
                             out bool performedBinarySearch) {
-      this.IsDefined = true;
+      this.HasAtLeastOneKeyframe = true;
 
       var keyframeExists = this.FindIndexOfKeyframe(frame,
                                                     out var keyframeIndex,
@@ -74,7 +54,7 @@ namespace fin.animation {
       this.impl_ = values
                    .Select((value, frame) => new Keyframe<T>(frame, value))
                    .ToList();
-      this.IsDefined = this.impl_.Count > 0;
+      this.HasAtLeastOneKeyframe = this.impl_.Count > 0;
       this.lastAccessedKeyframeIndex_ = this.impl_.Count - 1;
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+using fin.animation;
 using fin.math.interpolation;
 
 namespace fin.model.impl {
@@ -19,34 +20,26 @@ namespace fin.model.impl {
       }
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public bool TryGetInterpolatedFrame(float frame,
-                                          out Position interpolatedValue,
-                                          bool useLoopingInterpolation =
-                                              false) {
-        interpolatedValue =
-            GetInterpolatedFrame(frame, useLoopingInterpolation);
-        return true;
-      }
-
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public override Position GetInterpolatedFrame(
+      public override bool TryGetInterpolatedFrame(
           float frame,
-          bool useLoopingInterpolation = false) {
+          out Position interpolatedValue,
+          AnimationInterpolationConfig? config = null) {
         var localPosition = this.bone_.LocalPosition;
 
-        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x, useLoopingInterpolation)) {
+        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x, config)) {
           x = localPosition.X;
         }
 
-        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y, useLoopingInterpolation)) {
+        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y, config)) {
           y = localPosition.Y;
         }
 
-        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z, useLoopingInterpolation)) {
+        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z, config)) {
           z = localPosition.Z;
         }
 
-        return new(x, y, z);
+        interpolatedValue = new(x, y, z);
+        return true;
       }
     }
   }

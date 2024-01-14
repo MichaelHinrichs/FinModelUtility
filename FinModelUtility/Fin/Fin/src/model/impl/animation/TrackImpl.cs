@@ -20,7 +20,7 @@ namespace fin.model.impl {
       public IReadOnlyList<Keyframe<ValueAndTangents<TValue>>> Keyframes
         => this.impl.Definitions;
 
-      public bool IsDefined => this.impl.IsDefined;
+      public bool HasAtLeastOneKeyframe => this.impl.HasAtLeastOneKeyframe;
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void SetKeyframe(
@@ -50,8 +50,10 @@ namespace fin.model.impl {
           float frame,
           out (float frame, TValue value, float? tangent)? fromData,
           out (float frame, TValue value, float? tangent)? toData,
-          bool useLoopingInterpolation = false
+          AnimationInterpolationConfig? config = null
       ) {
+        var useLoopingInterpolation = config?.UseLoopingInterpolation ?? false;
+
         var keyframeDefined = this.impl.FindIndexOfKeyframe((int) frame,
           out var fromKeyframeIndex,
           out var fromKeyframe,
@@ -136,7 +138,9 @@ namespace fin.model.impl {
       public bool TryGetInterpolatedFrame(
           float frame,
           out TInterpolated interpolatedValue,
-          bool useLoopingInterpolation = false) {
+          AnimationInterpolationConfig? config = null) {
+        var useLoopingInterpolation = config?.UseLoopingInterpolation ?? false;
+
         var keyframeDefined = this.impl.FindIndexOfKeyframe((int) frame,
           out var fromKeyframeIndex,
           out var fromKeyframe,

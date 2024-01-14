@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 
+using fin.animation;
 using fin.math.interpolation;
 
 namespace fin.model {

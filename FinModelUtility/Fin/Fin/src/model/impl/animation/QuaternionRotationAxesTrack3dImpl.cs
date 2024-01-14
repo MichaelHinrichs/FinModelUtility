@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 
+using fin.animation;
 using fin.math.interpolation;
 using fin.math.rotations;
 using fin.util.asserts;
@@ -20,19 +21,10 @@ namespace fin.model.impl {
         this.bone_ = bone;
       }
 
-      public override Quaternion GetInterpolatedFrame(float frame,
-        bool useLoopingInterpolation = false) {
-        Asserts.True(
-            TryGetInterpolatedFrame(frame,
-                                    out var value,
-                                    useLoopingInterpolation));
-        return value;
-      }
-
-      public bool TryGetInterpolatedFrame(float frame,
-                                          out Quaternion interpolatedValue,
-                                          bool useLoopingInterpolation =
-                                              false) {
+      public override bool TryGetInterpolatedFrame(
+          float frame,
+          out Quaternion interpolatedValue,
+          AnimationInterpolationConfig? config = null) {
         // TODO: Might need to do something fancier here
         var defaultRotation = this.bone_.LocalRotation != null
             ? QuaternionUtil.Create(this.bone_.LocalRotation)
@@ -41,28 +33,28 @@ namespace fin.model.impl {
         if (!this.axisTracks[0]
                  .TryGetInterpolatedFrame(frame,
                                           out var x,
-                                          useLoopingInterpolation)) {
+                                          config)) {
           x = defaultRotation.X;
         }
 
         if (!this.axisTracks[1]
                  .TryGetInterpolatedFrame(frame,
                                           out var y,
-                                          useLoopingInterpolation)) {
+                                          config)) {
           y = defaultRotation.Y;
         }
 
         if (!this.axisTracks[2]
                  .TryGetInterpolatedFrame(frame,
                                           out var z,
-                                          useLoopingInterpolation)) {
+                                          config)) {
           z = defaultRotation.Z;
         }
 
         if (!this.axisTracks[3]
                  .TryGetInterpolatedFrame(frame,
                                           out var w,
-                                          useLoopingInterpolation)) {
+                                          config)) {
           w = defaultRotation.W;
         }
 

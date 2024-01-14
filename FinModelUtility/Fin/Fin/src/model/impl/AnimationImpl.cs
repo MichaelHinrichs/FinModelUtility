@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+using fin.animation;
 using fin.data.indexable;
 using fin.math.interpolation;
 

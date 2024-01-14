@@ -26,9 +26,8 @@ namespace fin.animation {
       }
     }
 
-    public bool ShouldLoop { get; set; }
+    public AnimationInterpolationConfig? Config { get; set; }
 
-    
     public void Tick() {
       this.IncrementTowardsNextFrame_();
       this.WrapAround_();
@@ -66,7 +65,7 @@ namespace fin.animation {
         return;
       }
       
-      if (!this.ShouldLoop) {
+      if (!(this.Config?.UseLoopingInterpolation ?? false)) {
         this.IsPlaying = false;
         this.Frame = 0;
         this.impl_.Reset();
