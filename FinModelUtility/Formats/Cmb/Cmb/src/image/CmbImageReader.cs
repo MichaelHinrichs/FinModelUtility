@@ -54,7 +54,7 @@ namespace cmb.image {
         IPixelReader<Rgba32> pixelReader = format switch {
             GlTextureFormat.RGBA8    => new Rgba32PixelReader(),
             GlTextureFormat.RGBA4444 => new Rgba4444PixelReader(),
-            GlTextureFormat.RGBA5551 => new Rgba5551PixelReader(),
+            GlTextureFormat.RGBA5551 => new Argb1555PixelReader(),
         };
 
         return TiledImageReader.New(width,
