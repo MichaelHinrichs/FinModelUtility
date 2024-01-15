@@ -20,6 +20,10 @@ namespace uni.games.halo_wars {
         yield break;
       }
 
+      if (!haloWarsSteamDirectory.GetFilesWithFileType(".era", true).Any()) {
+        yield break;
+      }
+
       var scratchDirectory =
           ExtractorUtil.GetOrCreateExtractedDirectory("halo_wars");
 
