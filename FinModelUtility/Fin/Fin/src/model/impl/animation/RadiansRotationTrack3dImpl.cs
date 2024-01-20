@@ -7,6 +7,7 @@ using fin.animation;
 using fin.math.floats;
 using fin.math.interpolation;
 using fin.math.rotations;
+using fin.util.enumerables;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+using fin.util.enumerables;
+
 namespace fin.animation {
   public readonly record struct Keyframe<T>(int Frame, T Value, string FrameType = "") : IComparable<Keyframe<T>> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -21,7 +23,7 @@ namespace fin.animation {
 
     public bool HasAtLeastOneKeyframe { get; set; }
     public int MaxKeyframe 
-      => this.impl_.Select(keyframe => keyframe.Frame).Max();
+      => this.impl_.MaxOrDefault(keyframe => keyframe.Frame);
 
     public void SetKeyframe(int frame, T value, string frameType = "")
       => SetKeyframe(frame, value, out _, frameType);

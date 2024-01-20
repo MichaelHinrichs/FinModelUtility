@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 
-using fin.data.counters;
-using fin.data.dictionaries;
 using fin.data.queues;
 using fin.io;
 using fin.model;
@@ -28,9 +26,9 @@ namespace visceral.api {
 
     public enum KeyframeType : byte {
       ONLY_KEYFRAME = 0x0,
-      KEYFRAME_AND_3_BYTES = 0x1,
-      KEYFRAME_AND_6_BYTES = 0x2,
-      KEYFRAME_AND_9_BYTES = 0x3,
+      CUBIC_SPLINE_COEFFICIENTS_3_TO_4 = 0x1,
+      CUBIC_SPLINE_COEFFICIENTS_2_TO_4 = 0x2,
+      CUBIC_SPLINE_COEFFICIENTS_1_TO_4 = 0x3,
       FLOATS = 0x4,
       BYTE_GRADIENT = 0x6,
       SHORT_GRADIENT = 0x7,
@@ -81,12 +79,6 @@ namespace visceral.api {
       }
 
       var totalFrames = 1;
-
-      var commands = new List<ushort>();
-      var countsOfAxesWithKeyframeType =
-          new CounterSet<(AxisType, KeyframeType)>();
-      var valuesByAxesWithKeyframeType =
-          new SortedSetDictionary<(AxisType, KeyframeType), float>();
 
       {
         var rootOffset = bnkBr.ReadUInt32();
@@ -150,8 +142,6 @@ namespace visceral.api {
               var rotations = boneTracks.UseQuaternionAxesRotationTrack();
               var positions = boneTracks.UseSeparatePositionAxesTrack();
 
-
-
               for (var a = 0; a < 7; ++a) {
                 var axisType = (AxisType) a;
 
@@ -177,8 +167,6 @@ namespace visceral.api {
                 }
 
                 var command = bnkBr.ReadUInt16();
-                commands?.Add(command);
-
                 var upper = command >> 4;
                 var lower = command & 0xF;
 
@@ -193,9 +181,6 @@ namespace visceral.api {
                                keyframeType,
                                (int) standaloneCommandPrefix)) {
                     SetKeyframe(frame++, keyframeValue);
-                    valuesByAxesWithKeyframeType.Add(
-                        (axisType, keyframeType),
-                        keyframeValue);
                   }
                 } else if (lower == 5) {
                   var keyframeCount = upper;
@@ -203,14 +188,10 @@ namespace visceral.api {
                   var frame = 0;
                   for (var k = 0; k < keyframeCount; ++k) {
                     var lengthAndKeyframeType = bnkBr.ReadUInt16();
-                    commands?.Add(lengthAndKeyframeType);
 
                     var keyframeLength = lengthAndKeyframeType >> 4;
                     var keyframeType =
                         (KeyframeType) (lengthAndKeyframeType & 0xF);
-
-                    countsOfAxesWithKeyframeType.Increment(
-                        (axisType, keyframeType));
 
                     bnkBr.Position -= 1;
 
@@ -221,9 +202,6 @@ namespace visceral.api {
                                  keyframeType,
                                  keyframeLength)) {
                       SetKeyframe(frame++, keyframeValue);
-                      valuesByAxesWithKeyframeType.Add(
-                          (axisType, keyframeType),
-                          keyframeValue);
                     }
 
                     frame = startingKeyframe + keyframeLength;
@@ -241,6 +219,8 @@ namespace visceral.api {
       finAnimation.FrameCount = totalFrames;
     }
 
+    private float[] values_ = new float[4];
+
     private IEnumerable<float> ReadKeyframeValuesOfType_(
         IBinaryReader br,
         KeyframeType keyframeType,
@@ -257,19 +237,29 @@ namespace visceral.api {
             break;
           }
         case KeyframeType.ONLY_KEYFRAME:
-        case KeyframeType.KEYFRAME_AND_3_BYTES:
-        case KeyframeType.KEYFRAME_AND_6_BYTES:
-        case KeyframeType.KEYFRAME_AND_9_BYTES: {
-            // TODO: What are these???
-            var extraCount = (int) keyframeType;
-            var extraFloats = new float[extraCount];
-            for (var i = 0; i < extraCount; ++i) {
-              extraFloats[i] = br.ReadSingle();
-              br.Position -= 1;
+        case KeyframeType.CUBIC_SPLINE_COEFFICIENTS_3_TO_4:
+        case KeyframeType.CUBIC_SPLINE_COEFFICIENTS_2_TO_4:
+        case KeyframeType.CUBIC_SPLINE_COEFFICIENTS_1_TO_4: {
+            var totalValueCount = 1 + (int) keyframeType;
+            this.values_.AsSpan().Fill(0);
+            for (var i = 0; i < totalValueCount; ++i) {
+              if (i > 0) {
+                br.Position -= 1;
+              }
+
+              values_[4 - totalValueCount + i] = br.ReadSingle();
             }
 
-            var value = br.ReadSingle();
-            yield return value;
+            if (keyframeType == KeyframeType.ONLY_KEYFRAME) {
+              yield return this.values_[3];
+            } else {
+              // TODO: Support this as a keyframe type, rather than
+              // precalculating them here.
+              for (var f = 0; f < keyframeLength; ++f) {
+                yield return ((this.values_[0] * f + this.values_[1]) * f + this.values_[2]) * f + this.values_[3];
+              }
+            }
+
             break;
           }
         case KeyframeType.FLOATS: {
@@ -286,6 +276,9 @@ namespace visceral.api {
             var bias = br.ReadSingle();
             br.Position -= 1;
 
+            // The scale starts with the final byte from the bias. This was
+            // absolutely the hardest thing to figure out with this format,
+            // I struggled with this forever lol.
             var scale = br.ReadSingle();
 
             var values =
