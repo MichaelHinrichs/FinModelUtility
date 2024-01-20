@@ -36,6 +36,7 @@ namespace fin.model.impl {
 
       public IAnimation Animation { get; }
       public bool HasAtLeastOneKeyframe => this.axisTracks_.Any(axis => axis.HasAtLeastOneKeyframe);
+      public int MaxKeyframe => this.axisTracks_.Max(axisTrack => axisTrack.MaxKeyframe);
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
@@ -44,13 +45,15 @@ namespace fin.model.impl {
           float incomingRadians,
           float outgoingRadians,
           float? optionalIncomingTangent,
-          float? optionalOutgoingTangent)
+          float? optionalOutgoingTangent,
+          string frameType = "")
         => this.axisTracks_[axis]
                .SetKeyframe(frame,
                     incomingRadians,
                     outgoingRadians,
                     optionalIncomingTangent,
-                    optionalOutgoingTangent);
+                    optionalOutgoingTangent,
+                    frameType);
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(

@@ -3,6 +3,7 @@
 namespace fin.animation {
   public interface IReadOnlyKeyframes<T> {
     bool HasAtLeastOneKeyframe { get; }
+    int MaxKeyframe { get; }
 
     IReadOnlyList<Keyframe<T>> Definitions { get; }
 
@@ -17,7 +18,7 @@ namespace fin.animation {
   }
 
   public interface IKeyframes<T> : IReadOnlyKeyframes<T> {
-    void SetKeyframe(int frame, T value);
+    void SetKeyframe(int frame, T value, string frameType = "");
     void SetAllKeyframes(IEnumerable<T> value);
   }
 }

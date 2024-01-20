@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace fin.animation {
-  public readonly record struct Keyframe<T>(int Frame, T Value) : IComparable<Keyframe<T>> {
+  public readonly record struct Keyframe<T>(int Frame, T Value, string FrameType = "") : IComparable<Keyframe<T>> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(Keyframe<T> other)
       => this.Frame - other.Frame;
@@ -20,13 +20,16 @@ namespace fin.animation {
     public IReadOnlyList<Keyframe<T>> Definitions => this.impl_;
 
     public bool HasAtLeastOneKeyframe { get; set; }
+    public int MaxKeyframe 
+      => this.impl_.Select(keyframe => keyframe.Frame).Max();
 
-    public void SetKeyframe(int frame, T value)
-      => SetKeyframe(frame, value, out _);
+    public void SetKeyframe(int frame, T value, string frameType = "")
+      => SetKeyframe(frame, value, out _, frameType);
 
     public void SetKeyframe(int frame,
                             T value,
-                            out bool performedBinarySearch) {
+                            out bool performedBinarySearch,
+                            string frameType = "") {
       this.HasAtLeastOneKeyframe = true;
 
       var keyframeExists = this.FindIndexOfKeyframe(frame,
@@ -35,7 +38,7 @@ namespace fin.animation {
                                                     out var isLastKeyframe,
                                                     out performedBinarySearch);
 
-      var newKeyframe = new Keyframe<T>(frame, value);
+      var newKeyframe = new Keyframe<T>(frame, value, frameType);
 
       if (keyframeExists && existingKeyframe.Frame == frame) {
         this.lastAccessedKeyframeIndex_ = keyframeIndex;

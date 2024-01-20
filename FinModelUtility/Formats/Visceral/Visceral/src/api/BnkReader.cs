@@ -150,6 +150,8 @@ namespace visceral.api {
               var rotations = boneTracks.UseQuaternionAxesRotationTrack();
               var positions = boneTracks.UseSeparatePositionAxesTrack();
 
+
+
               for (var a = 0; a < 7; ++a) {
                 var axisType = (AxisType) a;
 
@@ -161,15 +163,15 @@ namespace visceral.api {
                     case AxisType.ROT_Y:
                     case AxisType.ROT_Z:
                     case AxisType.ROT_W: {
-                      rotations.Set(frame, axisType - AxisType.ROT_X, value);
-                      break;
-                    }
+                        rotations.Set(frame, axisType - AxisType.ROT_X, value);
+                        break;
+                      }
                     case AxisType.POS_X:
                     case AxisType.POS_Y:
                     case AxisType.POS_Z: {
-                      positions.Set(frame, axisType - AxisType.POS_X, value);
-                      break;
-                    }
+                        positions.Set(frame, axisType - AxisType.POS_X, value);
+                        break;
+                      }
                     default: throw new Exception();
                   }
                 }
@@ -182,10 +184,6 @@ namespace visceral.api {
 
                 if (upper == standaloneCommandPrefix) {
                   var keyframeType = (KeyframeType) lower;
-
-                  countsOfAxesWithKeyframeType.Increment(
-                      (axisType, keyframeType));
-
                   bnkBr.Position -= 1;
 
                   var frame = 0;
@@ -229,6 +227,7 @@ namespace visceral.api {
                     }
 
                     frame = startingKeyframe + keyframeLength;
+                    totalFrames = Math.Max(totalFrames, frame);
                   }
                 } else {
                   throw new NotImplementedException();
@@ -248,71 +247,61 @@ namespace visceral.api {
         int keyframeLength) {
       switch (keyframeType) {
         case KeyframeType.SINGLETON_0: {
-          br.Position += 1;
-          yield return 0;
-          break;
-        }
+            br.Position += 1;
+            yield return 0;
+            break;
+          }
         case KeyframeType.SINGLETON_1: {
-          br.Position += 1;
-          yield return 1;
-          break;
-        }
+            br.Position += 1;
+            yield return 1;
+            break;
+          }
         case KeyframeType.ONLY_KEYFRAME:
         case KeyframeType.KEYFRAME_AND_3_BYTES:
         case KeyframeType.KEYFRAME_AND_6_BYTES:
         case KeyframeType.KEYFRAME_AND_9_BYTES: {
-          // TODO: What are these???
-          var values = br.ReadBytes(3 * (int) keyframeType);
-          yield return br.ReadSingle();
-          break;
-        }
-        case KeyframeType.FLOATS: {
-          br.Position += 1;
+            // TODO: What are these???
+            var extraCount = (int) keyframeType;
+            var extraFloats = new float[extraCount];
+            for (var i = 0; i < extraCount; ++i) {
+              extraFloats[i] = br.ReadSingle();
+              br.Position -= 1;
+            }
 
-          for (var i = 0; i < keyframeLength; ++i) {
-            yield return br.ReadSingle();
+            var value = br.ReadSingle();
+            yield return value;
+            break;
           }
+        case KeyframeType.FLOATS: {
+            br.Position += 1;
 
-          break;
-        }
+            for (var i = 0; i < keyframeLength; ++i) {
+              yield return br.ReadSingle();
+            }
+
+            break;
+          }
         case KeyframeType.BYTE_GRADIENT:
         case KeyframeType.SHORT_GRADIENT: {
-          br.Position += 1;
+            var bias = br.ReadSingle();
+            br.Position -= 1;
 
-          var unk0 = br.ReadByte();
-          var unk1 = br.ReadByte();
+            var scale = br.ReadSingle();
 
-          br.Position -= 2;
-
-          // TODO: What is this meant to be?
-          var unk = br.ReadUInt16();
-
-          var scale = br.ReadSingle();
-
-          // TODO: Is this right????
-          var values =
+            var values =
               (keyframeType == KeyframeType.BYTE_GRADIENT
                   ? br.ReadBytes(keyframeLength)
                       .Select(u => (ushort) u)
                   : br.ReadUInt16s(keyframeLength)
                       .Select(u => u))
-              .ToArray();
+              .Select(u => u * scale + bias);
 
-          var keyframes =
-              values
-                  .Select(value => value * scale)
-                  .ToArray();
+            foreach (var keyframe in values) {
+              yield return keyframe;
+            }
 
-          if (unk0 == unk1 && unk0 != 0) {
-            ;
+            break;
           }
-
-          foreach (var keyframe in keyframes) {
-            yield return keyframe;
-          }
-
-          break;
-        }
         default: throw new NotImplementedException();
       }
     }

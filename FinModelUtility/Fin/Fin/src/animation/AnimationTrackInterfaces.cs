@@ -28,6 +28,7 @@ namespace fin.animation {
 
   public interface ITrack : IAnimationData {
     bool HasAtLeastOneKeyframe { get; }
+    int MaxKeyframe { get; }
   }
 
   public readonly record struct AnimationInterpolationConfig {
@@ -55,30 +56,33 @@ namespace fin.animation {
     IReadOnlyList<Keyframe<ValueAndTangents<TValue>>> Keyframes { get; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void SetKeyframe(int frame, TValue value)
-      => this.SetKeyframe(frame, value, null);
+    void SetKeyframe(int frame, TValue value, string frameType = "")
+      => this.SetKeyframe(frame, value, null, frameType);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void SetKeyframe(int frame, TValue value, float? tangent)
-      => this.SetKeyframe(frame, value, tangent, tangent);
+    void SetKeyframe(int frame, TValue value, float? tangent, string frameType = "")
+      => this.SetKeyframe(frame, value, tangent, tangent, frameType);
 
     void SetKeyframe(
         int frame,
         TValue value,
         float? incomingTangent,
-        float? outgoingTangent)
+        float? outgoingTangent,
+        string frameType = "")
       => this.SetKeyframe(frame,
                           value,
                           value,
                           incomingTangent,
-                          outgoingTangent);
+                          outgoingTangent,
+                          frameType);
 
     void SetKeyframe(
         int frame,
         TValue incomingValue,
         TValue outgoingValue,
         float? incomingTangent,
-        float? outgoingTangent);
+        float? outgoingTangent,
+        string frameType = "");
 
     void SetAllKeyframes(IEnumerable<TValue> value);
 
@@ -112,26 +116,28 @@ namespace fin.animation {
   }
 
   // TODO: Rethink this, this is getting way too complicated.
-  public interface IAxesTrack<in TAxis, TInterpolated> 
+  public interface IAxesTrack<in TAxis, TInterpolated>
       : IReadOnlyInterpolatedTrack<TInterpolated> {
-    void Set(int frame, int axis, TAxis value)
-      => this.Set(frame, axis, value, null);
+    void Set(int frame, int axis, TAxis value, string frameType = "")
+      => this.Set(frame, axis, value, null, frameType);
 
-    void Set(int frame, int axis, TAxis value, float? optionalTangent)
-      => this.Set(frame, axis, value, optionalTangent, optionalTangent);
+    void Set(int frame, int axis, TAxis value, float? optionalTangent, string frameType = "")
+      => this.Set(frame, axis, value, optionalTangent, optionalTangent, frameType);
 
     void Set(
         int frame,
         int axis,
         TAxis value,
         float? optionalIncomingTangent,
-        float? optionalOutgoingTangent)
+        float? optionalOutgoingTangent,
+        string frameType = "")
       => this.Set(frame,
                   axis,
                   value,
                   value,
                   optionalIncomingTangent,
-                  optionalOutgoingTangent);
+                  optionalOutgoingTangent,
+                  frameType);
 
     void Set(
         int frame,
@@ -139,6 +145,7 @@ namespace fin.animation {
         TAxis incomingValue,
         TAxis outgoingValue,
         float? optionalIncomingTangent,
-        float? optionalOutgoingTangent);
+        float? optionalOutgoingTangent,
+        string frameType = "");
   }
 }

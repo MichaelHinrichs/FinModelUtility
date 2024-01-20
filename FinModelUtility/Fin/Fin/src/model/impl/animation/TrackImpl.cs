@@ -21,6 +21,7 @@ namespace fin.model.impl {
         => this.impl.Definitions;
 
       public bool HasAtLeastOneKeyframe => this.impl.HasAtLeastOneKeyframe;
+      public int MaxKeyframe => this.impl.MaxKeyframe;
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void SetKeyframe(
@@ -28,14 +29,16 @@ namespace fin.model.impl {
           TValue incomingValue,
           TValue outgoingValue,
           float? optionalIncomingTangent,
-          float? optionalOutgoingTangent)
+          float? optionalOutgoingTangent,
+          string frameType = "")
         => this.impl.SetKeyframe(
             frame,
             new ValueAndTangents<TValue>(
                 incomingValue,
                 outgoingValue,
                 optionalIncomingTangent,
-                optionalOutgoingTangent));
+                optionalOutgoingTangent),
+            frameType);
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void SetAllKeyframes(IEnumerable<TValue> values)
