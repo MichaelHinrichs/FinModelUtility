@@ -3,16 +3,25 @@
 using NUnit.Framework;
 
 namespace fin.animation {
-  public class KeyframesTests {
+  public class KeyframesWithBinarySearchTests {
     [Test]
     public void TestAddToEnd() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
-      impl.SetKeyframe(0, "0");
-      impl.SetKeyframe(1, "1");
-      impl.SetKeyframe(2, "2");
-      impl.SetKeyframe(3, "3"); 
-      impl.SetKeyframe(4, "4");
+      impl.SetKeyframe(0, "0", out var performedBinarySearch0);
+      Assert.False(performedBinarySearch0);
+
+      impl.SetKeyframe(1, "1", out var performedBinarySearch1);
+      Assert.False(performedBinarySearch1);
+
+      impl.SetKeyframe(2, "2", out var performedBinarySearch2);
+      Assert.False(performedBinarySearch2);
+
+      impl.SetKeyframe(3, "3", out var performedBinarySearch3);
+      Assert.False(performedBinarySearch3);
+
+      impl.SetKeyframe(4, "4", out var performedBinarySearch4);
+      Assert.False(performedBinarySearch4);
 
       AssertKeyframes_(impl,
                        new Keyframe<string>(0, "0"),
@@ -25,24 +34,38 @@ namespace fin.animation {
 
     [Test]
     public void TestReplace() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
-      impl.SetKeyframe(1, "first");
-      impl.SetKeyframe(1, "second");
-      impl.SetKeyframe(1, "third");
+      impl.SetKeyframe(1, "first", out var performedBinarySearch1);
+      Assert.False(performedBinarySearch1);
+
+      impl.SetKeyframe(1, "second", out var performedBinarySearch2);
+      Assert.False(performedBinarySearch2);
+
+      impl.SetKeyframe(1, "third", out var performedBinarySearch3);
+      Assert.False(performedBinarySearch3);
 
       AssertKeyframes_(impl, new Keyframe<string>(1, "third"));
     }
 
     [Test]
     public void TestInsertAtFront() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
-      impl.SetKeyframe(4, "4");
-      impl.SetKeyframe(5, "5");
-      impl.SetKeyframe(2, "2");
-      impl.SetKeyframe(1, "1");
-      impl.SetKeyframe(0, "0");
+      impl.SetKeyframe(4, "4", out var performedBinarySearch4);
+      Assert.False(performedBinarySearch4);
+
+      impl.SetKeyframe(5, "5", out var performedBinarySearch5);
+      Assert.False(performedBinarySearch5);
+      
+      impl.SetKeyframe(2, "2", out var performedBinarySearch2);
+      Assert.True(performedBinarySearch2);
+      
+      impl.SetKeyframe(1, "1", out var performedBinarySearch1);
+      Assert.True(performedBinarySearch1);
+
+      impl.SetKeyframe(0, "0", out var performedBinarySearch0);
+      Assert.True(performedBinarySearch0);
 
       AssertKeyframes_(impl,
                        new Keyframe<string>(0, "0"),
@@ -55,7 +78,7 @@ namespace fin.animation {
 
     [Test]
     public void TestInsertInMiddle() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
       impl.SetKeyframe(0, "0");
       impl.SetKeyframe(9, "9");
@@ -74,7 +97,7 @@ namespace fin.animation {
 
     [Test]
     public void TestHugeRange() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
       impl.SetKeyframe(1000, "1000");
       impl.SetKeyframe(2, "2");
@@ -89,7 +112,7 @@ namespace fin.animation {
 
     [Test]
     public void TestGetIndices() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
       impl.SetKeyframe(0, "first");
       impl.SetKeyframe(2, "second");
@@ -105,59 +128,11 @@ namespace fin.animation {
 
     [Test]
     public void TestGetKeyframes() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
       impl.SetKeyframe(0, "first");
       impl.SetKeyframe(2, "second");
       impl.SetKeyframe(4, "third");
-
-      AssertKeyframe_(new Keyframe<string>(0, default),
-                      impl.GetKeyframeAtFrame(-1));
-      AssertKeyframe_(new Keyframe<string>(0, "first"),
-                      impl.GetKeyframeAtFrame(0));
-      AssertKeyframe_(new Keyframe<string>(0, "first"),
-                      impl.GetKeyframeAtFrame(1));
-      AssertKeyframe_(new Keyframe<string>(2, "second"),
-                      impl.GetKeyframeAtFrame(2));
-      AssertKeyframe_(new Keyframe<string>(2, "second"),
-                      impl.GetKeyframeAtFrame(3));
-      AssertKeyframe_(new Keyframe<string>(4, "third"),
-                      impl.GetKeyframeAtFrame(4));
-      AssertKeyframe_(new Keyframe<string>(4, "third"),
-                      impl.GetKeyframeAtFrame(5));
-    }
-
-    [Test]
-    public void TestGetKeyframesReversed() {
-      var impl = new Keyframes<string>();
-
-      impl.SetKeyframe(4, "third");
-      impl.SetKeyframe(2, "second");
-      impl.SetKeyframe(0, "first");
-
-      AssertKeyframe_(new Keyframe<string>(0, default),
-                      impl.GetKeyframeAtFrame(-1));
-      AssertKeyframe_(new Keyframe<string>(0, "first"),
-                      impl.GetKeyframeAtFrame(0));
-      AssertKeyframe_(new Keyframe<string>(0, "first"),
-                      impl.GetKeyframeAtFrame(1));
-      AssertKeyframe_(new Keyframe<string>(2, "second"),
-                      impl.GetKeyframeAtFrame(2));
-      AssertKeyframe_(new Keyframe<string>(2, "second"),
-                      impl.GetKeyframeAtFrame(3));
-      AssertKeyframe_(new Keyframe<string>(4, "third"),
-                      impl.GetKeyframeAtFrame(4));
-      AssertKeyframe_(new Keyframe<string>(4, "third"),
-                      impl.GetKeyframeAtFrame(5));
-    }
-
-    [Test]
-    public void TestGetKeyframesWeirdOrder() {
-      var impl = new Keyframes<string>();
-
-      impl.SetKeyframe(4, "third");
-      impl.SetKeyframe(0, "first");
-      impl.SetKeyframe(2, "second");
 
       AssertKeyframe_(new Keyframe<string>(0, default),
                       impl.GetKeyframeAtFrame(-1));
@@ -177,7 +152,7 @@ namespace fin.animation {
 
     [Test]
     public void TestFindIndexOfKeyframe() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
       impl.SetKeyframe(0, "0");
       impl.SetKeyframe(1, "1");
@@ -213,7 +188,7 @@ namespace fin.animation {
 
     [Test]
     public void TestFindIndexOfKeyframeWhenEmpty() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
       impl.FindIndexOfKeyframe(-1,
                                out var keyframeIndexMinus1,
@@ -232,7 +207,7 @@ namespace fin.animation {
 
     [Test]
     public void TestFindManyIndices() {
-      var impl = new Keyframes<string>();
+      var impl = new KeyframesWithBinarySearch<string>();
 
       var s = 2;
       var n = 25;
@@ -259,7 +234,7 @@ namespace fin.animation {
                                  Keyframe<string>? actual)
       => Assert.AreEqual(expected, actual);
 
-    private void AssertKeyframes_(Keyframes<string> actual,
+    private void AssertKeyframes_(KeyframesWithBinarySearch<string> actual,
                                   params Keyframe<string>[] expected)
       => Asserts.SequenceEqual(expected, actual.Definitions);
   }

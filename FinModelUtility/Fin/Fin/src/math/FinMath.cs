@@ -2,13 +2,13 @@
 
 namespace fin.math {
   public static class FinMath {
-    public static bool IsInRange<TNumber>(TNumber value,
+    public static bool IsInRange<TNumber>(this TNumber value,
                                           TNumber min,
                                           TNumber max)
         where TNumber : INumber<TNumber>
       => min <= value && value <= max;
 
-    public static bool IsInArea<TNumber>(TNumber valueX,
+    public static bool IsInArea<TNumber>(this TNumber valueX,
                                          TNumber valueY,
                                          TNumber minX,
                                          TNumber minY,
@@ -17,7 +17,7 @@ namespace fin.math {
         where TNumber : INumber<TNumber>
       => IsInRange(valueX, minX, maxX) && IsInRange(valueY, minY, maxY);
 
-    public static TNumber MapRange<TNumber>(TNumber value,
+    public static TNumber MapRange<TNumber>(this TNumber value,
                                             TNumber minFrom,
                                             TNumber maxFrom,
                                             TNumber minTo,
@@ -25,10 +25,10 @@ namespace fin.math {
         where TNumber : INumber<TNumber>
       => minTo + (value - minFrom) / (maxFrom - minFrom) * (maxTo - minTo);
 
-    public static TNumber Clamp<TNumber>(TNumber value,
+    public static TNumber Clamp<TNumber>(this TNumber value,
                                          TNumber min,
                                          TNumber max)
         where TNumber : INumber<TNumber>
-      => TNumber.MaxMagnitude(min, TNumber.MinMagnitude(value, max));
+      => TNumber.Max(min, TNumber.Min(value, max));
   }
 }

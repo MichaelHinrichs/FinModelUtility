@@ -4,13 +4,14 @@ using System.Runtime.CompilerServices;
 using fin.math.rotations;
 using fin.model;
 
+
 namespace fin.math.matrix.four {
   public static class SystemMatrix4x4Util {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 FromTranslation(Position translation)
       => SystemMatrix4x4Util.FromTranslation(translation.X,
-                                          translation.Y,
-                                          translation.Z);
+                                             translation.Y,
+                                             translation.Z);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 FromTranslation(float x, float y, float z)
@@ -54,18 +55,13 @@ namespace fin.math.matrix.four {
         Position? translation,
         Quaternion? rotation,
         Scale? scale) {
-      var dst = Matrix4x4.Identity;
+      var dst = rotation != null
+          ? SystemMatrix4x4Util.FromRotation(rotation.Value)
+          : Matrix4x4.Identity;
 
       if (translation != null) {
-        dst = Matrix4x4.Multiply(
-            SystemMatrix4x4Util.FromTranslation(translation.Value),
-            dst);
-      }
-
-      if (rotation != null) {
-        dst = Matrix4x4.Multiply(
-            SystemMatrix4x4Util.FromRotation(rotation.Value),
-            dst);
+        var translationValue = translation.Value;
+        dst.Translation = Unsafe.As<Position, Vector3>(ref translationValue);
       }
 
       if (scale != null) {

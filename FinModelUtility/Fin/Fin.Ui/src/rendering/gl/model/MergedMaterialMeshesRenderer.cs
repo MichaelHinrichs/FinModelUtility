@@ -2,14 +2,15 @@
 using fin.math;
 using fin.model;
 
+
 namespace fin.ui.rendering.gl.model {
   public class MergedMaterialMeshesRenderer : IModelRenderer {
     private GlBufferManager? bufferManager_;
     private readonly ILighting? lighting_;
     private readonly IBoneTransformManager? boneTransformManager_;
 
-    private readonly ListDictionary<IMesh, MergedMaterialPrimitivesRenderer>
-        materialMeshRenderers_ = new();
+    private (IMesh, MergedMaterialPrimitivesRenderer[])[]
+        materialMeshRenderers_;
 
     public MergedMaterialMeshesRenderer(
         IModel model,
@@ -43,6 +44,8 @@ namespace fin.ui.rendering.gl.model {
                                 .Select(pair => pair.Key)
                                 .ToArray();
 
+        var materialMeshRenderers =
+            new ListDictionary<IMesh, MergedMaterialPrimitivesRenderer>();
         foreach (var material in orderedMaterials) {
           var primitives = primitivesByMaterial[material];
           if (!primitiveMerger.TryToMergePrimitives(
@@ -51,7 +54,7 @@ namespace fin.ui.rendering.gl.model {
             continue;
           }
 
-          this.materialMeshRenderers_.Add(
+          materialMeshRenderers.Add(
               mesh,
               new MergedMaterialPrimitivesRenderer(
                   this.boneTransformManager_,
@@ -63,6 +66,11 @@ namespace fin.ui.rendering.gl.model {
                   UseLighting = UseLighting
               });
         }
+
+        this.materialMeshRenderers_
+            = materialMeshRenderers
+              .Select(tuple => (tuple.Key, tuple.Value.ToArray()))
+              .ToArray();
       }
     }
 
@@ -74,13 +82,12 @@ namespace fin.ui.rendering.gl.model {
     }
 
     private void ReleaseUnmanagedResources_() {
-      foreach (var (_, materialMeshRenderers) in this.materialMeshRenderers_) {
-        foreach (var materialMeshRenderer in materialMeshRenderers) {
+      foreach (var (_, materialMeshRenderers) in this.materialMeshRenderers_.AsSpan()) {
+        foreach (var materialMeshRenderer in materialMeshRenderers.AsSpan()) {
           materialMeshRenderer.Dispose();
         }
       }
 
-      materialMeshRenderers_.Clear();
       this.bufferManager_?.Dispose();
     }
 
@@ -94,8 +101,8 @@ namespace fin.ui.rendering.gl.model {
       set {
         this.useLighting_ = value;
         foreach (var (_, materialMeshRenderers) in
-                 this.materialMeshRenderers_) {
-          foreach (var materialMeshRenderer in materialMeshRenderers) {
+                 this.materialMeshRenderers_.AsSpan()) {
+          foreach (var materialMeshRenderer in materialMeshRenderers.AsSpan()) {
             materialMeshRenderer.UseLighting = value;
           }
         }
@@ -106,12 +113,12 @@ namespace fin.ui.rendering.gl.model {
       this.GenerateModelIfNull_();
 
       foreach (var (mesh, materialMeshRenderers) in
-               this.materialMeshRenderers_) {
+               this.materialMeshRenderers_.AsSpan()) {
         if (this.HiddenMeshes?.Contains(mesh) ?? false) {
           continue;
         }
 
-        foreach (var materialMeshRenderer in materialMeshRenderers) {
+        foreach (var materialMeshRenderer in materialMeshRenderers.AsSpan()) {
           materialMeshRenderer.Render();
         }
       }

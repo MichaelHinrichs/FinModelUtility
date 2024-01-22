@@ -3,65 +3,76 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using fin.util.enumerables;
+using fin.math;
+
 
 namespace fin.animation {
-  public readonly record struct Keyframe<T>(int Frame, T Value, string FrameType = "") : IComparable<Keyframe<T>> {
+  public readonly record struct Keyframe<T>(int Frame,
+                                            T Value,
+                                            string FrameType = "")
+      : IComparable<Keyframe<T>>, IEquatable<Keyframe<T>> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(Keyframe<T> other)
       => this.Frame - other.Frame;
+
+    public bool Equals(Keyframe<T> other)
+      => this.Frame == other.Frame &&
+         (this.Value?.Equals(other.Value) ??
+          this.Value == null && other.Value == null);
   }
 
   public class Keyframes<T> : IKeyframes<T> {
+    // List used to store the specific keyframe at each index. Wasteful
+    // memory-wise, but allows us to have O(1) frame lookups in terms of time.
+    private List<int> frameToKeyframe_;
     private List<Keyframe<T>> impl_;
 
     public Keyframes(int initialCapacity = 0) {
       this.impl_ = new(initialCapacity);
+      this.frameToKeyframe_ = new List<int>(initialCapacity);
     }
 
     public IReadOnlyList<Keyframe<T>> Definitions => this.impl_;
 
-    public bool HasAtLeastOneKeyframe { get; set; }
-    public int MaxKeyframe 
-      => this.impl_.MaxOrDefault(keyframe => keyframe.Frame);
+    public bool HasAtLeastOneKeyframe => this.impl_.Count > 0;
+    public int MaxKeyframe => Math.Max(this.frameToKeyframe_.Count - 1, 0);
 
-    public void SetKeyframe(int frame, T value, string frameType = "")
-      => SetKeyframe(frame, value, out _, frameType);
-
-    public void SetKeyframe(int frame,
-                            T value,
-                            out bool performedBinarySearch,
-                            string frameType = "") {
-      this.HasAtLeastOneKeyframe = true;
-
+    public void SetKeyframe(int frame, T value, string frameType = "") {
       var keyframeExists = this.FindIndexOfKeyframe(frame,
                                                     out var keyframeIndex,
                                                     out var existingKeyframe,
-                                                    out var isLastKeyframe,
-                                                    out performedBinarySearch);
+                                                    out var isLastKeyframe);
 
       var newKeyframe = new Keyframe<T>(frame, value, frameType);
 
       if (keyframeExists && existingKeyframe.Frame == frame) {
-        this.lastAccessedKeyframeIndex_ = keyframeIndex;
         this.impl_[keyframeIndex] = newKeyframe;
       } else if (isLastKeyframe) {
-        this.lastAccessedKeyframeIndex_ = this.impl_.Count;
         this.impl_.Add(newKeyframe);
       } else if (keyframeExists && existingKeyframe.Frame < frame) {
         this.impl_.Insert(keyframeIndex + 1, newKeyframe);
       } else {
         this.impl_.Insert(keyframeIndex, newKeyframe);
       }
+
+      while (this.frameToKeyframe_.Count < frame + 1) {
+        this.frameToKeyframe_.Add(0);
+      }
+
+      var currentFrame = this.MaxKeyframe;
+      for (var k = this.impl_.Count - 1; k >= 0; --k) {
+        var keyframe = this.impl_[k];
+
+        while (keyframe.Frame <= currentFrame) {
+          this.frameToKeyframe_[currentFrame--] = k;
+        }
+      }
     }
 
-    public void SetAllKeyframes(IEnumerable<T> values) {
-      this.impl_ = values
-                   .Select((value, frame) => new Keyframe<T>(frame, value))
-                   .ToList();
-      this.HasAtLeastOneKeyframe = this.impl_.Count > 0;
-      this.lastAccessedKeyframeIndex_ = this.impl_.Count - 1;
-    }
+    public void SetAllKeyframes(IEnumerable<T> values)
+      => this.impl_ = values
+                      .Select((value, frame) => new Keyframe<T>(frame, value))
+                      .ToList();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Keyframe<T> GetKeyframeAtIndex(int index) => this.impl_[index];
@@ -76,94 +87,24 @@ namespace fin.animation {
     }
 
 
-    private int lastAccessedKeyframeIndex_ = -1;
-
     public bool FindIndexOfKeyframe(
         int frame,
         out int keyframeIndex,
         out Keyframe<T> keyframe,
-        out bool isLastKeyframe)
-      => this.FindIndexOfKeyframe(frame,
-                                  out keyframeIndex,
-                                  out keyframe,
-                                  out isLastKeyframe,
-                                  out _);
-
-    public bool FindIndexOfKeyframe(
-        int frame,
-        out int keyframeIndex,
-        out Keyframe<T> keyframe,
-        out bool isLastKeyframe,
-        out bool performedBinarySearch) {
-      performedBinarySearch = false;
-
-      // Try to optimize the case where no frames have been processed yet.
-      var keyframeCount = this.impl_.Count;
-      if (this.lastAccessedKeyframeIndex_ == -1 || keyframeCount == 0) {
-        this.lastAccessedKeyframeIndex_ = keyframeIndex = 0;
+        out bool isLastKeyframe) {
+      if (this.frameToKeyframe_.Count == 0 || frame < 0) {
+        keyframeIndex = 0;
         keyframe = default;
-        isLastKeyframe = false;
+        isLastKeyframe = this.frameToKeyframe_.Count == 1;
         return false;
       }
 
-      // Try to optimize the case where the next frame is being accessed.
-      if (this.lastAccessedKeyframeIndex_ >= 0 &&
-          this.lastAccessedKeyframeIndex_ < keyframeCount) {
-        keyframeIndex = this.lastAccessedKeyframeIndex_;
-        keyframe = this.impl_[keyframeIndex];
-
-        if (frame >= keyframe.Frame) {
-          isLastKeyframe = keyframeIndex == keyframeCount - 1;
-
-          if (isLastKeyframe || frame == keyframe.Frame) {
-            return true;
-          }
-
-          var nextKeyframe = this.impl_[this.lastAccessedKeyframeIndex_ + 1];
-          if (nextKeyframe.Frame > frame) {
-            return true;
-          } else if (nextKeyframe.Frame == frame) {
-            this.lastAccessedKeyframeIndex_ = ++keyframeIndex;
-            keyframe = nextKeyframe;
-            isLastKeyframe = keyframeIndex == keyframeCount - 1;
-            return true;
-          }
-        }
-      }
-
-      // Perform a binary search for the current frame.
-      var result = this.impl_.BinarySearch(new Keyframe<T>(frame, default!));
-      performedBinarySearch = true;
-
-      if (result >= 0) {
-        this.lastAccessedKeyframeIndex_ = keyframeIndex = result;
-        keyframe = this.impl_[keyframeIndex];
-        isLastKeyframe = keyframeIndex == keyframeCount - 1;
-        return true;
-      }
-
-      var i = ~result;
-      if (i == keyframeCount) {
-        this.lastAccessedKeyframeIndex_ = keyframeIndex = keyframeCount - 1;
-        isLastKeyframe = true;
-        if (keyframeCount > 0) {
-          keyframe = this.impl_[keyframeIndex];
-          return true;
-        }
-
-        keyframe = default;
-        return false;
-      }
-
-      this.lastAccessedKeyframeIndex_ = keyframeIndex = Math.Max(0, i - 1);
+      var maxKeyframe = this.MaxKeyframe;
+      frame = frame.Clamp(0, maxKeyframe);
+      keyframeIndex = this.frameToKeyframe_[frame];
       keyframe = this.impl_[keyframeIndex];
-      var keyframeExists = keyframe.Frame <= frame;
-      if (!keyframeExists) {
-        keyframe = default;
-      }
-
-      isLastKeyframe = false;
-      return keyframeExists;
+      isLastKeyframe = frame == maxKeyframe;
+      return true;
     }
   }
 }
