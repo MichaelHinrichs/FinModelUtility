@@ -25,26 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
-    <ProjectReference Include="..\..\Formats\Granny3d\Granny3d.csproj" />
+    <ProjectReference Include="..\..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\..\Formats\Granny3d\Granny3d.csproj" />
+    <ProjectReference Include="..\KSoft\KSoft.Phoenix\KSoft.Phoenix.csproj" />
+    <ProjectReference Include="..\KSoft\KSoft\KSoft.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="KSoft">
-      <HintPath>lib\KSoft.dll</HintPath>
-    </Reference>
-    <Reference Include="KSoft.Phoenix">
-      <HintPath>lib\KSoft.Phoenix.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="lib\ICSharpCode.SharpZipLib.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="lib\KSoft.Compression.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

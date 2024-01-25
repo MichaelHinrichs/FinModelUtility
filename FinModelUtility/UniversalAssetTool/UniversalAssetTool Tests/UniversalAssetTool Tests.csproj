@@ -10,6 +10,8 @@
     <IsTestProject>true</IsTestProject>
 
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

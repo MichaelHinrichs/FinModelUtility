@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
-    <ProjectReference Include="..\..\Games\HaloWarsTools\HaloWarsTools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
