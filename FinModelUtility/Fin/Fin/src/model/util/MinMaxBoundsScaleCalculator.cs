@@ -1,4 +1,7 @@
-﻿using System;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Numerics;
+
 
 namespace fin.model.util {
   public record Bounds(float MinX,
@@ -6,22 +9,25 @@ namespace fin.model.util {
                        float MinZ,
                        float MaxX,
                        float MaxY,
-                       float MaxZ);
+                       float MaxZ) {
+    public Vector3 Dimensions => new(this.MaxX - this.MinX,
+                                     this.MaxY - this.MinY,
+                                     this.MaxZ - this.MinZ);
+  }
 
   public interface IMinMaxBoundsScaleCalculator<in T> {
-    float CalculateScale(T value);
     Bounds CalculateBounds(T value);
+    float CalculateScale(T value);
   }
 
   public abstract class BMinMaxBoundsScaleCalculator<T>
       : IMinMaxBoundsScaleCalculator<T> {
-    public float CalculateScale(T value) {
-      var bounds = CalculateBounds(value);
-      return 1000 / MathF.Sqrt(MathF.Pow(bounds.MaxX - bounds.MinX, 2) +
-                               MathF.Pow(bounds.MaxY - bounds.MinY, 2) +
-                               MathF.Pow(bounds.MaxZ - bounds.MinZ, 2));
-    }
-
     public abstract Bounds CalculateBounds(T value);
+
+    public float CalculateScale(T value)
+      => this.ConvertBoundsToScale_(this.CalculateBounds(value));
+
+    private float ConvertBoundsToScale_(Bounds bounds)
+      => 1000 / bounds.Dimensions.Length();
   }
 }

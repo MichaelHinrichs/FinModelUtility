@@ -1,6 +1,6 @@
-﻿using fin.data.dictionaries;
-using fin.math;
+﻿using fin.math;
 using fin.model;
+
 
 namespace fin.ui.rendering.gl.model {
   /// <summary>
@@ -11,7 +11,7 @@ namespace fin.ui.rendering.gl.model {
   public class ModelRendererV2 : IModelRenderer {
     // TODO: Require passing in a GL context in the constructor.
 
-    private IModelRenderer impl_;
+    private readonly IModelRenderer impl_;
 
     public ModelRendererV2(
         IModel model,

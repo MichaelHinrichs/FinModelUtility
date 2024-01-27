@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Numerics;
 
 using fin.math;
+using fin.scene;
 
 
 namespace fin.model.util {
-  public class ModelMinMaxBoundsScaleCalculator
-      : BMinMaxBoundsScaleCalculator<IModel> {
+  public class SceneModelMinMaxBoundsScaleCalculator
+      : BMinMaxBoundsScaleCalculator<ISceneModel> {
     private readonly BoneTransformManager boneTransformManager_ = new();
 
-    public override Bounds CalculateBounds(IModel model) {
+    public override Bounds CalculateBounds(ISceneModel sceneModel) {
       var minX = float.MaxValue;
       var minY = float.MaxValue;
       var minZ = float.MaxValue;
@@ -18,7 +19,7 @@ namespace fin.model.util {
       var maxY = float.MinValue;
       var maxZ = float.MinValue;
 
-      this.FactorModelIntoBounds_(model,
+      this.FactorModelIntoBounds_(sceneModel,
                                   ref minX,
                                   ref minY,
                                   ref minZ,
@@ -29,7 +30,7 @@ namespace fin.model.util {
       return new Bounds(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public Bounds CalculateBounds(IEnumerable<IModel> models) {
+    public Bounds CalculateBounds(IEnumerable<ISceneModel> sceneModels) {
       var minX = float.MaxValue;
       var minY = float.MaxValue;
       var minZ = float.MaxValue;
@@ -37,8 +38,8 @@ namespace fin.model.util {
       var maxY = float.MinValue;
       var maxZ = float.MinValue;
 
-      foreach (var model in models) {
-        this.FactorModelIntoBounds_(model,
+      foreach (var sceneModel in sceneModels) {
+        this.FactorModelIntoBounds_(sceneModel,
                                     ref minX,
                                     ref minY,
                                     ref minZ,
@@ -50,13 +51,15 @@ namespace fin.model.util {
       return new Bounds(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    private void FactorModelIntoBounds_(IModel model,
+    private void FactorModelIntoBounds_(ISceneModel sceneModel,
                                         ref float minX,
                                         ref float minY,
                                         ref float minZ,
                                         ref float maxX,
                                         ref float maxY,
                                         ref float maxZ) {
+      var model = sceneModel.Model;
+
       boneTransformManager_.CalculateMatrices(
           model.Skeleton.Root,
           model.Skin.BoneWeights,
