@@ -5,7 +5,7 @@ pause
 
 cd ../../FinModelUtility
 
-set hierarchyListCmd="dir /b /s /ad *.* | sort"
+set hierarchyListCmd="dir /b /s /ad | sort"
 
 for /d %%p in (*, Formats/*, Games/*) do ( 
   pushd "./"
@@ -23,17 +23,23 @@ for /d %%p in (*, Formats/*, Games/*) do (
   )
   
   if exist "%%p Tests" (
+	echo "Cleaning goldens for %%p..."
     cd "%%p Tests"
   )
     
   if exist goldens\ (
+	cd goldens\
+  
     for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
       pushd "./"
 
+	  echo " - checking %%d"
       cd "%%d"
 
       if exist input\ (
         if exist output\ (
+		  echo " - cleaning %%d..."
+		
           cd output\
           del /q *.*
         )
