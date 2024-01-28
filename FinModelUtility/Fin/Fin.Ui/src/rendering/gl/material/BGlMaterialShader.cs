@@ -4,7 +4,6 @@ using fin.math;
 using fin.model;
 using fin.shaders.glsl;
 
-using OpenTK.Graphics.OpenGL;
 
 namespace fin.ui.rendering.gl.material {
   public abstract class BGlMaterialShader<TMaterial> : IGlMaterialShader
@@ -19,18 +18,17 @@ namespace fin.ui.rendering.gl.material {
     private readonly IBoneTransformManager? boneTransformManager_;
     private readonly GlShaderProgram impl_;
 
-    private readonly int modelMatrixLocation_;
-    private readonly int modelViewMatrixLocation_;
-    private readonly int projectionMatrixLocation_;
+    private readonly IShaderUniform<Matrix4x4> modelMatrixUniform_;
+    private readonly IShaderUniform<Matrix4x4> modelViewMatrixUniform_;
+    private readonly IShaderUniform<Matrix4x4> projectionMatrixUniform_;
 
-    private readonly int matricesLocation_;
-    private readonly Matrix4x4[] matrices_;
+    private readonly IShaderUniformArray<Matrix4x4> matricesUniform_;
 
-    private readonly int cameraPositionLocation_;
-    private readonly int shininessLocation_;
+    private readonly IShaderUniform<Vector3> cameraPositionUniform_;
+    private readonly IShaderUniform<float> shininessUniform_;
 
-    private readonly int useLightingLocation_;
-    private readonly int ambientLightColorLocation_;
+    private readonly IShaderUniform<bool> useLightingUniform_;
+    private readonly IShaderUniform<Vector4> ambientLightColorUniform_;
 
     protected BGlMaterialShader(
         IModel model,
@@ -47,31 +45,29 @@ namespace fin.ui.rendering.gl.material {
           shaderSource.VertexShaderSource,
           shaderSource.FragmentShaderSource);
 
-      this.modelMatrixLocation_ =
-          this.impl_.GetUniformLocation(
-              GlslConstants.UNIFORM_MODEL_MATRIX_NAME);
-      this.modelViewMatrixLocation_ =
-          this.impl_.GetUniformLocation(
-              GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME);
-      this.projectionMatrixLocation_ =
-          this.impl_.GetUniformLocation(
-              GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME);
-      this.matricesLocation_ = this.impl_.GetUniformLocation(
-          GlslConstants.UNIFORM_BONE_MATRICES_NAME);
-      this.matrices_ = new Matrix4x4[1 + model.Skin.BoneWeights.Count];
+      this.modelMatrixUniform_ = this.impl_.GetUniformMat4(
+          GlslConstants.UNIFORM_MODEL_MATRIX_NAME);
+      this.modelViewMatrixUniform_ = this.impl_.GetUniformMat4(
+          GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME);
+      this.projectionMatrixUniform_ = this.impl_.GetUniformMat4(
+          GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME);
 
-      this.shininessLocation_ =
-          this.impl_.GetUniformLocation(GlslConstants.UNIFORM_SHININESS_NAME);
+      this.matricesUniform_ = this.impl_.GetUniformMat4s(
+          GlslConstants.UNIFORM_BONE_MATRICES_NAME,
+          1 + model.Skin.BoneWeights.Count);
+      this.matricesUniform_.SetAndMarkDirty(0, Matrix4x4.Identity);
 
-      this.useLightingLocation_ = this.impl_.GetUniformLocation(
+      this.shininessUniform_ = this.impl_.GetUniformFloat(
+          GlslConstants.UNIFORM_SHININESS_NAME);
+
+      this.useLightingUniform_ = this.impl_.GetUniformBool(
           GlslConstants.UNIFORM_USE_LIGHTING_NAME);
 
-      this.cameraPositionLocation_ =
-          this.impl_.GetUniformLocation(
-              GlslConstants.UNIFORM_CAMERA_POSITION_NAME);
+      this.cameraPositionUniform_ = this.impl_.GetUniformVec3(
+          GlslConstants.UNIFORM_CAMERA_POSITION_NAME);
 
-      this.ambientLightColorLocation_ =
-          this.impl_.GetUniformLocation("ambientLightColor");
+      this.ambientLightColorUniform_ = this.impl_.GetUniformVec4(
+          "ambientLightColor");
 
       if (lighting != null) {
         var lights = lighting.Lights;
@@ -127,31 +123,28 @@ namespace fin.ui.rendering.gl.material {
     public bool DisposeTextures { get; set; } = true;
 
     public void Use() {
-      this.impl_.Use();
-
-      GlTransform.UniformMatrix4(this.modelMatrixLocation_, GlTransform.ModelMatrix);
-      GlTransform.UniformMatrix4(this.modelViewMatrixLocation_, GlTransform.ModelViewMatrix);
-      GlTransform.UniformMatrix4(this.projectionMatrixLocation_, GlTransform.ProjectionMatrix);
+      this.modelMatrixUniform_.SetAndMarkDirty(GlTransform.ModelMatrix);
+      this.modelViewMatrixUniform_.SetAndMarkDirty(
+          GlTransform.ModelViewMatrix);
+      this.projectionMatrixUniform_.SetAndMarkDirty(
+          GlTransform.ProjectionMatrix);
 
       var cameraPosition = Camera.Instance;
       var scCamX = cameraPosition.X;
       var scCamY = cameraPosition.Y;
       var scCamZ = cameraPosition.Z;
-      GL.Uniform3(this.cameraPositionLocation_, scCamX, scCamY, scCamZ);
+      this.cameraPositionUniform_.SetAndMaybeMarkDirty(
+          new Vector3(scCamX, scCamY, scCamZ));
 
-      this.matrices_[0] = Matrix4x4.Identity;
       foreach (var boneWeights in this.model_.Skin.BoneWeights) {
-        this.matrices_[1 + boneWeights.Index] = this
-                                                .boneTransformManager_
-                                                ?.GetTransformMatrix(
-                                                    boneWeights)
-                                                .Impl ?? Matrix4x4.Identity;
+        this.matricesUniform_.SetAndMaybeMarkDirty(
+            1 + boneWeights.Index,
+            this
+                .boneTransformManager_?.GetTransformMatrix(boneWeights)
+                .Impl ?? Matrix4x4.Identity);
       }
 
-      GlTransform.UniformMatrix4s(this.matricesLocation_,
-                                  this.matrices_);
-
-      GL.Uniform1(this.shininessLocation_, this.Material.Shininess);
+      this.shininessUniform_.SetAndMaybeMarkDirty(this.Material.Shininess);
 
       this.PassInLightUniforms_(this.lighting_);
 
@@ -161,11 +154,13 @@ namespace fin.ui.rendering.gl.material {
       }
 
       this.PassUniformsAndBindTextures(this.impl_);
+
+      this.impl_.Use();
     }
 
     private void PassInLightUniforms_(ILighting? lighting) {
       var useLighting = this.UseLighting && this.lighting_ != null;
-      GL.Uniform1(this.useLightingLocation_, useLighting ? 1f : 0f);
+      this.useLightingUniform_.SetAndMaybeMarkDirty(useLighting);
 
       if (!useLighting) {
         return;
@@ -173,11 +168,11 @@ namespace fin.ui.rendering.gl.material {
 
       var ambientLightStrength = lighting.AmbientLightStrength;
       var ambientLightColor = lighting.AmbientLightColor;
-      GL.Uniform4(this.ambientLightColorLocation_,
-                  ambientLightColor.Rf * ambientLightStrength,
-                  ambientLightColor.Gf * ambientLightStrength,
-                  ambientLightColor.Bf * ambientLightStrength,
-                  ambientLightColor.Af * ambientLightStrength);
+      this.ambientLightColorUniform_.SetAndMaybeMarkDirty(new Vector4(
+          ambientLightColor.Rf * ambientLightStrength,
+          ambientLightColor.Gf * ambientLightStrength,
+          ambientLightColor.Bf * ambientLightStrength,
+          ambientLightColor.Af * ambientLightStrength));
 
       foreach (var cachedLightUniformData in this.cachedLightUniformDatas_) {
         cachedLightUniformData.PassInUniforms();

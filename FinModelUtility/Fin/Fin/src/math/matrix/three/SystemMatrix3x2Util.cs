@@ -1,8 +1,43 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
+
+using fin.math.floats;
+using fin.util.hash;
+
 
 namespace fin.math.matrix.three {
   public static class SystemMatrix3x2Util {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe bool IsRoughly(this Matrix3x2 lhs, Matrix3x2 rhs) {
+      float* lhsPtr = &lhs.M11;
+      float* rhsPtr = &rhs.M11;
+
+      for (var i = 0; i < 3 * 2; ++i) {
+        if (!lhsPtr[i].IsRoughly(rhsPtr[i])) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe int GetRoughHashCode(this Matrix3x2 mat) {
+      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR;
+
+      var hash = new FluentHash();
+      float* ptr = &mat.M11;
+      for (var i = 0; i < 3 * 2; ++i) {
+        var value = MathF.Round(ptr[i] / error) * error;
+        hash = hash.With(value.GetHashCode());
+      }
+
+      return hash;
+    }
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3x2 FromTranslation(Vector2 translation)
       => FromTranslation(translation.X, translation.Y);

@@ -3,8 +3,10 @@ using fin.data.lazy;
 
 using OpenTK.Graphics.OpenGL;
 
+
 namespace fin.ui.rendering.gl {
-  public class GlShaderProgram : IDisposable {
+  public partial class GlShaderProgram : IShaderProgram {
+    private bool isDisposed_;
     private readonly CachedShaderProgram cachedShaderProgram_;
 
     private static ReferenceCountCacheDictionary<string, int>
@@ -81,6 +83,7 @@ namespace fin.ui.rendering.gl {
     ~GlShaderProgram() => this.ReleaseUnmanagedResources_();
 
     public void Dispose() {
+      this.isDisposed_ = true;
       this.ReleaseUnmanagedResources_();
       GC.SuppressFinalize(this);
     }
@@ -92,7 +95,7 @@ namespace fin.ui.rendering.gl {
     private static int CreateAndCompileShader_(string src,
                                                ShaderType shaderType) {
       var shaderId = GL.CreateShader(shaderType);
-      GL.ShaderSource(shaderId, 1, new[] { src }, (int[]) null);
+      GL.ShaderSource(shaderId, 1, new[] {src}, (int[]) null);
       GL.CompileShader(shaderId);
 
       // TODO: Throw/return this error
@@ -119,10 +122,16 @@ namespace fin.ui.rendering.gl {
       => this.cachedShaderProgram_.FragmentShaderSource;
 
 
-    public void Use() => GlUtil.UseProgram(this.ProgramId);
+    public void Use() {
+      if (this.isDisposed_) {
+        return;
+      }
 
-    public int GetUniformLocation(string uniformName)
-      => this.cachedShaderProgram_.GetUniformLocation(uniformName);
+      GlUtil.UseProgram(this.ProgramId);
+      foreach (var uniform in this.cachedUniforms_.Values) {
+        uniform.PassValueToProgramIfDirty();
+      }
+    }
 
     private class CachedShaderProgram {
       private readonly LazyDictionary<string, int> lazyUniforms_;

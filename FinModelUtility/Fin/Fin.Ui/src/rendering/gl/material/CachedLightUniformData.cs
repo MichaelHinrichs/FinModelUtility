@@ -1,23 +1,26 @@
-﻿using fin.model;
+﻿using System.Numerics;
+
+using fin.model;
 
 using OpenTK.Graphics.OpenGL;
+
 
 namespace fin.ui.rendering.gl.material {
   public class CachedLightUniformData {
     public IReadOnlyLight Light { get; }
 
-    public int EnabledLocation { get; }
+    public IShaderUniform<bool> EnabledUniform { get; }
 
-    public int SourceTypeLocation { get; }
-    public int PositionLocation { get; }
-    public int NormalLocation { get; }
+    public IShaderUniform<int> SourceTypeUniform { get; }
+    public IShaderUniform<Vector3> PositionUniform { get; }
+    public IShaderUniform<Vector3> NormalUniform { get; }
 
-    public int ColorLocation { get; }
+    public IShaderUniform<Vector4> ColorUniform { get; }
 
-    public int DiffuseFunctionLocation { get; }
-    public int AttenuationFunctionLocation { get; }
-    public int CosineAttenuationLocation { get; }
-    public int DistanceAttenuationLocation { get; }
+    public IShaderUniform<int> DiffuseFunctionUniform { get; }
+    public IShaderUniform<int> AttenuationFunctionUniform { get; }
+    public IShaderUniform<Vector3> CosineAttenuationUniform { get; }
+    public IShaderUniform<Vector3> DistanceAttenuationUniform { get; }
 
     public CachedLightUniformData(
         int lightIndex,
@@ -27,30 +30,27 @@ namespace fin.ui.rendering.gl.material {
 
       var lightAccessor = $"{MaterialConstants.LIGHTS_NAME}[{lightIndex}]";
 
-      this.EnabledLocation =
-          shaderProgram.GetUniformLocation($"{lightAccessor}.enabled");
+      this.EnabledUniform =
+          shaderProgram.GetUniformBool($"{lightAccessor}.enabled");
 
-      this.SourceTypeLocation =
-          shaderProgram.GetUniformLocation($"{lightAccessor}.sourceType");
-      this.PositionLocation =
-          shaderProgram.GetUniformLocation($"{lightAccessor}.position");
-      this.NormalLocation =
-          shaderProgram.GetUniformLocation($"{lightAccessor}.normal");
+      this.SourceTypeUniform =
+          shaderProgram.GetUniformInt($"{lightAccessor}.sourceType");
+      this.PositionUniform =
+          shaderProgram.GetUniformVec3($"{lightAccessor}.position");
+      this.NormalUniform =
+          shaderProgram.GetUniformVec3($"{lightAccessor}.normal");
 
-      this.ColorLocation =
-          shaderProgram.GetUniformLocation($"{lightAccessor}.color");
+      this.ColorUniform =
+          shaderProgram.GetUniformVec4($"{lightAccessor}.color");
 
-      this.DiffuseFunctionLocation =
-          shaderProgram.GetUniformLocation($"{lightAccessor}.diffuseFunction");
-      this.AttenuationFunctionLocation =
-          shaderProgram.GetUniformLocation(
-              $"{lightAccessor}.attenuationFunction");
-      this.CosineAttenuationLocation =
-          shaderProgram.GetUniformLocation(
-              $"{lightAccessor}.cosineAttenuation");
-      this.DistanceAttenuationLocation =
-          shaderProgram.GetUniformLocation(
-              $"{lightAccessor}.distanceAttenuation");
+      this.DiffuseFunctionUniform =
+          shaderProgram.GetUniformInt($"{lightAccessor}.diffuseFunction");
+      this.AttenuationFunctionUniform =
+          shaderProgram.GetUniformInt($"{lightAccessor}.attenuationFunction");
+      this.CosineAttenuationUniform =
+          shaderProgram.GetUniformVec3($"{lightAccessor}.cosineAttenuation");
+      this.DistanceAttenuationUniform =
+          shaderProgram.GetUniformVec3($"{lightAccessor}.distanceAttenuation");
     }
 
     public void PassInUniforms() {
@@ -59,52 +59,49 @@ namespace fin.ui.rendering.gl.material {
         return;
       }
 
-      GL.Uniform1(this.EnabledLocation, 1);
+      this.EnabledUniform.SetAndMaybeMarkDirty(true);
 
-      GL.Uniform1(this.SourceTypeLocation, (int) light.SourceType);
+      this.SourceTypeUniform.SetAndMaybeMarkDirty((int) light.SourceType);
 
       var position = light.Position;
       if (position != null) {
-        GL.Uniform3(this.PositionLocation,
-                    position.X,
-                    position.Y,
-                    position.Z);
+        this.PositionUniform.SetAndMaybeMarkDirty(
+            new Vector3(position.X, position.Y, position.Z));
       }
 
       var normal = light.Normal;
       if (normal != null) {
-        GL.Uniform3(this.NormalLocation,
-                    normal.X,
-                    normal.Y,
-                    normal.Z);
+        this.NormalUniform.SetAndMaybeMarkDirty(
+            new Vector3(normal.X, normal.Y, normal.Z));
       }
 
       var strength = light.Strength;
       var color = light.Color;
-      GL.Uniform4(this.ColorLocation,
-                  color.Rf * strength,
-                  color.Gf * strength,
-                  color.Bf * strength,
-                  color.Af * strength);
+      this.ColorUniform.SetAndMaybeMarkDirty(
+          new Vector4(color.Rf * strength,
+                      color.Gf * strength,
+                      color.Bf * strength,
+                      color.Af * strength));
 
-      GL.Uniform1(this.DiffuseFunctionLocation, (int) light.DiffuseFunction);
-      GL.Uniform1(this.AttenuationFunctionLocation,
-                  (int) light.AttenuationFunction);
+      this.DiffuseFunctionUniform.SetAndMaybeMarkDirty(
+          (int) light.DiffuseFunction);
+      this.AttenuationFunctionUniform.SetAndMaybeMarkDirty(
+          (int) light.AttenuationFunction);
 
       var cosineAttenuation = light.CosineAttenuation;
       if (cosineAttenuation != null) {
-        GL.Uniform3(this.CosineAttenuationLocation,
-                    cosineAttenuation.X,
-                    cosineAttenuation.Y,
-                    cosineAttenuation.Z);
+        this.CosineAttenuationUniform.SetAndMaybeMarkDirty(new Vector3(
+            cosineAttenuation.X,
+            cosineAttenuation.Y,
+            cosineAttenuation.Z));
       }
 
       var distanceAttenuation = light.DistanceAttenuation;
       if (distanceAttenuation != null) {
-        GL.Uniform3(this.DistanceAttenuationLocation,
-                    distanceAttenuation.X,
-                    distanceAttenuation.Y,
-                    distanceAttenuation.Z);
+        this.DistanceAttenuationUniform.SetAndMaybeMarkDirty(new Vector3(
+            distanceAttenuation.X,
+            distanceAttenuation.Y,
+            distanceAttenuation.Z));
       }
     }
   }

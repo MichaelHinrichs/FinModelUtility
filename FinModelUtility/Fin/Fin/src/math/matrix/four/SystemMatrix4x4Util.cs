@@ -1,12 +1,45 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.math.floats;
 using fin.math.rotations;
 using fin.model;
+using fin.util.hash;
 
 
 namespace fin.math.matrix.four {
   public static class SystemMatrix4x4Util {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe bool IsRoughly(this Matrix4x4 lhs, Matrix4x4 rhs) {
+      float* lhsPtr = &lhs.M11;
+      float* rhsPtr = &rhs.M11;
+
+      for (var i = 0; i < 4 * 4; ++i) {
+        if (!lhsPtr[i].IsRoughly(rhsPtr[i])) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe int GetRoughHashCode(this Matrix4x4 mat) {
+      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR;
+
+      var hash = new FluentHash();
+      float* ptr = &mat.M11;
+      for (var i = 0; i < 4 * 4; ++i) {
+        var value = MathF.Round(ptr[i] / error) * error;
+        hash = hash.With(value.GetHashCode());
+      }
+
+      return hash;
+    }
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 FromTranslation(Position translation)
       => SystemMatrix4x4Util.FromTranslation(translation.X,

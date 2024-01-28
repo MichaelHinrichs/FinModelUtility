@@ -69,10 +69,25 @@ namespace fin.animation {
       }
     }
 
-    public void SetAllKeyframes(IEnumerable<T> values)
-      => this.impl_ = values
-                      .Select((value, frame) => new Keyframe<T>(frame, value))
-                      .ToList();
+    public void SetAllKeyframes(IEnumerable<T> values) {
+      this.impl_ = values
+                   .Select((value, frame) => new Keyframe<T>(frame, value))
+                   .ToList();
+
+      var lastFrame = this.impl_.Last().Frame;
+      while (this.frameToKeyframe_.Count < lastFrame + 1) {
+        this.frameToKeyframe_.Add(0);
+      }
+
+      var currentFrame = this.MaxKeyframe;
+      for (var k = this.impl_.Count - 1; k >= 0; --k) {
+        var keyframe = this.impl_[k];
+
+        while (keyframe.Frame <= currentFrame) {
+          this.frameToKeyframe_[currentFrame--] = k;
+        }
+      }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Keyframe<T> GetKeyframeAtIndex(int index) => this.impl_[index];

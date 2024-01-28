@@ -6,7 +6,6 @@ using fin.math.rotations;
 using fin.model;
 using fin.shaders.glsl;
 
-using OpenTK.Graphics.OpenGL;
 
 namespace fin.ui.rendering.gl.material {
   public class CachedTextureUniformData {
@@ -18,11 +17,11 @@ namespace fin.ui.rendering.gl.material {
     public IReadOnlyFinMatrix4x4? Transform3d { get; }
 
     public bool HasFancyData { get; }
-    public int SamplerLocation { get; }
-    public int ClampMinLocation { get; }
-    public int ClampMaxLocation { get; }
-    public int Transform2dLocation { get; }
-    public int Transform3dLocation { get; }
+    public IShaderUniform<int> SamplerUniform { get; }
+    public IShaderUniform<Vector2> ClampMinUniform { get; }
+    public IShaderUniform<Vector2> ClampMaxUniform { get; }
+    public IShaderUniform<Matrix3x2> Transform2dUniform { get; }
+    public IShaderUniform<Matrix4x4> Transform3dUniform { get; }
 
     public CachedTextureUniformData(
         string textureName,
@@ -36,19 +35,18 @@ namespace fin.ui.rendering.gl.material {
 
       this.HasFancyData = GlslUtil.RequiresFancyTextureData(finTexture);
       if (!this.HasFancyData) {
-        this.SamplerLocation =
-            shaderProgram.GetUniformLocation($"{textureName}");
+        this.SamplerUniform = shaderProgram.GetUniformInt($"{textureName}");
       } else {
-        this.SamplerLocation =
-            shaderProgram.GetUniformLocation($"{textureName}.sampler");
-        this.ClampMinLocation =
-            shaderProgram.GetUniformLocation($"{textureName}.clampMin");
-        this.ClampMaxLocation =
-            shaderProgram.GetUniformLocation($"{textureName}.clampMax");
-        this.Transform2dLocation =
-            shaderProgram.GetUniformLocation($"{textureName}.transform2d");
-        this.Transform3dLocation =
-            shaderProgram.GetUniformLocation($"{textureName}.transform3d");
+        this.SamplerUniform =
+            shaderProgram.GetUniformInt($"{textureName}.sampler");
+        this.ClampMinUniform =
+            shaderProgram.GetUniformVec2($"{textureName}.clampMin");
+        this.ClampMaxUniform =
+            shaderProgram.GetUniformVec2($"{textureName}.clampMax");
+        this.Transform2dUniform =
+            shaderProgram.GetUniformMat3x2($"{textureName}.transform2d");
+        this.Transform3dUniform =
+            shaderProgram.GetUniformMat4($"{textureName}.transform3d");
       }
 
       var isTransform3d = finTexture?.IsTransform3d ?? false;
@@ -61,11 +59,11 @@ namespace fin.ui.rendering.gl.material {
 
     public unsafe void BindTextureAndPassInUniforms() {
       this.GlTexture.Bind(this.TextureIndex);
-      GL.Uniform1(this.SamplerLocation, this.TextureIndex);
+      this.SamplerUniform.SetAndMaybeMarkDirty(this.TextureIndex);
 
       if (this.HasFancyData) {
-        OpenTK.Vector2 clampMin = new(-10000);
-        OpenTK.Vector2 clampMax = new(10000);
+        Vector2 clampMin = new(-10000);
+        Vector2 clampMax = new(10000);
 
         if (this.FinTexture?.WrapModeU == WrapMode.MIRROR_CLAMP) {
           clampMin.X = -1;
@@ -90,22 +88,20 @@ namespace fin.ui.rendering.gl.material {
           clampMax.Y = clampT.Y;
         }
 
-        GL.Uniform2(this.ClampMinLocation, clampMin);
-        GL.Uniform2(this.ClampMaxLocation, clampMax);
+        this.ClampMinUniform.SetAndMaybeMarkDirty(clampMin);
+        this.ClampMaxUniform.SetAndMaybeMarkDirty(clampMax);
 
         if (!(this.FinTexture?.IsTransform3d ?? false)) {
-          var mat2d = this.Transform2d!.Impl;
-          var ptr = (float*) &mat2d;
-          GL.UniformMatrix2x3(this.Transform2dLocation, 1, true, ptr);
+          this.Transform2dUniform.SetAndMaybeMarkDirty(this.Transform2d!.Impl);
         } else {
           var mat3d = this.Transform3d!.Impl;
-          GlTransform.UniformMatrix4(this.Transform3dLocation, mat3d);
+          this.Transform3dUniform.SetAndMaybeMarkDirty(mat3d);
         }
       }
     }
 
     private static IReadOnlyFinMatrix3x2 CalculateTextureTransform2d_(
-    ITexture? texture) {
+        ITexture? texture) {
       if (texture == null) {
         return FinMatrix3x2.IDENTITY;
       }

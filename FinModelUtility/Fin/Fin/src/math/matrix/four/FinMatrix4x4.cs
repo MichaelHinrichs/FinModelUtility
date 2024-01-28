@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using fin.math.floats;
 using fin.model;
 using fin.util.asserts;
-using fin.util.hash;
+
 
 namespace fin.math.matrix.four {
   using SystemMatrix = Matrix4x4;
@@ -320,6 +320,10 @@ namespace fin.math.matrix.four {
         return false;
       }
 
+      if (other is FinMatrix4x4 otherFin) {
+        return this.impl_.IsRoughly(otherFin.impl_);
+      }
+
       for (var r = 0; r < ROW_COUNT; ++r) {
         for (var c = 0; c < COLUMN_COUNT; ++c) {
           if (!this[r, c].IsRoughly(other[r, c])) {
@@ -332,17 +336,6 @@ namespace fin.math.matrix.four {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() {
-      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR;
-
-      var hash = new FluentHash();
-      for (var i = 0; i < CELL_COUNT; ++i) {
-        var value = this[i];
-        value = MathF.Round(value / error) * error;
-        hash = hash.With(value.GetHashCode());
-      }
-
-      return hash;
-    }
+    public override int GetHashCode() => this.impl_.GetRoughHashCode();
   }
 }
