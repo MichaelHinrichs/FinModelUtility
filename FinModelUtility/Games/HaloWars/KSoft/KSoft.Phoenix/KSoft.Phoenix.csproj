@@ -16,7 +16,6 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
@@ -429,34 +428,25 @@
     <Folder Include="Phx\Visual\" />
   </ItemGroup>
   <ItemGroup>
-    <Content
-        Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.dll"
-        Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.dll')"
-        >
+    <Content Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.dll" Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.dll')">
       <Link>DDS\DirectXTexDLL.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content
-        Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.pdb"
-        Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.pdb')"
-        >
+    <Content Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.pdb" Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DirectXTexDLL.pdb')">
       <Link>DDS\DirectXTexDLL.pdb</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content
-        Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DDSView.exe"
-        Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DDSView.exe')"
-        >
+    <Content Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DDSView.exe" Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\DDSView.exe')">
       <Link>DDS\DDSView.exe</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content
-        Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\texconv.exe"
-        Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\texconv.exe')"
-        >
+    <Content Include="$(VitaRootDir)shared\external_libraries\DirectXTex\x64\texconv.exe" Condition="Exists('$(VitaRootDir)shared\external_libraries\DirectXTex\x64\texconv.exe')">
       <Link>DDS\texconv.exe</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
