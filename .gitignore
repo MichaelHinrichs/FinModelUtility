@@ -5,7 +5,7 @@ cli/roms/*.*
 cli/roms/*/extracted/**
 !cli/roms/*/prereq/**
 !cli/roms/PUT ROMS HERE.txt
-!KSoft/KSoft/Debug/**
+!KSoft/*/Debug/**
 
 cli/ui/music/**
 !cli/ui/music/PUT UI BACKGROUND MUSIC HERE.txt
