@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -12,6 +10,7 @@ using fin.model;
 using fin.model.impl;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
+
 
 namespace HaloWarsTools {
   public class HWXtdResource : HWBinaryResource {
@@ -215,14 +214,12 @@ namespace HaloWarsTools {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector3 ConvertPositionVector(Vector3 vector) {
-      return new Vector3(vector.X, -vector.Z, vector.Y);
-    }
+    private static Vector3 ConvertPositionVector(Vector3 vector)
+      => new(vector.X, -vector.Z, vector.Y);
 
     // TODO: This might not be right
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector3 ConvertDirectionVector(Vector3 vector) {
-      return new Vector3(vector.Z, vector.X, vector.Y);
-    }
+    private static Vector3 ConvertDirectionVector(Vector3 vector)
+      => new(vector.Z, vector.X, vector.Y);
   }
 }

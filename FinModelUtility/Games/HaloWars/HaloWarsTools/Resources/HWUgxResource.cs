@@ -576,12 +576,7 @@ namespace HaloWarsTools {
 
                         var (finBone, grannyBone) =
                             localFinBones[boneIds[index] - 1];
-                        var mat =
-                            grannyBone
-                                .InverseWorld4x4; // MatrixTransformUtil.IDENTITY;
-                        return new BoneWeight(finBone,
-                                              mat,
-                                              weight);
+                        return new BoneWeight(finBone, null, weight);
                       })
                       .ToArray();
 

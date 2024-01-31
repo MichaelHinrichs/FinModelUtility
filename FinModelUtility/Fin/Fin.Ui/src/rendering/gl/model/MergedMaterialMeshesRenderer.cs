@@ -29,6 +29,9 @@ namespace fin.ui.rendering.gl.model {
 
       this.bufferManager_ = new GlBufferManager(this.Model);
 
+      var allMaterialMeshRenderers =
+          new List<(IMesh, MergedMaterialPrimitivesRenderer[])>();
+
       var primitiveMerger = new PrimitiveMerger();
       foreach (var mesh in this.Model.Skin.Meshes) {
         var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
@@ -67,11 +70,12 @@ namespace fin.ui.rendering.gl.model {
               });
         }
 
-        this.materialMeshRenderers_
-            = materialMeshRenderers
-              .Select(tuple => (tuple.Key, tuple.Value.ToArray()))
-              .ToArray();
+        allMaterialMeshRenderers.AddRange(
+            materialMeshRenderers.Select(
+                tuple => (tuple.Key, tuple.Value.ToArray())));
       }
+
+      this.materialMeshRenderers_ = allMaterialMeshRenderers.ToArray();
     }
 
     ~MergedMaterialMeshesRenderer() => ReleaseUnmanagedResources_();
@@ -82,7 +86,8 @@ namespace fin.ui.rendering.gl.model {
     }
 
     private void ReleaseUnmanagedResources_() {
-      foreach (var (_, materialMeshRenderers) in this.materialMeshRenderers_.AsSpan()) {
+      foreach (var (_, materialMeshRenderers) in this.materialMeshRenderers_
+                   .AsSpan()) {
         foreach (var materialMeshRenderer in materialMeshRenderers.AsSpan()) {
           materialMeshRenderer.Dispose();
         }
