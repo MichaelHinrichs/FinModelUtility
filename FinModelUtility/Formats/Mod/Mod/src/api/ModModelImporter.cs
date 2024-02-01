@@ -214,7 +214,7 @@ namespace mod.api {
           mod.envelopes.Select(
                  envelope =>
                      model.Skin.CreateBoneWeights(
-                         VertexSpace.WORLD,
+                         VertexSpace.RELATIVE_TO_WORLD,
                          envelope.indicesAndWeights
                                  .Select(
                                      indexAndWeight =>
@@ -334,7 +334,7 @@ namespace mod.api {
                       var boneIndex = attachmentIndex;
                       allVertexWeights.Add(
                           finSkin.GetOrCreateBoneWeights(
-                              VertexSpace.BONE,
+                              VertexSpace.RELATIVE_TO_BONE,
                               bones[boneIndex]));
                     }
                     // Negative indices refer to envelopes.

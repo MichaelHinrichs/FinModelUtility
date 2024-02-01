@@ -8,8 +8,10 @@ namespace fin.math.matrix {
       : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl>
       where TMutable : IFinMatrix<TMutable, TReadOnly, TImpl>, TReadOnly
       where TReadOnly : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl> {
+    new TImpl Impl { get; set; }
+
     void CopyFrom(TReadOnly other);
-    void CopyFrom(TImpl other);
+    void CopyFrom(in TImpl other);
 
     TMutable SetIdentity();
     TMutable SetZero();
@@ -17,8 +19,9 @@ namespace fin.math.matrix {
     new float this[int row, int column] { get; set; }
 
     TMutable AddInPlace(TReadOnly other);
+    TMutable AddInPlace(in TImpl other);
     TMutable MultiplyInPlace(TReadOnly other);
-    TMutable MultiplyInPlace(TImpl other);
+    TMutable MultiplyInPlace(in TImpl other);
     TMutable MultiplyInPlace(float other);
 
     TMutable InvertInPlace();
@@ -38,11 +41,13 @@ namespace fin.math.matrix {
     void AddIntoBuffer(TReadOnly other, TMutable buffer);
 
     TMutable CloneAndMultiply(TReadOnly other);
-
     void MultiplyIntoBuffer(TReadOnly other, TMutable buffer);
 
-    TMutable CloneAndMultiply(TImpl other);
-    void MultiplyIntoBuffer(TImpl other, TMutable buffer);
+    TMutable CloneAndAdd(in TImpl other);
+    void AddIntoBuffer(in TImpl other, TMutable buffer);
+
+    TMutable CloneAndMultiply(in TImpl other);
+    void MultiplyIntoBuffer(in TImpl other, TMutable buffer);
 
     TMutable CloneAndMultiply(float other);
     void MultiplyIntoBuffer(float other, TMutable buffer);

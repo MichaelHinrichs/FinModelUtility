@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using fin.animation;
 using fin.data.indexable;
-using fin.math.interpolation;
 using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
@@ -25,8 +23,6 @@ namespace fin.math {
         (IModelAnimation, float)? animationAndFrame,
         AnimationInterpolationConfig? config = null
     );
-
-    public IReadOnlyFinMatrix4x4 GetLocalMatrix(IBone bone);
 
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone);
 
@@ -57,9 +53,6 @@ namespace fin.math {
   public class BoneTransformManager : IBoneTransformManager {
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
     private readonly IndexableDictionary<IBone, IFinMatrix4x4>
-        bonesToLocalMatrices_ = new();
-
-    private readonly IndexableDictionary<IBone, IFinMatrix4x4>
         bonesToWorldMatrices_ = new();
 
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
@@ -85,7 +78,6 @@ namespace fin.math {
     }
 
     public void Clear() {
-      this.bonesToLocalMatrices_.Clear();
       this.bonesToWorldMatrices_.Clear();
       this.bonesToInverseBindMatrices_.Clear();
       this.boneWeightsToWorldMatrices_.Clear();
@@ -99,24 +91,27 @@ namespace fin.math {
               vertices.Count);
       foreach (var vertex in vertices) {
         this.verticesToWorldMatrices_[vertex] =
-            DetermineTransformMatrix_(vertex, forcePreproject);
+            DetermineTransformMatrix_(vertex.BoneWeights, forcePreproject);
       }
     }
 
     private readonly MagFilterInterpolationTrack<Position> positionMagFilterInterpolationTrack_ =
         new(null, Position.Lerp) {
-            AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
+          AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
         };
 
     private readonly MagFilterInterpolationTrack<Quaternion> rotationMagFilterInterpolationTrack_ =
         new(null, Quaternion.Slerp) {
-            AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
+          AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
         };
 
     private readonly MagFilterInterpolationTrack<Scale> scaleMagFilterInterpolationTrack_ =
         new(null, Scale.Lerp) {
-            AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
+          AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
         };
+
+    public void CalculateMatrices(IModel model)
+      => this.CalculateMatrices(model.Skeleton.Root, model.Skin.BoneWeights, null);
 
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
@@ -138,17 +133,10 @@ namespace fin.math {
       while (boneQueue.Count > 0) {
         var (bone, parentBoneToWorldMatrix) = boneQueue.Dequeue();
 
-        if (!this.bonesToLocalMatrices_.TryGetValue(
-                bone,
-                out var localMatrix)) {
-          this.bonesToLocalMatrices_[bone] = localMatrix = new FinMatrix4x4();
-        }
-
         if (!this.bonesToWorldMatrices_.TryGetValue(bone, out var boneToWorldMatrix)) {
           this.bonesToWorldMatrices_[bone] = boneToWorldMatrix = new FinMatrix4x4();
         }
 
-        localMatrix.SetIdentity();
         boneToWorldMatrix.CopyFrom(parentBoneToWorldMatrix);
 
         Position? animationLocalPosition = null;
@@ -200,10 +188,9 @@ namespace fin.math {
         var localScale = animationLocalScale ?? bone.LocalScale;
 
         if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
-          FinMatrix4x4Util.FromTrs(localPosition,
-                                localRotation,
-                                localScale,
-                                localMatrix);
+          var localMatrix = SystemMatrix4x4Util.FromTrs(localPosition,
+                                                        localRotation,
+                                                        localScale);
           boneToWorldMatrix.MultiplyInPlace(localMatrix);
         } else {
           // Applies translation first, so it's affected by parent rotation/scale.
@@ -232,12 +219,6 @@ namespace fin.math {
           } else {
             boneToWorldMatrix.CopyScaleInto(out scaleBuffer);
           }
-
-          // Creates child matrix.
-          FinMatrix4x4Util.FromTrs(localPosition,
-                                localRotation,
-                                localScale,
-                                localMatrix);
 
           // Gets final matrix.
           FinMatrix4x4Util.FromTrs(
@@ -291,22 +272,14 @@ namespace fin.math {
                                    this.bonesToInverseBindMatrices_[bone];
             var boneMatrix = this.GetWorldMatrix(bone);
 
-            boneMatrix.MultiplyIntoBuffer(skinToBoneMatrix,
-                                          this.tempSkinToWorldMatrix_);
-            this.tempSkinToWorldMatrix_.MultiplyInPlace(weight.Weight);
-
-            boneWeightMatrix.AddInPlace(this.tempSkinToWorldMatrix_);
+            var skinToWorldMatrix = (boneMatrix.Impl * skinToBoneMatrix.Impl) * weight.Weight;
+            boneWeightMatrix.AddInPlace(skinToWorldMatrix);
           }
         }
       }
 
       return bonesToIndex;
     }
-
-    private readonly FinMatrix4x4 tempSkinToWorldMatrix_ = new();
-
-    public IReadOnlyFinMatrix4x4 GetLocalMatrix(IBone bone)
-      => this.bonesToLocalMatrices_[bone];
 
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone)
       => this.bonesToWorldMatrices_[bone];
@@ -318,12 +291,11 @@ namespace fin.math {
       => this.boneWeightsToWorldMatrices_[boneWeights];
 
     private IReadOnlyFinMatrix4x4? DetermineTransformMatrix_(
-        IReadOnlyVertex vertex,
+        IBoneWeights? boneWeights,
         bool forcePreproject = false) {
-      var boneWeights = vertex.BoneWeights;
-      var weights = vertex.BoneWeights?.Weights;
+      var weights = boneWeights?.Weights;
       var preproject =
-          (boneWeights?.VertexSpace != VertexSpace.WORLD ||
+          (boneWeights?.VertexSpace != VertexSpace.RELATIVE_TO_WORLD ||
            forcePreproject) &&
           weights?.Count > 0;
 
@@ -331,16 +303,7 @@ namespace fin.math {
         return null;
       }
 
-      return boneWeights.VertexSpace switch {
-        // If vertex space mode is world, we have to first "undo" the root pose via an inverted matrix. 
-        VertexSpace.WORLD => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
-        // If preproject mode is bone, then we need to transform the vertex by one or more bones.
-        VertexSpace.BONE => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
-        // If preproject mode is root, then the vertex needs to be transformed relative to
-        // some root bone.
-        VertexSpace.WORLD_RELATIVE_TO_ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
-        _ => throw new ArgumentOutOfRangeException()
-      };
+      return this.boneWeightsToWorldMatrices_[boneWeights!];
     }
 
     public void ProjectVertexPosition(
@@ -410,6 +373,10 @@ namespace fin.math {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectPosition(IBone bone, ref Vector3 xyz)
       => ProjectionUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ProjectPosition(IBoneWeights bone, ref Vector3 xyz)
+      => ProjectionUtil.ProjectPosition(this.GetTransformMatrix(bone).Impl, ref xyz);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectNormal(IBone bone, ref Normal xyz)

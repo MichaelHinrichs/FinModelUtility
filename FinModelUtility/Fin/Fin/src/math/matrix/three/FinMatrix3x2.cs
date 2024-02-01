@@ -17,7 +17,10 @@ namespace fin.math.matrix.three {
     public const int CELL_COUNT = ROW_COUNT * COLUMN_COUNT;
 
     internal SystemMatrix impl_;
-    public SystemMatrix Impl => this.impl_;
+    public SystemMatrix Impl {
+      get => this.impl_;
+      set => this.impl_ = value;
+    }
 
     public static IReadOnlyFinMatrix3x2 IDENTITY =
         new FinMatrix3x2().SetIdentity();
@@ -41,7 +44,7 @@ namespace fin.math.matrix.three {
     }
 
     public FinMatrix3x2(IReadOnlyFinMatrix3x2 other) => this.CopyFrom(other);
-    public FinMatrix3x2(SystemMatrix other) => this.CopyFrom(other);
+    public FinMatrix3x2(in SystemMatrix other) => this.CopyFrom(other);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IFinMatrix3x2 Clone() => new FinMatrix3x2(this);
@@ -62,7 +65,7 @@ namespace fin.math.matrix.three {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyFrom(SystemMatrix other) => impl_ = other;
+    public void CopyFrom(in SystemMatrix other) => impl_ = other;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IFinMatrix3x2 SetIdentity() {
@@ -107,21 +110,23 @@ namespace fin.math.matrix.three {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddIntoBuffer(
-        IReadOnlyFinMatrix3x2 other,
-        IFinMatrix3x2 buffer) {
-      if (other is FinMatrix3x2 otherImpl &&
-          buffer is FinMatrix3x2 bufferImpl) {
-        bufferImpl.impl_ = SystemMatrix.Add(impl_, otherImpl.impl_);
-        return;
-      }
+    public void AddIntoBuffer(IReadOnlyFinMatrix3x2 other,
+                              IFinMatrix3x2 buffer)
+      => this.AddIntoBuffer(other.Impl, buffer);
 
-      for (var r = 0; r < ROW_COUNT; ++r) {
-        for (var c = 0; c < COLUMN_COUNT; ++c) {
-          buffer[r, c] = this[r, c] + other[r, c];
-        }
-      }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IFinMatrix3x2 CloneAndAdd(in SystemMatrix other)
+      => this.Clone().AddInPlace(other);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IFinMatrix3x2 AddInPlace(in SystemMatrix other) {
+      this.AddIntoBuffer(other, this);
+      return this;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddIntoBuffer(in SystemMatrix other, IFinMatrix3x2 buffer)
+      => buffer.Impl = SystemMatrix.Add(impl_, other);
 
 
     // Matrix Multiplication
@@ -160,18 +165,18 @@ namespace fin.math.matrix.three {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix3x2 CloneAndMultiply(SystemMatrix other)
+    public IFinMatrix3x2 CloneAndMultiply(in SystemMatrix other)
       => this.Clone().MultiplyInPlace(other);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix3x2 MultiplyInPlace(SystemMatrix other) {
+    public IFinMatrix3x2 MultiplyInPlace(in SystemMatrix other) {
       this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MultiplyIntoBuffer(
-        SystemMatrix other,
+        in SystemMatrix other,
         IFinMatrix3x2 buffer) {
       if (buffer is FinMatrix3x2 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Multiply(other, impl_);

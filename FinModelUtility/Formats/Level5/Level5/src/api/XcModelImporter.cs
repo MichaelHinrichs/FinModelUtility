@@ -177,7 +177,7 @@ namespace level5.api {
 
                 var boneWeights =
                     model.Skin.GetOrCreateBoneWeights(
-                        VertexSpace.BONE,
+                        VertexSpace.RELATIVE_TO_BONE,
                         boneWeightList.ToArray());
                 finVertex.SetBoneWeights(boneWeights);
               }

@@ -98,7 +98,7 @@ namespace dat.schema.mesh {
         return;
       }
 
-      this.VertexSpace = VertexSpace.BONE;
+      this.VertexSpace = VertexSpace.RELATIVE_TO_BONE;
 
       var weightListOffset = this.Header.WeightListOffset;
       if (weightListOffset != 0) {

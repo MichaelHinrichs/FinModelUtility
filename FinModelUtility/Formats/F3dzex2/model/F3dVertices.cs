@@ -86,7 +86,7 @@ namespace f3dzex2.model {
       if (activeBone != null) {
         newVertex.SetBoneWeights(
             this.model_.Skin.GetOrCreateBoneWeights(
-                VertexSpace.BONE,
+                VertexSpace.RELATIVE_TO_BONE,
                 activeBone));
       }
 

@@ -316,7 +316,7 @@ namespace glo.api {
               finVertex.SetUv(gloVertexRef.U, gloVertexRef.V);
               //.SetColor(color);
               finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(
-                                           VertexSpace.BONE,
+                                           VertexSpace.RELATIVE_TO_BONE,
                                            finBone));
               finFaceVertices[v] = finVertex;
             }
@@ -338,7 +338,7 @@ namespace glo.api {
                 gloSpritePosition.Z);
             finSpriteBone.AlwaysFaceTowardsCamera(Quaternion.Identity);
             var finSpriteBoneWeights =
-                finSkin.GetOrCreateBoneWeights(VertexSpace.BONE,
+                finSkin.GetOrCreateBoneWeights(VertexSpace.RELATIVE_TO_BONE,
                                                finSpriteBone);
 
             var textureFilename = gloSprite.TextureFilename;

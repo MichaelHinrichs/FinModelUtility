@@ -400,8 +400,8 @@ namespace cmb.api {
           }
 
           var preprojectMode = preproject[i].Value
-              ? VertexSpace.BONE
-              : VertexSpace.WORLD;
+              ? VertexSpace.RELATIVE_TO_BONE
+              : VertexSpace.RELATIVE_TO_WORLD;
 
           if (hasBw) {
             var totalWeight = 0f;

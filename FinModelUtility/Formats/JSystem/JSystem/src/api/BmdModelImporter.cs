@@ -335,7 +335,7 @@ namespace jsystem.api {
                 }
                 weightsTable[i] =
                     finSkin.GetOrCreateBoneWeights(
-                        VertexSpace.BONE, weights);
+                        VertexSpace.RELATIVE_TO_BONE, weights);
               }
 
               foreach (var primitive in packet.Primitives) {

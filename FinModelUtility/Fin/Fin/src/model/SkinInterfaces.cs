@@ -109,9 +109,9 @@ namespace fin.model {
   }
 
   public enum VertexSpace {
-    WORLD,
-    WORLD_RELATIVE_TO_ROOT,
-    BONE,
+    RELATIVE_TO_WORLD,
+    RELATIVE_TO_ROOT,
+    RELATIVE_TO_BONE,
   }
 
 

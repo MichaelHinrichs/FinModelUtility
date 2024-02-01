@@ -73,7 +73,7 @@ namespace pmdc.api {
                   finVertex.SetUv(omdVertex.Uv);
                   finVertex.SetBoneWeights(
                       finSkin.GetOrCreateBoneWeights(
-                          VertexSpace.WORLD,
+                          VertexSpace.RELATIVE_TO_WORLD,
                           finRoot));
 
                   return finVertex;

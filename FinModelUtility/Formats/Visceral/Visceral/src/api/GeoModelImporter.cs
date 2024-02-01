@@ -170,7 +170,7 @@ namespace visceral.api {
 
                      vertex.SetBoneWeights(
                          finSkin.GetOrCreateBoneWeights(
-                             VertexSpace.WORLD,
+                             VertexSpace.RELATIVE_TO_WORLD,
                              boneWeights));
 
                      vertex.SetLocalNormal(geoVertex.Normal);

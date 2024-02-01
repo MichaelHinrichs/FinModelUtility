@@ -307,7 +307,7 @@ namespace fin.model.io.importers.assimp {
             finVertices[i]
                 .SetBoneWeights(
                     finSkin.GetOrCreateBoneWeights(
-                        VertexSpace.WORLD,
+                        VertexSpace.RELATIVE_TO_WORLD,
                         boneWeights.ToArray()));
           }
         }

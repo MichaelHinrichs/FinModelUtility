@@ -77,7 +77,7 @@ namespace dat.api {
 
         finBoneByJObj[jObj] = finBone;
         boneWeightsByJObj[jObj] =
-            finSkin.GetOrCreateBoneWeights(VertexSpace.BONE, finBone);
+            finSkin.GetOrCreateBoneWeights(VertexSpace.RELATIVE_TO_BONE, finBone);
 
         var inverseBindMatrixValues = jObj.InverseBindMatrixValues;
         inverseBindMatrixValues.CopyTo(inverseBindMatrixBuffer);

@@ -277,11 +277,7 @@ namespace HaloWarsTools {
               // X depending on how many submodels down we are.
               var xSign = this.FlipFaces_ ? -1 : 1;
 
-              var finBone =
-                  isRoot
-                      ? parentFinBone.AddRoot(
-                          xSign * position.X, position.Y, position.Z)
-                      : parentFinBone.AddChild(
+              var finBone = parentFinBone.AddRoot(
                           xSign * position.X, position.Y, position.Z);
 
               finBone.SetLocalRotationRadians(rotation.X,
@@ -582,11 +578,11 @@ namespace HaloWarsTools {
 
               finVertex.SetBoneWeights(
                   finSkin.GetOrCreateBoneWeights(
-                      VertexSpace.WORLD_RELATIVE_TO_ROOT, finBoneWeights));
+                      VertexSpace.RELATIVE_TO_ROOT, finBoneWeights));
             } else {
               finVertex.SetBoneWeights(
                   finSkin.GetOrCreateBoneWeights(
-                      VertexSpace.WORLD_RELATIVE_TO_ROOT, localFinBones[0].Item1));
+                      VertexSpace.RELATIVE_TO_ROOT, localFinBones[0].Item1));
             }
 
             finVertices.Add(finVertex);
