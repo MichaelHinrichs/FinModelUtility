@@ -277,8 +277,10 @@ namespace HaloWarsTools {
               // X depending on how many submodels down we are.
               var xSign = this.FlipFaces_ ? -1 : 1;
 
-              var finBone = parentFinBone.AddRoot(
-                          xSign * position.X, position.Y, position.Z);
+              var finBone = 
+                  isRoot ?
+                      parentFinBone.AddRoot(xSign * position.X, position.Y, position.Z)
+                      : parentFinBone.AddChild(xSign * position.X, position.Y, position.Z);
 
               finBone.SetLocalRotationRadians(rotation.X,
                                               xSign * rotation.Y

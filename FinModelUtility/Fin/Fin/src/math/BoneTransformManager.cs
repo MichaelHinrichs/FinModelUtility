@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 
 using fin.animation;
@@ -53,10 +54,16 @@ namespace fin.math {
   public class BoneTransformManager : IBoneTransformManager {
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
     private readonly IndexableDictionary<IBone, IFinMatrix4x4>
+        bonesToRootMatrices_ = new();
+
+    private readonly IndexableDictionary<IBone, IFinMatrix4x4>
         bonesToWorldMatrices_ = new();
 
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
-        bonesToInverseBindMatrices_ = new();
+        bonesToInverseRootMatrices_ = new();
+
+    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
+        bonesToInverseWorldMatrices_ = new();
 
     private readonly IndexableDictionary<IBoneWeights, IFinMatrix4x4>
         boneWeightsToWorldMatrices_ = new();
@@ -78,8 +85,10 @@ namespace fin.math {
     }
 
     public void Clear() {
+      this.bonesToRootMatrices_.Clear();
       this.bonesToWorldMatrices_.Clear();
-      this.bonesToInverseBindMatrices_.Clear();
+      this.bonesToInverseRootMatrices_.Clear();
+      this.bonesToInverseWorldMatrices_.Clear();
       this.boneWeightsToWorldMatrices_.Clear();
       this.verticesToWorldMatrices_.Clear();
     }
@@ -128,15 +137,24 @@ namespace fin.math {
       var bonesToIndex = new Dictionary<IBone, int>();
       var boneIndex = -1;
 
-      var boneQueue = new Queue<(IBone, Matrix4x4)>();
-      boneQueue.Enqueue((rootBone, this.ManagerMatrix.Impl));
+      var boneQueue = new Queue<(IBone, Matrix4x4, Matrix4x4)>();
+      boneQueue.Enqueue((rootBone, this.ManagerMatrix.Impl, this.ManagerMatrix.Impl));
       while (boneQueue.Count > 0) {
-        var (bone, parentBoneToWorldMatrix) = boneQueue.Dequeue();
+        var (bone, parentBoneToRootMatrix, parentBoneToWorldMatrix) = boneQueue.Dequeue();
+
+        if (!this.bonesToRootMatrices_.TryGetValue(bone, out var boneToRootMatrix)) {
+          this.bonesToRootMatrices_[bone] = boneToRootMatrix = new FinMatrix4x4();
+        }
+
+        if (bone.Root == bone) {
+          boneToRootMatrix.SetIdentity();
+        } else {
+          boneToRootMatrix.CopyFrom(parentBoneToRootMatrix!);
+        }
 
         if (!this.bonesToWorldMatrices_.TryGetValue(bone, out var boneToWorldMatrix)) {
           this.bonesToWorldMatrices_[bone] = boneToWorldMatrix = new FinMatrix4x4();
         }
-
         boneToWorldMatrix.CopyFrom(parentBoneToWorldMatrix);
 
         Position? animationLocalPosition = null;
@@ -191,56 +209,28 @@ namespace fin.math {
           var localMatrix = SystemMatrix4x4Util.FromTrs(localPosition,
                                                         localRotation,
                                                         localScale);
+          boneToRootMatrix.MultiplyInPlace(localMatrix);
           boneToWorldMatrix.MultiplyInPlace(localMatrix);
         } else {
-          // Applies translation first, so it's affected by parent rotation/scale.
-          var localTranslationMatrix =
-              SystemMatrix4x4Util.FromTranslation(localPosition);
-          boneToWorldMatrix.MultiplyInPlace(localTranslationMatrix);
-
-          // Extracts translation/rotation/scale.
-          boneToWorldMatrix.CopyTranslationInto(out var translationBuffer);
-          Quaternion rotationBuffer;
-          if (bone.FaceTowardsCamera) {
-            var camera = Camera.Instance;
-            var yawDegrees = camera?.YawDegrees ?? 0;
-            var yawRadians = yawDegrees * FinTrig.DEG_2_RAD;
-            var yawRotation =
-                Quaternion.CreateFromYawPitchRoll(yawRadians, 0, 0);
-
-            rotationBuffer = yawRotation * bone.FaceTowardsCameraAdjustment;
-          } else {
-            boneToWorldMatrix.CopyRotationInto(out rotationBuffer);
-          }
-
-          Scale scaleBuffer;
-          if (bone.IgnoreParentScale) {
-            scaleBuffer = new Scale(1);
-          } else {
-            boneToWorldMatrix.CopyScaleInto(out scaleBuffer);
-          }
-
-          // Gets final matrix.
-          FinMatrix4x4Util.FromTrs(
-              translationBuffer,
-              rotationBuffer,
-              scaleBuffer,
-              boneToWorldMatrix);
-          boneToWorldMatrix.MultiplyInPlace(
-              SystemMatrix4x4Util.FromTrs(null,
-                                       localRotation,
-                                       localScale));
+          boneToRootMatrix.ApplyTrsWithFancyBoneEffects(bone,
+                                                         localPosition,
+                                                         localRotation,
+                                                         localScale);
+          boneToWorldMatrix.ApplyTrsWithFancyBoneEffects(bone,
+                                                         localPosition,
+                                                         localRotation,
+                                                         localScale);
         }
 
         if (isFirstPass) {
-          this.bonesToInverseBindMatrices_[bone] = boneToWorldMatrix.CloneAndInvert();
+          this.bonesToInverseRootMatrices_[bone] = boneToRootMatrix.CloneAndInvert();
+          this.bonesToInverseWorldMatrices_[bone] = boneToWorldMatrix.CloneAndInvert();
         }
 
         bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
-          // TODO: Use a pool of matrices to prevent unneeded instantiations.
-          boneQueue.Enqueue((child, boneToWorldMatrix.Impl));
+          boneQueue.Enqueue((child, boneToRootMatrix.Impl, boneToWorldMatrix.Impl));
         }
       }
 
@@ -253,27 +243,21 @@ namespace fin.math {
         }
 
         boneWeightMatrix.SetZero();
-
         var weights = boneWeights.Weights;
-        if (weights.Count == 1) {
-          var weight = weights[0];
-          var bone = weight.Bone;
+        foreach (var boneWeight in weights) {
+          var bone = boneWeight.Bone;
+          var weight = boneWeight.Weight;
 
-          var skinToBoneMatrix = weight.InverseBindMatrix ??
-                                 this.bonesToInverseBindMatrices_[bone];
-          var boneMatrix = this.GetWorldMatrix(bone);
-
-          boneMatrix.MultiplyIntoBuffer(skinToBoneMatrix, boneWeightMatrix);
-        } else {
-          foreach (var weight in weights) {
-            var bone = weight.Bone;
-
-            var skinToBoneMatrix = weight.InverseBindMatrix ??
-                                   this.bonesToInverseBindMatrices_[bone];
-            var boneMatrix = this.GetWorldMatrix(bone);
-
-            var skinToWorldMatrix = (boneMatrix.Impl * skinToBoneMatrix.Impl) * weight.Weight;
-            boneWeightMatrix.AddInPlace(skinToWorldMatrix);
+          if (boneWeights.VertexSpace != VertexSpace.RELATIVE_TO_ROOT) {
+            boneWeightMatrix.AddInPlace(
+                (this.bonesToWorldMatrices_[bone].Impl *
+                 this.bonesToInverseWorldMatrices_[bone].Impl) * weight);
+          } else {
+            boneWeightMatrix.AddInPlace(
+                (
+                    this.bonesToWorldMatrices_[bone.Root].Impl * 
+                    this.bonesToRootMatrices_[bone].Impl *
+                 this.bonesToInverseRootMatrices_[bone].Impl) * weight);
           }
         }
       }
@@ -385,5 +369,56 @@ namespace fin.math {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectNormal(IBone bone, ref Vector3 xyz)
       => ProjectionUtil.ProjectNormal(this.GetWorldMatrix(bone).Impl, ref xyz);
+  }
+
+  public static class BoneTransformManagerExtensions {
+    public static void ApplyTrsWithFancyBoneEffects(
+        this IFinMatrix4x4? matrix,
+        IBone bone,
+        in Position localPosition,
+        in Quaternion? localRotation,
+        in Scale? localScale) {
+      if (matrix == null) {
+        return;
+      }
+
+      // Applies translation first, so it's affected by parent rotation/scale.
+      var localTranslationMatrix =
+          SystemMatrix4x4Util.FromTranslation(localPosition);
+      matrix.MultiplyInPlace(localTranslationMatrix);
+
+      // Extracts translation/rotation/scale.
+      matrix.CopyTranslationInto(out var translationBuffer);
+      Quaternion rotationBuffer;
+      if (bone.FaceTowardsCamera) {
+        var camera = Camera.Instance;
+        var yawDegrees = camera?.YawDegrees ?? 0;
+        var yawRadians = yawDegrees * FinTrig.DEG_2_RAD;
+        var yawRotation =
+            Quaternion.CreateFromYawPitchRoll(yawRadians, 0, 0);
+
+        rotationBuffer = yawRotation * bone.FaceTowardsCameraAdjustment;
+      } else {
+        matrix.CopyRotationInto(out rotationBuffer);
+      }
+
+      Scale scaleBuffer;
+      if (bone.IgnoreParentScale) {
+        scaleBuffer = new Scale(1);
+      } else {
+        matrix.CopyScaleInto(out scaleBuffer);
+      }
+
+      // Gets final matrix.
+      FinMatrix4x4Util.FromTrs(
+          translationBuffer,
+          rotationBuffer,
+          scaleBuffer,
+          matrix);
+      matrix.MultiplyInPlace(
+          SystemMatrix4x4Util.FromTrs(null,
+                                            localRotation,
+                                            localScale));
+    }
   }
 }
