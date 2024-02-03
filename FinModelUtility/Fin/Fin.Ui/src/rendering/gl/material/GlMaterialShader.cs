@@ -1,5 +1,7 @@
 ﻿using fin.math;
 using fin.model;
+using fin.shaders.glsl;
+using fin.util.asserts;
 
 namespace fin.ui.rendering.gl.material {
   public static class GlMaterialShader {
@@ -7,39 +9,26 @@ namespace fin.ui.rendering.gl.material {
         IModel model,
         IMaterial? material,
         IBoneTransformManager? boneTransformManager = null,
-        ILighting? lighting = null) {
-      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
-          && !DebugFlags.ENABLE_WEIGHT_COLORS
-          && material is IFixedFunctionMaterial fixedFunctionMaterial) {
-        return new GlFixedFunctionMaterialShader(
+        ILighting? lighting = null)
+      => material.GetShaderType() switch {
+        FinShaderType.FIXED_FUNCTION => new GlFixedFunctionMaterialShader(
             model,
-            fixedFunctionMaterial,
+            Asserts.AsA<IFixedFunctionMaterial>(material),
             boneTransformManager,
-            lighting);
-      }
-
-      if (material is IStandardMaterial standardMaterial) {
-        return new GlStandardMaterialShader(model,
-                                            standardMaterial,
-                                            boneTransformManager,
-                                            lighting);
-      }
-
-      if (material is IColorMaterial colorMaterial) {
-        return new GlColorMaterialShader(model,
-                                         colorMaterial,
-                                         boneTransformManager,
-                                         lighting);
-      }
-
-      if (material != null) {
-        return new GlTextureMaterialShader(model,
-                                           material,
-                                           boneTransformManager,
-                                           lighting);
-      }
-
-      return new GlNullMaterialShader(model, boneTransformManager, lighting);
-    }
+            lighting),
+        FinShaderType.TEXTURE => new GlTextureMaterialShader(model,
+                                                             Asserts.AsA<ITextureMaterial>(material),
+                                                             boneTransformManager,
+                                                             lighting),
+        FinShaderType.COLOR => new GlColorMaterialShader(model,
+                                                         Asserts.AsA<IColorMaterial>(material),
+                                                         boneTransformManager,
+                                                         lighting),
+        FinShaderType.STANDARD => new GlStandardMaterialShader(model,
+                                                               Asserts.AsA<IStandardMaterial>(material),
+                                                               boneTransformManager,
+                                                               lighting),
+        FinShaderType.NULL => new GlNullMaterialShader(model, boneTransformManager, lighting),
+      };
   }
 }

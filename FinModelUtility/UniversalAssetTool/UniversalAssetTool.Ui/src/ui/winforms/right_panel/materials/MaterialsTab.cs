@@ -12,8 +12,7 @@ namespace uni.ui.winforms.right_panel.materials {
 
       this.materialSelector_.OnMaterialSelected += material => {
         this.materialViewerPanel1.Material = material;
-        this.shaderSection_.ModelAndMaterial =
-            material != null ? (this.model_!, material) : null;
+        this.shaderSection_.ModelAndMaterial =(this.model_!, material);
         this.textureSection_.Material = material;
       };
     }

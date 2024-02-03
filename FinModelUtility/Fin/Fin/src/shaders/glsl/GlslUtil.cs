@@ -6,7 +6,37 @@ using fin.model;
 using fin.math.xyz;
 
 namespace fin.shaders.glsl {
+  public enum FinShaderType {
+    FIXED_FUNCTION,
+    TEXTURE,
+    COLOR,
+    STANDARD,
+    NULL
+  }
+
   public static class GlslUtil {
+    public static FinShaderType GetShaderType(this IReadOnlyMaterial? material) {
+      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
+          && !DebugFlags.ENABLE_WEIGHT_COLORS
+          && material is IFixedFunctionMaterial) {
+        return FinShaderType.FIXED_FUNCTION;
+      }
+
+      if (material is IStandardMaterial) {
+        return FinShaderType.STANDARD;
+      }
+
+      if (material is IColorMaterial) {
+        return FinShaderType.COLOR;
+      }
+
+      if (material != null && material is not INullMaterial) {
+        return FinShaderType.TEXTURE;
+      }
+
+      return FinShaderType.NULL;
+    }
+
     public static TNumber UseThenAdd<TNumber>(ref TNumber value, TNumber delta)
         where TNumber : INumber<TNumber> {
       var initialValue = value;

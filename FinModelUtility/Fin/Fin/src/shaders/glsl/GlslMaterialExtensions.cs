@@ -1,32 +1,24 @@
 ﻿using fin.model;
+using fin.util.asserts;
 
 namespace fin.shaders.glsl {
   public static class GlslMaterialExtensions {
     public static IShaderSourceGlsl ToShaderSource(
-        this IReadOnlyMaterial material,
+        this IReadOnlyMaterial? material,
         IModel model,
-        bool useBoneMatrices) {
-      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
-          && !DebugFlags.ENABLE_WEIGHT_COLORS
-          && material is IFixedFunctionMaterial fixedFunctionMaterial) {
-        return new FixedFunctionShaderSourceGlsl(
-            model,
-            fixedFunctionMaterial,
-            useBoneMatrices);
-      }
-
-      if (material is IStandardMaterial standardMaterial) {
-        return new StandardShaderSourceGlsl(
-            model,
-            standardMaterial,
-            useBoneMatrices);
-      }
-
-      if (material is IColorMaterial) {
-        return new ColorShaderSourceGlsl(model, material, useBoneMatrices);
-      }
-
-      return new TextureShaderSourceGlsl(model, material, useBoneMatrices);
-    }
+        bool useBoneMatrices)
+      => material.GetShaderType() switch {
+        FinShaderType.FIXED_FUNCTION
+            => new FixedFunctionShaderSourceGlsl(model,
+                                                 Asserts.AsA<IFixedFunctionMaterial>(material),
+                                                 useBoneMatrices),
+        FinShaderType.TEXTURE => new TextureShaderSourceGlsl(model, Asserts.AsA<ITextureMaterial>(material), useBoneMatrices),
+        FinShaderType.COLOR => new ColorShaderSourceGlsl(model, Asserts.AsA<IColorMaterial>(material), useBoneMatrices),
+          FinShaderType.STANDARD => new StandardShaderSourceGlsl(
+              model,
+              Asserts.AsA<IStandardMaterial>(material),
+              useBoneMatrices),
+        FinShaderType.NULL => new NullShaderSourceGlsl(model, useBoneMatrices),
+      };
   }
 }

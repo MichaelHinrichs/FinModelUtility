@@ -117,7 +117,7 @@ namespace fin.ui.rendering.gl.material {
     public string VertexShaderSource => this.impl_.VertexShaderSource;
     public string FragmentShaderSource => this.impl_.FragmentShaderSource;
 
-    public IReadOnlyMaterial Material { get; }
+    public IReadOnlyMaterial? Material { get; }
 
     public bool UseLighting { get; set; }
     public bool DisposeTextures { get; set; } = true;
@@ -144,7 +144,7 @@ namespace fin.ui.rendering.gl.material {
                 .Impl ?? Matrix4x4.Identity);
       }
 
-      this.shininessUniform_.SetAndMaybeMarkDirty(this.Material.Shininess);
+      this.shininessUniform_.SetAndMaybeMarkDirty(this.Material?.Shininess ?? 0);
 
       this.PassInLightUniforms_(this.lighting_);
 

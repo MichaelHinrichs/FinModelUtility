@@ -134,6 +134,7 @@ namespace visceral.api {
         standardMaterial.DiffuseTexture = colorTexture;
         standardMaterial.NormalTexture = normalTexture;
         material = standardMaterial;
+        material.Name = baseTextureName;
       } else {
         material = finModel.MaterialManager.AddNullMaterial();
       }
