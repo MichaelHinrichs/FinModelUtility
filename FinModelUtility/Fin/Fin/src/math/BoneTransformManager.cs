@@ -249,13 +249,13 @@ namespace fin.math {
           var weight = boneWeight.Weight;
 
           if (boneWeights.VertexSpace != VertexSpace.RELATIVE_TO_ROOT) {
+            var inverseMatrix = boneWeight.InverseBindMatrix ?? this.bonesToInverseWorldMatrices_[bone];
             boneWeightMatrix.AddInPlace(
-                (this.bonesToWorldMatrices_[bone].Impl *
-                 this.bonesToInverseWorldMatrices_[bone].Impl) * weight);
+                (inverseMatrix.Impl * this.bonesToWorldMatrices_[bone].Impl) * weight);
           } else {
             boneWeightMatrix.AddInPlace(
                 (
-                    this.bonesToWorldMatrices_[bone.Root].Impl * 
+                    this.bonesToWorldMatrices_[bone.Root].Impl *
                     this.bonesToRootMatrices_[bone].Impl *
                  this.bonesToInverseRootMatrices_[bone].Impl) * weight);
           }
@@ -357,10 +357,6 @@ namespace fin.math {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectPosition(IBone bone, ref Vector3 xyz)
       => ProjectionUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void ProjectPosition(IBoneWeights bone, ref Vector3 xyz)
-      => ProjectionUtil.ProjectPosition(this.GetTransformMatrix(bone).Impl, ref xyz);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectNormal(IBone bone, ref Normal xyz)
