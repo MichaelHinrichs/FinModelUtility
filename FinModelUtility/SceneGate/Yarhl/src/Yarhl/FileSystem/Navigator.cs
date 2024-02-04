@@ -62,7 +62,7 @@ namespace Yarhl.FileSystem
             }
 
             string[] paths = path.Split(
-                new[] { NodeSystem.PathSeparator },
+                [NodeSystem.PathSeparator],
                 StringSplitOptions.RemoveEmptyEntries);
 
             T? currentNode = rootNode;

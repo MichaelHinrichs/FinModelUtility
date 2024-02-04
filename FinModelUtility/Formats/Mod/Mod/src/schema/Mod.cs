@@ -31,22 +31,22 @@ namespace mod.schema {
 
   public class Mod : IBinaryConvertible {
     public readonly ModHeader header = new();
-    public readonly List<Vector3f> vertices = new();
-    public readonly List<Vector3f> vnormals = new();
-    public readonly List<Nbt> vertexnbt = new();
-    public readonly List<Rgba32> vcolours = new();
+    public readonly List<Vector3f> vertices = [];
+    public readonly List<Vector3f> vnormals = [];
+    public readonly List<Nbt> vertexnbt = [];
+    public readonly List<Rgba32> vcolours = [];
     public readonly List<Vector2f>[] texcoords = new List<Vector2f>[8];
-    public readonly List<Texture> textures = new();
-    public readonly List<TextureAttributes> texattrs = new();
+    public readonly List<Texture> textures = [];
+    public readonly List<TextureAttributes> texattrs = [];
     public readonly MaterialContainer materials = new();
-    public readonly List<VtxMatrix> vtxMatrix = new();
-    public readonly List<Envelope> envelopes = new();
-    public readonly List<Mesh> meshes = new();
-    public readonly List<Joint> joints = new();
-    public readonly List<string> jointNames = new();
+    public readonly List<VtxMatrix> vtxMatrix = [];
+    public readonly List<Envelope> envelopes = [];
+    public readonly List<Mesh> meshes = [];
+    public readonly List<Joint> joints = [];
+    public readonly List<string> jointNames = [];
     public readonly CollTriInfo colltris = new();
     public readonly CollGrid collgrid = new();
-    public readonly List<byte> eofBytes = new();
+    public readonly List<byte> eofBytes = [];
     public bool hasNormals = false;
 
     public Mod() {}
@@ -56,7 +56,7 @@ namespace mod.schema {
       this.hasNormals = false;
 
       for (var i = 0; i < 8; ++i) {
-        this.texcoords[i] = new List<Vector2f>();
+        this.texcoords[i] = [];
       }
 
       bool stopRead = false;

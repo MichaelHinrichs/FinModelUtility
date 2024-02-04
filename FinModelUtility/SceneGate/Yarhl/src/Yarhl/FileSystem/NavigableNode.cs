@@ -51,7 +51,7 @@ namespace Yarhl.FileSystem
 
             Name = name;
             Tags = new Dictionary<string, dynamic>();
-            children = new List<T>();
+            children = [];
             Children = new NavigableNodeCollection<T>(children);
         }
 

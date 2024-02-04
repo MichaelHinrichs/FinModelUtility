@@ -12,7 +12,7 @@ namespace fin.schema.data {
     private ISwitchMagicConfig<TMagic, TData> config_;
 
     private readonly List<IMagicSection<TMagic, TData>> impl_ =
-        new();
+        [];
 
     public SwitchMagicUInt32SizedSectionMap(
         ISwitchMagicConfig<TMagic, TData> config) {

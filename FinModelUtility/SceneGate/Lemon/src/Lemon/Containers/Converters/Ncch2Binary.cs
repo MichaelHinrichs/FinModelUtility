@@ -79,7 +79,7 @@ namespace SceneGate.Lemon.Containers.Converters
             // First we write the header signature
             writer.Write(source.Header.Signature);
 
-            byte[] magicId = new byte[] { 0x4E, 0x43, 0x43, 0x48 };
+            byte[] magicId = [0x4E, 0x43, 0x43, 0x48];
             writer.Write(magicId);
 
             // We'll write the total size at last.

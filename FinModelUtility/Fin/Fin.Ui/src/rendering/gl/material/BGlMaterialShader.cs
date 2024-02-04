@@ -9,9 +9,9 @@ namespace fin.ui.rendering.gl.material {
   public abstract class BGlMaterialShader<TMaterial> : IGlMaterialShader
       where TMaterial : IReadOnlyMaterial {
     private LinkedList<CachedTextureUniformData> cachedTextureUniformDatas_ =
-        new();
+        [];
 
-    private LinkedList<CachedLightUniformData> cachedLightUniformDatas_ = new();
+    private LinkedList<CachedLightUniformData> cachedLightUniformDatas_ = [];
 
     private readonly IModel model_;
     private readonly ILighting? lighting_;

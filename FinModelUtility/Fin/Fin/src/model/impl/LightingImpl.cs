@@ -10,7 +10,7 @@ namespace fin.model.impl {
   }
 
   public class LightingImpl : ILighting {
-    private readonly List<ILight> lights_ = new();
+    private readonly List<ILight> lights_ = [];
 
     public IReadOnlyList<ILight> Lights => lights_;
 

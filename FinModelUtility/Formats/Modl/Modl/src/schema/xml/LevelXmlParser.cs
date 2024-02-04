@@ -29,7 +29,7 @@ namespace modl.schema.xml {
 
     public IReadOnlyFinMatrix4x4? Matrix { get; set; }
 
-    public LinkedList<string> Children { get; } = new();
+    public LinkedList<string> Children { get; } = [];
 
     public string? NextLinkId { get; set; } = null;
     public bool? StickToFloor { get; set; } = null;

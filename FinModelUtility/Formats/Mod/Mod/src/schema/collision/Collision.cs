@@ -43,11 +43,11 @@ namespace mod.schema.collision {
 
     [RSequenceLengthSource(nameof(roomInfoCount_))]
     [Align(0x20)]
-    public readonly List<BaseRoomInfo> roominfo = new();
+    public readonly List<BaseRoomInfo> roominfo = [];
 
     [RSequenceLengthSource(nameof(colInfoCount_))]
     [Align(0x20)]
-    public readonly List<BaseCollTriInfo> collinfo = new();
+    public readonly List<BaseCollTriInfo> collinfo = [];
 
     [Align(0x20)]
     private readonly byte[] empty_ = new byte[0];
@@ -86,14 +86,14 @@ namespace mod.schema.collision {
     public uint gridY = 0;
 
     [SequenceLengthSource(SchemaIntegerType.UINT32)]
-    public readonly List<CollGroup> groups = new();
+    public readonly List<CollGroup> groups = [];
 
     [Skip]
     private uint gridSize_ => this.gridX * this.gridY;
 
     [Unknown]
     [RSequenceLengthSource(nameof(gridSize_))]
-    public readonly List<int> unknown2 = new();
+    public readonly List<int> unknown2 = [];
 
     [Align(0x20)]
     private readonly byte[] empty_ = new byte[0];

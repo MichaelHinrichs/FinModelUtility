@@ -56,9 +56,9 @@ namespace mod.schema.animation {
 
   [BinarySchema]
   public partial class DckAxes : IDcxAxes {
-    public IDcxAxis[] Axes { get; } = {
-        new DckAxis(), new DckAxis(), new DckAxis(),
-    };
+    public IDcxAxis[] Axes { get; } = [
+        new DckAxis(), new DckAxis(), new DckAxis()
+    ];
   }
 
   [BinarySchema]

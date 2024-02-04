@@ -2,7 +2,7 @@
 
 namespace dat.schema {
   public class Dat : IBinaryDeserializable {
-    public LinkedList<DatSubfile> Subfiles { get; } = new();
+    public LinkedList<DatSubfile> Subfiles { get; } = [];
 
     public void Read(IBinaryReader br) {
       do {

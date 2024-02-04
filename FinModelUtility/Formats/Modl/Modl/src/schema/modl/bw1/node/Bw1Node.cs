@@ -24,7 +24,7 @@ namespace modl.schema.modl.bw1.node {
 
     public float Scale { get; set; }
 
-    public List<IBwMaterial> Materials { get; } = new();
+    public List<IBwMaterial> Materials { get; } = [];
 
     public Bw1Node(int additionalDataCount) {
       this.additionalDataCount_ = additionalDataCount;
@@ -205,20 +205,20 @@ namespace modl.schema.modl.bw1.node {
     }
 
 
-    public List<VertexPosition> Positions { get; } = new();
+    public List<VertexPosition> Positions { get; } = [];
 
     private void ReadPositions_(IBinaryReader br, uint vertexCount)
       => this.Positions.AddRange(
           br.ReadNews<VertexPosition>((int) vertexCount));
 
 
-    public List<VertexNormal> Normals { get; } = new();
+    public List<VertexNormal> Normals { get; } = [];
 
     private void ReadNormals_(IBinaryReader br, uint vertexCount)
       => this.Normals.AddRange(
           br.ReadNews<VertexNormal>((int) vertexCount));
 
-    public List<BwMesh> Meshes { get; } = new();
+    public List<BwMesh> Meshes { get; } = [];
 
     private void ReadOpcodes_(IBinaryReader br,
                               uint sectionSize,

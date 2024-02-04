@@ -166,7 +166,7 @@ namespace dat.api {
                                  .CostumeVisibilityLookupTable
                                  ?.LowPoly;
         if (lowPoly != null) {
-          lowPolyDObjs = new List<HashSet<byte>>();
+          lowPolyDObjs = [];
           foreach (var lookupEntry in lowPoly.LookupEntries) {
             var set = new HashSet<byte>();
             lowPolyDObjs.Add(set);
@@ -350,7 +350,7 @@ namespace dat.api {
 
       // Sorts all dObjs so that the opaque ones are rendered first, and then the translucent (XLU) ones
       LinkedList<(JObj jObj, byte jObjIndex, DObj dObj, byte dObjIndex)>
-          allJObjsAndDObjs = new();
+          allJObjsAndDObjs = [];
       {
         byte jObjIndex = 0;
         foreach (var rootJObj in primaryDatSubfile.RootJObjs) {

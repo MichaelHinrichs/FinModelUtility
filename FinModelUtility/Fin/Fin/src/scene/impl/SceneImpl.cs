@@ -22,7 +22,7 @@ namespace fin.scene {
       }
     }
 
-    private readonly List<ISceneArea> areas_ = new();
+    private readonly List<ISceneArea> areas_ = [];
     public IReadOnlyList<ISceneArea> Areas => this.areas_;
 
     public ISceneArea AddArea() {

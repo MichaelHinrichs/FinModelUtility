@@ -19,7 +19,7 @@ namespace fin.scene {
         }
       }
 
-      private readonly List<ISceneObject> objects_ = new();
+      private readonly List<ISceneObject> objects_ = [];
 
       public IReadOnlyList<ISceneObject> Objects => this.objects_;
 

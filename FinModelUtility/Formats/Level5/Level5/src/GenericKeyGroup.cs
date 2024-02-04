@@ -24,7 +24,7 @@
       }
     }
 
-    private LinkedList<GenericAnimKey<T>> keys_ = new();
+    private LinkedList<GenericAnimKey<T>> keys_ = [];
 
     public void AddKey(float frame, T value, InterpolationType type = InterpolationType.Linear, float TanIn = 0, float TanOut = float.MaxValue) {
       GenericAnimKey<T> key = new() {

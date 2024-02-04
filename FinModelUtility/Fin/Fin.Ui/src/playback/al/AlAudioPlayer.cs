@@ -8,10 +8,10 @@ namespace fin.ui.playback.al {
       private float volume_ = 1;
 
       private readonly TrackedDisposables<IAudioPlayer<short>>
-          subAudioPlayers_ = new();
+          subAudioPlayers_ = [];
 
       private readonly TrackedDisposables<IAudioPlayback<short>> playbacks_ =
-          new();
+          [];
 
       public bool IsDisposed { get; private set; }
 

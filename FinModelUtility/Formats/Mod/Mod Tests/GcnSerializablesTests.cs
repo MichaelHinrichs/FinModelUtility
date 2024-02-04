@@ -21,7 +21,7 @@ namespace mod.schema {
     [Test]
     public void TestCollGroup() {
       var collGroup = new CollGroup();
-      collGroup.unknown1 = new byte[] {1, 2, 3, 4};
+      collGroup.unknown1 = [1, 2, 3, 4];
 
       TestGcnSerializableExisting(collGroup);
     }
@@ -40,7 +40,7 @@ namespace mod.schema {
       }
 
       var collGroup = new CollGroup();
-      collGroup.unknown1 = new byte[] {1, 2, 3, 4};
+      collGroup.unknown1 = [1, 2, 3, 4];
 
       collGrid.groups.Add(collGroup);
       collGrid.groups.Add(collGroup);
@@ -63,7 +63,7 @@ namespace mod.schema {
       joint.scale.Set(10.1f, 11.1f, 12.1f);
       joint.rotation.Set(13.1f, 14.1f, 15.1f);
       joint.position.Set(16.1f, 17.1f, 18.1f);
-      joint.matpolys = new[] {
+      joint.matpolys = [
           new JointMatPoly {
               matIdx = 19,
               meshIdx = 20,
@@ -71,8 +71,8 @@ namespace mod.schema {
           new JointMatPoly {
               matIdx = 20,
               meshIdx = 21,
-          },
-      };
+          }
+      ];
 
       TestGcnSerializableExisting(joint);
     }
@@ -89,15 +89,15 @@ namespace mod.schema {
       };
 
       var meshPacket = new MeshPacket();
-      meshPacket.indices = new short[] {3, 4};
+      meshPacket.indices = [3, 4];
 
       var displayList = new DisplayList();
       displayList.flags.intView = 5;
       displayList.cmdCount = 6;
-      displayList.dlistData = new byte[] {7, 8};
-      meshPacket.displaylists = new[] {displayList, displayList};
+      displayList.dlistData = [7, 8];
+      meshPacket.displaylists = [displayList, displayList];
 
-      mesh.packets = new[] {meshPacket, meshPacket};
+      mesh.packets = [meshPacket, meshPacket];
 
       TestGcnSerializableExisting(mesh);
     }
@@ -115,7 +115,7 @@ namespace mod.schema {
           height = 2,
           format = (Texture.TextureFormat) 3,
       };
-      texture.imageData = new byte[] {5, 6};
+      texture.imageData = [5, 6];
 
       TestGcnSerializableExisting(texture);
     }

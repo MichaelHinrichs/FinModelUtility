@@ -34,30 +34,30 @@ namespace fin.language.equations.fixedFunction {
               .Range(0, MaterialConstants.MAX_LIGHTS)
               .Select(
                   i => equations.DoOutputsDependOn(
-                      new[] {
-                          FixedFunctionSource.LIGHT_DIFFUSE_COLOR_0 + i,
+                  [
+                      FixedFunctionSource.LIGHT_DIFFUSE_COLOR_0 + i,
                           FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_0 + i,
                           FixedFunctionSource.LIGHT_SPECULAR_COLOR_0 + i,
                           FixedFunctionSource.LIGHT_SPECULAR_ALPHA_0 + i
-                      }))
+                  ]))
               .ToArray();
       var dependsOnAnIndividualLight =
           hasIndividualLights.Any(value => value);
       var dependsOnMergedLights =
           equations.DoOutputsDependOn(
-              new[] {
-                  FixedFunctionSource.LIGHT_DIFFUSE_COLOR_MERGED,
+          [
+              FixedFunctionSource.LIGHT_DIFFUSE_COLOR_MERGED,
                   FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_MERGED,
                   FixedFunctionSource.LIGHT_SPECULAR_COLOR_MERGED,
-                  FixedFunctionSource.LIGHT_SPECULAR_ALPHA_MERGED,
-              });
+                  FixedFunctionSource.LIGHT_SPECULAR_ALPHA_MERGED
+          ]);
       var dependsOnLights = dependsOnMergedLights || dependsOnAnIndividualLight;
 
       var dependsOnAmbientLight = equations.DoOutputsDependOn(
-          new[] {
-              FixedFunctionSource.LIGHT_AMBIENT_COLOR,
+      [
+          FixedFunctionSource.LIGHT_AMBIENT_COLOR,
               FixedFunctionSource.LIGHT_AMBIENT_ALPHA
-          });
+      ]);
 
       // TODO: Optimize this if we only need ambient
       if (dependsOnLights || dependsOnAmbientLight) {
@@ -71,10 +71,10 @@ namespace fin.language.equations.fixedFunction {
               .Select(
                   i => equations
                       .DoOutputsDependOn(
-                          new[] {
-                              FixedFunctionSource.TEXTURE_COLOR_0 + i,
+                      [
+                          FixedFunctionSource.TEXTURE_COLOR_0 + i,
                               FixedFunctionSource.TEXTURE_ALPHA_0 + i
-                          }))
+                      ]))
               .ToArray();
       var dependsOnAnyTextures =
           dependsOnIndividualTextures.Any(value => value);
@@ -133,10 +133,10 @@ namespace fin.language.equations.fixedFunction {
       }
 
       for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
-        if (equations.DoOutputsDependOn(new[] {
+        if (equations.DoOutputsDependOn([
                 FixedFunctionSource.VERTEX_COLOR_0 + i,
                 FixedFunctionSource.VERTEX_ALPHA_0 + i
-            })) {
+            ])) {
           writeLineBetweenUniformsAndIns();
           os.WriteLine($"in vec4 vertexColor{i};");
         }

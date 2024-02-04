@@ -17,8 +17,8 @@ namespace fin.io.bundles {
   }
 
   public class FileBundleDirectory : IFileBundleDirectory {
-    private readonly List<IFileBundleDirectory> subdirs_ = new();
-    private readonly List<IAnnotatedFileBundle> fileBundles_ = new();
+    private readonly List<IFileBundleDirectory> subdirs_ = [];
+    private readonly List<IAnnotatedFileBundle> fileBundles_ = [];
 
     public FileBundleDirectory(IFileHierarchyDirectory? directory) {
       this.Directory = directory;

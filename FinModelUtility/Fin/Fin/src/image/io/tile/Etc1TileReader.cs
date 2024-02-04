@@ -22,7 +22,7 @@ namespace fin.image.io.tile {
      * https://github.com/Gericom/EveryFileExplorer/blob/master/3DS/GPU/Textures.cs
      * https://github.com/gdkchan/Ohana3DS-Rebirth/blob/master/Ohana3DS%20Rebirth/Ohana/TextureCodec.cs */
 
-    private static readonly int[] ETC1_MODIFIER_TABLES_ = {
+    private static readonly int[] ETC1_MODIFIER_TABLES_ = [
         2, 8, -2, -8,
         5, 17, -5, -17,
         9, 29, -9, -29,
@@ -31,7 +31,7 @@ namespace fin.image.io.tile {
         24, 80, -24, -80,
         33, 106, -33, -106,
         47, 183, -47, -183
-    };
+    ];
 
     public Etc1TileReader(bool hasAlpha) {
       this.hasAlpha_ = hasAlpha;

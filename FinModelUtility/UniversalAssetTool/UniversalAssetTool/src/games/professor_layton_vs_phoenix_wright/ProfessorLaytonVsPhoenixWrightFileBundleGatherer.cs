@@ -31,7 +31,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
 
             var xcBundles = Array.Empty<IXcFiles>();
             if (directory.LocalPath == "\\vs1\\chr") {
-              xcBundles = new[] {
+              xcBundles = [
                   GetSameFile("Emeer Punchenbaug", directory, "c206"),
                   GetSameFile("Espella Cantabella", directory, "c105"),
                   GetSameFile("Flynch", directory, "c203"),
@@ -51,8 +51,8 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                   GetSameFile("Professor Layton (Gold)", directory, "c301"),
                   GetSameFile("Storyteller", directory, "c134"),
                   GetSameFile("Wordsmith", directory, "c211"),
-                  GetSameFile("Zacharias Barnham", directory, "c106_a"),
-              };
+                  GetSameFile("Zacharias Barnham", directory, "c106_a")
+              ];
             }
 
             var bundles = new List<IAnnotatedXcBundle>();
@@ -75,7 +75,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
               var name = xcFile.NameWithoutExtension;
               var underscoreIndex = name.IndexOf('_');
               if (underscoreIndex != -1) {
-                animationFiles = new[] { xcFile };
+                animationFiles = [xcFile];
               } else {
                 animationFiles = xcFiles
                                  .Where(fileWithAnimations
@@ -154,7 +154,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
     internal record SameFile(
         string Name,
         IFileHierarchyFile ModelFile) : IXcFiles {
-      public IFileHierarchyFile[] AnimationFiles { get; } = { ModelFile };
+      public IFileHierarchyFile[] AnimationFiles { get; } = [ModelFile];
     }
 
     internal record ModelAndAnimations(

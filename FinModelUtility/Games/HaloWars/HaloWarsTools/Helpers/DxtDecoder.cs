@@ -423,12 +423,12 @@ namespace Dxt {
             Func<IColor, Rgb24> toRgb = c => new Rgb24(c.Rb, c.Gb, c.Bb);
 
             (var i0, var i1) = (toRgb(c0), toRgb(c1));
-            Rgb24[] colors = new[] {
+            Rgb24[] colors = [
                 i0,
                 i1,
                 toRgb(ColorUtil.Interpolate(c0, c1, 1f / 3)),
                 toRgb(ColorUtil.Interpolate(c0, c1, 2f / 3))
-            };
+            ];
 
             for (int i = 0; i < 4; i++) {
               byte rowVal = input[streamIndex++];

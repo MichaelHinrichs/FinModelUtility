@@ -33,7 +33,7 @@ namespace modl.schema.modl.bw2.node {
 
     public float Scale { get; set; }
 
-    public List<IBwMaterial> Materials { get; } = new();
+    public List<IBwMaterial> Materials { get; } = [];
 
     public Bw2Node(int additionalDataCount) {
       this.additionalDataCount_ = additionalDataCount;
@@ -222,7 +222,7 @@ namespace modl.schema.modl.bw2.node {
     }
 
 
-    public List<VertexPosition> Positions { get; } = new();
+    public List<VertexPosition> Positions { get; } = [];
 
     private void ReadPositions_(IBinaryReader br, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
@@ -231,7 +231,7 @@ namespace modl.schema.modl.bw2.node {
     }
 
 
-    public List<VertexNormal> Normals { get; } = new();
+    public List<VertexNormal> Normals { get; } = [];
 
     private void ReadNormals_(IBinaryReader br, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
@@ -239,7 +239,7 @@ namespace modl.schema.modl.bw2.node {
       }
     }
 
-    public List<BwMesh> Meshes { get; } = new();
+    public List<BwMesh> Meshes { get; } = [];
 
     private void ReadOpcodes_(IBinaryReader br,
                               uint sectionSize,

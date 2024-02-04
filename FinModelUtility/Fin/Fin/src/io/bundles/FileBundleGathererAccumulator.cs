@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace fin.io.bundles {
   public class AnnotatedFileBundleGathererAccumulator : IAnnotatedFileBundleGathererAccumulator {
-    private readonly List<IAnnotatedFileBundleGatherer> gatherers_ = new();
+    private readonly List<IAnnotatedFileBundleGatherer> gatherers_ = [];
 
     public IAnnotatedFileBundleGathererAccumulator Add(IAnnotatedFileBundleGatherer gatherer) {
       this.gatherers_.Add(gatherer);
@@ -25,7 +25,7 @@ namespace fin.io.bundles {
       : IAnnotatedFileBundleGathererAccumulator<TFileBundle>
       where TFileBundle : IFileBundle {
     private readonly List<IAnnotatedFileBundleGatherer<TFileBundle>>
-        gatherers_ = new();
+        gatherers_ = [];
 
     public IAnnotatedFileBundleGathererAccumulator<TFileBundle> Add(
         IAnnotatedFileBundleGatherer<TFileBundle> gatherer) {
@@ -47,7 +47,7 @@ namespace fin.io.bundles {
       : IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T>
       where TFileBundle : IFileBundle {
     private readonly List<IAnnotatedFileBundleGatherer<TFileBundle>>
-        gatherers_ = new();
+        gatherers_ = [];
 
     private readonly T input_;
 

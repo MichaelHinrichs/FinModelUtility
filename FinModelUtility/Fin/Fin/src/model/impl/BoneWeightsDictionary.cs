@@ -6,7 +6,7 @@ using fin.util.asserts;
 
 namespace fin.model.impl {
   public class BoneWeightsDictionary {
-    private readonly List<IBoneWeights> boneWeights_ = new();
+    private readonly List<IBoneWeights> boneWeights_ = [];
     private readonly Dictionary<int, BoneWeightsSet> boneWeightsByCount_ =
       new();
 

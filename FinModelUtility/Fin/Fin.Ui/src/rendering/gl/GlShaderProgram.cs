@@ -37,26 +37,26 @@ namespace fin.ui.rendering.gl {
         ReferenceCountCacheDictionary<(string vertexSrc, string fragmentSrc),
             CachedShaderProgram> programCache_ =
             new(vertexAndFragmentSrc => {
-                  var (vertexSrc, fragmentSrc) = vertexAndFragmentSrc;
-                  var vertexShaderId =
-                      GlShaderProgram.vertexShaderCache_.GetAndIncrement(
-                          vertexSrc);
-                  var fragmentShaderId =
-                      GlShaderProgram.fragmentShaderCache_.GetAndIncrement(
-                          fragmentSrc);
+              var (vertexSrc, fragmentSrc) = vertexAndFragmentSrc;
+              var vertexShaderId =
+                  GlShaderProgram.vertexShaderCache_.GetAndIncrement(
+                      vertexSrc);
+              var fragmentShaderId =
+                  GlShaderProgram.fragmentShaderCache_.GetAndIncrement(
+                      fragmentSrc);
 
-                  var programId = GL.CreateProgram();
+              var programId = GL.CreateProgram();
 
-                  GL.AttachShader(programId, vertexShaderId);
-                  GL.AttachShader(programId, fragmentShaderId);
-                  GL.LinkProgram(programId);
+              GL.AttachShader(programId, vertexShaderId);
+              GL.AttachShader(programId, fragmentShaderId);
+              GL.LinkProgram(programId);
 
-                  return new CachedShaderProgram {
-                      ProgramId = programId,
-                      VertexShaderSource = vertexSrc,
-                      FragmentShaderSource = fragmentSrc,
-                  };
-                },
+              return new CachedShaderProgram {
+                ProgramId = programId,
+                VertexShaderSource = vertexSrc,
+                FragmentShaderSource = fragmentSrc,
+              };
+            },
                 (vertexAndFragmentSrc, cachedShaderProgram) => {
                   GL.DeleteProgram(cachedShaderProgram.ProgramId);
 
@@ -95,7 +95,7 @@ namespace fin.ui.rendering.gl {
     private static int CreateAndCompileShader_(string src,
                                                ShaderType shaderType) {
       var shaderId = GL.CreateShader(shaderType);
-      GL.ShaderSource(shaderId, 1, new[] {src}, (int[]) null);
+      GL.ShaderSource(shaderId, 1, [src], (int[]) null);
       GL.CompileShader(shaderId);
 
       // TODO: Throw/return this error

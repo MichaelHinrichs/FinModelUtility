@@ -18,7 +18,7 @@ namespace fin.model.impl {
 
     private class FixedFunctionMaterialImpl
         : BMaterialImpl, IFixedFunctionMaterial {
-      private readonly List<ITexture> textures_ = new();
+      private readonly List<ITexture> textures_ = [];
 
       private readonly ITexture?[] texturesSources_ = new ITexture[8];
       private readonly IColor?[] colors_ = new IColor[2];

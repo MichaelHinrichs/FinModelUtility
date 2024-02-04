@@ -73,12 +73,12 @@ namespace f3dzex2.image {
     private readonly SetTextureImageParams setTextureImageParams_ = new();
     private readonly TextureTile textureTile_ = new();
 
-    private readonly LoadedTexture[] loadedTextures_ = {
-        new LoadedTexture(), new LoadedTexture(),
-    };
+    private readonly LoadedTexture[] loadedTextures_ = [
+        new LoadedTexture(), new LoadedTexture()
+    ];
 
     private readonly TextureParams[] textureParams_ = new TextureParams[2];
-    private readonly bool[] texturesChanged_ = { true, true };
+    private readonly bool[] texturesChanged_ = [true, true];
 
     public JankTmem(IN64Hardware n64Hardware) {
       this.n64Hardware_ = n64Hardware;

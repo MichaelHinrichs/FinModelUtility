@@ -15,10 +15,8 @@ namespace fin.util.asserts {
 
     public override string StackTrace {
       get {
-        List<string> stackTrace = new List<string>();
-        stackTrace.AddRange(base.StackTrace!.Split(
-                                new string[] { Environment.NewLine },
-                                StringSplitOptions.None));
+        List<string> stackTrace = [];
+        stackTrace.AddRange(base.StackTrace!.Split(Environment.NewLine));
 
         var assertLine = new Regex("\\s*Asserts\\.");
         stackTrace.RemoveAll(x => assertLine.IsMatch(x));

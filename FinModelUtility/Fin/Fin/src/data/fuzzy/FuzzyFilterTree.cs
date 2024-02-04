@@ -6,7 +6,7 @@ namespace fin.data.fuzzy {
     // TODO: Add tests.
     // TODO: Add support for different sorting systems.
 
-    private readonly List<FuzzyNode> nodes_ = new();
+    private readonly List<FuzzyNode> nodes_ = [];
     private readonly Func<T, IReadOnlySet<string>> nodeToKeywords_;
 
     private readonly IFuzzySearchDictionary<FuzzyNode> impl_ =
@@ -15,7 +15,7 @@ namespace fin.data.fuzzy {
     // TODO: Clean this up.
     private class FuzzyNode : IFuzzyNode<T> {
       private readonly FuzzyFilterTree<T> tree_;
-      private readonly List<IFuzzyNode<T>> children_ = new();
+      private readonly List<IFuzzyNode<T>> children_ = [];
 
       public FuzzyNode(FuzzyFilterTree<T> tree) {
         this.tree_ = tree;

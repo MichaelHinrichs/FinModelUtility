@@ -12,6 +12,6 @@ namespace glo.schema {
     public Rgba32 Color { get; private set; } = new();
     public ushort Flags { get; set; }
 
-    public GloVertexRef[] VertexRefs { get; } = { new(), new(), new(), };
+    public GloVertexRef[] VertexRefs { get; } = [new(), new(), new()];
   }
 }

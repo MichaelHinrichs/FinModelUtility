@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace fin.data.sets {
   public class OrderedHashSet<T> : IFinSet<T> {
     // TODO: Can this be optimized??
-    private readonly LinkedList<T> list_ = new();
-    private readonly HashSet<T> set_ = new();
+    private readonly LinkedList<T> list_ = [];
+    private readonly HashSet<T> set_ = [];
 
     public int Count => this.list_.Count;
 

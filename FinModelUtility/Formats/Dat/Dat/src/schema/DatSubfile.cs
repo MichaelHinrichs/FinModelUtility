@@ -16,8 +16,8 @@ namespace dat.schema {
   ///     - https://github.com/jam1garner/Smash-Forge/blob/c0075bca364366bbea2d3803f5aeae45a4168640/Smash%20Forge/Filetypes/Melee/DAT.cs
   /// </summary>
   public class DatSubfile : IBinaryDeserializable {
-    private readonly List<RootNode> rootNodes_ = new();
-    private readonly HashSet<uint> validOffsets_ = new();
+    private readonly List<RootNode> rootNodes_ = [];
+    private readonly HashSet<uint> validOffsets_ = [];
 
     private uint dataBlockOffset_;
     private uint relocationTableOffset_;
@@ -27,7 +27,7 @@ namespace dat.schema {
 
     public uint FileSize { get; set; }
 
-    public LinkedList<(IDatNode, string)> RootNodesWithNames { get; } = new();
+    public LinkedList<(IDatNode, string)> RootNodesWithNames { get; } = [];
 
     public IEnumerable<IDatNode> RootNodes
       => this.RootNodesWithNames.Select(

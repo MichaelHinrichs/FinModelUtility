@@ -50,10 +50,10 @@ namespace sm64 {
     public static uint endCake_drawFunc_NA = 0x802D28CC;
 
     public static List<ObjectComboEntry> objectComboEntries =
-        new List<ObjectComboEntry>();
+        [];
 
     public static List<BehaviorNameEntry> behaviorNameEntries =
-        new List<BehaviorNameEntry>();
+        [];
 
     public static BehaviorNameEntry getBehaviorNameEntryFromSegAddress(
         uint address) {

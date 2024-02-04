@@ -116,7 +116,7 @@ namespace jsystem.GCN {
           br.Position = baseoffset +
                         (long) Parent.BatchAttribsOffset +
                         (long) this.AttribsOffset;
-          List<BatchAttribute> source = new List<BatchAttribute>();
+          List<BatchAttribute> source = [];
           {
             BatchAttribute entry;
             do {
@@ -200,7 +200,7 @@ namespace jsystem.GCN {
               IBinaryReader br,
               int Length,
               BatchAttribute[] Attributes) {
-            List<Primitive> primitiveList = new List<Primitive>();
+            List<Primitive> primitiveList = [];
             bool flag = false;
             int num1 = 0;
             while (!flag) {

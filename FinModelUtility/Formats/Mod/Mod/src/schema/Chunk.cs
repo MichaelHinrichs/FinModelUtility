@@ -82,8 +82,8 @@ namespace mod.schema {
   }
 
   public class ModSectionData : IBinaryConvertible {
-    public List<ChunkData> Chunks { get; } = new();
-    public List<byte> EofBytes { get; } = new();
+    public List<ChunkData> Chunks { get; } = [];
+    public List<byte> EofBytes { get; } = [];
 
     public void Read(IBinaryReader br) {
       var opcodes = new HashSet<uint>();

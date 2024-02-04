@@ -63,7 +63,8 @@ namespace sm64.LevelInfo {
 
     public void MakeReadOnly() {
       TypeDescriptor.AddAttributes(
-          this, new Attribute[] {new ReadOnlyAttribute(true)});
+          this,
+          [new ReadOnlyAttribute(true)]);
     }
 
 

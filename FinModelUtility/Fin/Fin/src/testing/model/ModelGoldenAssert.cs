@@ -94,7 +94,7 @@ namespace fin.testing.model {
       }
     }
 
-    private static string[] EXTENSIONS = { ".glb" };
+    private static string[] EXTENSIONS = [".glb"];
 
     public static void AssertGolden<TModelBundle>(
         IFileHierarchyDirectory goldenSubdir,

@@ -235,11 +235,11 @@ namespace SceneGate.Ekona.Containers.Rom
         /// <summary>
         /// Gets or sets the collection of information of overlays for ARM-9.
         /// </summary>
-        public Collection<OverlayInfo> Overlays9Info { get; set; } = new Collection<OverlayInfo>();
+        public Collection<OverlayInfo> Overlays9Info { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the collection of information of overlays for ARM-7.
         /// </summary>
-        public Collection<OverlayInfo> Overlays7Info { get; set; } = new Collection<OverlayInfo>();
+        public Collection<OverlayInfo> Overlays7Info { get; set; } = [];
     }
 }

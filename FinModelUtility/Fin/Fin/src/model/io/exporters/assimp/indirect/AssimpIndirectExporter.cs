@@ -25,7 +25,7 @@ namespace fin.model.io.exporters.assimp.indirect {
     public void ExportModel(IModelExporterParams modelExporterParams)
       => ExportExtensions(modelExporterParams,
                           !LowLevel
-                              ? new[] { ".fbx", ".glb" }
+                              ? [".fbx", ".glb"]
                               : new[] { ".gltf" },
                           false);
 

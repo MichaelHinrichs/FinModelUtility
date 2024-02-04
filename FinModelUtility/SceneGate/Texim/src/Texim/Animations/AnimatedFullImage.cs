@@ -23,7 +23,7 @@ using System.Collections.ObjectModel;
 
 public class AnimatedFullImage : IAnimatedFullImage
 {
-    public Collection<IFullImageFrame> Frames { get; init; } = new Collection<IFullImageFrame>();
+    public Collection<IFullImageFrame> Frames { get; init; } = [];
 
     public int Loops { get; set; }
 }

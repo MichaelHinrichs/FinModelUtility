@@ -20,7 +20,7 @@ namespace uni.games.chibi_robo {
       var header = br.ReadNew<QpBinArchiveHeader>();
 
       FileStringTableEntry[] entries = Array.Empty<FileStringTableEntry>();
-      List<string> strings = new();
+      List<string> strings = [];
 
       br.Position = header.FileStringTableOffset;
       br.Subread(

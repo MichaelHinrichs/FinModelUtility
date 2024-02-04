@@ -329,9 +329,9 @@ namespace jsystem.api {
                   }
 
                   var bone = jointsAndBones[jointIndex].Item2;
-                  weights = new[] {
+                  weights = [
                       new BoneWeight(bone, FinMatrix4x4Util.IDENTITY, 1)
-                  };
+                  ];
                 }
                 weightsTable[i] =
                     finSkin.GetOrCreateBoneWeights(

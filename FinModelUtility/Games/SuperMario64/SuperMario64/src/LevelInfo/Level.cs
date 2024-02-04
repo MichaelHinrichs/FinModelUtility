@@ -17,7 +17,7 @@ namespace sm64.LevelInfo {
     public uint romLocation = 0;
     public bool usesFog = false;
     public Color fogColor = Color.White;
-    public List<uint> fogColor_romLocation = new List<uint>();
+    public List<uint> fogColor_romLocation = [];
   }
 
   public class Area {
@@ -39,12 +39,12 @@ namespace sm64.LevelInfo {
     public Model3DLods AreaModel;
     public CollisionMap collision = new CollisionMap();
 
-    public List<Object3D> Objects = new List<Object3D>();
-    public List<Object3D> MacroObjects = new List<Object3D>();
-    public List<Object3D> SpecialObjects = new List<Object3D>();
-    public List<Warp> Warps = new List<Warp>();
-    public List<Warp> PaintingWarps = new List<Warp>();
-    public List<WarpInstant> InstantWarps = new List<WarpInstant>();
+    public List<Object3D> Objects = [];
+    public List<Object3D> MacroObjects = [];
+    public List<Object3D> SpecialObjects = [];
+    public List<Warp> Warps = [];
+    public List<Warp> PaintingWarps = [];
+    public List<WarpInstant> InstantWarps = [];
 
     private byte? defaultTerrainType_;
 
@@ -80,29 +80,29 @@ namespace sm64.LevelInfo {
       set { currentAreaID = value; }
     }
 
-    public List<Area> Areas = new List<Area>();
+    public List<Area> Areas = [];
     public AreaBackgroundInfo temp_bgInfo = new AreaBackgroundInfo();
 
     public Dictionary<ushort, Model3DLods> ModelIDs =
         new Dictionary<ushort, Model3DLods>();
 
     public List<ObjectComboEntry> LevelObjectCombos =
-        new List<ObjectComboEntry>();
+        [];
 
     public List<PresetMacroEntry> MacroObjectPresets =
-        new List<PresetMacroEntry>();
+        [];
 
     public List<PresetMacroEntry> SpecialObjectPresets_8 =
-        new List<PresetMacroEntry>();
+        [];
 
     public List<PresetMacroEntry> SpecialObjectPresets_10 =
-        new List<PresetMacroEntry>();
+        [];
 
     public List<PresetMacroEntry> SpecialObjectPresets_12 =
-        new List<PresetMacroEntry>();
+        [];
 
     public List<ScriptDumpCommandInfo> LevelScriptCommands_ForDump =
-        new List<ScriptDumpCommandInfo>();
+        [];
 
 
     public ObjectComboEntry? getObjectComboFromData(

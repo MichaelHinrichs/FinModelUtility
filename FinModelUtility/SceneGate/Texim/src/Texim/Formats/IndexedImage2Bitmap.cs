@@ -53,7 +53,7 @@ namespace Texim.Formats
 
             SixRgb[][] palettes = (parameters.Palettes != null)
                 ? parameters.Palettes.Palettes.Select(PaletteToColors).ToArray()
-                : new[] { PaletteToColors(parameters.Palette) };
+                : [PaletteToColors(parameters.Palette)];
 
             using var bitmap = new Image<SixRgb>(source.Width, source.Height);
 

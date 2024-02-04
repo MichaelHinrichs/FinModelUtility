@@ -2,10 +2,10 @@
 
 namespace fin.language.equations.fixedFunction {
   public static partial class FixedFunctionEquationsExtensions {
-    public static FixedFunctionSource[] OUTPUT_IDENTIFIERS = {
+    public static FixedFunctionSource[] OUTPUT_IDENTIFIERS = [
         FixedFunctionSource.OUTPUT_COLOR,
-        FixedFunctionSource.OUTPUT_ALPHA,
-    };
+        FixedFunctionSource.OUTPUT_ALPHA
+    ];
 
     public static bool DoOutputsDependOn(
         this IFixedFunctionEquations<FixedFunctionSource> equations,

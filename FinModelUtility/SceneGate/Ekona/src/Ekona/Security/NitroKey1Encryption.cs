@@ -34,7 +34,8 @@ public class NitroKey1Encryption
     private const string DisableSecureAreaToken = "NmMdOnly";
     private const string SecureAreaId = "encryObj";
     private const int EncryptedSecureAreaLength = 2 * 1024;
-    private static readonly byte[] DestroyedSecureId = { 0xFF, 0xDE, 0xFF, 0xE7, 0xFF, 0xDE, 0xFF, 0xE7 };
+    private static readonly byte[] DestroyedSecureId = [0xFF, 0xDE, 0xFF, 0xE7, 0xFF, 0xDE, 0xFF, 0xE7
+    ];
 
     private readonly string gameCode;
     private readonly DsiKeyStore keyStore;

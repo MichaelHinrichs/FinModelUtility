@@ -20,7 +20,7 @@ namespace fin.ui.rendering.gl {
     private static readonly Matrix4x4Stack modelViewMatrix_ = new();
     private static readonly Matrix4x4Stack projectionMatrix_ = new();
 
-    private static LinkedList<Matrix4x4Stack> currentMatrices_ = new();
+    private static LinkedList<Matrix4x4Stack> currentMatrices_ = [];
 
     public static Matrix4x4 ModelMatrix {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]

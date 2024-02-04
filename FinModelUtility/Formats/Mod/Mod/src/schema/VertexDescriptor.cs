@@ -10,7 +10,7 @@ namespace mod.schema {
   public class VertexDescriptor : IEnumerable<(GxAttribute, GxAttributeType?)> {
     public bool posMat = false;
 
-    public bool[] texMat = {
+    public bool[] texMat = [
         false,
         false,
         false,
@@ -19,8 +19,8 @@ namespace mod.schema {
         false,
         false,
         false,
-        false,
-    };
+        false
+    ];
 
     public GxAttributeType position = GxAttributeType.NOT_PRESENT;
 
@@ -30,7 +30,7 @@ namespace mod.schema {
     public GxAttributeType color0 = GxAttributeType.NOT_PRESENT;
     public GxAttributeType color1 = GxAttributeType.NOT_PRESENT;
 
-    public readonly GxAttributeType[] texcoord = new[] {
+    public readonly GxAttributeType[] texcoord = [
         GxAttributeType.NOT_PRESENT,
         GxAttributeType.NOT_PRESENT,
         GxAttributeType.NOT_PRESENT,
@@ -39,8 +39,8 @@ namespace mod.schema {
         GxAttributeType.NOT_PRESENT,
         GxAttributeType.NOT_PRESENT,
         GxAttributeType.NOT_PRESENT,
-        GxAttributeType.NOT_PRESENT,
-    };
+        GxAttributeType.NOT_PRESENT
+    ];
 
     public IEnumerator<(GxAttribute, GxAttributeType?)> GetEnumerator()
       => this.ActiveAttributes();

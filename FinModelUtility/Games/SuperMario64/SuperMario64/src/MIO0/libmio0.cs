@@ -43,8 +43,8 @@
     /// returns true if valid header, false otherwise
     ///</summary>
     public static bool decode_header(byte[] buf, ref MIO0_Header head) {
-      byte[] mio0_ascii_be = new byte[] {0x4D, 0x49, 0x4F, 0x30};
-      byte[] mio0_ascii_le = new byte[] {0x49, 0x4D, 0x30, 0x4F};
+      byte[] mio0_ascii_be = [0x4D, 0x49, 0x4F, 0x30];
+      byte[] mio0_ascii_le = [0x49, 0x4D, 0x30, 0x4F];
 
       if (compareByteArrays(buf, mio0_ascii_be, 4)) {
         head.dest_size = read_u32_be(buf, 4);

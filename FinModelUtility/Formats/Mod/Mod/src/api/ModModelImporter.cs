@@ -147,7 +147,7 @@ namespace mod.api {
       // Pass 1: Creates lists at each index in joint children
       var jointChildren = new List<int>[jointCount];
       for (var i = 0; i < jointCount; ++i) {
-        jointChildren[i] = new();
+        jointChildren[i] = [];
       }
 
       // Pass 2: Gathers up children of each bone via parent index
@@ -294,7 +294,7 @@ namespace mod.api {
 
             var texCoordIndices = new List<ushort>[8];
             for (var t = 0; t < 8; ++t) {
-              texCoordIndices[t] = new List<ushort>();
+              texCoordIndices[t] = [];
             }
 
             for (var f = 0; f < faceCount; f++) {

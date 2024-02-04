@@ -21,9 +21,8 @@ namespace level5 {
       ETC1a4
     }
 
-    public static readonly int[] zOrder_ = new int[]
-    {
-            0, 1, 4, 5, 16, 17, 20, 21,
+    public static readonly int[] zOrder_ = [
+        0, 1, 4, 5, 16, 17, 20, 21,
             2, 3, 6, 7, 18, 19, 22, 23,
             8, 9, 12, 13, 24, 25, 28, 29,
             10, 11, 14, 15, 26, 27, 30, 31,
@@ -31,7 +30,7 @@ namespace level5 {
             34, 35, 38, 39, 50, 51, 54, 55,
             40, 41, 44, 45, 56, 57, 60, 61,
             42, 43, 46, 47, 58, 59, 62, 63
-    };
+    ];
 
     public static Bitmap DecodeImage(byte[] data, int width, int height, TexFormat type) {
       Bitmap bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
@@ -89,7 +88,7 @@ namespace level5 {
       //if (type == TexFormat.ETC1) return RG_ETC1.encodeETC(img);
       //if (type == TexFormat.ETC1a4) return RG_ETC1.encodeETCa4(img);
 
-      List<byte> o = new List<byte>();
+      List<byte> o = [];
 
       BitmapData bmpData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.WriteOnly, img.PixelFormat);
       int[] pixels = new int[img.Width * img.Height];
@@ -99,7 +98,7 @@ namespace level5 {
       for (int h = 0; h < img.Height; h += 8)
         for (int w = 0; w < img.Width; w += 8) {
           // 8x8 block
-          List<byte[]> colors = new List<byte[]>();
+          List<byte[]> colors = [];
           for (int bh = 0; bh < 8; bh++)
             for (int bw = 0; bw < 8; bw++) {
               switch (type) {
@@ -114,12 +113,14 @@ namespace level5 {
                 case TexFormat.A8: colors.Add(encodeA8(pixels[(w + bw) + (h + bh) * img.Width])); break;
                 case TexFormat.LA4: colors.Add(encodeLA4(pixels[(w + bw) + (h + bh) * img.Width])); break;
                 case TexFormat.L4: {
-                    colors.Add(new byte[] { (byte)((encodeL8(pixels[(w + bw) + (h + bh) * img.Width])[0] / 0x11) & 0xF | ((encodeL8(pixels[(w + bw) + (h + bh) * img.Width + 1])[0] / 0x11) << 4)) });
+                    colors.Add([(byte)((encodeL8(pixels[(w + bw) + (h + bh) * img.Width])[0] / 0x11) & 0xF | ((encodeL8(pixels[(w + bw) + (h + bh) * img.Width + 1])[0] / 0x11) << 4))
+                               ]);
                     bw++;
                     break;
                   }
                 case TexFormat.A4: {
-                    colors.Add(new byte[] { (byte)((encodeA8(pixels[(w + bw) + (h + bh) * img.Width])[0] / 0x11) & 0xF | ((encodeA8(pixels[(w + bw) + (h + bh) * img.Width + 1])[0] / 0x11) << 4)) });
+                    colors.Add([(byte)((encodeA8(pixels[(w + bw) + (h + bh) * img.Width])[0] / 0x11) & 0xF | ((encodeA8(pixels[(w + bw) + (h + bh) * img.Width + 1])[0] / 0x11) << 4))
+                               ]);
                     bw++;
                     break;
                   }
@@ -142,7 +143,8 @@ namespace level5 {
       return o.ToArray();
     }
 
-    private static readonly int[] shift_ = { 0x00, 0x01, 0x04, 0x05, 0x10, 0x11, 0x14, 0x15 };
+    private static readonly int[] shift_ = [0x00, 0x01, 0x04, 0x05, 0x10, 0x11, 0x14, 0x15
+    ];
     public static int CalcZOrder(int xPos, int yPos) {
       int x = shift_[xPos];
       int y = shift_[yPos] << 1;
@@ -227,11 +229,13 @@ namespace level5 {
 
     #region Encoding
     public static byte[] Encode8888(int color) {
-      return new byte[] { (byte)((color >> 24) & 0xFF), (byte)((color) & 0xFF), (byte)((color >> 8) & 0xFF), (byte)((color >> 16) & 0xFF) };
+      return [(byte)((color >> 24) & 0xFF), (byte)((color) & 0xFF), (byte)((color >> 8) & 0xFF), (byte)((color >> 16) & 0xFF)
+      ];
     }
 
     public static byte[] Encode8(int color) {
-      return new byte[] { (byte)((color) & 0xFF), (byte)((color >> 8) & 0xFF), (byte)((color >> 16) & 0xFF) };
+      return [(byte)((color) & 0xFF), (byte)((color >> 8) & 0xFF), (byte)((color >> 16) & 0xFF)
+      ];
     }
 
     public static byte[] Encode4444(int color) {
@@ -240,15 +244,16 @@ namespace level5 {
       val += ((((color) & 0xFF) / 0x11) << 4);
       val += ((((color >> 8) & 0xFF) / 0x11) << 8);
       val += ((((color >> 16) & 0xFF) / 0x11) << 12);
-      return new byte[] { (byte)(val & 0xFF), (byte)(val >> 8) };
+      return [(byte)(val & 0xFF), (byte)(val >> 8)];
     }
 
     public static byte[] encodeA8(int color) {
-      return new byte[] { (byte)((color >> 24) & 0xFF) };
+      return [(byte)((color >> 24) & 0xFF)];
     }
 
     public static byte[] encodeL8(int color) {
-      return new byte[] { (byte)(((0x4CB2 * (color & 0xFF) + 0x9691 * ((color >> 8) & 0xFF) + 0x1D3E * ((color >> 8) & 0xFF)) >> 16) & 0xFF) };
+      return [(byte)(((0x4CB2 * (color & 0xFF) + 0x9691 * ((color >> 8) & 0xFF) + 0x1D3E * ((color >> 8) & 0xFF)) >> 16) & 0xFF)
+      ];
     }
 
     public static byte calLum(int color) {
@@ -256,15 +261,16 @@ namespace level5 {
     }
 
     public static byte[] encodeLA4(int color) {
-      return new byte[] { (byte)((((color >> 24) / 0x11) & 0xF | ((color >> 16) / 0x11) & 0xF << 4)) };
+      return [(byte)((((color >> 24) / 0x11) & 0xF | ((color >> 16) / 0x11) & 0xF << 4))
+      ];
     }
 
     public static byte[] encodeLA8(int color) {
-      return new byte[] { (byte)((color >> 24) & 0xFF), (byte)((color >> 16) & 0xFF) };
+      return [(byte)((color >> 24) & 0xFF), (byte)((color >> 16) & 0xFF)];
     }
 
     public static byte[] encodeHILO8(int color) {
-      return new byte[] { (byte)((color) & 0xFF), (byte)((color >> 8) & 0xFF) };
+      return [(byte)((color) & 0xFF), (byte)((color >> 8) & 0xFF)];
     }
 
     public static byte[] encode565(int c) {
@@ -272,7 +278,7 @@ namespace level5 {
       int g = ((c >> 8) & 0xFF) >> 2;
       int b = ((c) & 0xFF) >> 3;
       int val = (r << 11) | (g << 5) | b;
-      return new byte[] { (byte)(val & 0xFF), (byte)(val >> 8) };
+      return [(byte)(val & 0xFF), (byte)(val >> 8)];
     }
 
     public static byte[] encode5551(int c) {
@@ -282,16 +288,18 @@ namespace level5 {
       val += convert8to5(((c >> 8) & 0xFF)) << 6;
       val += convert8to5(((c) & 0xFF)) << 1;
       ushort v = (ushort)val;
-      return new byte[] { (byte)(val & 0xFF), (byte)(val >> 8) };
+      return [(byte)(val & 0xFF), (byte)(val >> 8)];
     }
 
     #endregion
 
     static byte convert8to5(int col) {
-      byte[] Convert8to5 = { 0x00,0x08,0x10,0x18,0x20,0x29,0x31,0x39,
+      byte[] Convert8to5 = [
+          0x00,0x08,0x10,0x18,0x20,0x29,0x31,0x39,
                                    0x41,0x4A,0x52,0x5A,0x62,0x6A,0x73,0x7B,
                                    0x83,0x8B,0x94,0x9C,0xA4,0xAC,0xB4,0xBD,
-                                   0xC5,0xCD,0xD5,0xDE,0xE6,0xEE,0xF6,0xFF };
+                                   0xC5,0xCD,0xD5,0xDE,0xE6,0xEE,0xF6,0xFF
+      ];
       byte i = 0;
       while (col > Convert8to5[i]) i++;
       return i;

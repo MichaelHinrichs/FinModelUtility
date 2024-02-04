@@ -26,7 +26,7 @@ namespace mod.util {
 
       // TODO: This is a guess
       var materialColor = FinColor.ToSystemColor(material.colourInfo.diffuseColour);
-      this.MaterialColors = new[] { materialColor, materialColor };
+      this.MaterialColors = [materialColor, materialColor];
 
       // TODO: This is a guess
 
@@ -63,12 +63,12 @@ namespace mod.util {
         LightingEnabled = false,
         MaterialSrc = GxColorSrc.Vertex,
       };
-      this.ColorChannelControls = new[] {
+      this.ColorChannelControls = [
+          colorChannelControl,
         colorChannelControl,
         colorChannelControl,
-        colorChannelControl,
-        colorChannelControl,
-      };
+        colorChannelControl
+      ];
 
       this.TexCoordGens = material.texInfo.unknown3.Select(tex =>
       new TexCoordGenImpl {
@@ -84,7 +84,7 @@ namespace mod.util {
     public Color[] MaterialColors { get; }
     public IColorChannelControl?[] ColorChannelControls { get; }
     public Color[] AmbientColors { get; }
-    public Color?[] LightColors { get; } = { };
+    public Color?[] LightColors { get; } = [];
     public Color[] KonstColors { get; }
     public IColorRegister[] ColorRegisters { get; }
     public ITevOrder?[] TevOrderInfos { get; }

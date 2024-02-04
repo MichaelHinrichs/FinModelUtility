@@ -9,7 +9,7 @@ using fin.model;
 namespace fin.scene {
   public partial class SceneImpl {
     private class SceneModelImpl : ISceneModel {
-      private readonly List<ISceneModel> children_ = new();
+      private readonly List<ISceneModel> children_ = [];
       private IModelAnimation? animation_;
 
       public SceneModelImpl(IModel model) {

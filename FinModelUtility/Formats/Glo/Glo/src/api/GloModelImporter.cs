@@ -18,9 +18,9 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace glo.api {
   public class GloModelImporter : IModelImporter<GloModelFileBundle> {
-    private readonly string[] hiddenNames_ = new[] { "Box01", "puzzle" };
+    private readonly string[] hiddenNames_ = ["Box01", "puzzle"];
 
-    private readonly string[] mirrorTextures_ = new[] { "Badg2.bmp" };
+    private readonly string[] mirrorTextures_ = ["Badg2.bmp"];
 
     public IModel ImportModel(GloModelFileBundle gloModelFileBundle) {
       var gloFile = gloModelFileBundle.GloFile;
@@ -110,7 +110,7 @@ namespace glo.api {
                                         => (topLevelGloMesh,
                                             finObjectRootBone)));
 
-        List<(IModelAnimation, int, int)> finAndGloAnimations = new();
+        List<(IModelAnimation, int, int)> finAndGloAnimations = [];
         foreach (var animSeg in gloObject.AnimSegs) {
           var startFrame = (int) animSeg.StartFrame;
           var endFrame = (int) animSeg.EndFrame;

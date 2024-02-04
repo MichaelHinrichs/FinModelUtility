@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace fin.data {
   public class AsyncCollector<T> {
-    private readonly List<Task<T>> impl_ = new();
+    private readonly List<Task<T>> impl_ = [];
 
     public void Clear() => this.impl_.Clear();
 

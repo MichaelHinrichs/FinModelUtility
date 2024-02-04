@@ -72,7 +72,7 @@ namespace Yarhl.FileFormat
         public Type[] GetSources()
         {
             if (InternalSources is not Type[] sourceList) {
-                sourceList = new[] { (Type)InternalSources };
+                sourceList = [(Type)InternalSources];
             }
 
             return sourceList;
@@ -85,7 +85,7 @@ namespace Yarhl.FileFormat
         public Type[] GetDestinations()
         {
             if (InternalDestinations is not Type[] destList) {
-                destList = new[] { (Type)InternalDestinations };
+                destList = [(Type)InternalDestinations];
             }
 
             return destList;

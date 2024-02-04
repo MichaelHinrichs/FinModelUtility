@@ -18,7 +18,7 @@ namespace level5.schema {
     public int Width { get; set; }
     public int Height { get; set; }
 
-    List<int> Tiles { get; set; } = new List<int>();
+    List<int> Tiles { get; set; } = [];
 
     public byte ImageFormat { get; set; }
 

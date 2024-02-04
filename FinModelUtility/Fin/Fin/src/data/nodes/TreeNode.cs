@@ -23,7 +23,7 @@ namespace fin.data.nodes {
 
   public sealed class TreeNode<T> : ITreeNode<T> {
     private ITreeNode<T>? parent_;
-    private readonly OrderedHashSet<ITreeNode<T>> children_ = new();
+    private readonly OrderedHashSet<ITreeNode<T>> children_ = [];
 
     public T Value { get; set; }
 

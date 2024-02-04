@@ -11,7 +11,7 @@ namespace modl.schema.res.texr {
 
     public string FileName { get; private set; }
 
-    public List<BwTexrFile> Textures { get; } = new();
+    public List<BwTexrFile> Textures { get; } = [];
 
     public void Read(IBinaryReader br) {
       SectionHeaderUtil.AssertNameAndReadSize(

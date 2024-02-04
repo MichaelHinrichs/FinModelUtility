@@ -37,10 +37,10 @@ namespace HaloWarsTools {
 
     public GenericMesh(MeshExportOptions options) {
       ExportOptions = options;
-      Vertices = new List<Vector3>();
-      Normals = new List<Vector3>();
-      TexCoords = new List<Vector3>();
-      Faces = new List<GenericFace>();
+      Vertices = [];
+      Normals = [];
+      TexCoords = [];
+      Faces = [];
     }
 
     private bool exportOptionsApplied;
@@ -125,7 +125,7 @@ namespace HaloWarsTools {
         meshWriter.WriteLine($"vt {GetObjVectorString(texCoord)}");
       }
 
-      List<GenericMaterial> materials = new List<GenericMaterial>();
+      List<GenericMaterial> materials = [];
       GenericMeshSection[] sections = GetMeshSections();
 
       foreach (var section in sections) {
@@ -255,7 +255,7 @@ namespace HaloWarsTools {
 
     private void AssociateVertexWithFace(int vertexIndex, int faceIndex, Dictionary<int, List<int>> map) {
       if (!map.ContainsKey(vertexIndex)) {
-        map.Add(vertexIndex, new List<int>());
+        map.Add(vertexIndex, []);
       }
 
       if (!map[vertexIndex].Contains(faceIndex)) {

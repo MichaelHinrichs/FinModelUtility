@@ -37,7 +37,7 @@ namespace sm64.JSON {
     public static void writeObjectCombosFile(string filename) {
       Globals.objectComboEntries.Sort((x, y) => string.Compare(x.Name, y.Name));
 
-      JArray array = new JArray();
+      JArray array = [];
       foreach (ObjectComboEntry oce in Globals.objectComboEntries) {
         JObject entry = new JObject();
         entry["Name"] = oce.Name;

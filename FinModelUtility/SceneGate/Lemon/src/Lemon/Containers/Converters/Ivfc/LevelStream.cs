@@ -77,7 +77,7 @@ namespace SceneGate.Lemon.Containers.Converters.Ivfc
         /// <param name="value">Byte value.</param>
         public override void WriteByte(byte value)
         {
-            WriteAndUpdateHash(new[] { value }, 0, 1);
+            WriteAndUpdateHash([value], 0, 1);
         }
 
         /// <summary>

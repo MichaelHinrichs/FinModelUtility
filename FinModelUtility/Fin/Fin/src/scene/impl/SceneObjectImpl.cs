@@ -7,7 +7,7 @@ using fin.model.impl;
 namespace fin.scene {
   public partial class SceneImpl {
     private class SceneObjectImpl : ISceneObject {
-      private readonly List<ISceneModel> models_ = new();
+      private readonly List<ISceneModel> models_ = [];
       private ISceneObject.OnTick? tickHandler_;
 
       ~SceneObjectImpl() => ReleaseUnmanagedResources_();

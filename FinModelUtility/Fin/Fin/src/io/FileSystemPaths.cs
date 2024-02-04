@@ -77,8 +77,8 @@ namespace fin.io {
       public IReadOnlyCollection<string> AbsoluteFilePaths => AbsoluteFilePathsImpl;
       public IReadOnlyCollection<ISubdirPaths> Subdirs => SubdirsImpl;
 
-      public LinkedList<string> AbsoluteFilePathsImpl { get; } = new();
-      public LinkedList<ISubdirPaths> SubdirsImpl { get; } = new();
+      public LinkedList<string> AbsoluteFilePathsImpl { get; } = [];
+      public LinkedList<ISubdirPaths> SubdirsImpl { get; } = [];
     }
   }
 }

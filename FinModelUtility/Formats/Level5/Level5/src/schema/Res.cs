@@ -17,9 +17,9 @@ namespace level5.schema {
     Dictionary<uint, string> ResourceNames { get; set; } =
       new Dictionary<uint, string>();
 
-    public List<string> TextureNames { get; } = new List<string>();
+    public List<string> TextureNames { get; } = [];
 
-    public List<Material> Materials { get; } = new List<Material>();
+    public List<Material> Materials { get; } = [];
 
     public string GetResourceName(uint crc) {
       if (ResourceNames.ContainsKey(crc))

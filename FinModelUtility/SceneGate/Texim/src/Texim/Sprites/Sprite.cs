@@ -23,7 +23,7 @@ using System.Collections.ObjectModel;
 
 public class Sprite : ISprite
 {
-    public Collection<IImageSegment> Segments { get; init; } = new Collection<IImageSegment>();
+    public Collection<IImageSegment> Segments { get; init; } = [];
 
     public int Width { get; set; }
 

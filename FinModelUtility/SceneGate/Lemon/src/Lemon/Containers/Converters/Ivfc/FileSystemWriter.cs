@@ -91,7 +91,7 @@ namespace SceneGate.Lemon.Containers.Converters.Ivfc
             fileHashTable.ResetPosition();
             fileInfoTable.ResetPosition();
             fileData.ResetPosition();
-            files = new List<Node>();
+            files = [];
 
             streamWriter = new DataWriter(stream);
             using (var metadataStream = new DataStream())

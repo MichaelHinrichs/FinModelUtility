@@ -27,12 +27,12 @@ namespace Texim.Palettes
     {
         public PaletteCollection()
         {
-            Palettes = new Collection<IPalette>();
+            Palettes = [];
         }
 
         public PaletteCollection(IPalette initialPalette)
         {
-            Palettes = new Collection<IPalette> { initialPalette };
+            Palettes = [initialPalette];
         }
 
         public PaletteCollection(IEnumerable<IPalette> initialPalettes)

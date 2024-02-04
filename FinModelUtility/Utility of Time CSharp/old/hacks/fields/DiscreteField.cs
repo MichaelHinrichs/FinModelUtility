@@ -39,7 +39,7 @@ namespace UoT.hacks.fields {
 
       private IDiscreteValue<T>? defaultValue_;
 
-      private readonly List<IDiscreteValue<T>> possibleValues_ = new();
+      private readonly List<IDiscreteValue<T>> possibleValues_ = [];
 
       public Builder(string name) {
         this.name_ = name;

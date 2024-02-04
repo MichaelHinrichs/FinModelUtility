@@ -57,8 +57,8 @@ namespace dat.schema.mesh {
     public PObjHeader Header { get; } = new();
     public PObj? NextSibling { get; private set; }
 
-    public List<VertexDescriptor> VertexDescriptors { get; } = new();
-    public List<DatPrimitive> Primitives { get; } = new();
+    public List<VertexDescriptor> VertexDescriptors { get; } = [];
+    public List<DatPrimitive> Primitives { get; } = [];
 
     public VertexSpace VertexSpace { get; private set; }
     public List<IList<PObjWeight>>? Weights { get; private set; }
@@ -102,7 +102,7 @@ namespace dat.schema.mesh {
 
       var weightListOffset = this.Header.WeightListOffset;
       if (weightListOffset != 0) {
-        var pObjWeights = this.Weights = new List<IList<PObjWeight>>();
+        var pObjWeights = this.Weights = [];
 
         // Weight list is children of a given bone
         if (!this.Header.Flags.CheckFlag(PObjFlags.OBJTYPE_ENVELOPE)) {

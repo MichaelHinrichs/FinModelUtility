@@ -79,8 +79,8 @@ namespace fin.io {
 
     private class FileHierarchyDirectory : BFileHierarchyIoObject,
                                            IFileHierarchyDirectory {
-      private readonly List<IFileHierarchyDirectory> subdirs_ = new();
-      private readonly List<IFileHierarchyFile> files_ = new();
+      private readonly List<IFileHierarchyDirectory> subdirs_ = [];
+      private readonly List<IFileHierarchyFile> files_ = [];
 
       public FileHierarchyDirectory(
           IFileHierarchy hierarchy,

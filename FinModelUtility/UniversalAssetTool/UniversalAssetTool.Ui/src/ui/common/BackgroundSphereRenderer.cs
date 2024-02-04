@@ -19,13 +19,13 @@ namespace uni.ui.common {
     }
 
     private readonly Gradient gradient_ = new(
-        new[] {
-            (FinColor.FromSystemColor(Color.DarkBlue), 0f),
+    [
+        (FinColor.FromSystemColor(Color.DarkBlue), 0f),
             (FinColor.FromSystemColor(Color.RoyalBlue), .2f),
             (FinColor.FromSystemColor(Color.LightSkyBlue), .4f),
             (FinColor.FromSystemColor(Color.AliceBlue), .5f),
-            (FinColor.FromRgbBytes(66, 52, 49), .5f),
-        });
+            (FinColor.FromRgbBytes(66, 52, 49), .5f)
+    ]);
 
     private IModelRenderer GenerateModel_() {
       var model = new ModelImpl();

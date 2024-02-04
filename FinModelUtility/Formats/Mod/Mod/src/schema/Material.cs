@@ -246,10 +246,10 @@ namespace mod.schema {
     // TODO: These appear to be referenced before they're read? Try removing the {}
     [Unknown]
     [SequenceLengthSource(SchemaIntegerType.UINT32)]
-    public TexGenData[] unknown3 = { };
+    public TexGenData[] unknown3 = [];
 
     [SequenceLengthSource(SchemaIntegerType.UINT32)]
-    public TextureData[] TexturesInMaterial = { };
+    public TextureData[] TexturesInMaterial = [];
   }
 
   public enum MaterialFlags {
@@ -432,7 +432,7 @@ namespace mod.schema {
   }
 
   public class MaterialContainer {
-    public readonly List<Material> materials = new();
-    public readonly List<TEVInfo> texEnvironments = new();
+    public readonly List<Material> materials = [];
+    public readonly List<TEVInfo> texEnvironments = [];
   }
 }

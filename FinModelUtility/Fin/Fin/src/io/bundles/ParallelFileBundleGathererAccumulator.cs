@@ -8,7 +8,7 @@ using Microsoft.Toolkit.HighPerformance.Helpers;
 namespace fin.io.bundles {
   public class ParallelAnnotatedFileBundleGathererAccumulator :
       IAnnotatedFileBundleGathererAccumulator {
-    private readonly List<IAnnotatedFileBundleGatherer> gatherers_ = new();
+    private readonly List<IAnnotatedFileBundleGatherer> gatherers_ = [];
 
     public IAnnotatedFileBundleGathererAccumulator Add(IAnnotatedFileBundleGatherer gatherer) {
       this.gatherers_.Add(gatherer);

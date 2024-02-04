@@ -31,6 +31,6 @@ namespace SceneGate.Ekona.Containers.Rom
         /// <summary>
         /// Gets the collection of frames.
         /// </summary>
-        public Collection<IconAnimationFrame> Frames { get; init; } = new Collection<IconAnimationFrame>();
+        public Collection<IconAnimationFrame> Frames { get; init; } = [];
     }
 }

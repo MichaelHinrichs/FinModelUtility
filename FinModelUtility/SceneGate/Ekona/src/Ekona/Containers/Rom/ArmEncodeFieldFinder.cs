@@ -35,11 +35,10 @@ namespace SceneGate.Ekona.Containers.Rom
         private const int DecoderShift = 0x0C;
 
         // First ARM instructions of the BLZ decoder
-        private static readonly uint[] DecoderOps = new uint[]
-        {
+        private static readonly uint[] DecoderOps = [
             0xE9100006, 0xE0802002, 0xE0403C21, 0xE3C114FF,
-            0xE0401001, 0xE1A04002,
-        };
+            0xE0401001, 0xE1A04002
+        ];
 
         /// <summary>
         /// Searchs the encoded size address.

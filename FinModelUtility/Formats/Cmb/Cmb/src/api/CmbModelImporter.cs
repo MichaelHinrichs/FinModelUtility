@@ -73,7 +73,7 @@ namespace cmb.api {
             return (shpaFile, shpa);
           })
                    .ToList() ??
-          new List<(IReadOnlyTreeFile shpaFile, Shpa shpa)>();
+          [];
 
       var finModel = new ModelImpl();
       var finSkin = finModel.Skin;

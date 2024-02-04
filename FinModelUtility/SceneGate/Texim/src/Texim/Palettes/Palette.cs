@@ -28,7 +28,7 @@ namespace Texim.Palettes
     {
         public Palette()
         {
-            Colors = new Collection<Rgb>();
+            Colors = [];
         }
 
         public Palette(IEnumerable<Rgb> initialColors)

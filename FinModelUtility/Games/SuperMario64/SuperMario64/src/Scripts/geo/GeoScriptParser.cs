@@ -9,7 +9,7 @@ using sm64.schema;
 namespace sm64.scripts.geo {
   public class GeoScriptParser {
     private class GeoCommandList : IGeoCommandList {
-      private readonly List<IGeoCommand> commands_ = new();
+      private readonly List<IGeoCommand> commands_ = [];
 
       public void AddCommand(IGeoCommand command)
         => this.commands_.Add(command);

@@ -38,14 +38,14 @@ namespace Yarhl
     /// </remarks>
     public sealed class PluginManager
     {
-        static readonly string[] IgnoredLibraries = {
+        static readonly string[] IgnoredLibraries = [
             "System.",
             "Microsoft.",
             "netstandard",
             "nuget",
             "nunit",
-            "testhost",
-        };
+            "testhost"
+        ];
 
         static readonly object LockObj = new object();
         static PluginManager? singleInstance;

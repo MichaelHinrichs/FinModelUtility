@@ -16,8 +16,8 @@ namespace fin.data.nodes {
   }
 
   public sealed class GraphNode<T> : IGraphNode<T> {
-    private readonly OrderedHashSet<IGraphNode<T>> parentNodes_ = new();
-    private readonly OrderedHashSet<IGraphNode<T>> childNodes_ = new();
+    private readonly OrderedHashSet<IGraphNode<T>> parentNodes_ = [];
+    private readonly OrderedHashSet<IGraphNode<T>> childNodes_ = [];
 
     public T Value { get; set; }
 

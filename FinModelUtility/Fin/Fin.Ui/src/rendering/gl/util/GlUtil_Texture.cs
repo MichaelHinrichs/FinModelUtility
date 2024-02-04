@@ -7,7 +7,7 @@ namespace fin.ui.rendering.gl {
     public int ActiveTexture { get; set; }= -1;
 
     public int[] CurrentTextureBindings { get; set; } =
-        new int[] { -1, -1, -1, -1, -1, -1, -1, -1 };
+      [-1, -1, -1, -1, -1, -1, -1, -1];
   }
 
   public static partial class GlUtil {

@@ -83,7 +83,7 @@ namespace level5.schema {
 
 
     private List<uint> ParseIndexBuffer_(byte[] buffer) {
-      List<uint> indices = new List<uint>();
+      List<uint> indices = [];
       int primitiveType = 0;
       int faceCount = 0;
 
@@ -154,7 +154,7 @@ namespace level5.schema {
     }
 
     private List<GenericVertex> ParseBuffer_(byte[] buffer) {
-      List<GenericVertex> vertices = new List<GenericVertex>();
+      List<GenericVertex> vertices = [];
       byte[] attributeBuffer = new byte[0];
       int stride = 0;
       int vertexCount = 0;
@@ -218,7 +218,8 @@ namespace level5.schema {
               case 8: //Bone Index
                 Vector4 vn = ReadAttribute(br, aType[j], aCount[j]);
                 if (this.nodeTable_.Length > 0 && this.nodeTable_.Length != 1)
-                  vert.Bones = new uint[] { this.nodeTable_[(int)vn.X], this.nodeTable_[(int)vn.Y], this.nodeTable_[(int)vn.Z], this.nodeTable_[(int)vn.W] };
+                  vert.Bones = [this.nodeTable_[(int)vn.X], this.nodeTable_[(int)vn.Y], this.nodeTable_[(int)vn.Z], this.nodeTable_[(int)vn.W]
+                  ];
                 break;
               case 9: // Color
                 vert.Clr = ReadAttribute(br, aType[j], aCount[j]).Yzwx();

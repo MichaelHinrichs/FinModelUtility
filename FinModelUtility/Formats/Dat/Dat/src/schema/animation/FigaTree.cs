@@ -16,10 +16,10 @@ namespace dat.schema.animation {
 
 
     [Skip]
-    public LinkedList<byte> TrackCounts { get; } = new();
+    public LinkedList<byte> TrackCounts { get; } = [];
 
     [Skip]
-    public LinkedList<LinkedList<FigaTreeTrack>> TrackNodes { get; } = new();
+    public LinkedList<LinkedList<FigaTreeTrack>> TrackNodes { get; } = [];
 
 
     [ReadLogic]

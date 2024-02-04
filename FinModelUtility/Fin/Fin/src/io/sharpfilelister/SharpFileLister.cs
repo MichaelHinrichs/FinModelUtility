@@ -13,8 +13,8 @@ namespace fins.io.sharpDirLister {
     public IReadOnlyCollection<string> AbsoluteFilePaths => AbsoluteFilePathsImpl;
     public IReadOnlyCollection<ISubdirPaths> Subdirs => SubdirsImpl;
 
-    public LinkedList<string> AbsoluteFilePathsImpl { get; } = new();
-    public LinkedList<DirectoryInformation> SubdirsImpl { get; } = new();
+    public LinkedList<string> AbsoluteFilePathsImpl { get; } = [];
+    public LinkedList<DirectoryInformation> SubdirsImpl { get; } = [];
   }
 
   public interface IFileLister {

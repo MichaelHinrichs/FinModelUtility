@@ -53,11 +53,11 @@ namespace mod.schema.animation {
 
   [BinarySchema]
   public partial class DcaAxes : IDcxAxes {
-    public IDcxAxis[] Axes { get; } = {
+    public IDcxAxis[] Axes { get; } = [
         new DcaAxis(),
         new DcaAxis(),
-        new DcaAxis(),
-    };
+        new DcaAxis()
+    ];
   }
 
   [BinarySchema]

@@ -50,6 +50,6 @@ public class NitroCrcGenerator
 
         ICRC crc = CRCFactory.Instance.Create(CRCConfig.MODBUS);
         IHashValue hash = crc.ComputeHash(segment);
-        return new byte[] { hash.Hash[0], hash.Hash[1] };
+        return [hash.Hash[0], hash.Hash[1]];
     }
 }

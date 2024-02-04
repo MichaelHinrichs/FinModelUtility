@@ -44,7 +44,7 @@ public class TwilightSigner
     public TwilightSigner(byte[] publicModulus)
     {
         // In DSi always constant: 65537
-        Exponent = new byte[] { 0x01, 0x00, 0x01 };
+        Exponent = [0x01, 0x00, 0x01];
 
         // prepend 0 to avoid treating as negative number
         PublicModulus = new byte[] { 0 }.Concat(publicModulus).ToArray();

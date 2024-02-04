@@ -92,7 +92,7 @@ namespace fin.data {
 
       var values = dict.ToArray();
       Asserts.SequenceEqual(
-          new[] { "string1", "string3", "string5", },
+          ["string1", "string3", "string5"],
           values);
     }
 

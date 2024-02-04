@@ -24,7 +24,7 @@ namespace fin.data.dictionaries {
     public void Add(TKey key, TValue value) {
       SortedSet<TValue> set;
       if (!this.impl_.TryGetValue(key, out set)) {
-        this.impl_[key] = set = new SortedSet<TValue>();
+        this.impl_[key] = set = [];
       }
 
       set.Add(value);

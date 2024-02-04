@@ -87,7 +87,7 @@ namespace Texim.Colors
         public byte[] Encode(Rgb color)
         {
             ushort data = ToUInt16(color);
-            return new[] { (byte)(data & 0xFF), (byte)(data >> 8) };
+            return [(byte)(data & 0xFF), (byte)(data >> 8)];
         }
 
         public byte[] Encode(IEnumerable<Rgb> colors)

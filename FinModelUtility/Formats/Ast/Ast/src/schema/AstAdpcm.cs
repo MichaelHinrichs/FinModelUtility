@@ -22,7 +22,7 @@ namespace ast.schema {
       var rightChannel = new short[sampleCount];
       var rightChannelSampleIndex = 0;
 
-      this.ChannelData = new[] { leftChannel, rightChannel };
+      this.ChannelData = [leftChannel, rightChannel];
 
       Asserts.Equal(2, channelCount);
 
@@ -68,7 +68,7 @@ namespace ast.schema {
       }
     }
 
-    private static (short, short)[] afc_coefs = {
+    private static (short, short)[] afc_coefs = [
         (0, 0),
         (2048, 0),
         (0, 2048),
@@ -84,8 +84,8 @@ namespace ast.schema {
         (1024, -1024),
         (-1024, 1024),
         (-1024, 0),
-        (-2048, 0),
-    };
+        (-2048, 0)
+    ];
 
     private void decode_ngc_afc(ReadOnlySpan<byte> adpcmData,
                                 Span<short> channelData,
@@ -132,9 +132,9 @@ namespace ast.schema {
       }
     }
 
-    private static readonly int[] nibbleToInt_ = {
+    private static readonly int[] nibbleToInt_ = [
         0, 1, 2, 3, 4, 5, 6, 7, -8, -7, -6, -5, -4, -3, -2, -1
-    };
+    ];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetHighNibbleSigned_(byte n) => nibbleToInt_[n >> 4];

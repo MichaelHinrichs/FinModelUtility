@@ -8,8 +8,8 @@ namespace fin.data.lazy {
   ///   List implementation that lazily populates its entries when accessed.
   /// </summary>
   public class LazyList<T> : ILazyArray<T> {
-    private readonly List<T> impl_ = new();
-    private readonly List<bool> populated_ = new();
+    private readonly List<T> impl_ = [];
+    private readonly List<bool> populated_ = [];
     private readonly Func<int, T> handler_;
 
     public LazyList(Func<int, T> handler) {

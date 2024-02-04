@@ -9,7 +9,7 @@ using sm64.Scripts;
 namespace sm64 {
   public class Model3DLods {
     private readonly IN64Hardware<ISm64Memory> sm64Hardware_;
-    private List<DlModelBuilder> lods2_ = new();
+    private List<DlModelBuilder> lods2_ = [];
 
     public Model3DLods(IN64Hardware<ISm64Memory> sm64Hardware) {
       this.sm64Hardware_ = sm64Hardware;

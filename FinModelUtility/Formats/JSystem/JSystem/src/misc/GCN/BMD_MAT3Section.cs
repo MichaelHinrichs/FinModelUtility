@@ -43,7 +43,7 @@ namespace jsystem.GCN {
       public StringTable MaterialNameTable;
 
       public readonly List<MatIndirectTexturingEntry>
-          MatIndirectTexturingEntries = new();
+          MatIndirectTexturingEntries = [];
 
       public MAT3Section(IBinaryReader br, out bool OK) {
         long position1 = br.Position;

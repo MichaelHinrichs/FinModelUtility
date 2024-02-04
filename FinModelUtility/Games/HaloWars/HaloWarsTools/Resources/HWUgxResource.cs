@@ -203,7 +203,7 @@ namespace HaloWarsTools {
       var boneIds = new byte[4];
       var boneWeights = new byte[4];
 
-      List<MeshTableData> tableData = new List<MeshTableData>();
+      List<MeshTableData> tableData = [];
       offset = tableOffset;
       for (int i = 0; i < tableCount; i++) {
         offset += 4; // 4 byte reserved
@@ -372,7 +372,7 @@ namespace HaloWarsTools {
               offset += 92; // 92 byte reserved
 
               if (!meshArr.ContainsKey(polyInfo.PolygonId)) {
-                meshArr.Add(polyInfo.PolygonId, new List<MeshPolygonInfo>());
+                meshArr.Add(polyInfo.PolygonId, []);
               }
 
               meshArr[polyInfo.PolygonId].Add(polyInfo);

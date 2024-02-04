@@ -103,7 +103,7 @@ namespace fin.roslyn {
     }
 
     private GeneratorExecutionContext? context_;
-    private readonly List<(INamedTypeSymbol, ITypeV2)> queue_ = new();
+    private readonly List<(INamedTypeSymbol, ITypeV2)> queue_ = [];
 
     public void EnqueueContainer(INamedTypeSymbol symbol, ITypeV2 typeV2) {
       // If this assertion fails, then it means that syntax nodes are added
@@ -112,7 +112,7 @@ namespace fin.roslyn {
       this.queue_.Add((symbol, typeV2));
     }
 
-    private readonly List<(ISymbol, Exception)> errorSymbols_ = new();
+    private readonly List<(ISymbol, Exception)> errorSymbols_ = [];
 
     public void EnqueueError(ISymbol errorSymbol, Exception exception) {
       // If this assertion fails, then it means that syntax nodes are added

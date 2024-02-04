@@ -130,10 +130,10 @@ namespace uni.platforms.gcn {
     }
 
     public class Options {
-      private readonly HashSet<string> rarcDumpExtensions_ = new();
-      private readonly HashSet<string> rarcDumpPruneNames_ = new();
-      private readonly HashSet<string> yay0DecExtensions_ = new();
-      private readonly HashSet<string> yaz0DecExtensions_ = new();
+      private readonly HashSet<string> rarcDumpExtensions_ = [];
+      private readonly HashSet<string> rarcDumpPruneNames_ = [];
+      private readonly HashSet<string> yay0DecExtensions_ = [];
+      private readonly HashSet<string> yaz0DecExtensions_ = [];
 
       private Options() {
         this.RarcDumpExtensions = this.rarcDumpExtensions_;

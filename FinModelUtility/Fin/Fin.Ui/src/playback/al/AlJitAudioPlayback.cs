@@ -6,7 +6,7 @@ namespace fin.ui.playback.al {
   public partial class AlAudioManager {
     private class AlJitAudioPlayback : BAlAudioPlayback,
                                        IJitAudioPlayback<short> {
-      private readonly List<SingleBuffer> allBuffers_ = new();
+      private readonly List<SingleBuffer> allBuffers_ = [];
       private readonly Queue<SingleBuffer> readyForDataBuffers_ = new();
       private readonly Dictionary<int, SingleBuffer> buffersById_ = new();
 

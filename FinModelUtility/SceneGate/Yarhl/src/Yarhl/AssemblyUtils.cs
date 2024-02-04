@@ -36,7 +36,7 @@ namespace Yarhl
         /// <returns>The assemblies.</returns>
         public static IEnumerable<Assembly> LoadAssemblies(this IEnumerable<string> paths)
         {
-            List<Assembly> assemblies = new List<Assembly>();
+            List<Assembly> assemblies = [];
             foreach (string path in paths) {
                 try {
                     Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);

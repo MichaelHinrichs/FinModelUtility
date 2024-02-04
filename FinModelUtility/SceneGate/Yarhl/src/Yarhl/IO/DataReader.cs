@@ -336,7 +336,7 @@ namespace Yarhl.IO
             const int BufferSize = 128;
             byte[] buffer = new byte[BufferSize];
 
-            List<byte> textBuffer = new List<byte>();
+            List<byte> textBuffer = [];
             string text = string.Empty;
             int matchIndex = -1;
 

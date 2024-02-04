@@ -222,12 +222,12 @@ public partial class UniversalAssetToolForm : Form {
 
         var equations = finFixedFunctionMaterial.Equations;
         for (var i = 0; i < 8; ++i) {
-          if (equations.DoOutputsDependOn(new[] {
+          if (equations.DoOutputsDependOn([
                   FixedFunctionSource.LIGHT_DIFFUSE_COLOR_0 + i,
                   FixedFunctionSource.LIGHT_DIFFUSE_ALPHA_0 + i,
                   FixedFunctionSource.LIGHT_SPECULAR_COLOR_0 + i,
-                  FixedFunctionSource.LIGHT_SPECULAR_ALPHA_0 + i,
-              })) {
+                  FixedFunctionSource.LIGHT_SPECULAR_ALPHA_0 + i
+              ])) {
             neededLightIndices.Add(i);
           }
         }
@@ -250,7 +250,7 @@ public partial class UniversalAssetToolForm : Form {
 
     var enabledCount = neededLightIndices.Count;
     var lightColors = enabledCount == 1
-        ? new[] { Color.White }
+        ? [Color.White]
         : new[] {
             Color.White,
             Color.Pink,

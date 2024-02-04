@@ -33,7 +33,7 @@ namespace fin.ui.playback.al {
       public void SetMonoPcm(short[] samples) {
         this.AudioChannelsType = AudioChannelsType.MONO;
         this.LengthInSamples = samples.Length;
-        this.channels_ = new[] { samples };
+        this.channels_ = [samples];
       }
 
       public void SetStereoPcm(short[] leftChannelSamples,
@@ -44,7 +44,7 @@ namespace fin.ui.playback.al {
 
         this.AudioChannelsType = AudioChannelsType.STEREO;
         this.LengthInSamples = leftChannelSamples.Length;
-        this.channels_ = new[] { leftChannelSamples, rightChannelSamples };
+        this.channels_ = [leftChannelSamples, rightChannelSamples];
       }
 
       public short GetPcm(AudioChannelType channelType, int sampleOffset)

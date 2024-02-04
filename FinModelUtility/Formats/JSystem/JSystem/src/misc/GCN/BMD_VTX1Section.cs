@@ -82,7 +82,7 @@ namespace jsystem.GCN {
           ArrayFormat Format,
           int Length,
           IBinaryReader br) {
-        List<float> floatList = new List<float>();
+        List<float> floatList = [];
         switch (Format.DataType) {
           case 3:
             float num1 = (float) Math.Pow(0.5, (double) Format.DecimalPoint);

@@ -233,7 +233,7 @@ namespace uni.ui.winforms.common {
 
       public int AbsoluteIndex { get; }
 
-      private readonly List<BetterTreeNode> absoluteChildren_ = new();
+      private readonly List<BetterTreeNode> absoluteChildren_ = [];
 
       // TODO: Possible to remove unboxing?
       public T? Data { get; set; }

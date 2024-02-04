@@ -1,7 +1,7 @@
 ﻿namespace sm64.src {
   class AssemblyReader {
     public List<JAL_CALL> findJALsInFunction(uint RAMFunc, uint RAMtoROM) {
-      List<JAL_CALL> calls = new List<JAL_CALL>();
+      List<JAL_CALL> calls = [];
       List<Instruction> inst = ReadFunction(RAMFunc, RAMtoROM);
       uint a0 = 0, a1 = 0, a2 = 0, a3 = 0;
       uint jal_addr = 0;
@@ -128,7 +128,7 @@
     }
 
     public List<Instruction> ReadFunction(uint RAMAddr, uint RAMtoROM) {
-      List<Instruction> instructions = new List<Instruction>();
+      List<Instruction> instructions = [];
       ROM rom = ROM.Instance;
       uint ROM_OFFSET = RAMAddr - RAMtoROM;
       uint offset = ROM_OFFSET;

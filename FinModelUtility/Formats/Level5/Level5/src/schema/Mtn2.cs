@@ -64,7 +64,7 @@ namespace level5.schema {
           var dataOffset = d.ReadUInt32();
 
           // Bone Hashes
-          List<uint> hashes = new List<uint>();
+          List<uint> hashes = [];
           d.Position = (hashTableOffset);
           while (d.Position < trackInfoOffset) {
             hashes.Add(d.ReadUInt32());
@@ -72,7 +72,7 @@ namespace level5.schema {
           Asserts.Equal(toggledPrmCount + boneCount, hashes.Count);
 
           // Track Information
-          List<AnimTrack> tracks = new List<AnimTrack>();
+          List<AnimTrack> tracks = [];
           for (int i = 0; i < 4; i++) {
             d.Position = ((uint)(trackInfoOffset + 2 * i));
             d.Position = (d.ReadUInt16());

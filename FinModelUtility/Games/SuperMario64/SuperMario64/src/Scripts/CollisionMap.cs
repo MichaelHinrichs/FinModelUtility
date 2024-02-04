@@ -10,7 +10,7 @@ namespace sm64.Scripts {
 
     public CollisionTriangleList(int ID) {
       id = ID;
-      indicesList = new List<uint>();
+      indicesList = [];
     }
 
     public void AddTriangle(uint a, uint b, uint c) {
@@ -31,11 +31,11 @@ namespace sm64.Scripts {
   public class CollisionMap {
     private int vbo;
 
-    private List<Vector3> vertices = new List<Vector3>();
+    private List<Vector3> vertices = [];
 
     //private Vector3[] vertices = null;
     public List<CollisionTriangleList> triangles =
-        new List<CollisionTriangleList>();
+        [];
 
     public Vector3[] verts;
 
@@ -103,7 +103,7 @@ namespace sm64.Scripts {
     }
 
     public short dropToGround(Vector3 pos) {
-      List<float> found = new List<float>();
+      List<float> found = [];
       for (int i = 0; i < triangles.Count; i++) {
         CollisionTriangleList list = triangles[i];
         for (int j = 0; j < list.indices.Length; j += 3) {

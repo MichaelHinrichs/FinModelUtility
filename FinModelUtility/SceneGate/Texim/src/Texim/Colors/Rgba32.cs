@@ -82,12 +82,12 @@ namespace Texim.Colors
 
         public byte[] Encode(Rgb color)
         {
-            return new byte[4] {
+            return [
                 color.Red,
                 color.Green,
                 color.Blue,
-                hasAlpha ? color.Alpha : (byte)0,
-            };
+                hasAlpha ? color.Alpha : (byte)0
+            ];
         }
 
         public byte[] Encode(IEnumerable<Rgb> colors)

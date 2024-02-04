@@ -20,7 +20,7 @@ namespace fin.schema.sequences {
     [RSequenceLengthSource(nameof(Count))]
     private readonly List<T2> list2_;
 
-    public ConsecutiveLists2() : this(new(), new()) { }
+    public ConsecutiveLists2() : this([], []) { }
 
     private ConsecutiveLists2(List<T1> list1, List<T2> list2) {
       this.list1_ = list1;

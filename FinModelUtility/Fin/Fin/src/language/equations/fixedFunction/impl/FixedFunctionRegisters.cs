@@ -10,8 +10,8 @@ namespace fin.language.equations.fixedFunction {
     private readonly Dictionary<string, IScalarRegister> scalarRegistersMap_ =
         new();
 
-    private readonly List<IColorRegister> colorRegisters_ = new();
-    private readonly List<IScalarRegister> scalarRegisters_ = new();
+    private readonly List<IColorRegister> colorRegisters_ = [];
+    private readonly List<IScalarRegister> scalarRegisters_ = [];
 
     public IReadOnlyList<IColorRegister> ColorRegisters
       => this.colorRegisters_;

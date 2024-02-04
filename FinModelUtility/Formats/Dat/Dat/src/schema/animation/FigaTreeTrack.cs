@@ -36,7 +36,7 @@ namespace dat.schema.animation {
     [Skip]
     public LinkedList<(int frame, float incomingValue, float outgoingValue,
         float? incomingTangent, float? outgoingTangent)> Keyframes { get; } =
-      new();
+      [];
 
 
     [ReadLogic]

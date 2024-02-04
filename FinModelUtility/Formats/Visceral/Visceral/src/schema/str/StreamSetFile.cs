@@ -54,7 +54,7 @@ namespace visceral.schema.str {
     public ushort Unknown02 { get; set; }
 
     [RSequenceUntilEndOfStream]
-    public List<BlockWrapper> Contents { get; } = new();
+    public List<BlockWrapper> Contents { get; } = [];
 
     [BinarySchema]
     public partial class BlockWrapper : IBinaryConvertible {

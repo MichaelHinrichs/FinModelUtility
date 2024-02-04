@@ -32,8 +32,8 @@ namespace SceneGate.Lemon.Titles
         /// </summary>
         public TitleMetadata()
         {
-            InfoRecords = new Collection<ContentInfoRecord>();
-            Chunks = new Collection<ContentChunkRecord>();
+            InfoRecords = [];
+            Chunks = [];
         }
 
         /// <summary>
