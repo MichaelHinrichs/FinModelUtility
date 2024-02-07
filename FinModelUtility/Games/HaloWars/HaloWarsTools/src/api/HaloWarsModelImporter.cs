@@ -3,10 +3,10 @@ using fin.model.io.importers;
 
 namespace hw.api {
   public class HaloWarsModelImporter : IModelImporter<IHaloWarsModelFileBundle> {
-    public IModel ImportModel(IHaloWarsModelFileBundle modelFileBundle)
+    public IModel Import(IHaloWarsModelFileBundle modelFileBundle)
       => modelFileBundle switch {
-        VisModelFileBundle visModelFileBundle => new VisModelImporter().ImportModel(visModelFileBundle),
-        XtdModelFileBundle xtdModelFileBundle => new XtdModelImporter().ImportModel(xtdModelFileBundle),
+        VisModelFileBundle visModelFileBundle => new VisModelImporter().Import(visModelFileBundle),
+        XtdModelFileBundle xtdModelFileBundle => new XtdModelImporter().Import(xtdModelFileBundle),
       };
   }
 }

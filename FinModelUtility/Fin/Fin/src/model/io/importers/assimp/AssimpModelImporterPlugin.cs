@@ -16,15 +16,15 @@ namespace fin.model.io.importers.assimp {
 
     public IReadOnlyList<string> FileExtensions => this.MainFileExtensions;
 
-    public IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
-                              out IModelFileBundle outModelFileBundle,
-                              float frameRate = 30) {
+    public IModel Import(IEnumerable<IReadOnlySystemFile> files,
+                         out IModelFileBundle outModelFileBundle,
+                         float frameRate = 30) {
       var assimpBundle = new AssimpModelFileBundle {
           MainFile = files.Single(),
       };
       outModelFileBundle = assimpBundle;
 
-      return new AssimpModelImporter().ImportModel(assimpBundle);
+      return new AssimpModelImporter().Import(assimpBundle);
     }
   }
 }

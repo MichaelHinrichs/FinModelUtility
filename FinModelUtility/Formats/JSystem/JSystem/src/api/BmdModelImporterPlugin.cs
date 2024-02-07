@@ -24,7 +24,7 @@ namespace jsystem.api {
     public IReadOnlyList<string> FileExtensions { get; } =
       new[] { ".bca", ".bck", ".bmd", ".bti" };
 
-    public IModel ImportModel(
+    public IModel Import(
         IEnumerable<IReadOnlySystemFile> files,
         out IModelFileBundle outModelFileBundle,
         float frameRate = 30) {
@@ -44,7 +44,7 @@ namespace jsystem.api {
       outModelFileBundle = bmdBundle;
 
       var bmdImporter = new BmdModelImporter();
-      return bmdImporter.ImportModel(bmdBundle);
+      return bmdImporter.Import(bmdBundle);
     }
   }
 }

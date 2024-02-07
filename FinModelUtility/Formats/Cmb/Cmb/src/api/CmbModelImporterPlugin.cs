@@ -27,7 +27,7 @@ namespace cmb.api {
     public IReadOnlyList<string> FileExtensions { get; } =
       new[] { ".cmb", ".csab", ".ctxb", ".shpa" };
 
-    public IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
+    public IModel Import(IEnumerable<IReadOnlySystemFile> files,
                               out IModelFileBundle outModelFileBundle,
                               float frameRate = 30) {
       var filesArray = files.ToArray();
@@ -45,7 +45,7 @@ namespace cmb.api {
       outModelFileBundle = cmbBundle;
 
       var cmbImporter = new CmbModelImporter();
-      return cmbImporter.ImportModel(cmbBundle);
+      return cmbImporter.Import(cmbBundle);
     }
   }
 }

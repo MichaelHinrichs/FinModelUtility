@@ -142,7 +142,7 @@ namespace uni.cli {
                   Console.WriteLine(
                       "Importing the model with the following plugin: ");
                   PrintPluginInfo_(bestMatch!);
-                  var model = bestMatch!.ImportModel(
+                  var model = bestMatch!.Import(
                       inputFiles,
                       out _,
                       frameRate);

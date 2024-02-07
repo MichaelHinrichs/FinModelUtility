@@ -17,7 +17,7 @@ using Quaternion = System.Numerics.Quaternion;
 
 namespace level5.api {
   public class XcModelImporter : IModelImporter<XcModelFileBundle> {
-    public IModel ImportModel(XcModelFileBundle modelFileBundle) {
+    public IModel Import(XcModelFileBundle modelFileBundle) {
       var endianness = Endianness.LittleEndian;
 
       var modelXcFile = modelFileBundle.ModelXcFile;

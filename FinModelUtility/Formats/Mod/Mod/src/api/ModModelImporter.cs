@@ -43,7 +43,7 @@ namespace mod.api {
           _                        => GxWrapMode.GX_REPEAT,
       };
 
-    public IModel ImportModel(ModModelFileBundle modelFileBundle) {
+    public IModel Import(ModModelFileBundle modelFileBundle) {
       var mod =
           modelFileBundle.ModFile.ReadNew<Mod>(Endianness.BigEndian);
       var anm =

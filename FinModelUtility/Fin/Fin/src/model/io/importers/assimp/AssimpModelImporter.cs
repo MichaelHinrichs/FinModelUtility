@@ -22,7 +22,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.model.io.importers.assimp {
   public class AssimpModelImporter : IModelImporter<AssimpModelFileBundle> {
-    public unsafe IModel ImportModel(AssimpModelFileBundle modelFileBundle) {
+    public unsafe IModel Import(AssimpModelFileBundle modelFileBundle) {
       var mainFile = modelFileBundle.MainFile;
 
       var finModel = new ModelImpl();

@@ -21,7 +21,7 @@ using schema.binary;
 
 namespace modl.api {
   public class ModlModelImporter : IAsyncModelImporter<ModlModelFileBundle> {
-    public Task<IModel> ImportModelAsync(ModlModelFileBundle modelFileBundle)
+    public Task<IModel> ImportAsync(ModlModelFileBundle modelFileBundle)
       => this.ImportModelAsync(modelFileBundle.ModlFile,
                                modelFileBundle.AnimFiles?.ToArray(),
                                modelFileBundle.GameVersion);

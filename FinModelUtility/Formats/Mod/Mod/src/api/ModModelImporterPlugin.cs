@@ -22,7 +22,7 @@ namespace mod.api {
     public IReadOnlyList<string> FileExtensions { get; } =
       new[] { ".anm", ".mod" };
 
-    public IModel ImportModel(
+    public IModel Import(
         IEnumerable<IReadOnlySystemFile> files,
         out IModelFileBundle outModelFileBundle,
         float frameRate = 30) {
@@ -36,7 +36,7 @@ namespace mod.api {
       outModelFileBundle = modBundle;
 
       var modImporter = new ModModelImporter();
-      return modImporter.ImportModel(modBundle);
+      return modImporter.Import(modBundle);
     }
   }
 }

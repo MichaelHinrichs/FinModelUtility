@@ -10,7 +10,7 @@ using PrimitiveType = xmod.schema.xmod.PrimitiveType;
 
 namespace xmod.api {
   public class XmodModelImporter : IModelImporter<XmodModelFileBundle> {
-    public IModel ImportModel(XmodModelFileBundle modelFileBundle) {
+    public IModel Import(XmodModelFileBundle modelFileBundle) {
       using var tr = new SchemaTextReader(modelFileBundle.XmodFile.OpenRead());
 
       var xmod = new Xmod();

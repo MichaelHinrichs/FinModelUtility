@@ -9,21 +9,15 @@ using sm64.api;
 
 namespace uni.api {
   public class GlobalSceneImporter : ISceneImporter<ISceneFileBundle> {
-    public IScene ImportScene(ISceneFileBundle sceneFileBundle,
-                              out ILighting? lighting)
+    public IScene Import(ISceneFileBundle sceneFileBundle)
       => sceneFileBundle switch {
           BwSceneFileBundle bwSceneFileBundle
-              => new BwSceneImporter().ImportScene(
-                  bwSceneFileBundle,
-                  out lighting),
+              => new BwSceneImporter().Import(bwSceneFileBundle),
           Pikmin2SceneFileBundle pikmin2SceneFileBundle
-              => new Pikmin2SceneImporter().ImportScene(
-                  pikmin2SceneFileBundle,
-                  out lighting),
+              => new Pikmin2SceneImporter().Import(pikmin2SceneFileBundle),
           Sm64LevelSceneFileBundle sm64LevelSceneFileBundle
-              => new Sm64LevelSceneImporter().ImportScene(
-                  sm64LevelSceneFileBundle,
-                  out lighting),
+              => new Sm64LevelSceneImporter().Import(
+                  sm64LevelSceneFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(sceneFileBundle))
       };
   }

@@ -18,7 +18,7 @@ namespace pmdc.api {
   }
 
   public class OmdModelImporter : IModelImporter<OmdModelFileBundle> {
-    public IModel ImportModel(OmdModelFileBundle modelFileBundle) {
+    public IModel Import(OmdModelFileBundle modelFileBundle) {
       var omdFile = modelFileBundle.OmdFile;
 
       var omdModel = omdFile.ReadNewFromText<Omd>();

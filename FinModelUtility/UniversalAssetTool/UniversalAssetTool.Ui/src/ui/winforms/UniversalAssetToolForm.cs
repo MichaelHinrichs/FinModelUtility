@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using fin.audio.io;
 using fin.color;
 using fin.data.queues;
+using fin.importers;
 using fin.model.io.exporters.assimp;
 using fin.io;
 using fin.io.bundles;
@@ -108,16 +109,12 @@ public partial class UniversalAssetToolForm : Form {
 
   private void OnFileBundleSelect_(IFileTreeLeafNode fileNode) {
     switch (fileNode.File.FileBundle) {
-      case IModelFileBundle modelFileBundle: {
-        this.SelectModel_(fileNode, modelFileBundle);
+      case I3dFileBundle threeDFileBundle: {
+        this.Select3d_(fileNode, threeDFileBundle);
         break;
       }
       case IAudioFileBundle audioFileBundle: {
         this.SelectAudio_(audioFileBundle);
-        break;
-      }
-      case ISceneFileBundle sceneFileBundle: {
-        this.SelectScene_(fileNode, sceneFileBundle);
         break;
       }
       default:
@@ -125,11 +122,24 @@ public partial class UniversalAssetToolForm : Form {
     }
   }
 
+  private void Select3d_(IFileTreeLeafNode fileNode,
+                         I3dFileBundle threeDFileBundle) {
+    switch (threeDFileBundle) {
+      case IModelFileBundle modelFileBundle: {
+        this.SelectModel_(fileNode, modelFileBundle);
+        break;
+      }
+      case ISceneFileBundle sceneFileBundle: {
+        this.SelectScene_(fileNode, sceneFileBundle);
+        break;
+      }
+    }
+  }
+
   private void SelectScene_(IFileTreeLeafNode fileNode,
                             ISceneFileBundle sceneFileBundle) {
-    var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle,
-      out var lighting);
-    this.UpdateScene_(fileNode, sceneFileBundle, scene, lighting);
+    var scene = new GlobalSceneImporter().Import(sceneFileBundle);
+    this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
   private void SelectModel_(IFileTreeLeafNode fileNode,
@@ -137,7 +147,7 @@ public partial class UniversalAssetToolForm : Form {
     => this.UpdateModel_(
         fileNode,
         modelFileBundle,
-        new GlobalModelImporter().ImportModel(modelFileBundle));
+        new GlobalModelImporter().Import(modelFileBundle));
 
   private void UpdateModel_(IFileTreeLeafNode? fileNode,
                             IModelFileBundle modelFileBundle,
@@ -147,19 +157,16 @@ public partial class UniversalAssetToolForm : Form {
     var obj = area.AddObject();
     obj.AddSceneModel(model);
 
-    this.UpdateScene_(fileNode,
-                      modelFileBundle,
-                      scene,
-                      this.CreateDefaultLightingForScene_(scene, obj));
+    this.InjectDefaultLightingForScene_(scene, obj);
+
+    this.UpdateScene_(fileNode, modelFileBundle, scene);
   }
 
   private void UpdateScene_(IFileTreeLeafNode? fileNode,
                             IFileBundle fileBundle,
-                            IScene scene,
-                            ILighting? lighting) {
-    this.sceneViewerPanel_.FileBundleAndSceneAndLighting?.Item2.Dispose();
-    this.sceneViewerPanel_.FileBundleAndSceneAndLighting =
-        (fileBundle, scene, lighting);
+                            IScene scene) {
+    this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();
+    this.sceneViewerPanel_.FileBundleAndScene = (fileBundle, scene);
 
     var model = this.sceneViewerPanel_.FirstSceneModel?.Model;
     this.modelTabs_.Model = (fileBundle, model);
@@ -188,9 +195,13 @@ public partial class UniversalAssetToolForm : Form {
     }
   }
 
-  private ILighting? CreateDefaultLightingForScene_(
+  private void InjectDefaultLightingForScene_(
       IScene scene,
       ISceneObject lightingOwner) {
+    if (scene.Lighting != null) {
+      return;
+    }
+    
     var needsLights = false;
     var neededLightIndices = new HashSet<int>();
 
@@ -235,7 +246,7 @@ public partial class UniversalAssetToolForm : Form {
     }
 
     if (!needsLights) {
-      return null;
+      return;
     }
 
     bool attachFirstLightToCamera = false;
@@ -265,7 +276,7 @@ public partial class UniversalAssetToolForm : Form {
 
     var maxLightIndex = neededLightIndices.Max();
     var currentIndex = 0;
-    var lighting = new LightingImpl();
+    var lighting = scene.CreateLighting();
     for (var i = 0; i <= maxLightIndex; ++i) {
       var light = lighting.CreateLight();
       if (!(light.Enabled = neededLightIndices.Contains(i))) {
@@ -311,8 +322,6 @@ public partial class UniversalAssetToolForm : Form {
         firstLight.SetNormal(normal);
       });
     }
-
-    return lighting;
   }
 
   private void SelectAudio_(IAudioFileBundle audioFileBundle)
@@ -344,7 +353,7 @@ public partial class UniversalAssetToolForm : Form {
       }
 
       var finModel =
-          bestMatch.ImportModel(inputFiles, out var modelFileBundle);
+          bestMatch.Import(inputFiles, out var modelFileBundle);
       this.UpdateModel_(null, modelFileBundle, finModel);
     };
 
@@ -353,12 +362,12 @@ public partial class UniversalAssetToolForm : Form {
 
   private void exportAsToolStripMenuItem_Click(object sender, EventArgs e) {
     var fileBundleAndScene =
-        this.sceneViewerPanel_.FileBundleAndSceneAndLighting;
+        this.sceneViewerPanel_.FileBundleAndScene;
     if (fileBundleAndScene == null) {
       return;
     }
 
-    var (fileBundle, _, _) = fileBundleAndScene.Value;
+    var (fileBundle, _) = fileBundleAndScene.Value;
     if (fileBundle is not I3dFileBundle threeDFileBundle) {
       return;
     }

@@ -3,26 +3,30 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using fin.animation;
+using fin.importers;
 using fin.math;
 using fin.model;
-using fin.model.io;
 
 namespace fin.scene {
-  public interface ISceneFileBundle : I3dFileBundle { }
+  public interface ISceneFileBundle : I3dFileBundle;
 
   public interface ISceneImporter<in TSceneFileBundle>
-      where TSceneFileBundle : ISceneFileBundle {
-    IScene ImportScene(TSceneFileBundle sceneFileBundle,
-                       out ILighting? lighting);
-  }
+      : I3dImporter<IScene, TSceneFileBundle>
+      where TSceneFileBundle : ISceneFileBundle;
 
+
+  // Scene
   /// <summary>
   ///   A single scene from a game. These can be thought of as the parts of the
   ///   game that are each separated by a loading screen.
   /// </summary>
+  // TODO: The scene itself shouldn't be tickable, that should be some kind of wrapper over this data
   public interface IScene : ITickable, IDisposable {
     IReadOnlyList<ISceneArea> Areas { get; }
     ISceneArea AddArea();
+
+    ILighting? Lighting { get; }
+    ILighting CreateLighting();
 
     float ViewerScale { get; set; }
   }

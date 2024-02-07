@@ -1,5 +1,4 @@
 ﻿using fin.io;
-using fin.model;
 using fin.scene;
 
 using games.pikmin2.route;
@@ -8,16 +7,13 @@ using jsystem.api;
 
 namespace games.pikmin2.api {
   public class Pikmin2SceneImporter : ISceneImporter<Pikmin2SceneFileBundle> {
-    public IScene ImportScene(Pikmin2SceneFileBundle sceneFileBundle,
-                              out ILighting? lighting) {
-      lighting = null;
-
+    public IScene Import(Pikmin2SceneFileBundle sceneFileBundle) {
       var scene = new SceneImpl();
       var sceneArea = scene.AddArea();
 
       var mapObj = sceneArea.AddObject();
       mapObj.AddSceneModel(
-          new BmdModelImporter().ImportModel(new BmdModelFileBundle {
+          new BmdModelImporter().Import(new BmdModelFileBundle {
               GameName = "pikmin_2", BmdFile = sceneFileBundle.LevelBmd
           }));
 

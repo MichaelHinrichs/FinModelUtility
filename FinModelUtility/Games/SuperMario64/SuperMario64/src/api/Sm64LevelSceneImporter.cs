@@ -19,8 +19,7 @@ namespace sm64.api {
   }
 
   public class Sm64LevelSceneImporter : ISceneImporter<Sm64LevelSceneFileBundle> {
-    public IScene ImportScene(Sm64LevelSceneFileBundle levelModelFileBundle,
-                              out ILighting? lighting) {
+    public IScene Import(Sm64LevelSceneFileBundle levelModelFileBundle) {
       var sm64Level = Sm64LevelImporter.LoadLevel(levelModelFileBundle);
 
       var finScene = new SceneImpl();
@@ -42,7 +41,6 @@ namespace sm64.api {
             sm64Area);
       }
 
-      lighting = null;
       return finScene;
     }
 

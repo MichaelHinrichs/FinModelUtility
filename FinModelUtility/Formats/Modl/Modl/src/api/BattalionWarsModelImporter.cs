@@ -4,11 +4,11 @@ using fin.model.io.importers;
 namespace modl.api {
   public class BattalionWarsModelImporter 
       : IModelImporter<IBattalionWarsModelFileBundle> {
-    public IModel ImportModel(IBattalionWarsModelFileBundle modelFileBundle)
+    public IModel Import(IBattalionWarsModelFileBundle modelFileBundle)
       => modelFileBundle switch {
           ModlModelFileBundle modlFileBundle => new ModlModelImporter()
-              .ImportModelAsync(modlFileBundle).Result,
-          OutModelFileBundle outFileBundle => new OutModelImporter().ImportModel(
+              .ImportAsync(modlFileBundle).Result,
+          OutModelFileBundle outFileBundle => new OutModelImporter().Import(
               outFileBundle),
           _ => throw new ArgumentOutOfRangeException(
                    nameof(modelFileBundle), modelFileBundle, null)

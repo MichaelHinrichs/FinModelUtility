@@ -5,7 +5,7 @@ using HaloWarsTools;
 
 namespace hw.api {
   public class XtdModelImporter : IModelImporter<XtdModelFileBundle> {
-    public IModel ImportModel(XtdModelFileBundle modelFileBundle) {
+    public IModel Import(XtdModelFileBundle modelFileBundle) {
       var xtdFile = modelFileBundle.XtdFile;
       var xttFile = modelFileBundle.XttFile;
 

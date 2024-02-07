@@ -49,8 +49,7 @@ namespace modl.schema.xml {
   }
 
   public class LevelXmlParser {
-    public IScene Parse(BwSceneFileBundle bwSceneFileBundle,
-                        out ILighting? lighting) {
+    public IScene Parse(BwSceneFileBundle bwSceneFileBundle) {
       var mainXmlFile = bwSceneFileBundle.MainXmlFile;
       var gameVersion = bwSceneFileBundle.GameVersion;
 
@@ -70,9 +69,10 @@ namespace modl.schema.xml {
 
       var objectTags = this.ReadLevelXmlObjectTags_(levelXmlFile, gameVersion);
 
-      this.ParseLightingAndLightScale_(objectTags,
-                                       out lighting,
-                                       out var terrainLightScale);
+      this.ParseLightingAndLightScale_(
+          scene,
+          objectTags,
+          out var terrainLightScale);
 
       var objectMap = this.ParseObjectMap_(objectTags);
 
@@ -124,10 +124,9 @@ namespace modl.schema.xml {
     }
 
     private void ParseLightingAndLightScale_(
+        IScene scene,
         XmlNode[] objectTags,
-        out ILighting? lighting,
         out float terrainLightScale) {
-      lighting = default;
       terrainLightScale = 1;
 
       foreach (var objectTag in objectTags) {
@@ -139,7 +138,7 @@ namespace modl.schema.xml {
           terrainLightScale =
               float.Parse(objectTag.GetAttributeValue("mTerrainLightScale"));
 
-          lighting = new LightingImpl();
+          var lighting = scene.CreateLighting();
           lighting.AmbientLightColor =
               objectTag.GetAttributeLightColor("mSunAmbientColor");
 
@@ -455,10 +454,11 @@ namespace modl.schema.xml {
                 if (stickToFloor != false) {
                   sceneObject.SetPosition(
                       translation.X,
-                      translation.Y + bwTerrain.Heightmap
-                                               .GetHeightAtPosition(
-                                                   translation.X,
-                                                   translation.Z),
+                      translation.Y +
+                      bwTerrain.Heightmap
+                               .GetHeightAtPosition(
+                                   translation.X,
+                                   translation.Z),
                       translation.Z);
                 } else if (
                     nextLinkId != null &&

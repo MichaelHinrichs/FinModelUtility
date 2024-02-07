@@ -8,10 +8,7 @@ using fin.ui.rendering.gl.model;
 
 namespace uni.ui {
   public interface ISceneViewerPanel {
-    (IFileBundle, IScene, ILighting?)? FileBundleAndSceneAndLighting {
-      get;
-      set;
-    }
+    (IFileBundle, IScene)? FileBundleAndScene { get; set; }
 
     ISceneModel? FirstSceneModel { get; }
     IAnimationPlaybackManager? AnimationPlaybackManager { get; }

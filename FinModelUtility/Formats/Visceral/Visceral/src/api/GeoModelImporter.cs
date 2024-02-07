@@ -15,7 +15,7 @@ namespace visceral.api {
   public class GeoModelImporter : IModelImporter<GeoModelFileBundle> {
     public const bool STRICT_DAT = false;
 
-    public IModel ImportModel(GeoModelFileBundle modelFileBundle) {
+    public IModel Import(GeoModelFileBundle modelFileBundle) {
       var finModel = new ModelImpl();
 
       // Builds textures

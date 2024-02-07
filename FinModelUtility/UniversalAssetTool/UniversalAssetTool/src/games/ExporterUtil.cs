@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 using Assimp;
 
+using fin.importers;
 using fin.model.io.exporters.assimp;
 using fin.io;
 using fin.io.bundles;
@@ -242,7 +242,7 @@ namespace uni.games {
                                  bool overwriteExistingFile)
         where T : IModelFileBundle {
       ExporterUtil.Export(modelFileBundle,
-                          () => reader.ImportModel(
+                          () => reader.Import(
                               modelFileBundle.TypedFileBundle),
                           extensions,
                           overwriteExistingFile);

@@ -1,22 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using fin.importers;
 using fin.io;
-using fin.io.bundles;
 
 namespace fin.model.io {
-  public interface I3dFileBundle : IFileBundle {
-    /// <summary>
-    ///   Whether to use a low-level exporter when exporting. This supports
-    ///   less features at the moment, but is required for exporting huge
-    ///   models without running into out of memory exceptions.
-    /// </summary>
-    bool UseLowLevelExporter => false;
-
-    bool ForceGarbageCollection => false;
-  }
-
-  public interface IModelFileBundle : I3dFileBundle { }
+  public interface IModelFileBundle : I3dFileBundle;
 
   public interface IModelPlugin {
     string DisplayName { get; }
@@ -39,9 +28,9 @@ namespace fin.model.io {
       return fileTypes.Where(this.MainFileExtensions.Contains).Count() == 1;
     }
 
-    IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
-                       out IModelFileBundle outModelFileBundle,
-                       float frameRate = 30);
+    IModel Import(IEnumerable<IReadOnlySystemFile> files,
+                  out IModelFileBundle outModelFileBundle,
+                  float frameRate = 30);
   }
 
   public interface IModelExporterPlugin : IModelPlugin {

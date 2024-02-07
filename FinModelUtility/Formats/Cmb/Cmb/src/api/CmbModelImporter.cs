@@ -33,7 +33,7 @@ namespace cmb.api {
   public class CmbModelImporter : IModelImporter<CmbModelFileBundle> {
     // TODO: Split these out into separate classes
     // TODO: Reading from the file here is gross
-    public IModel ImportModel(CmbModelFileBundle modelFileBundle) {
+    public IModel Import(CmbModelFileBundle modelFileBundle) {
       var cmbFile = modelFileBundle.CmbFile;
       var csabFiles = modelFileBundle.CsabFiles;
       var ctxbFiles = modelFileBundle.CtxbFiles;

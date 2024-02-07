@@ -15,8 +15,7 @@ namespace modl.api {
   }
 
   public class BwSceneImporter : ISceneImporter<BwSceneFileBundle> {
-    public IScene ImportScene(BwSceneFileBundle sceneFileBundle,
-                              out ILighting? lighting)
-      => new LevelXmlParser().Parse(sceneFileBundle, out lighting);
+    public IScene Import(BwSceneFileBundle sceneFileBundle)
+      => new LevelXmlParser().Parse(sceneFileBundle);
   }
 }

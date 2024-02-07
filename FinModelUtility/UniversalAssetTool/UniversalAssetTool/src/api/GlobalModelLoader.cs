@@ -28,36 +28,36 @@ using xmod.api;
 
 namespace uni.api {
   public class GlobalModelImporter : IModelImporter<IModelFileBundle> {
-    public IModel ImportModel(IModelFileBundle modelFileBundle)
+    public IModel Import(IModelFileBundle modelFileBundle)
       => modelFileBundle switch {
           IBattalionWarsModelFileBundle battalionWarsModelFileBundle
-              => new BattalionWarsModelImporter().ImportModel(
+              => new BattalionWarsModelImporter().Import(
                   battalionWarsModelFileBundle),
           BmdModelFileBundle bmdModelFileBundle
-              => new BmdModelImporter().ImportModel(bmdModelFileBundle),
+              => new BmdModelImporter().Import(bmdModelFileBundle),
           CmbModelFileBundle cmbModelFileBundle
-              => new CmbModelImporter().ImportModel(cmbModelFileBundle),
+              => new CmbModelImporter().Import(cmbModelFileBundle),
           DatModelFileBundle datModelFileBundle
-              => new DatModelImporter().ImportModel(datModelFileBundle),
+              => new DatModelImporter().Import(datModelFileBundle),
           GeoModelFileBundle geoModelFileBundle
-              => new GeoModelImporter().ImportModel(geoModelFileBundle),
+              => new GeoModelImporter().Import(geoModelFileBundle),
           GloModelFileBundle gloModelFileBundle
-              => new GloModelImporter().ImportModel(gloModelFileBundle),
+              => new GloModelImporter().Import(gloModelFileBundle),
           IHaloWarsModelFileBundle haloWarsModelFileBundle
-              => new HaloWarsModelImporter().ImportModel(
+              => new HaloWarsModelImporter().Import(
                   haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
-              => new ModModelImporter().ImportModel(modModelFileBundle),
+              => new ModModelImporter().Import(modModelFileBundle),
           OmdModelFileBundle omdModelFileBundle
-              => new OmdModelImporter().ImportModel(omdModelFileBundle),
+              => new OmdModelImporter().Import(omdModelFileBundle),
           OotModelFileBundle ootModelFileBundle
-              => new OotModelImporter().ImportModel(ootModelFileBundle),
+              => new OotModelImporter().Import(ootModelFileBundle),
           PedModelFileBundle pedModelFileBundle
-              => new PedModelImporter().ImportModel(pedModelFileBundle),
+              => new PedModelImporter().Import(pedModelFileBundle),
           XcModelFileBundle xcModelFileBundle
-              => new XcModelImporter().ImportModel(xcModelFileBundle),
+              => new XcModelImporter().Import(xcModelFileBundle),
           XmodModelFileBundle xmodModelFileBundle
-              => new XmodModelImporter().ImportModel(xmodModelFileBundle),
+              => new XmodModelImporter().Import(xmodModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
   }

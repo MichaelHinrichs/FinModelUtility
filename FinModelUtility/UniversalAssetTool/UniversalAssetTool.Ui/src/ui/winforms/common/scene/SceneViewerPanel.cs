@@ -13,8 +13,8 @@ namespace uni.ui.winforms.common.scene {
       this.InitializeComponent();
     }
 
-    public (IFileBundle, IScene, ILighting?)? FileBundleAndSceneAndLighting {
-      get => this.impl_.FileBundleAndSceneAndLighting;
+    public (IFileBundle, IScene)? FileBundleAndScene {
+      get => this.impl_.FileBundleAndScene;
       set {
         var fileBundle = value?.Item1;
         if (fileBundle != null) {
@@ -23,7 +23,7 @@ namespace uni.ui.winforms.common.scene {
           this.groupBox_.Text = "(Select a model)";
         }
 
-        this.impl_.FileBundleAndSceneAndLighting = value;
+        this.impl_.FileBundleAndScene = value;
       }
     }
 

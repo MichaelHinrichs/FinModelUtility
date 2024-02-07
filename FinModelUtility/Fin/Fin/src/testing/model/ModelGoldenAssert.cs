@@ -116,7 +116,7 @@ namespace fin.testing.model {
       var targetDirectory =
           hasGoldenExport ? tmpDirectory : outputDirectory.Impl;
 
-      var model = modelImporter.ImportModel(modelBundle);
+      var model = modelImporter.Import(modelBundle);
       new AssimpIndirectModelExporter() {
           LowLevel = modelBundle.UseLowLevelExporter,
           ForceGarbageCollection = modelBundle.ForceGarbageCollection,

@@ -3,7 +3,7 @@ using fin.model.io.importers;
 
 namespace xmod.api {
   public class PedModelImporter : IModelImporter<PedModelFileBundle> {
-    public IModel ImportModel(PedModelFileBundle modelFileBundle) {
+    public IModel Import(PedModelFileBundle modelFileBundle) {
       throw new NotImplementedException();
     }
   }

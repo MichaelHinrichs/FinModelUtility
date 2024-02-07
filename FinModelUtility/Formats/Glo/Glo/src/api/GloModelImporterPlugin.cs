@@ -14,7 +14,7 @@ namespace glo.api {
     public IReadOnlyList<string> MainFileExtensions => new[] { ".glo" };
     public IReadOnlyList<string> FileExtensions => this.MainFileExtensions;
 
-    public IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
+    public IModel Import(IEnumerable<IReadOnlySystemFile> files,
                               out IModelFileBundle outModelFileBundle,
                               float frameRate = 30) {
       var gloFile = files.WithFileType(".glo").Single();
@@ -26,7 +26,7 @@ namespace glo.api {
           new GloModelFileBundle(gloFile, new[] { textureDirectory });
       outModelFileBundle = gloBundle;
 
-      return new GloModelImporter().ImportModel(gloBundle);
+      return new GloModelImporter().Import(gloBundle);
     }
   }
 }

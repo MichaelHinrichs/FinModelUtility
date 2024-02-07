@@ -5,7 +5,7 @@ using HaloWarsTools;
 
 namespace hw.api {
   public class VisModelImporter : IModelImporter<VisModelFileBundle> {
-    public IModel ImportModel(VisModelFileBundle modelFileBundle) {
+    public IModel Import(VisModelFileBundle modelFileBundle) {
       var visResource =
           HWVisResource.FromFile(modelFileBundle.Context,
                                  modelFileBundle.VisFile.FullPath);

@@ -29,7 +29,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace dat.api {
   // TODO: Split out this importer based on the game
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {
-    public unsafe IModel ImportModel(DatModelFileBundle modelFileBundle) {
+    public unsafe IModel Import(DatModelFileBundle modelFileBundle) {
       var primaryDat =
           modelFileBundle.PrimaryDatFile.ReadNew<Dat>(Endianness.BigEndian);
       var primaryDatSubfile = primaryDat.Subfiles.Single();

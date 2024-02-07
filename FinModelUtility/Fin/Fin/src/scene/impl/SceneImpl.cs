@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
-using fin.data;
-using fin.math;
 using fin.model;
 using fin.model.impl;
 
@@ -36,6 +33,11 @@ namespace fin.scene {
         area.Tick();
       }
     }
+
+
+    public ILighting? Lighting { get; private set; }
+    public ILighting CreateLighting() => this.Lighting = new LightingImpl();
+
 
     private float viewerScale_ = 1;
 

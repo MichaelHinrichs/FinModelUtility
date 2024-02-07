@@ -22,7 +22,7 @@ namespace glo.api {
 
     private readonly string[] mirrorTextures_ = ["Badg2.bmp"];
 
-    public IModel ImportModel(GloModelFileBundle gloModelFileBundle) {
+    public IModel Import(GloModelFileBundle gloModelFileBundle) {
       var gloFile = gloModelFileBundle.GloFile;
       var textureDirectories = gloModelFileBundle.TextureDirectories;
       var fps = 20;

@@ -1,19 +1,19 @@
 ﻿using System.Threading.Tasks;
 
-namespace fin.model.io.importers {
+using fin.importers;
 
+namespace fin.model.io.importers {
   public interface IModelImporter<in TModelFileBundle>
-      where TModelFileBundle : IModelFileBundle {
-    IModel ImportModel(TModelFileBundle modelFileBundle);
-  }
+      : I3dImporter<IModel, TModelFileBundle>
+      where TModelFileBundle : IModelFileBundle;
 
   public interface IAsyncModelImporter<in TModelFileBundle>
       : IModelImporter<TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
-    IModel IModelImporter<TModelFileBundle>.ImportModel(
+    IModel IImporter<IModel, TModelFileBundle>.Import(
         TModelFileBundle modelFileBundle)
-      => this.ImportModelAsync(modelFileBundle).Result;
+      => this.ImportAsync(modelFileBundle).Result;
 
-    Task<IModel> ImportModelAsync(TModelFileBundle modelFileBundle);
+    Task<IModel> ImportAsync(TModelFileBundle modelFileBundle);
   }
 }

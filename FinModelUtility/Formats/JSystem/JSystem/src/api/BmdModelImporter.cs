@@ -32,7 +32,7 @@ namespace jsystem.api {
   using GxPrimitiveType = BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive;
 
   public class BmdModelImporter : IModelImporter<BmdModelFileBundle> {
-    public IModel ImportModel(BmdModelFileBundle modelFileBundle) {
+    public IModel Import(BmdModelFileBundle modelFileBundle) {
       var logger = Logging.Create<BmdModelImporter>();
 
       var bmd = new BMD(modelFileBundle.BmdFile.ReadAllBytes());

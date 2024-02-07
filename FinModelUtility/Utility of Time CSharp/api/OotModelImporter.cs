@@ -30,7 +30,7 @@ namespace UoT.api {
   }
 
   public class OotModelImporter : IModelImporter<OotModelFileBundle> {
-    public IModel ImportModel(OotModelFileBundle modelFileBundle) {
+    public IModel Import(OotModelFileBundle modelFileBundle) {
       var zFile = modelFileBundle.ZFile;
       var isLink = zFile.FileName is "object_link_boy"
                                      or "object_link_child"
