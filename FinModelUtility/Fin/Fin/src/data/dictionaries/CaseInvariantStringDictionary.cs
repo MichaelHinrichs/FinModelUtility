@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace fin.data.dictionaries {
   public class CaseInvariantStringDictionary<T> : IFinDictionary<string, T> {
@@ -14,6 +15,9 @@ namespace fin.data.dictionaries {
     public bool ContainsKey(string key) => this.impl_.ContainsKey(key);
 
     public bool TryGetValue(string key, out T value) => this.impl_.TryGetValue(key, out value);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Remove(T key) => this.impl_.Remove(key);
 
     public T this[string key] {
       get => this.impl_[key];

@@ -15,5 +15,6 @@ namespace fin.data.dictionaries {
       : IReadOnlyFinDictionary<TKey, TValue>,
         IFinCollection<(TKey Key, TValue Value)> {
     new TValue this[TKey key] { get; set; }
+    bool Remove(TKey key);
   }
 }

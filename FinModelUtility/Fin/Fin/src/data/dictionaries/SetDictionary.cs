@@ -7,31 +7,32 @@ namespace fin.data.dictionaries {
   ///   An implementation for a dictionary of sets. Each value added for a key
   ///   will be stored in that key's corresponding set.
   /// </summary>
-  public class SetDictionary<TKey, TValue>
+  public class SetDictionary<TKey, TValue>(
+      IFinDictionary<TKey, ISet<TValue>> impl)
       : IFinCollection<(TKey Key, ISet<TValue> Value)> {
-    private readonly NullFriendlyDictionary<TKey, ISet<TValue>> impl_ = new();
+    public SetDictionary() : this(
+        new NullFriendlyDictionary<TKey, ISet<TValue>>()) { }
 
-    public void Clear() => this.impl_.Clear();
+    public void Clear() => impl.Clear();
 
-    public int Count => this.impl_.Values.Select(list => list.Count).Sum();
+    public int Count => impl.Values.Select(list => list.Count).Sum();
 
     public void Add(TKey key, TValue value) {
-      ISet<TValue> set;
-      if (!this.impl_.TryGetValue(key, out set)) {
-        this.impl_[key] = set = new HashSet<TValue>();
+      if (!impl.TryGetValue(key, out var set)) {
+        impl[key] = set = new HashSet<TValue>();
       }
 
       set.Add(value);
     }
 
-    public ISet<TValue> this[TKey key] => this.impl_[key];
+    public ISet<TValue> this[TKey key] => impl[key];
 
     public bool TryGetSet(TKey key, out ISet<TValue>? set)
-      => this.impl_.TryGetValue(key, out set);
+      => impl.TryGetValue(key, out set);
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IEnumerator<(TKey Key, ISet<TValue> Value)> GetEnumerator()
-      => this.impl_.GetEnumerator();
+      => impl.GetEnumerator();
   }
 }

@@ -7,34 +7,35 @@ namespace fin.data.dictionaries {
   ///   An implementation for a dictionary of lists. Each value added for a key
   ///   will be stored in that key's corresponding list.
   /// </summary>
-  public class ListDictionary<TKey, TValue>
+  public class ListDictionary<TKey, TValue>(IFinDictionary<TKey, IList<TValue>> impl)
       : IFinCollection<(TKey Key, IList<TValue> Value)> {
-    private readonly NullFriendlyDictionary<TKey, IList<TValue>> impl_ = new();
+    public ListDictionary() : this(
+        new NullFriendlyDictionary<TKey, IList<TValue>>()) { }
 
-    public void Clear() => this.impl_.Clear();
-    public void ClearList(TKey key) => this.impl_.Remove(key);
+    public void Clear() => impl.Clear();
+    public void ClearList(TKey key) => impl.Remove(key);
 
-    public int Count => this.impl_.Values.Select(list => list.Count).Sum();
+    public int Count => impl.Values.Select(list => list.Count).Sum();
 
-    public bool HasList(TKey key) => this.impl_.ContainsKey(key);
+    public bool HasList(TKey key) => impl.ContainsKey(key);
 
     public void Add(TKey key, TValue value) {
       IList<TValue> list;
-      if (!this.impl_.TryGetValue(key, out list)) {
-        this.impl_[key] = list = new List<TValue>();
+      if (!impl.TryGetValue(key, out list)) {
+        impl[key] = list = new List<TValue>();
       }
 
       list.Add(value);
     }
 
-    public IList<TValue> this[TKey key] => this.impl_[key];
+    public IList<TValue> this[TKey key] => impl[key];
 
     public bool TryGetList(TKey key, out IList<TValue>? list)
-      => this.impl_.TryGetValue(key, out list);
+      => impl.TryGetValue(key, out list);
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IEnumerator<(TKey Key, IList<TValue> Value)> GetEnumerator()
-      => this.impl_.GetEnumerator();
+      => impl.GetEnumerator();
   }
 }
