@@ -25,9 +25,11 @@ using uni.games.paper_mario_directors_cut;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
 using uni.games.professor_layton_vs_phoenix_wright;
+using uni.games.soulcalibur_ii;
 using uni.games.super_mario_64;
 using uni.games.super_mario_sunshine;
 using uni.games.super_smash_bros_melee;
+using uni.games.timesplitters_2;
 using uni.games.wind_waker;
 using uni.util.io;
 
@@ -64,9 +66,11 @@ namespace uni.games {
           new Pikmin1FileBundleGatherer(),
           new Pikmin2FileBundleGatherer(),
           new ProfessorLaytonVsPhoenixWrightFileBundleGatherer(),
+          new SoulcaliburIIFileBundleGatherer(),
           new SuperMario64AnnotatedFileGatherer(),
           new SuperMarioSunshineFileBundleGatherer(),
           new SuperSmashBrosMeleeFileBundleGatherer(),
+          new Timesplitters2FileBundleGatherer(),
           new WindWakerFileBundleGatherer(),
       };
       foreach (var gatherer in gatherers) {
