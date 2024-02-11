@@ -163,7 +163,7 @@ public partial class UniversalAssetToolForm : Form {
   }
 
   private void UpdateScene_(IFileTreeLeafNode? fileNode,
-                            IFileBundle fileBundle,
+                            I3dFileBundle fileBundle,
                             IScene scene) {
     this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();
     this.sceneViewerPanel_.FileBundleAndScene = (fileBundle, scene);
@@ -209,7 +209,7 @@ public partial class UniversalAssetToolForm : Form {
         scene.Areas.SelectMany(
             area => area.Objects.SelectMany(obj => obj.Models)));
     while (sceneModelQueue.TryDequeue(out var sceneModel)) {
-      sceneModelQueue.Enqueue(sceneModel.Children);
+      sceneModelQueue.Enqueue(sceneModel.Children.SelectMany(pair => pair.Value));
 
       var finModel = sceneModel.Model;
 

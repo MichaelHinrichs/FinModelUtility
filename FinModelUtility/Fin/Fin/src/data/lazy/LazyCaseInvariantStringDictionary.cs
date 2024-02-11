@@ -33,6 +33,8 @@ namespace fin.data.lazy {
     public bool ContainsKey(string key) => this.impl_.ContainsKey(key);
     public bool TryGetValue(string key, out TValue value) => this.impl_.TryGetValue(key, out value);
 
+    public bool Remove(string key) => this.impl_.Remove(key);
+
     public TValue this[string key] {
       get => this.impl_[key];
       set => this.impl_[key] = value;

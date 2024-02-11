@@ -1,7 +1,8 @@
 ﻿using fin.io;
+using fin.model.io;
 
 namespace hw.api {
-  public class XtdModelFileBundle : IHaloWarsModelFileBundle {
+  public class XtdModelFileBundle : IHaloWarsFileBundle, IModelFileBundle {
     public XtdModelFileBundle(IReadOnlyTreeFile xtdFile,
                               IReadOnlyTreeFile xttFile) {
       this.XtdFile = xtdFile;

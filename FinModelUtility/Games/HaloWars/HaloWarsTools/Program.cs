@@ -106,7 +106,7 @@ namespace HaloWarsTools {
         foreach (var visFile in visFiles) {
           var vis = HWVisResource.FromFile(context, visFile.FullPath);
 
-          var finModel = vis.Model;
+          var finModel = vis.Scene;
 
           var outFilePath =
               visFile.FullPath.Replace(scratchDirectoryPath,
@@ -116,10 +116,10 @@ namespace HaloWarsTools {
             parent.Create();
           }
 
-          var exporter = new AssimpIndirectModelExporter();
+          /*var exporter = new AssimpIndirectModelExporter();
           exporter.ExportModel(new ModelExporterParams {
               OutputFile = outFile, Model = finModel
-          });
+          });*/
           Console.WriteLine($"Processed {visFile.FullPath}");
         }
 

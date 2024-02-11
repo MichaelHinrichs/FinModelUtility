@@ -3,12 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.data.dictionaries {
+  public interface IReadOnlyListDictionary<TKey, TValue>
+      : IReadOnlyFinCollection<(TKey Key, IList<TValue> Value)> {
+    bool HasList(TKey key);
+
+    IList<TValue> this[TKey key] { get; }
+    bool TryGetList(TKey key, out IList<TValue>? list);
+  }
+
+  public interface IListDictionary<TKey, TValue>
+      : IReadOnlyListDictionary<TKey, TValue>,
+        IFinCollection<(TKey Key, IList<TValue> Value)> {
+    void ClearList(TKey key);
+    void Add(TKey key, TValue value);
+  }
+
+
   /// <summary>
   ///   An implementation for a dictionary of lists. Each value added for a key
   ///   will be stored in that key's corresponding list.
   /// </summary>
-  public class ListDictionary<TKey, TValue>(IFinDictionary<TKey, IList<TValue>> impl)
-      : IFinCollection<(TKey Key, IList<TValue> Value)> {
+  public class ListDictionary<TKey, TValue>(
+      IFinDictionary<TKey, IList<TValue>> impl)
+      : IListDictionary<TKey, TValue> {
     public ListDictionary() : this(
         new NullFriendlyDictionary<TKey, IList<TValue>>()) { }
 

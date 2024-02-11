@@ -1,17 +1,20 @@
 ﻿#nullable enable
 
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
+using fin.data.dictionaries;
 using fin.model;
 using fin.model.impl;
+using fin.scene;
 
 namespace HaloWarsTools {
   public class HWVisResource : HWXmlResource {
-    public ModelImpl Model { get; private set; }
+    public SceneImpl Scene { get; private set; }
     public HWModel[] Models { get; private set; }
 
     public static new HWVisResource
@@ -22,13 +25,13 @@ namespace HaloWarsTools {
 
     protected override void Load(byte[] bytes) {
       base.Load(bytes);
-      this.Models = ImportModels();
+      this.Models = this.ImportModels_();
     }
 
-    private HWModel[] ImportModels() {
+    private HWModel[] ImportModels_() {
       var models = new List<HWModel>();
 
-      this.Model = new ModelImpl();
+      this.Scene = new SceneImpl();
 
       var visModels = new List<VisModel>();
       var visModelMap = new Dictionary<string, VisModel>();
@@ -98,12 +101,15 @@ namespace HaloWarsTools {
         visModelMap[modelName] = visModel;
       }
 
+      var sceneArea = this.Scene.AddArea();
+      var sceneObj = sceneArea.AddObject();
+
       var firstModel = visModels[0];
 
       var modelQueue = new Queue<(VisModel, VisSubModelRef?, bool)>();
       modelQueue.Enqueue((firstModel, null, true));
 
-      var boneMap = new Dictionary<string, IBone>();
+      var attachmentPointMap = new NullFriendlyDictionary<string, (ISceneModel, IBone)>();
 
       while (modelQueue.Count > 0) {
         var (visModel, subModelRef, flipFaces) = modelQueue.Dequeue();
@@ -118,9 +124,31 @@ namespace HaloWarsTools {
 
           // TODO: Sometimes models are missing, why is this??
           try {
-            var resource = HWUgxResource.FromFile(
-                Context, file, (this.Model, subModelRef, flipFaces, boneMap));
-          } catch { }
+            var ugx = HWUgxResource.FromFile(
+                Context,
+                file,
+                flipFaces);
+            var model = ugx.Mesh;
+
+            ISceneModel sceneModel;
+            var attachmentBoneName = subModelRef?.ToBone;
+            if (attachmentBoneName != null) {
+              var (parentSceneModel, attachmentPointBone)
+                  = attachmentPointMap[attachmentBoneName];
+              sceneModel
+                  = parentSceneModel.AddModelOntoBone(
+                      model,
+                      attachmentPointBone);
+            } else {
+              sceneModel = sceneObj.AddSceneModel(model);
+            }
+
+            foreach (var bone in model.Skeleton) {
+              attachmentPointMap[bone.Name] = (sceneModel, bone);
+            }
+          } catch(Exception e) {
+            ;
+          }
           /*if (resource != null) {
             models.Add(
                 new HWModel(visModel., resource));

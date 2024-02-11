@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 
 using fin.animation;
+using fin.importers;
 using fin.io.bundles;
 using fin.model;
 using fin.scene;
@@ -13,7 +14,7 @@ namespace uni.ui.winforms.common.scene {
       this.InitializeComponent();
     }
 
-    public (IFileBundle, IScene)? FileBundleAndScene {
+    public (I3dFileBundle, IScene)? FileBundleAndScene {
       get => this.impl_.FileBundleAndScene;
       set {
         var fileBundle = value?.Item1;

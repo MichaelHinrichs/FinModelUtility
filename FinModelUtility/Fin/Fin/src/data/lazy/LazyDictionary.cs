@@ -31,6 +31,8 @@ namespace fin.data.lazy {
     public bool TryGetValue(TKey key, out TValue value)
       => this.impl_.TryGetValue(key, out value);
 
+    public bool Remove(TKey key) => this.impl_.Remove(key);
+
     public TValue this[TKey key] {
       get => this.impl_.TryGetValue(key, out var value)
           ? value

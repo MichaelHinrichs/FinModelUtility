@@ -15,6 +15,7 @@ using fin.io;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.scene;
 using fin.util.asserts;
 
 using granny3d;
@@ -27,19 +28,13 @@ using schema.binary;
 
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {
-    private IDictionary<string, IBone>? boneMap_;
     public ModelImpl Mesh { get; private set; }
-    public HWVisResource.VisSubModelRef? VisSubModelRef { get; private set; }
     private bool FlipFaces_ { get; set; }
 
     public static HWUgxResource? FromFile(
         HWContext context,
         string filename,
-        (ModelImpl mesh,
-            HWVisResource.VisSubModelRef? subModelRef,
-            bool flipFaces,
-            IDictionary<string, IBone> boneMap)?
-            meshAndBoneMap = null) {
+        bool flipFaces) {
       // Set the extension based on the resource type if the filename doesn't have one
       if (string.IsNullOrEmpty(Path.GetExtension(filename)) &&
           TypeExtensions.TryGetValue(HWResourceType.Ugx,
@@ -48,10 +43,8 @@ namespace HaloWarsTools {
       }
 
       var resource = (HWUgxResource) CreateResource(context, filename);
-      resource.Mesh = meshAndBoneMap?.mesh ?? new ModelImpl();
-      resource.VisSubModelRef = meshAndBoneMap?.subModelRef;
-      resource.FlipFaces_ = meshAndBoneMap?.flipFaces ?? true;
-      resource.boneMap_ = meshAndBoneMap?.boneMap;
+      resource.Mesh = new ModelImpl();
+      resource.FlipFaces_ = flipFaces;
       resource?.Load(File.ReadAllBytes(resource.AbsolutePath));
 
       return resource;
@@ -248,23 +241,12 @@ namespace HaloWarsTools {
             Asserts.Equal(1, grannyFileInfo.SkeletonHeaderList.Count);
             var skeletonHeader = grannyFileInfo.SkeletonHeaderList[0];
 
-            var fromBone = this.VisSubModelRef?.FromBone;
-            if (fromBone != null) {
-              Asserts.SequenceEqual(fromBone, skeletonHeader.Bones[0].Name);
-            }
-
-            var rootBone = finModel.Skeleton.Root;
-            var toBone = this.VisSubModelRef?.ToBone;
-            if (toBone != null) {
-              rootBone = boneMap_[toBone];
-            }
-
             foreach (var grannyBone in skeletonHeader.Bones) {
               var parentIndex = grannyBone.ParentIndex;
 
               var isRoot = parentIndex == -1;
               var parentFinBone = isRoot
-                                      ? rootBone
+                                      ? finModel.Skeleton.Root
                                       : localFinBones[parentIndex].Item1;
 
               var position = grannyBone.LocalTransform.Position;
@@ -292,7 +274,6 @@ namespace HaloWarsTools {
 
               finBone.Name = grannyBone.Name;
 
-              boneMap_[finBone.Name] = finBone;
               localFinBones.Add((finBone, grannyBone));
             }
 
@@ -580,11 +561,11 @@ namespace HaloWarsTools {
 
               finVertex.SetBoneWeights(
                   finSkin.GetOrCreateBoneWeights(
-                      VertexSpace.RELATIVE_TO_ROOT, finBoneWeights));
+                      VertexSpace.RELATIVE_TO_WORLD, finBoneWeights));
             } else {
               finVertex.SetBoneWeights(
                   finSkin.GetOrCreateBoneWeights(
-                      VertexSpace.RELATIVE_TO_ROOT, localFinBones[0].Item1));
+                      VertexSpace.RELATIVE_TO_WORLD, localFinBones[0].Item1));
             }
 
             finVertices.Add(finVertex);

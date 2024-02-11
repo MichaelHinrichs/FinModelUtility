@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 
 using fin.config;
+using fin.data.dictionaries;
 using fin.math.matrix.four;
 using fin.model;
 using fin.scene;
@@ -11,7 +12,7 @@ namespace fin.ui.rendering.gl.scene {
   public class SceneModelRenderer : IRenderable, IDisposable {
     private readonly ISceneModel sceneModel_;
     private readonly IModelRenderer modelRenderer_;
-    private readonly IReadOnlyList<SceneModelRenderer> children_;
+    private readonly ListDictionary<IBone, SceneModelRenderer> children_ = [];
 
     public SceneModelRenderer(ISceneModel sceneModel, ILighting? lighting) {
       this.sceneModel_ = sceneModel;
@@ -31,10 +32,11 @@ namespace fin.ui.rendering.gl.scene {
               Scale = this.sceneModel_.ViewerScale
           };
 
-      this.children_
-          = sceneModel.Children
-                      .Select(child => new SceneModelRenderer(child, lighting))
-                      .ToArray();
+      foreach (var (bone, boneChildren) in sceneModel.Children) {
+        foreach (var child in boneChildren) {
+          this.children_.Add(bone, new SceneModelRenderer(child, lighting));
+        }
+      }
     }
 
     ~SceneModelRenderer() => this.ReleaseUnmanagedResources_();
@@ -46,7 +48,7 @@ namespace fin.ui.rendering.gl.scene {
 
     private void ReleaseUnmanagedResources_() {
       this.modelRenderer_.Dispose();
-      foreach (var child in this.children_) {
+      foreach (var child in this.children_.SelectMany(pair => pair.Value)) {
         child.Dispose();
       }
     }
@@ -107,8 +109,17 @@ namespace fin.ui.rendering.gl.scene {
         this.SkeletonRenderer.Render();
       }
 
-      foreach (var child in this.children_) {
-        child.Render();
+      foreach (var (bone, boneChildren) in this.children_) {
+        GlTransform.PushMatrix();
+
+        GlTransform.MultMatrix(
+            this.sceneModel_.BoneTransformManager.GetWorldMatrix(bone).Impl);
+
+        foreach (var child in boneChildren) {
+          child.Render();
+        }
+
+        GlTransform.PopMatrix();
       }
 
       GlTransform.PopMatrix();

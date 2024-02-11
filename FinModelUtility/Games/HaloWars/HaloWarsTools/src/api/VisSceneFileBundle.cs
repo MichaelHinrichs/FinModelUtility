@@ -1,10 +1,12 @@
 ﻿using fin.io;
+using fin.scene;
 
 using HaloWarsTools;
 
 namespace hw.api {
-  public class VisModelFileBundle : IHaloWarsModelFileBundle {
-    public VisModelFileBundle(IReadOnlyTreeFile visFile, HWContext context) {
+  // TODO: Switch this to a scene model or nested model file bundle?
+  public class VisSceneFileBundle : IHaloWarsFileBundle, ISceneFileBundle {
+    public VisSceneFileBundle(IReadOnlyTreeFile visFile, HWContext context) {
       this.VisFile = visFile;
       this.Context = context;
     }

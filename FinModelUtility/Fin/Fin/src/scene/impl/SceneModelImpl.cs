@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 using fin.animation;
+using fin.data.dictionaries;
 using fin.math;
 using fin.model;
 
 namespace fin.scene {
   public partial class SceneImpl {
     private class SceneModelImpl : ISceneModel {
-      private readonly List<ISceneModel> children_ = [];
+      private readonly ListDictionary<IBone, ISceneModel> children_ = [];
       private IModelAnimation? animation_;
 
       public SceneModelImpl(IModel model) {
@@ -40,24 +40,24 @@ namespace fin.scene {
         this.AnimationPlaybackManager.IsPlaying = true;
       }
 
-      ~SceneModelImpl() => ReleaseUnmanagedResources_();
+      ~SceneModelImpl() => this.ReleaseUnmanagedResources_();
 
       public void Dispose() {
-        ReleaseUnmanagedResources_();
+        this.ReleaseUnmanagedResources_();
         GC.SuppressFinalize(this);
       }
 
       private void ReleaseUnmanagedResources_() {
-        foreach (var child in this.children_) {
+        foreach (var child in this.children_.SelectMany(pair => pair.Value)) {
           child.Dispose();
         }
       }
 
-      public IReadOnlyList<ISceneModel> Children => this.children_;
+      public IReadOnlyListDictionary<IBone, ISceneModel> Children => this.children_;
 
       public ISceneModel AddModelOntoBone(IModel model, IBone bone) {
         var child = new SceneModelImpl(model, this, bone);
-        this.children_.Add(child);
+        this.children_.Add(bone, child);
         return child;
       }
 

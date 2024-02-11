@@ -43,9 +43,8 @@ namespace uni.api {
               => new GeoModelImporter().Import(geoModelFileBundle),
           GloModelFileBundle gloModelFileBundle
               => new GloModelImporter().Import(gloModelFileBundle),
-          IHaloWarsModelFileBundle haloWarsModelFileBundle
-              => new HaloWarsModelImporter().Import(
-                  haloWarsModelFileBundle),
+          XtdModelFileBundle xtdModelFileBundle 
+              => new XtdModelImporter().Import(xtdModelFileBundle),
           ModModelFileBundle modModelFileBundle
               => new ModModelImporter().Import(modModelFileBundle),
           OmdModelFileBundle omdModelFileBundle

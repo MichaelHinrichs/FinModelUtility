@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows.Forms;
 
 using fin.animation;
+using fin.importers;
 using fin.io.bundles;
 using fin.model;
 using fin.scene;
@@ -37,11 +38,11 @@ namespace uni.ui.winforms.common.scene {
     private ISceneArea? singleArea_;
     private SceneAreaRenderer? singleAreaRenderer_;
 
-    private IFileBundle? fileBundle_;
+    private I3dFileBundle? fileBundle_;
 
     public TimeSpan FrameTime { get; private set; }
 
-    public (IFileBundle, IScene)? FileBundleAndScene {
+    public (I3dFileBundle, IScene)? FileBundleAndScene {
       get {
         var scene = this.scene_;
         return scene != null

@@ -40,6 +40,19 @@ namespace fin.data.lazy {
       return false;
     }
 
+    public bool Remove(int key) => this.Remove(key, out _);
+
+    public bool Remove(int key, out T value) {
+      if (this.ContainsKey(key)) {
+        value = this.impl_[key];
+        this.populated_[key] = false;
+        return true;
+      }
+
+      value = default;
+      return false;
+    }
+
     public T this[int key] {
       get {
         if (this.Count > key && this.populated_[key]) {

@@ -176,6 +176,19 @@ namespace uni.games {
           Config.Instance.ExporterSettings.ExportedFormats,
           false);
 
+    public static void ExportAllOfTypeForCli<T, TSubType>(
+        IAnnotatedFileBundleGatherer<T> gatherer,
+        IModelImporter<TSubType> reader)
+        where T : IFileBundle
+        where TSubType : T, IModelFileBundle
+      => ExporterUtil.ExportAllForCli_(
+          gatherer.GatherFileBundles()
+                  .Where(f => f is IAnnotatedFileBundle<TSubType>)
+                  .Select(f => (f as IAnnotatedFileBundle<TSubType>)!),
+          reader,
+          Config.Instance.ExporterSettings.ExportedFormats,
+          false);
+
     private static void ExportAllForCli_<T>(
         IEnumerable<IAnnotatedFileBundle> fileBundles,
         IModelImporter<T> reader,

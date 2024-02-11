@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using fin.animation;
+using fin.data.dictionaries;
 using fin.importers;
 using fin.math;
 using fin.model;
@@ -86,7 +87,7 @@ namespace fin.scene {
   ///   onto bones.
   /// </summary>
   public interface ISceneModel : IDisposable {
-    IReadOnlyList<ISceneModel> Children { get; }
+    IReadOnlyListDictionary<IBone, ISceneModel> Children { get; }
     ISceneModel AddModelOntoBone(IModel model, IBone bone);
 
     IModel Model { get; }

@@ -3,6 +3,8 @@ using fin.scene;
 
 using games.pikmin2.api;
 
+using hw.api;
+
 using modl.api;
 
 using sm64.api;
@@ -18,6 +20,8 @@ namespace uni.api {
           Sm64LevelSceneFileBundle sm64LevelSceneFileBundle
               => new Sm64LevelSceneImporter().Import(
                   sm64LevelSceneFileBundle),
+          VisSceneFileBundle visSceneFileBundle
+              => new VisSceneImporter().Import(visSceneFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(sceneFileBundle))
       };
   }

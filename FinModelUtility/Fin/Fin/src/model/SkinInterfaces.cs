@@ -110,7 +110,6 @@ namespace fin.model {
 
   public enum VertexSpace {
     RELATIVE_TO_WORLD,
-    RELATIVE_TO_ROOT,
     RELATIVE_TO_BONE,
   }
 

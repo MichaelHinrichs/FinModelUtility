@@ -9,11 +9,10 @@ using hw.api;
 using uni.platforms.desktop;
 
 namespace uni.games.halo_wars {
-  using IAnnotatedHaloWarsBundle =
-      IAnnotatedFileBundle<IHaloWarsModelFileBundle>;
+  using IAnnotatedHaloWarsBundle = IAnnotatedFileBundle<IHaloWarsFileBundle>;
 
   public class HaloWarsFileBundleGatherer
-      : IAnnotatedFileBundleGatherer<IHaloWarsModelFileBundle> {
+      : IAnnotatedFileBundleGatherer<IHaloWarsFileBundle> {
     public IEnumerable<IAnnotatedHaloWarsBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("HaloWarsDE",
                                           out var haloWarsSteamDirectory)) {
@@ -52,7 +51,7 @@ namespace uni.games.halo_wars {
         // TODO: Parse UGX files instead, as long as they specify their own animations
         var visFiles = artSubdir.FilesWithExtension(".vis");
         foreach (var visFile in visFiles) {
-          yield return new VisModelFileBundle(visFile, context).Annotate(
+          yield return new VisSceneFileBundle(visFile, context).Annotate(
               visFile);
         }
 

@@ -54,13 +54,7 @@ namespace fin.math {
   public class BoneTransformManager : IBoneTransformManager {
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
     private readonly IndexableDictionary<IBone, IFinMatrix4x4>
-        bonesToRootMatrices_ = new();
-
-    private readonly IndexableDictionary<IBone, IFinMatrix4x4>
         bonesToWorldMatrices_ = new();
-
-    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
-        bonesToInverseRootMatrices_ = new();
 
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToInverseWorldMatrices_ = new();
@@ -85,9 +79,7 @@ namespace fin.math {
     }
 
     public void Clear() {
-      this.bonesToRootMatrices_.Clear();
       this.bonesToWorldMatrices_.Clear();
-      this.bonesToInverseRootMatrices_.Clear();
       this.bonesToInverseWorldMatrices_.Clear();
       this.boneWeightsToWorldMatrices_.Clear();
       this.verticesToWorldMatrices_.Clear();
@@ -137,20 +129,10 @@ namespace fin.math {
       var bonesToIndex = new Dictionary<IBone, int>();
       var boneIndex = -1;
 
-      var boneQueue = new Queue<(IBone, Matrix4x4, Matrix4x4)>();
-      boneQueue.Enqueue((rootBone, this.ManagerMatrix.Impl, this.ManagerMatrix.Impl));
+      var boneQueue = new Queue<(IBone, Matrix4x4)>();
+      boneQueue.Enqueue((rootBone, this.ManagerMatrix.Impl));
       while (boneQueue.Count > 0) {
-        var (bone, parentBoneToRootMatrix, parentBoneToWorldMatrix) = boneQueue.Dequeue();
-
-        if (!this.bonesToRootMatrices_.TryGetValue(bone, out var boneToRootMatrix)) {
-          this.bonesToRootMatrices_[bone] = boneToRootMatrix = new FinMatrix4x4();
-        }
-
-        if (bone.Root == bone) {
-          boneToRootMatrix.SetIdentity();
-        } else {
-          boneToRootMatrix.CopyFrom(parentBoneToRootMatrix!);
-        }
+        var (bone, parentBoneToWorldMatrix) = boneQueue.Dequeue();
 
         if (!this.bonesToWorldMatrices_.TryGetValue(bone, out var boneToWorldMatrix)) {
           this.bonesToWorldMatrices_[bone] = boneToWorldMatrix = new FinMatrix4x4();
@@ -209,13 +191,8 @@ namespace fin.math {
           var localMatrix = SystemMatrix4x4Util.FromTrs(localPosition,
                                                         localRotation,
                                                         localScale);
-          boneToRootMatrix.MultiplyInPlace(localMatrix);
           boneToWorldMatrix.MultiplyInPlace(localMatrix);
         } else {
-          boneToRootMatrix.ApplyTrsWithFancyBoneEffects(bone,
-                                                         localPosition,
-                                                         localRotation,
-                                                         localScale);
           boneToWorldMatrix.ApplyTrsWithFancyBoneEffects(bone,
                                                          localPosition,
                                                          localRotation,
@@ -223,14 +200,13 @@ namespace fin.math {
         }
 
         if (isFirstPass) {
-          this.bonesToInverseRootMatrices_[bone] = boneToRootMatrix.CloneAndInvert();
           this.bonesToInverseWorldMatrices_[bone] = boneToWorldMatrix.CloneAndInvert();
         }
 
         bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
-          boneQueue.Enqueue((child, boneToRootMatrix.Impl, boneToWorldMatrix.Impl));
+          boneQueue.Enqueue((child, boneToWorldMatrix.Impl));
         }
       }
 
@@ -248,17 +224,9 @@ namespace fin.math {
           var bone = boneWeight.Bone;
           var weight = boneWeight.Weight;
 
-          if (boneWeights.VertexSpace != VertexSpace.RELATIVE_TO_ROOT) {
-            var inverseMatrix = boneWeight.InverseBindMatrix ?? this.bonesToInverseWorldMatrices_[bone];
-            boneWeightMatrix.AddInPlace(
-                (inverseMatrix.Impl * this.bonesToWorldMatrices_[bone].Impl) * weight);
-          } else {
-            boneWeightMatrix.AddInPlace(
-                (
-                    this.bonesToWorldMatrices_[bone.Root].Impl *
-                    this.bonesToRootMatrices_[bone].Impl *
-                 this.bonesToInverseRootMatrices_[bone].Impl) * weight);
-          }
+          var inverseMatrix = boneWeight.InverseBindMatrix ?? this.bonesToInverseWorldMatrices_[bone];
+          boneWeightMatrix.AddInPlace(
+              (inverseMatrix.Impl * this.bonesToWorldMatrices_[bone].Impl) * weight);
         }
       }
 

@@ -12,17 +12,13 @@ namespace fin.data.lazy {
     private readonly bool[] populated_;
     private readonly Func<int, T> handler_;
 
-    public LazyArray(
-        int count,
-        Func<int, T> handler) {
+    public LazyArray(int count, Func<int, T> handler) {
       this.impl_ = new T[count];
       this.populated_ = new bool[count];
       this.handler_ = handler;
     }
 
-    public LazyArray(
-        int count,
-        Func<LazyArray<T>, int, T> handler) {
+    public LazyArray(int count, Func<LazyArray<T>, int, T> handler) {
       this.impl_ = new T[count];
       this.populated_ = new bool[count];
       this.handler_ = (int key) => handler(this, key);
@@ -42,6 +38,19 @@ namespace fin.data.lazy {
     public bool TryGetValue(int key, out T value) {
       if (this.ContainsKey(key)) {
         value = this.impl_[key];
+        return true;
+      }
+
+      value = default;
+      return false;
+    }
+
+    public bool Remove(int key) => this.Remove(key, out _);
+
+    public bool Remove(int key, out T value) {
+      if (this.ContainsKey(key)) {
+        value = this.impl_[key];
+        this.populated_[key] = false;
         return true;
       }
 
