@@ -48,6 +48,7 @@
     <ProjectReference Include="..\..\Games\PaperMarioDirectorsCut\PaperMarioDirectorsCut\PaperMarioDirectorsCut.csproj" />
     <ProjectReference Include="..\..\Games\Pikmin2\Pikmin2\Pikmin2.csproj" />
     <ProjectReference Include="..\..\Games\SuperMario64\SuperMario64\SuperMario64.csproj" />
+    <ProjectReference Include="..\..\Games\TimeSplitters2\TimeSplitters2\TimeSplitters2.csproj" />
 
     <ProjectReference Include="..\..\SceneGate\Ekona\src\Ekona\Ekona.csproj" />
     <ProjectReference Include="..\..\Utility of Time CSharp\Utility of Time CSharp.csproj" />

@@ -1,0 +1,42 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+
+typedef struct {
+  char magic[4];
+  int files_offset;
+  int num_files;
+  int file_names_offset;
+} Header <bgcolor=0xFF0000>;
+
+Header header;
+
+
+typedef struct {
+  string value;
+} FileName <bgcolor=0x00FF00>;
+
+
+FSeek(header.file_names_offset);
+FileName file_names[header.num_files] <optimize=false>;
+
+
+typedef struct {
+  uint something1;
+  uint something2;
+  uint something3;  
+} File <bgcolor=0x0000FF>;
+
+FSeek(header.files_offset);
+
+File files[header.num_files] <optimize=false>;

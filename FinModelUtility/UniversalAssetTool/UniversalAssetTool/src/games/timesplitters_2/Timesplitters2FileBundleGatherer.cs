@@ -1,5 +1,8 @@
-﻿using fin.io.bundles;
+﻿using fin.io.archive;
+using fin.io.bundles;
 using fin.model.io;
+
+using ts2;
 
 using uni.platforms.gcn;
 
@@ -14,6 +17,18 @@ namespace uni.games.timesplitters_2 {
               "timesplitters_2",
               out var fileHierarchy)) {
         yield break;
+      }
+
+      var extractor = new SubArchiveExtractor();
+      var pakFiles = fileHierarchy.Root.GetFilesWithFileType(".pak", true)
+                                  .ToArray();
+      if (pakFiles.Length > 0) {
+        foreach (var pakFile in pakFiles) {
+          extractor.ExtractRelativeToRoot<P8ckArchiveReader>(
+              pakFile,
+              fileHierarchy.Root);
+          //pakFile.Impl.Delete();
+        }
       }
     }
   }

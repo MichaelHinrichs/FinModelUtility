@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using schema.binary;
 
@@ -121,6 +122,41 @@ namespace fin.io.archive {
         }
 
         var dstDir = relativeToRoot ? rootDirectory : targetDirectory;
+        var dstFile = new FinFile(Path.Join(dstDir.FullPath, relativeName));
+
+        var dstDirectory = dstFile.GetParentFullPath()!;
+        if (createdDirectories.Add(dstDirectory)) {
+          FinFileSystem.Directory.CreateDirectory(dstDirectory);
+        }
+
+        using var dstFileStream = dstFile.OpenWrite();
+        archiveStream.CopyContentFileInto(archiveContentFile, dstFileStream);
+      }
+
+      return ArchiveExtractionResult.NEWLY_EXTRACTED;
+    }
+
+
+    public ArchiveExtractionResult ExtractRelativeToRoot<TArchiveReader>(
+        IReadOnlyGenericFile archiveFile,
+        IReadOnlyTreeDirectory rootDirectory)
+        where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
+      using var archive = archiveFile.OpenRead();
+
+      var archiveReader = new TArchiveReader();
+      if (!archiveReader.IsValidArchive(archive)) {
+        return ArchiveExtractionResult.FAILED;
+      }
+
+      var archiveStream = archiveReader.Decompress(archive);
+
+      var archiveContentFiles = archiveReader.GetFiles(archiveStream).ToArray();
+
+      var createdDirectories = new HashSet<string>();
+      foreach (var archiveContentFile in archiveContentFiles) {
+        var relativeName = archiveContentFile.RelativeName;
+
+        var dstDir = rootDirectory;
         var dstFile = new FinFile(Path.Join(dstDir.FullPath, relativeName));
 
         var dstDirectory = dstFile.GetParentFullPath()!;
