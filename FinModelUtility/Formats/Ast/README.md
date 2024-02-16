@@ -2,8 +2,12 @@
 
 Library for extracting audio from the .ast PCM audio format, which was used in various GameCube games:
 
+- Legend of Zelda, The: Wind Waker, The
 - Mario Kart: Double Dash
 - Pikmin 2
+- Super Mario Sunshine
+- Super Mario Galaxy
+- Super Mario Galaxy 2
 
 ## Credits
 
