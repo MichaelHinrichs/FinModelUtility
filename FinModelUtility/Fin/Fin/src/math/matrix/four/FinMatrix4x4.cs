@@ -280,5 +280,7 @@ namespace fin.math.matrix.four {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() => this.impl_.GetRoughHashCode();
+
+    public override string ToString() => this.impl_.ToString();
   }
 }

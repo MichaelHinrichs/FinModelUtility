@@ -28,11 +28,7 @@ namespace fin.model.io.exporters.gltf.lowlevel {
       var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
 
       var boneTransformManager = new BoneTransformManager();
-      var boneToIndex = boneTransformManager.CalculateMatrices(
-          model.Skeleton.Root,
-          model.Skin.BoneWeights,
-          null);
-      boneTransformManager.InitModelVertices(model);
+      boneTransformManager.CalculateStaticMatricesForManualProjection(model);
 
       var nullMaterial = gltfModel.CreateMaterial("null");
       nullMaterial.DoubleSided = false;

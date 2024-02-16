@@ -1,4 +1,6 @@
-﻿using fin.data.dictionaries;
+﻿using System.Drawing;
+
+using fin.data.dictionaries;
 using fin.data.queues;
 using fin.io;
 using fin.math.matrix.four;
@@ -37,7 +39,7 @@ namespace visceral.api {
       IBone[] finBones = Array.Empty<IBone>();
       var rcbFile = modelFileBundle.RcbFile;
       if (rcbFile != null) {
-        AddRcbFileToModel_(finModel, rcbFile, out finBones);
+        this.AddRcbFileToModel_(finModel, rcbFile, out finBones);
       }
 
       foreach (var bnkFile in modelFileBundle.BnkFiles) {
@@ -136,7 +138,7 @@ namespace visceral.api {
         material = standardMaterial;
         material.Name = baseTextureName;
       } else {
-        material = finModel.MaterialManager.AddNullMaterial();
+        material = finModel.MaterialManager.AddColorMaterial(Color.Magenta);
       }
 
       var geo = geoFile.ReadNew<Geo>();

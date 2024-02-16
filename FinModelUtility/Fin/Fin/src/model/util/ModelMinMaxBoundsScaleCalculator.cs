@@ -57,11 +57,7 @@ namespace fin.model.util {
                                         ref float maxX,
                                         ref float maxY,
                                         ref float maxZ) {
-      boneTransformManager_.CalculateMatrices(
-          model.Skeleton.Root,
-          model.Skin.BoneWeights,
-          null);
-      boneTransformManager_.InitModelVertices(model);
+      boneTransformManager_.CalculateStaticMatricesForManualProjection(model);
 
       var anyVertices = false;
       foreach (var vertex in model.Skin.Vertices) {

@@ -54,7 +54,7 @@ namespace fin.ui.rendering.gl.material {
 
       this.matricesUniform_ = this.impl_.GetUniformMat4s(
           GlslConstants.UNIFORM_BONE_MATRICES_NAME,
-          1 + model.Skin.BoneWeights.Count);
+          1 + model.Skeleton.Bones.Count);
       this.matricesUniform_.SetAndMarkDirty(0, Matrix4x4.Identity);
 
       this.shininessUniform_ = this.impl_.GetUniformFloat(
@@ -136,15 +136,21 @@ namespace fin.ui.rendering.gl.material {
       this.cameraPositionUniform_.SetAndMaybeMarkDirty(
           new Vector3(scCamX, scCamY, scCamZ));
 
-      foreach (var boneWeights in this.model_.Skin.BoneWeights) {
-        this.matricesUniform_.SetAndMaybeMarkDirty(
-            1 + boneWeights.Index,
-            this
-                .boneTransformManager_?.GetTransformMatrix(boneWeights)
-                .Impl ?? Matrix4x4.Identity);
+      foreach (var bone in this.model_.Skeleton.Bones) {
+        var localToWorldMatrix =
+            this.boneTransformManager_?.GetLocalToWorldMatrix(bone).Impl ??
+            Matrix4x4.Identity;
+        var inverseMatrix =
+            this.boneTransformManager_?.GetInverseBindMatrix(bone).Impl ??
+            Matrix4x4.Identity;
+
+        this.matricesUniform_.SetAndMarkDirty(
+            1 + bone.Index,
+            inverseMatrix * localToWorldMatrix);
       }
 
-      this.shininessUniform_.SetAndMaybeMarkDirty(this.Material?.Shininess ?? 0);
+      this.shininessUniform_.SetAndMaybeMarkDirty(
+          this.Material?.Shininess ?? 0);
 
       this.PassInLightUniforms_(this.lighting_);
 
@@ -169,10 +175,10 @@ namespace fin.ui.rendering.gl.material {
       var ambientLightStrength = lighting.AmbientLightStrength;
       var ambientLightColor = lighting.AmbientLightColor;
       this.ambientLightColorUniform_.SetAndMaybeMarkDirty(new Vector4(
-          ambientLightColor.Rf * ambientLightStrength,
-          ambientLightColor.Gf * ambientLightStrength,
-          ambientLightColor.Bf * ambientLightStrength,
-          ambientLightColor.Af * ambientLightStrength));
+            ambientLightColor.Rf * ambientLightStrength,
+            ambientLightColor.Gf * ambientLightStrength,
+            ambientLightColor.Bf * ambientLightStrength,
+            ambientLightColor.Af * ambientLightStrength));
 
       foreach (var cachedLightUniformData in this.cachedLightUniformDatas_) {
         cachedLightUniformData.PassInUniforms();

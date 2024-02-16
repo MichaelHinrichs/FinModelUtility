@@ -10,16 +10,31 @@ namespace fin.model.impl {
     public ISkeleton Skeleton { get; } = new SkeletonImpl();
 
     private class SkeletonImpl : ISkeleton {
-      public IBone Root { get; } = new BoneImpl(null, 0, 0, 0);
+      public readonly List<IBone> bones = new();
+
+      public IBone Root { get; }
+      public IReadOnlyList<IBone> Bones => this.bones;
+
+      public SkeletonImpl() {
+        this.Root = new BoneImpl(this, null, 0, 0, 0);
+      }
 
       private class BoneImpl : IBone {
+        private readonly SkeletonImpl skeleton_;
         private readonly IList<IBone> children_ = new List<IBone>();
         private readonly Counter counter_;
 
-        public BoneImpl(IBone? parent, float x, float y, float z) {
+        public BoneImpl(SkeletonImpl skeletonImpl,
+                        IBone? parent,
+                        float x,
+                        float y,
+                        float z) {
+          this.skeleton_ = skeletonImpl;
           this.Root = this;
           this.Parent = parent;
           this.SetLocalPosition(x, y, z);
+
+          this.skeleton_.bones.Add(this);
 
           this.Children = new ReadOnlyCollection<IBone>(this.children_);
 
@@ -27,10 +42,18 @@ namespace fin.model.impl {
           this.Index = this.counter_.GetAndIncrement();
         }
 
-        public BoneImpl(IBone root, IBone? parent, float x, float y, float z) {
+        public BoneImpl(SkeletonImpl skeletonImpl,
+                        IBone root,
+                        IBone? parent,
+                        float x,
+                        float y,
+                        float z) {
+          this.skeleton_ = skeletonImpl;
           this.Root = root;
           this.Parent = parent;
           this.SetLocalPosition(x, y, z);
+
+          this.skeleton_.bones.Add(this);
 
           this.Children = new ReadOnlyCollection<IBone>(this.children_);
 
@@ -49,13 +72,13 @@ namespace fin.model.impl {
 
 
         public IBone AddRoot(float x, float y, float z) {
-          var child = new BoneImpl(this, x, y, z);
+          var child = new BoneImpl(this.skeleton_, this, x, y, z);
           this.children_.Add(child);
           return child;
         }
 
         public IBone AddChild(float x, float y, float z) {
-          var child = new BoneImpl(this.Root, this, x, y, z);
+          var child = new BoneImpl(this.skeleton_, this.Root, this, x, y, z);
           this.children_.Add(child);
           return child;
         }
@@ -103,7 +126,8 @@ namespace fin.model.impl {
         public Quaternion FaceTowardsCameraAdjustment { get; private set; }
       }
 
-      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+      IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
       public IEnumerator<IBone> GetEnumerator() {
         var queue = new Queue<IBone>();
         queue.Enqueue(this.Root);

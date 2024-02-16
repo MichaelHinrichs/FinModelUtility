@@ -124,12 +124,12 @@ namespace fin.model.impl {
         }
 
         var otherWeights = weights;
-        if (Weights.Count != otherWeights.Count) {
+        if (this.Weights.Count != otherWeights.Count) {
           return false;
         }
 
-        for (var w = 0; w < Weights.Count; ++w) {
-          var weight = Weights[w];
+        for (var w = 0; w < this.Weights.Count; ++w) {
+          var weight = this.Weights[w];
           var existingWeight = otherWeights[w];
 
           if (weight.Bone != existingWeight.Bone) {

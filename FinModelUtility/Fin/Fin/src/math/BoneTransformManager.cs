@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 
 using fin.animation;
@@ -11,25 +10,12 @@ using fin.model;
 using fin.ui;
 
 namespace fin.math {
-  public interface IBoneTransformManager {
-    (IBoneTransformManager, IBone)? Parent { get; }
+  public enum BoneWeightTransformType {
+    FOR_EXPORT_OR_CPU_PROJECTION,
+    FOR_RENDERING,
+  }
 
-    void Clear();
-
-    void InitModelVertices(IModel model, bool forcePreproject = false);
-
-    IDictionary<IBone, int> CalculateMatrices(
-        IBone rootBone,
-        IReadOnlyList<IBoneWeights> boneWeightsList,
-        (IModelAnimation, float)? animationAndFrame,
-        AnimationInterpolationConfig? config = null
-    );
-
-    public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone);
-
-    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IReadOnlyVertex vertex);
-    public IReadOnlyFinMatrix4x4 GetTransformMatrix(IBoneWeights boneWeights);
-
+  public interface IVertexProjector {
     void ProjectVertexPosition(
         IReadOnlyVertex vertex,
         out Position outPosition);
@@ -40,7 +26,7 @@ namespace fin.math {
         out Normal outNormal);
 
     void ProjectVertexPositionNormalTangent(
-        IReadOnlyNormalTangentVertex vertex,
+        IVertexAccessor vertex,
         out Position outPosition,
         out Normal outNormal,
         out Tangent outTangent);
@@ -49,6 +35,33 @@ namespace fin.math {
     void ProjectPosition(IBone bone, ref Vector3 xyz);
 
     void ProjectNormal(IBone bone, ref Vector3 xyz);
+  }
+
+  public interface IReadOnlyBoneTransformManager : IVertexProjector {
+    (IReadOnlyBoneTransformManager, IBone)? Parent { get; }
+
+    IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone);
+
+    IReadOnlyFinMatrix4x4 GetLocalToWorldMatrix(IBone bone);
+    IReadOnlyFinMatrix4x4 GetInverseBindMatrix(IBone bone);
+  }
+
+  public interface IBoneTransformManager : IReadOnlyBoneTransformManager {
+    void Clear();
+
+    // TODO: Switch this to a thing that returns a projector instance
+    void CalculateStaticMatricesForManualProjection(
+        IModel model,
+        bool forcePreproject = false);
+    void CalculateStaticMatricesForRendering(IModel model);
+
+    void CalculateMatrices(
+        IBone rootBone,
+        IReadOnlyList<IBoneWeights> boneWeightsList,
+        (IModelAnimation, float)? animationAndFrame,
+        BoneWeightTransformType boneWeightTransformType,
+        AnimationInterpolationConfig? config = null
+    );
   }
 
   public class BoneTransformManager : IBoneTransformManager {
@@ -62,17 +75,20 @@ namespace fin.math {
     private readonly IndexableDictionary<IBoneWeights, IFinMatrix4x4>
         boneWeightsToWorldMatrices_ = new();
 
+    private readonly IndexableDictionary<IBoneWeights, IFinMatrix4x4>
+        boneWeightsInverseMatrices_ = new();
+
     private IndexableDictionary<IReadOnlyVertex, IReadOnlyFinMatrix4x4?>
         verticesToWorldMatrices_ = new();
 
-    public (IBoneTransformManager, IBone)? Parent { get; }
+    public (IReadOnlyBoneTransformManager, IBone)? Parent { get; }
     public IReadOnlyFinMatrix4x4 ManagerMatrix { get; }
 
     public BoneTransformManager() {
       this.ManagerMatrix = FinMatrix4x4.IDENTITY;
     }
 
-    public BoneTransformManager((IBoneTransformManager, IBone) parent) {
+    public BoneTransformManager((IReadOnlyBoneTransformManager, IBone) parent) {
       this.Parent = parent;
       var (parentManager, parentBone) = this.Parent.Value;
       this.ManagerMatrix = parentManager.GetWorldMatrix(parentBone);
@@ -82,10 +98,11 @@ namespace fin.math {
       this.bonesToWorldMatrices_.Clear();
       this.bonesToInverseWorldMatrices_.Clear();
       this.boneWeightsToWorldMatrices_.Clear();
+      this.boneWeightsInverseMatrices_.Clear();
       this.verticesToWorldMatrices_.Clear();
     }
 
-    public void InitModelVertices(IModel model, bool forcePreproject = false) {
+    private void InitModelVertices_(IModel model, bool forcePreproject = false) {
       var vertices = model.Skin.Vertices;
       this.verticesToWorldMatrices_ =
           new IndexableDictionary<IReadOnlyVertex, IReadOnlyFinMatrix4x4?>(
@@ -111,23 +128,37 @@ namespace fin.math {
           AnimationInterpolationMagFilter = AnimationInterpolationMagFilter.ORIGINAL_FRAME_RATE_LINEAR
         };
 
-    public void CalculateMatrices(IModel model)
-      => this.CalculateMatrices(model.Skeleton.Root, model.Skin.BoneWeights, null);
+    public void CalculateStaticMatricesForManualProjection(
+        IModel model,
+        bool forcePreproject = false) {
+      this.CalculateMatrices(
+          model.Skeleton.Root,
+          model.Skin.BoneWeights,
+          null,
+          BoneWeightTransformType.FOR_EXPORT_OR_CPU_PROJECTION);
+      this.InitModelVertices_(model, forcePreproject);
+    }
 
-    public IDictionary<IBone, int> CalculateMatrices(
+    public void CalculateStaticMatricesForRendering(IModel model) {
+      this.CalculateMatrices(
+          model.Skeleton.Root,
+          model.Skin.BoneWeights,
+          null,
+          BoneWeightTransformType.FOR_RENDERING);
+      this.InitModelVertices_(model);
+    }
+
+    public void CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
         (IModelAnimation, float)? animationAndFrame,
+        BoneWeightTransformType boneWeightTransformType,
         AnimationInterpolationConfig? config = null
     ) {
       var isFirstPass = animationAndFrame == null;
 
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
-
-      // TODO: Cache this directly on the bone itself instead.
-      var bonesToIndex = new Dictionary<IBone, int>();
-      var boneIndex = -1;
 
       var boneQueue = new Queue<(IBone, Matrix4x4)>();
       boneQueue.Enqueue((rootBone, this.ManagerMatrix.Impl));
@@ -187,7 +218,7 @@ namespace fin.math {
                                 : null);
         var localScale = animationLocalScale ?? bone.LocalScale;
 
-        if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
+        if (bone is { IgnoreParentScale: false, FaceTowardsCamera: false }) {
           var localMatrix = SystemMatrix4x4Util.FromTrs(localPosition,
                                                         localRotation,
                                                         localScale);
@@ -203,34 +234,51 @@ namespace fin.math {
           this.bonesToInverseWorldMatrices_[bone] = boneToWorldMatrix.CloneAndInvert();
         }
 
-        bonesToIndex[bone] = boneIndex++;
-
         foreach (var child in bone.Children) {
           boneQueue.Enqueue((child, boneToWorldMatrix.Impl));
         }
       }
 
-      foreach (var boneWeights in boneWeightsList) {
-        if (!this.boneWeightsToWorldMatrices_.TryGetValue(
-                boneWeights,
-                out var boneWeightMatrix)) {
-          this.boneWeightsToWorldMatrices_[boneWeights] =
-              boneWeightMatrix = new FinMatrix4x4();
-        }
+      if (isFirstPass) {
+        foreach (var boneWeights in boneWeightsList) {
+          if (!this.boneWeightsInverseMatrices_.TryGetValue(
+                  boneWeights,
+                  out var boneWeightInverseMatrix)) {
+            this.boneWeightsInverseMatrices_[boneWeights] =
+                boneWeightInverseMatrix = new FinMatrix4x4();
+          }
 
-        boneWeightMatrix.SetZero();
-        var weights = boneWeights.Weights;
-        foreach (var boneWeight in weights) {
-          var bone = boneWeight.Bone;
-          var weight = boneWeight.Weight;
+          boneWeightInverseMatrix.SetZero();
+          foreach (var boneWeight in boneWeights.Weights) {
+            var bone = boneWeight.Bone;
+            var weight = boneWeight.Weight;
 
-          var inverseMatrix = boneWeight.InverseBindMatrix ?? this.bonesToInverseWorldMatrices_[bone];
-          boneWeightMatrix.AddInPlace(
-              (inverseMatrix.Impl * this.bonesToWorldMatrices_[bone].Impl) * weight);
+            var inverseMatrix = boneWeight.InverseBindMatrix ?? this.bonesToInverseWorldMatrices_[bone];
+            boneWeightInverseMatrix.AddInPlace(inverseMatrix.Impl * weight);
+          }
         }
       }
 
-      return bonesToIndex;
+      if (boneWeightTransformType == BoneWeightTransformType.FOR_EXPORT_OR_CPU_PROJECTION || isFirstPass) {
+        foreach (var boneWeights in boneWeightsList) {
+          if (!this.boneWeightsToWorldMatrices_.TryGetValue(
+                  boneWeights,
+                  out var boneWeightMatrix)) {
+            this.boneWeightsToWorldMatrices_[boneWeights] =
+                boneWeightMatrix = new FinMatrix4x4();
+          }
+
+          boneWeightMatrix.SetZero();
+          foreach (var boneWeight in boneWeights.Weights) {
+            var bone = boneWeight.Bone;
+            var weight = boneWeight.Weight;
+
+            var inverseMatrix = boneWeight.InverseBindMatrix ?? this.bonesToInverseWorldMatrices_[bone];
+            boneWeightMatrix.AddInPlace(
+            (inverseMatrix.Impl * this.bonesToWorldMatrices_[bone].Impl) * weight);
+          }
+        }
+      }
     }
 
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone)
@@ -241,6 +289,12 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4 GetTransformMatrix(IBoneWeights boneWeights)
       => this.boneWeightsToWorldMatrices_[boneWeights];
+
+    public IReadOnlyFinMatrix4x4 GetInverseBindMatrix(IBone bone)
+      => this.bonesToInverseWorldMatrices_[bone];
+
+    public IReadOnlyFinMatrix4x4 GetLocalToWorldMatrix(IBone bone)
+      => this.bonesToWorldMatrices_[bone];
 
     private IReadOnlyFinMatrix4x4? DetermineTransformMatrix_(
         IBoneWeights? boneWeights,
@@ -292,7 +346,7 @@ namespace fin.math {
     }
 
     public void ProjectVertexPositionNormalTangent(
-        IReadOnlyNormalTangentVertex vertex,
+        IVertexAccessor vertex,
         out Position outPosition,
         out Normal outNormal,
         out Tangent outTangent) {
@@ -316,7 +370,6 @@ namespace fin.math {
         ProjectionUtil.ProjectTangent(transformMatrix, ref outTangent);
       }
     }
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectPosition(IBone bone, ref Position xyz)

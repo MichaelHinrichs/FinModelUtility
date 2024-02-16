@@ -30,11 +30,7 @@ namespace fin.model.io.exporters.gltf {
       var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
 
       var boneTransformManager = new BoneTransformManager();
-      var boneToIndex = boneTransformManager.CalculateMatrices(
-          model.Skeleton.Root,
-          model.Skin.BoneWeights,
-          null);
-      boneTransformManager.InitModelVertices(model);
+      boneTransformManager.CalculateStaticMatricesForManualProjection(model);
 
       var nullMaterialBuilder =
           new MaterialBuilder("null").WithDoubleSide(false)
@@ -84,7 +80,7 @@ namespace fin.model.io.exporters.gltf {
                 skinningByBoneWeights[boneWeights] = skinning = boneWeights
                     .Weights.Select(
                         boneWeight
-                            => (boneToIndex[boneWeight.Bone],
+                            => (boneWeight.Bone.Index,
                                 boneWeight.Weight))
                     .ToArray();
               }

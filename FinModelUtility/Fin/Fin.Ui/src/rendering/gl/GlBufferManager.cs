@@ -1,4 +1,6 @@
 ﻿using fin.data;
+using fin.math;
+using fin.math.matrix.four;
 using fin.model;
 using fin.ui.rendering.gl.model;
 using fin.util.enumerables;
@@ -14,7 +16,8 @@ namespace fin.ui.rendering.gl {
       private const int POSITION_SIZE_ = 3;
       private const int NORMAL_SIZE_ = 3;
       private const int TANGENT_SIZE_ = 4;
-      private const int MATRIX_ID_SIZE = 1;
+      private const int BONE_ID_SIZE = 4;
+      private const int BONE_WEIGHT_SIZE = 4;
       private const int UV_SIZE_ = 2;
       private const int COLOR_SIZE_ = 4;
 
@@ -24,7 +27,12 @@ namespace fin.ui.rendering.gl {
       private int vaoId_;
 
       private int[] vboIds_ =
-          new int[1 + 1 + 1 + 1 + MaterialConstants.MAX_UVS +
+          new int[1 +
+                  1 +
+                  1 +
+                  1 +
+                  1 +
+                  MaterialConstants.MAX_UVS +
                   MaterialConstants.MAX_COLORS];
 
       private const int POSITION_VERTEX_ATTRIB_INDEX = 0;
@@ -35,11 +43,14 @@ namespace fin.ui.rendering.gl {
       private const int TANGENT_VERTEX_ATTRIB_INDEX =
           NORMAL_VERTEX_ATTRIB_INDEX + 1;
 
-      private const int MATRIX_ID_VERTEX_ATTRIB_INDEX =
+      private const int BONE_IDS_VERTEX_ATTRIB_INDEX =
           TANGENT_VERTEX_ATTRIB_INDEX + 1;
 
+      private const int BONE_WEIGHTS_VERTEX_ATTRIB_INDEX =
+          BONE_IDS_VERTEX_ATTRIB_INDEX + 1;
+
       private const int UV_VERTEX_ATTRIB_INDEX =
-          MATRIX_ID_VERTEX_ATTRIB_INDEX + 1;
+          BONE_WEIGHTS_VERTEX_ATTRIB_INDEX + 1;
 
       private const int COLOR_VERTEX_ATTRIB_INDEX =
           UV_VERTEX_ATTRIB_INDEX + MaterialConstants.MAX_UVS;
@@ -47,7 +58,8 @@ namespace fin.ui.rendering.gl {
       private readonly Position[] positionData_;
       private readonly Normal[] normalData_;
       private readonly Tangent[] tangentData_;
-      private readonly int[] matrixIdData_;
+      private readonly int[] boneIdsData_;
+      private readonly float[] boneWeightsData_;
 
       private readonly float[][] uvData_;
       private readonly float[][] colorData_;
@@ -60,7 +72,8 @@ namespace fin.ui.rendering.gl {
         this.positionData_ = new Position[this.vertices_.Count];
         this.normalData_ = new Normal[this.vertices_.Count];
         this.tangentData_ = new Tangent[this.vertices_.Count];
-        this.matrixIdData_ = new int[this.vertices_.Count];
+        this.boneIdsData_ = new int[4 * this.vertices_.Count];
+        this.boneWeightsData_ = new float[4 * this.vertices_.Count];
 
         this.uvData_ = new float[MaterialConstants.MAX_UVS][];
         for (var i = 0; i < this.uvData_.Length; ++i) {
@@ -79,13 +92,13 @@ namespace fin.ui.rendering.gl {
         GL.GenVertexArrays(1, out this.vaoId_);
         GL.GenBuffers(this.vboIds_.Length, this.vboIds_);
 
-        this.InitializeStatic_();
+        this.InitializeStatic_(model);
       }
 
-      ~VertexArrayObject() => ReleaseUnmanagedResources_();
+      ~VertexArrayObject() => this.ReleaseUnmanagedResources_();
 
       public void Dispose() {
-        ReleaseUnmanagedResources_();
+        this.ReleaseUnmanagedResources_();
         GC.SuppressFinalize(this);
       }
 
@@ -96,15 +109,39 @@ namespace fin.ui.rendering.gl {
 
       public int VaoId => this.vaoId_;
 
-      private void InitializeStatic_() {
+      private void InitializeStatic_(IModel model) {
+        var boneTransformManager = new BoneTransformManager();
+        boneTransformManager.CalculateStaticMatricesForRendering(model);
+
         for (var i = 0; i < this.vertices_.Count; ++i) {
           this.vertexAccessor_.Target(this.vertices_[i]);
           var vertex = this.vertexAccessor_;
 
-          this.positionData_[i] = vertex.LocalPosition;
-          this.normalData_[i] = vertex.LocalNormal.GetValueOrDefault();
-          this.tangentData_[i] = vertex.LocalTangent.GetValueOrDefault();
-          this.matrixIdData_[i] = (vertex.BoneWeights?.Index ?? -1) + 1;
+          boneTransformManager.ProjectVertexPositionNormalTangent(
+              vertex,
+              out var position,
+              out var normal,
+              out var tangent);
+          this.positionData_[i] = position;
+          this.normalData_[i] = normal;
+          this.tangentData_[i] = tangent;
+
+          if ((vertex.BoneWeights?.Weights.Count ?? 0) == 0) {
+            this.boneIdsData_[4 * i] = 0;
+            this.boneWeightsData_[4 * i] = 1;
+
+            for (var b = 1; b < 4; ++b) {
+              this.boneIdsData_[4 * i + b] = 0;
+              this.boneWeightsData_[4 * i + b] = 0;
+            }
+          } else {
+            var boneWeights = vertex.BoneWeights!.Weights;
+            for (var b = 0; b < 4; ++b) {
+              var boneWeight = b < boneWeights.Count ? boneWeights[b] : null;
+              this.boneIdsData_[4 * i + b] = 1 + (boneWeight?.Bone.Index ?? -1);
+              this.boneWeightsData_[4 * i + b] = boneWeight?.Weight ?? 0;
+            }
+          }
 
           var uvCount = Math.Min(this.uvData_.Length, vertex.UvCount);
           for (var u = 0; u < uvCount; ++u) {
@@ -138,7 +175,8 @@ namespace fin.ui.rendering.gl {
         GL.BindBuffer(BufferTarget.ArrayBuffer,
                       this.vboIds_[vertexAttribPosition]);
         GL.BufferData(BufferTarget.ArrayBuffer,
-                      new IntPtr(sizeof(float) * POSITION_SIZE_ *
+                      new IntPtr(sizeof(float) *
+                                 POSITION_SIZE_ *
                                  this.positionData_.Length),
                       this.positionData_,
                       BufferUsageHint.StaticDraw);
@@ -156,7 +194,8 @@ namespace fin.ui.rendering.gl {
         GL.BindBuffer(BufferTarget.ArrayBuffer,
                       this.vboIds_[vertexAttribNormal]);
         GL.BufferData(BufferTarget.ArrayBuffer,
-                      new IntPtr(sizeof(float) * NORMAL_SIZE_ *
+                      new IntPtr(sizeof(float) *
+                                 NORMAL_SIZE_ *
                                  this.normalData_.Length),
                       this.normalData_,
                       BufferUsageHint.StaticDraw);
@@ -174,7 +213,8 @@ namespace fin.ui.rendering.gl {
         GL.BindBuffer(BufferTarget.ArrayBuffer,
                       this.vboIds_[vertexAttribTangent]);
         GL.BufferData(BufferTarget.ArrayBuffer,
-                      new IntPtr(sizeof(float) * TANGENT_SIZE_ *
+                      new IntPtr(sizeof(float) *
+                                 TANGENT_SIZE_ *
                                  this.tangentData_.Length),
                       this.tangentData_,
                       BufferUsageHint.StaticDraw);
@@ -187,20 +227,38 @@ namespace fin.ui.rendering.gl {
             0,
             0);
 
-        // Matrix id
-        var vertexAttribMatrixId = MATRIX_ID_VERTEX_ATTRIB_INDEX;
+        // Bone ids
+        var vertexAttribBoneIds = BONE_IDS_VERTEX_ATTRIB_INDEX;
         GL.BindBuffer(BufferTarget.ArrayBuffer,
-                      this.vboIds_[vertexAttribMatrixId]);
+                      this.vboIds_[vertexAttribBoneIds]);
         GL.BufferData(BufferTarget.ArrayBuffer,
-                      new IntPtr(sizeof(int) * MATRIX_ID_SIZE *
-                                 this.matrixIdData_.Length),
-                      this.matrixIdData_,
+                      new IntPtr(sizeof(int) *
+                                 this.boneIdsData_.Length),
+                      this.boneIdsData_,
                       BufferUsageHint.StaticDraw);
-        GL.EnableVertexAttribArray(vertexAttribMatrixId);
+        GL.EnableVertexAttribArray(vertexAttribBoneIds);
         GL.VertexAttribIPointer(
-            vertexAttribMatrixId,
-            MATRIX_ID_SIZE,
+            vertexAttribBoneIds,
+            BONE_ID_SIZE,
             VertexAttribIPointerType.Int,
+            0,
+            0);
+
+        // Bone weights
+        var vertexAttribBoneWeights = BONE_WEIGHTS_VERTEX_ATTRIB_INDEX;
+        GL.BindBuffer(BufferTarget.ArrayBuffer,
+                      this.vboIds_[vertexAttribBoneWeights]);
+        GL.BufferData(BufferTarget.ArrayBuffer,
+                      new IntPtr(sizeof(float) *
+                                 this.boneWeightsData_.Length),
+                      this.boneWeightsData_,
+                      BufferUsageHint.StaticDraw);
+        GL.EnableVertexAttribArray(vertexAttribBoneWeights);
+        GL.VertexAttribPointer(
+            vertexAttribBoneWeights,
+            BONE_WEIGHT_SIZE,
+            VertexAttribPointerType.Float,
+            false,
             0,
             0);
 
@@ -248,9 +306,8 @@ namespace fin.ui.rendering.gl {
     }
 
     private static ReferenceCountCacheDictionary<IModel, VertexArrayObject>
-        vaoCache_ =
-            new(model => new VertexArrayObject(model),
-                (_, vao) => vao.Dispose());
+        vaoCache_ = new(model => new VertexArrayObject(model),
+                        (_, vao) => vao.Dispose());
 
 
     private readonly IModel model_;

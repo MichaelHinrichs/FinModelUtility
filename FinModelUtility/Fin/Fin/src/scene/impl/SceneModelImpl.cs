@@ -28,11 +28,8 @@ namespace fin.scene {
       }
 
       private void Init_() {
-        this.BoneTransformManager.CalculateMatrices(
-            this.Model.Skeleton.Root,
-            this.Model.Skin.BoneWeights,
-            null);
-        this.BoneTransformManager.InitModelVertices(this.Model, true);
+        this.BoneTransformManager.CalculateStaticMatricesForManualProjection(
+            this.Model, true);
 
         this.AnimationPlaybackManager = new FrameAdvancer { Config = new AnimationInterpolationConfig { UseLoopingInterpolation = true } };
         this.Animation =

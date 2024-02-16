@@ -6,6 +6,7 @@ using fin.data.indexable;
 namespace fin.model {
   public interface ISkeleton : IEnumerable<IBone> {
     IBone Root { get; }
+    IReadOnlyList<IBone> Bones { get; }
   }
 
   public interface ILeafBone : IIndexable {

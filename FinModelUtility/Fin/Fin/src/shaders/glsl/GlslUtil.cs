@@ -15,10 +15,11 @@ namespace fin.shaders.glsl {
   }
 
   public static class GlslUtil {
-    public static FinShaderType GetShaderType(this IReadOnlyMaterial? material) {
-      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
-          && !DebugFlags.ENABLE_WEIGHT_COLORS
-          && material is IFixedFunctionMaterial) {
+    public static FinShaderType
+        GetShaderType(this IReadOnlyMaterial? material) {
+      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER &&
+          !DebugFlags.ENABLE_WEIGHT_COLORS &&
+          material is IFixedFunctionMaterial) {
         return FinShaderType.FIXED_FUNCTION;
       }
 
@@ -63,7 +64,7 @@ namespace fin.shaders.glsl {
       if (useBoneMatrices) {
         vertexSrc.Append($"""
 
-                          uniform mat4 {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[{1 + model.Skin.BoneWeights.Count}];
+                          uniform mat4 {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[{1 + model.Skeleton.Bones.Count}];
                           """);
       }
 
@@ -74,8 +75,10 @@ layout(location = {location++}) in vec3 in_Normal;
 layout(location = {location++}) in vec4 in_Tangent;");
 
       if (useBoneMatrices) {
-        vertexSrc.Append(@$"
-layout(location = {location++}) in int in_MatrixId;");
+        vertexSrc.Append(
+            $"layout(location = {location++}) in ivec4 in_BoneIds;");
+        vertexSrc.Append(
+            $"layout(location = {location++}) in vec4 in_BoneWeights;");
       }
 
       vertexSrc.Append(@$"
@@ -106,8 +109,13 @@ out vec4 vertexColor{i};");
 
       if (useBoneMatrices) {
         vertexSrc.Append($@"
-  mat4 vertexModelMatrix = {GlslConstants.UNIFORM_MODEL_MATRIX_NAME} * {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_MatrixId];
-  mat4 projectionVertexModelMatrix = {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME} * {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_MatrixId];
+  mat4 mergedBoneMatrix = {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_BoneIds.x] * in_BoneWeights.x +
+                          {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_BoneIds.y] * in_BoneWeights.y +
+                          {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_BoneIds.z] * in_BoneWeights.z +
+                          {GlslConstants.UNIFORM_BONE_MATRICES_NAME}[in_BoneIds.w] * in_BoneWeights.w;
+
+  mat4 vertexModelMatrix = {GlslConstants.UNIFORM_MODEL_MATRIX_NAME} * mergedBoneMatrix;
+  mat4 projectionVertexModelMatrix = {GlslConstants.UNIFORM_PROJECTION_MATRIX_NAME} * {GlslConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * mergedBoneMatrix;
 
   gl_Position = projectionVertexModelMatrix * vec4(in_Position, 1);
 
@@ -324,7 +332,8 @@ out vec4 vertexColor{i};");
 
       string transformedUv;
       if (!(finTexture?.IsTransform3d ?? false)) {
-        transformedUv = $"({textureName}.transform2d * {uvConverter(rawUvName)}).xy";
+        transformedUv
+            = $"({textureName}.transform2d * {uvConverter(rawUvName)}).xy";
       } else {
         transformedUv =
             $"transformUv3d({textureName}.transform3d, {uvConverter(rawUvName)})";
@@ -337,7 +346,7 @@ out vec4 vertexColor{i};");
           $"{textureName}.clampMin, " +
           $"{textureName}.clampMax" +
           ")" + // clamp
-          ")"; // texture
+          ")";  // texture
     }
 
     public static bool RequiresFancyTextureData(ITexture? finTexture) {

@@ -2,6 +2,7 @@
 
 using fin.config;
 using fin.data.dictionaries;
+using fin.math;
 using fin.math.matrix.four;
 using fin.model;
 using fin.scene;
@@ -83,6 +84,7 @@ namespace fin.ui.rendering.gl.scene {
             skeleton.Root,
             model.Skin.BoneWeights,
             (animation, frame),
+            BoneWeightTransformType.FOR_RENDERING,
             animationPlaybackManager.Config);
 
         var hiddenMeshes = this.modelRenderer_.HiddenMeshes;
