@@ -4,11 +4,14 @@ Library for working with Nintendo's [JSystem](https://wiki.cloudmodding.com/tww/
 
 For now, this just supports the J3dGraph formats (.bmd/.bdl models and various animation/texture formats), which were used in various GameCube/Wii games:
 
+- Luigi's Mansion
 - Legend of Zelda, The: Wind Waker, The
 - Mario Kart: Double Dash
 - Pikmin 2
 - Super Mario Sunshine
+- Legend of Zelda, The: Twilight Princess, The
 - Super Mario Galaxy
+- Super Mario Galaxy 2
 
 ## Credits
 
