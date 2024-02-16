@@ -2,11 +2,14 @@
 
 using fin.math;
 
+using OpenTK.Graphics.OpenGL;
+
 namespace sm64.Scripts {
   public class CollisionTriangleList {
     public int id = 0;
     public List<uint> indicesList;
     public uint[] indices;
+    public int ibo { get; set; }
 
     public CollisionTriangleList(int ID) {
       id = ID;
@@ -142,6 +145,31 @@ namespace sm64.Scripts {
       }
 
       return (short) found[closest_index];
+    }
+
+    public void buildCollisionMap() {
+      verts = vertices.ToArray();
+
+      vbo = GL.GenBuffer();
+      GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+      GL.BufferData(
+          BufferTarget.ArrayBuffer,
+          (IntPtr) (3 * sizeof(float) * verts.Length),
+          verts,
+          BufferUsageHint.StaticDraw
+      );
+
+      for (int i = 0; i < triangles.Count; i++) {
+        triangles[i].buildList();
+        triangles[i].ibo = GL.GenBuffer();
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, triangles[i].ibo);
+        GL.BufferData(
+            BufferTarget.ElementArrayBuffer,
+            (IntPtr) (sizeof(uint) * triangles[i].indices.Length),
+            triangles[i].indices,
+            BufferUsageHint.StaticDraw
+        );
+      }
     }
   }
 }
